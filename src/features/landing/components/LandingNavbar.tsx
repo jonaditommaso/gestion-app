@@ -4,7 +4,6 @@ import * as React from "react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
-// import { Icons } from "@/components/icons"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -28,7 +27,7 @@ export function LandingNavbar() {
 
 
   return (
-    <NavigationMenu className="p-2 max-w-full flex items-center justify-between w-full">
+    <NavigationMenu className="p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 bg-white shadow-md">
       <NavigationMenuList className="flex gap-1">
       <Image src='/own-logo.svg' height={25} width={25} alt="own-logo" onClick={() => router.push('/')} className="cursor-pointer" />
 
@@ -42,26 +41,25 @@ export function LandingNavbar() {
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                     href="/"
                   >
-                    {/* <Icons.logo className="h-6 w-6" /> */}
                     <div className="mb-2 mt-4 text-lg font-medium">
-                      shadcn/ui
+                      Gestionate
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
-                      Beautifully designed components that you can copy and
-                      paste into your apps. Accessible. Customizable. Open
-                      Source.
+                      La aplicacion web que te permite gestionar tu empresa
+                      de manera mas eficiente. Todo lo que necesitas, en un
+                      solo sitio.
                     </p>
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
+              <ListItem href="/docs" title="Introduccion">
+                De que trata Gestionate y como puede ayudarte en tu trabajo.
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
+              <ListItem href="/docs/installation" title="Como funciona">
+                Todo lo que debes saber para comenzar a usar Gestionate.
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
+              <ListItem href="/docs/primitives/typography" title="Y ahora que?">
+                Gestionate es personalizable, mira todo lo que puedes hacer
               </ListItem>
             </ul>
           </NavigationMenuContent>

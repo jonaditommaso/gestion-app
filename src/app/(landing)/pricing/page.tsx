@@ -10,7 +10,7 @@ const PricingView = async () => {
 
     return (
         <div className='mt-20 flex flex-col items-center'>
-            <p className="text-6xl font-bold text-balance text-center">Elige el plan perfecto para tu equipo</p>
+            <p className="text-4xl font-bold text-balance text-center">Elige el plan perfecto para tu equipo</p>
             <div className="container flex gap-3 mt-16 justify-center p-1">
                 {plans.map(plan => (
                     <PricingCard

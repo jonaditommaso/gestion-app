@@ -11,6 +11,7 @@ import { quickPlans } from "@/features/landing/quickPlans";
 import QuickPlansCard from "@/features/landing/components/QuickPlansCard";
 import { takeALook } from "@/features/landing/takeALook";
 import TakeALookCard from "@/features/landing/components/TakeALookCard";
+import ScrollToTop from "@/features/landing/components/ScrollToTop";
 // import UserButton from "@/features/auth/components/UserButton";
 // import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
 // import { redirect } from "next/navigation";
@@ -33,6 +34,7 @@ export default async function Home() {
         : (
 
         <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 30%, #4d6dbb 90%)' }}>
+          <ScrollToTop />
           <div className="flex flex-col items-center text-white">
             <div className=" flex flex-col justify-center mt-24 max-w-[700px]">
               <p className="text-6xl font-bold text-balance text-center">Gestiona y organiza todo tu trabajo en un solo lugar</p>
@@ -41,8 +43,15 @@ export default async function Home() {
 
             <div className="flex gap-14 w-[90%] justify-center ml-[200px]">
               <div className="flex w-full max-w-sm items-center space-x-2">
-                <Input type="email" placeholder="Email" className="!placeholder-white focus:placeholder-white" />
-                <Button type="submit">Registrate</Button>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center space-x-2">
+                    <Input type="email" placeholder="Email" className="!placeholder-white focus:placeholder-white" />
+                    <Button type="submit">Registrate</Button>
+                  </div>
+                  <span>or</span>
+                  <Button variant='success' type="submit">Obtener demo gratis sin registro</Button>
+                </div>
+
               </div>
 
               <Image width={500} height={500} alt='work image' src={'/home-1.svg'} />
@@ -54,12 +63,20 @@ export default async function Home() {
           <div className="w-full p-10 bg-[#FFF2F2] mt-[-2px]">
             <div className="flex flex-col items-center gap-4 mb-10">
               <p className="font-bold text-4xl">Que hacemos?</p>
-              <p className="font-semibold text-3xl">Contamos con todos estos servicios</p>
+              <p className="font-normal text-3xl">Contamos con todos estos servicios</p>
             </div>
 
-            <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(400px,1fr))] md:grid-cols-3 justify-items-center">
+            <div className="w-[75%] m-auto grid gap-4 gap-y-10 grid-cols-[repeat(auto-fill,minmax(400px,1fr))] md:grid-cols-3 justify-items-center">
               {services.map((service, index) => (
-                <ServicesCard key={index} serviceTitle={service.title} serviceDescription={service.description} />
+                <ServicesCard
+                  key={index}
+                  serviceTitle={service.title}
+                  serviceDescription={service.description}
+                  serviceIcon={service.icon}
+                  serviceIconColor={service.iconColor}
+                  serviceCircleColor={service.circleColor}
+                  circlePosition={service.circlePosition}
+                />
               ))}
             </div>
           </div>
@@ -72,15 +89,14 @@ export default async function Home() {
               <p className="font-bold text-4xl">Unite a Gestionate</p>
               <p className="font-normal text-3xl w-[800px] text-balance text-center">Planes a tu medida, y todas las funcionalidades disponibles para optimizar tu jornada laboral</p>
               <Button type="submit" className="my-5">Ver precios</Button>
-            <div className="flex">
-              <div className="flex flex-col gap-2">
-                {quickPlans.map(plan => (
-                  <QuickPlansCard key={plan.planTitle} planTitle={plan.planTitle} />
-                ))}
+              <div className="flex w-full justify-around">
+                <div className="flex flex-col gap-2">
+                  {quickPlans.map(plan => (
+                    <QuickPlansCard key={plan.planTitle} planTitle={plan.planTitle} />
+                  ))}
+                </div>
+                <Image width={500} height={500} alt='office image' src={'/home-2.svg'} />
               </div>
-              <Image width={500} height={500} alt='office image' src={'/home-2.svg'} />
-            </div>
-
             </div>
           </div>
 
@@ -88,7 +104,7 @@ export default async function Home() {
 
           <div className="w-full flex flex-col items-center gap-4 bg-[#FFF2F2] mt-[-2px]">
             <p className="font-bold text-4xl">Echa un vistazo</p>
-            <p className="font-semibold text-3xl">Prueba nuestra demo gratis</p>
+            <p className="font-normal text-3xl">Prueba nuestra <span className="font-semibold">demo gratis</span> sin registrarte</p>
           </div>
 
           <div className="w-full flex justify-center gap-4 p-10 bg-[#FFF2F2] mt-[-1px]">
@@ -104,13 +120,19 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center justify-center w-full bg-[#FFF2F2]">
-            <Button type="submit">Obtener Demo</Button>
+            <Button type="submit" variant='success'>Obtener Demo sin registro</Button>
           </div>
 
           <CustomWave rotated rectColor="#9a3e6a" isBottom />
 
-          <div className="w-full p-5 bg-[#9a3e6a] mt-[-1px]">
-            FOOTER
+          <div className="w-full p-5 bg-[#9a3e6a] mt-[-1px] text-white">
+            <div className="flex flex-col items-start gap-1 ml-20">
+              <p>Quienes somos</p>
+              <p>FAQ</p>
+              <p>Terms</p>
+              <p>Contact Us</p>
+            </div>
+            <p className="text-center text-xs mt-5">© 2025, Gestionate</p>
           </div>
         </div>
       )}
