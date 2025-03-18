@@ -1,0 +1,18 @@
+@property --angle {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@keyframes revolve {
+  from { --angle: 0deg; }
+  to { --angle: 360deg; }
+}
+
+.services-card:hover .ball {
+  --amplitude: 30px;
+  --x: calc(cos(var(--angle)) * var(--amplitude));
+  --y: calc(sin(var(--angle)) * var(--amplitude));
+  translate: var(--x) var(--y);
+  animation: revolve 3s linear infinite;
+}

@@ -20,7 +20,7 @@ const ServicesCard = ({
     circlePosition = "top-right"
 }: ServicesCardProps) => {
     return (
-        <Card className="max-w-[400px]  h-[350px] flex flex-col items-center justify-center shadow-md">
+        <Card className="max-w-[400px]  h-[350px] flex flex-col items-center justify-center shadow-md services-card">
             <CardContent className="flex flex-col items-center gap-y-4">
                 <ColoredIcon
                     Icon={serviceIcon}

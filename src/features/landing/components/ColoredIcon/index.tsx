@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import './coloredIcon.css'
 
 interface ColoredIconProps {
   Icon: LucideIcon,
@@ -21,7 +22,7 @@ const ColoredIcon: FC<ColoredIconProps> = ({
 
       <div
         className={cn(
-          'absolute w-10 h-10 rounded-full opacity-50',
+          'absolute w-10 h-10 rounded-full opacity-50 transition-transform duration-500 ball',
           circleColor,
           {
             'top-[-20px] left-[-20px]': circlePosition === 'top-left',
