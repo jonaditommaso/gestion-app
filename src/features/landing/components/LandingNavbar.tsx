@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
-import { solutions } from "../solutions"
+//import { solutions } from "../solutions"
 
 export function LandingNavbar() {
   const router = useRouter();
@@ -39,7 +39,7 @@ export function LandingNavbar() {
                 <NavigationMenuLink asChild>
                   <Link
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                    href="/"
+                    href="/docs"
                   >
                     <div className="mb-2 mt-4 text-lg font-medium">
                       Gestionate
@@ -52,13 +52,13 @@ export function LandingNavbar() {
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Introduccion">
+              <ListItem href="/docs#introduction" title="Introduccion">
                 De que trata Gestionate y como puede ayudarte en tu trabajo.
               </ListItem>
-              <ListItem href="/docs/installation" title="Como funciona">
+              <ListItem href="/docs#how-it-works" title="Como funciona">
                 Todo lo que debes saber para comenzar a usar Gestionate.
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Y ahora que?">
+              <ListItem href="/docs#customize" title="Y ahora que?">
                 Gestionate es personalizable, mira todo lo que puedes hacer
               </ListItem>
             </ul>
@@ -81,7 +81,7 @@ export function LandingNavbar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        <NavigationMenuItem>
+        {/* <NavigationMenuItem>
           <NavigationMenuTrigger>Soluciones</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
@@ -96,7 +96,7 @@ export function LandingNavbar() {
               ))}
             </ul>
           </NavigationMenuContent>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>

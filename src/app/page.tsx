@@ -12,6 +12,7 @@ import QuickPlansCard from "@/features/landing/components/QuickPlansCard";
 import { takeALook } from "@/features/landing/takeALook";
 import TakeALookCard from "@/features/landing/components/TakeALookCard";
 import ScrollToTop from "@/features/landing/components/ScrollToTop";
+import LandingFooter from "@/features/landing/components/LandingFooter";
 // import UserButton from "@/features/auth/components/UserButton";
 // import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
 // import { redirect } from "next/navigation";
@@ -92,7 +93,11 @@ export default async function Home() {
               <div className="flex w-full justify-around">
                 <div className="flex flex-col gap-2">
                   {quickPlans.map(plan => (
-                    <QuickPlansCard key={plan.planTitle} planTitle={plan.planTitle} />
+                    <QuickPlansCard
+                      key={plan.planTitle}
+                      planTitle={plan.planTitle}
+                      planDescription={plan.planDescription}
+                    />
                   ))}
                 </div>
                 <Image width={500} height={500} alt='office image' src={'/home-2.svg'} />
@@ -123,17 +128,7 @@ export default async function Home() {
             <Button type="submit" variant='success'>Obtener Demo sin registro</Button>
           </div>
 
-          <CustomWave rotated rectColor="#9a3e6a" isBottom />
-
-          <div className="w-full p-5 bg-[#9a3e6a] mt-[-1px] text-white">
-            <div className="flex flex-col items-start gap-1 ml-20">
-              <p>Quienes somos</p>
-              <p>FAQ</p>
-              <p>Terms</p>
-              <p>Contact Us</p>
-            </div>
-            <p className="text-center text-xs mt-5">© 2025, Gestionate</p>
-          </div>
+          <LandingFooter />
         </div>
       )}
     </div>
