@@ -2,7 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CheckIcon } from "lucide-react";
 
-const QuickPlansCard = ({ planTitle }: { planTitle: string }) => {
+interface QuickPlansCardProps {
+    planTitle: string,
+    planDescription: string
+}
+
+const QuickPlansCard = ({ planTitle, planDescription }: QuickPlansCardProps) => {
     return (
         <Card className="w-[450px]">
             <CardContent>
@@ -10,7 +15,7 @@ const QuickPlansCard = ({ planTitle }: { planTitle: string }) => {
                     <CheckIcon fontSize={20} />
                     <p className="font-semibold">{planTitle}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">Contiene todas las funcionalidades disponibles. Ideal si quieres comenzar a organizar la facturacion, el registro de tus clientes, de tu inventario y las actividades de tu equipo en pequenas empresas</p>
+                <p className="text-sm text-muted-foreground">{planDescription}</p>
             </CardContent>
         </Card>
     );
