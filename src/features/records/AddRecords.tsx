@@ -17,11 +17,19 @@ import AddRecordsInputs from "./AddRecordsInputs"
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 import { DialogContainer } from "@/components/DialogContainer"
-import ExcelUploader from "./ExcelUploader"
+import ExcelUploader from "./ExcelUploader";
+
+const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
 export function AddRecords() {
-    const [recordData, setRecordData] = useState([{ field: '', value: '' }]);
+    const [recordData, setRecordData] = useState(INITIAL_RECORDS_STATE);
     const [isOpen, setIsOpen] = useState(false);
+    const [sheetOpen, setSheetOpen] = useState(false);
+
+    const onChangeSheet = (isSheetOpen: boolean) => {
+        setSheetOpen(isSheetOpen);
+        if (!isSheetOpen) setRecordData(INITIAL_RECORDS_STATE);
+      }
 
     return (
         <>
@@ -33,7 +41,10 @@ export function AddRecords() {
             >
                 <ExcelUploader setIsOpen={setIsOpen} />
             </DialogContainer>
-            <Sheet>
+            <Sheet
+                open={sheetOpen}
+                onOpenChange={onChangeSheet}
+            >
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                     <Button className="ml-auto">
@@ -60,6 +71,7 @@ export function AddRecords() {
                                 No olvides guardar los cambios.
                             </SheetDescription>
                         </SheetHeader>
+
                         <Separator className="mt-2" />
 
                         {recordData.map((data, index) => (
