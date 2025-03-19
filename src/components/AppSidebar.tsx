@@ -50,8 +50,8 @@ const AppSidebar = () => {
                                 <SidebarMenuItem key={item.title} >
                                 <SidebarMenuButton asChild>
                                     <Link href={item.url}>
-                                        <item.icon size={30} color={pathname === item.url ? '#c1c' : (theme === 'dark' ? 'white' : '#212121')} />
-                                        <span className={`mt-[2px] ${pathname === item.url ? 'text-[#c1c]' : ''}`}>{item.title}</span>
+                                        <item.icon size={30} color={pathname === item.url ? '#60a5fa' : (theme === 'dark' ? 'white' : '#212121')} />
+                                        <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{item.title}</span>
                                     </Link>
                                 </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -70,8 +70,8 @@ const AppSidebar = () => {
                             <SidebarMenuItem key={item.title} >
                             <SidebarMenuButton asChild>
                                 <Link href={item.url}>
-                                <item.icon size={30} color={pathname === item.url ? '#c1c' : (theme === 'dark' ? 'white' : '#212121')} />
-                                <span className={`mt-[2px] ${pathname === item.url ? 'text-[#c1c]' : ''}`}>{item.title}</span>
+                                <item.icon size={30} color={pathname === item.url ? '#60a5fa' : (theme === 'dark' ? 'white' : '#212121')} />
+                                <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{item.title}</span>
                                 </Link>
                             </SidebarMenuButton>
                             </SidebarMenuItem>
@@ -89,8 +89,8 @@ const AppSidebar = () => {
                                 <SidebarMenuItem key={item.title} >
                                 <SidebarMenuButton asChild>
                                     <Link href={item.url}>
-                                    <item.icon size={30} color={pathname === item.url ?'#c1c' : (theme === 'dark' ? 'white' : '#212121')} />
-                                    <span className={`mt-[2px] ${pathname === item.url ? 'text-[#c1c]' : ''}`}>{item.title}</span>
+                                    <item.icon size={30} color={pathname === item.url ?'#60a5fa' : (theme === 'dark' ? 'white' : '#212121')} />
+                                    <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{item.title}</span>
                                     </Link>
                                 </SidebarMenuButton>
                                 </SidebarMenuItem>
