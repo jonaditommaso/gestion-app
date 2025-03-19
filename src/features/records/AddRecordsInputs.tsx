@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator";
 import { ChevronsUpDown, Plus } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
+import { useGetContextRecords } from "./hooks/useGetContextRecords";
+import capitalize from "@/utils/capitalize";
 
 type RecordData = {
     field: string;
@@ -18,6 +20,9 @@ interface AddRecordsInputsProps {
 
 const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps) => {
     const [customField, setCustomField] = useState(false);
+    const { data: dataRecords } = useGetContextRecords()
+
+    const headers = dataRecords?.documents[0]?.headers;
 
     const handleAddData = () => {
         const emptyNewData = {field: '', value: ''}
@@ -53,12 +58,11 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                             <ChevronsUpDown size={14} />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
-                                Apellido
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
-                                Email
-                            </DropdownMenuItem>
+                            {headers?.map(header => (
+                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
+                                    {capitalize(header)}
+                                </DropdownMenuItem>
+                            ))}
                             <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
                                 <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> Crear nuevo campo
                             </DropdownMenuItem>

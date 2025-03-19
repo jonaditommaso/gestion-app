@@ -2,35 +2,54 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddRecords } from "./AddRecords";
 import { BillingTable } from "../billing-management/components/BillingTable";
-import { useGetRecords } from "./api/use-get-records";
 import { DataTable } from "./DataTable";
 import FadeLoader from "react-spinners/FadeLoader";
-
-const initial_state = { documents: [], total: 0 }
+import { Button } from "@/components/ui/button";
+import { Pencil, Plus } from 'lucide-react';
+import { TooltipContainer } from "@/components/TooltipContainer";
+import { useGetContextRecords } from "./hooks/useGetContextRecords";
 
 const RecordsContent = () => {
-    const {data = initial_state, isPending } = useGetRecords();
+    const { data: dataRecords, isPending } = useGetContextRecords()
 
-    if(isPending) return <FadeLoader color="#999" width={3} />
+    const tabs = [
+        { id: 'table-1', name: 'Tabla 1' },
+        { id: 'table-2', name: 'Tabla 2' }
+    ]
 
-    const record = data?.documents[0]
+    if(isPending) return <FadeLoader color="#999" width={3} className="mt-5" />
+
+    const record = dataRecords?.documents[0]
 
     return (
         <div className="">
             <Tabs defaultValue="table-1" className="w-[800px]">
-                <div className="flex">
+                <div className="flex justify-between">
                     <TabsList className="flex">
-                        <TabsTrigger value="table-1">Tabla 1</TabsTrigger>
-                        <TabsTrigger value="table-2">Tabla 2</TabsTrigger>
+                        {tabs.map(tab => (
+                            <TabsTrigger value={tab.id} key={tab.id}>{tab.name}</TabsTrigger>
+                        ))}
                     </TabsList>
-                    <AddRecords />
+                    <div className="flex items-center gap-2">
+                        <TooltipContainer tooltipText="Agregar tabla">
+                            <Button variant="outline" size="icon">
+                                <Plus className="h-[1.2rem] w-[1.2rem]" />
+                            </Button>
+                        </TooltipContainer>
+                        <TooltipContainer tooltipText="Editar tablas">
+                            <Button variant="outline" size="icon">
+                                <Pencil className="h-[1.2rem] w-[1.2rem]" />
+                            </Button>
+                        </TooltipContainer>
+                        <AddRecords />
+                    </div>
                 </div>
                 <div className="mt-20">
                     <TabsContent value="table-1">
-                        {data.total > 0
+                        {dataRecords.total > 0
                         ? <DataTable
-                            headers={isPending ? [] : record?.headers}
-                            rows={isPending ? [] : record?.rows}
+                            headers={isPending ? [] : (record?.headers ?? [])}
+                            rows={isPending ? [] : (record?.rows ?? [])}
                           />
                         : <p className="text-neutral-500 text-center">Aún no existen registros</p>
                         }
