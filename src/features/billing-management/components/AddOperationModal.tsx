@@ -60,8 +60,6 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
         { label: "Egreso", type: "expense", textColor: "text-red-600", border: 'border-t-red-600' },
     ]
 
-    console.log(form.getValues())
-
     return (
         <DialogContainer
             // description=""
