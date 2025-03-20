@@ -30,7 +30,7 @@ const AppNavbar = () => {
       <SearchCommand />
       <div className="flex items-center justify-end p-1 mr-5 gap-4">
         <ToggleThemeMode />
-        <div className="relative cursor-pointer">
+        {/* <div className="relative cursor-pointer">
           <Badge className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-800 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
             17
           </Badge>
@@ -40,7 +40,7 @@ const AppNavbar = () => {
           >
             <BellIcon size={22} />
           </button>
-        </div>
+        </div> */}
         <UserButton />
       </div>
     </nav>
