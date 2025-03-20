@@ -5,6 +5,7 @@ import workspaces from '@/features/workspaces/server/route'
 import records from '@/features/records/server/route'
 import members from '@/features/members/server/route'
 import tasks from '@/features/tasks/server/route'
+import billing from '@/features/billing-management/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -15,6 +16,7 @@ const routes = app
   .route('/records', records)
   .route('/members', members)
   .route('/tasks', tasks)
+  .route('/billing', billing)
 
 export const GET = handle(app)
 export const POST = handle(app)
