@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { billingOperationSchema } from "../schemas";
 import { BILLINGS_ID, DATABASE_ID } from "@/config";
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 
 const app = new Hono()
 
@@ -36,6 +36,29 @@ const app = new Hono()
             )
 
             return ctx.json({ data: newOperation })
+        }
+    )
+
+    .get(
+        '/',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            if(!user) {
+                return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            const operations = await databases.listDocuments(
+                DATABASE_ID,
+                BILLINGS_ID,
+                [
+                    Query.orderDesc('$createdAt'),
+                ]
+            );
+
+            return ctx.json({ data: operations })
         }
     )
 

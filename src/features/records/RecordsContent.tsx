@@ -1,7 +1,6 @@
 'use client'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddRecords } from "./AddRecords";
-import { BillingTable } from "../billing-management/components/BillingTable";
 import { DataTable } from "./DataTable";
 import FadeLoader from "react-spinners/FadeLoader";
 import { Button } from "@/components/ui/button";
@@ -55,7 +54,7 @@ const RecordsContent = () => {
                         }
                     </TabsContent>
                     <TabsContent value="table-2">
-                        <BillingTable />
+                        Table 2
                     </TabsContent>
                 </div>
             </Tabs>

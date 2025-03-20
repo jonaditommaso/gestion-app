@@ -44,8 +44,12 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
     })
 
     const onSubmit = (values: zod.infer<typeof billingOperationSchema>) => {
-        // mutate({json: values})
-        console.log({values})
+        mutate({json: values}, {
+            onSuccess: () => {
+                form.reset();
+                setIsOpen(false);
+            }
+        })
     }
 
     const onCancel = () => {

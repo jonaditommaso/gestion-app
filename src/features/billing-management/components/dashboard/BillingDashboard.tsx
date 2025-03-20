@@ -1,10 +1,9 @@
 'use client'
 import { useEffect, useState } from "react";
-import { BillingTable } from "../BillingTable";
-import InfoCard from "../InfoCard";
-import { Scale, TrendingDown, TrendingUp } from "lucide-react";
+import { BillingTable } from "../details/BillingTable";
 import { dataServiceObserver } from "@/utils/dataServiceObserver";
 import Image from "next/image";
+import DetailsInfoCards from "../details/DetailsInfoCards";
 
 const BillingDashboard = () => {
     const [currentView, setCurrentView] = useState('details')
@@ -17,14 +16,8 @@ const BillingDashboard = () => {
 
     const views = {
         details: <>
-            <div className="flex justify-center">
-                <InfoCard Icon={TrendingUp} colorIcon='#0bb314' numberMoney={13200} />
-                <InfoCard Icon={TrendingDown} colorIcon='#f03410' numberMoney={1200} />
-                <InfoCard Icon={Scale} colorIcon='#3f51b5' numberMoney={12000} />
-            </div>
-            <div className="w-[900px] mt-10">
-                <BillingTable />
-            </div>
+            <DetailsInfoCards />
+            <BillingTable />
         </>,
     }
 
