@@ -15,7 +15,7 @@ interface MenuCardProps {
 const MenuCard = ({ title, menuItems, bgColor, isActive, id, setActiveView }: MenuCardProps) => {
 
     return (
-        <Card className="w-56 h-40">
+        <Card className="w-56 min-h-fit h-40">
             <div className={cn("p-3 text-white text-center cursor-pointer bg-gray-400", isActive && bgColor)}>{title}</div>
             <div className="p-2">
                 {menuItems.map(item => (

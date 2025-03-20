@@ -1,7 +1,7 @@
 export const items = [
     {
         title: 'Transacciones',
-        menuItems: ['Detalle', 'Calendario'],
+        menuItems: ['Detalle', 'Calendario', 'Cuentas'],
         bgColor: 'bg-teal-700',
         id: 'transactions',
     },
@@ -13,7 +13,7 @@ export const items = [
     },
     {
         title: 'Opciones',
-        menuItems: ['Monedas', 'Exportar', 'Ajustar presupuesto'],
+        menuItems: ['Categorias', 'Monedas', 'Exportar', 'Ajustar presupuesto'],
         bgColor: "bg-sky-700",
         id: 'options',
     },
