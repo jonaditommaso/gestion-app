@@ -1,6 +1,6 @@
 'use client'
 import { DialogContainer } from "@/components/DialogContainer";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     Form,
     FormControl,
@@ -16,17 +16,22 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { billingOperationSchema } from "../schemas";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, Plus, XIcon } from "lucide-react";
 import capitalize from "@/utils/capitalize";
 import { useCreateOperation } from "../api/use-create-operation";
 import CustomDatePicker from "@/components/CustomDatePicker";
+import { useGetBillingOptions } from "../api/use-get-billing-options";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { useCreateBillingOptions } from "../api/use-create-billing-options";
+import { useUpdateBillingOptions } from "../api/use-update-billing-options";
 
 const defaultValues = {
     type: 'income',
     date: new Date(),
-    account: 'cuenta en pesos',
-    category: 'Ventas al por mayor',
-    import: '0',
+    account: '',
+    category: '',
+    import: '',
     note: ''
 }
 
@@ -36,28 +41,66 @@ interface AddOperationModalProps {
 }
 
 const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
-        const { mutate, isPending } = useCreateOperation()
+    const { mutate, isPending } = useCreateOperation()
+    const { mutate: createCategory } = useCreateBillingOptions()
+    const {mutate: updateCategories} = useUpdateBillingOptions()
+    const { data, isLoading: isLoadingCategories } = useGetBillingOptions()
+
+    const [newCategoryInput, setNewCategoryInput] = useState(false)
 
     const form = useForm<zod.infer<typeof billingOperationSchema>>({
         resolver: zodResolver(billingOperationSchema),
-        defaultValues
+        defaultValues: {
+            type: 'income',
+            date: new Date(),
+            account: '',
+            category: '',
+            import: 0,
+            note: ''
+        }
     })
+
+    const categories = useMemo(() => data?.documents[0][`${form.getValues('type')}Categories`] || [], [data, form.getValues('type')])
 
     const onSubmit = (values: zod.infer<typeof billingOperationSchema>) => {
         mutate({json: values}, {
             onSuccess: () => {
                 form.reset();
                 setIsOpen(false);
+                setNewCategoryInput(false)
+
+                const income = data?.documents[0].incomeCategories || [];
+                const expense = data?.documents[0].expenseCategories || [];
+                const current = values.type === 'income' ? income : expense;
+
+                const payload = {
+                    incomeCategories: [...income],
+                    expenseCategories: [...expense],
+                    [`${values.type}Categories`]: [...current, values.category],
+                };
+                if(data?.total === 0) {
+                    createCategory({json: payload })
+                } else {
+                    updateCategories({
+                        json: payload,
+                        param: { billingOptionId: data?.documents[0].$id || '' }
+                    })
+                }
             }
         })
     }
 
     const onCancel = () => {
-        form.reset(defaultValues)
+        form.reset({
+            type: 'income',
+            date: new Date(),
+            account: '',
+            category: '',
+            import: 0,
+            note: ''
+        })
         setIsOpen(false)
     }
-
-    const categories = ['Ventas al por mayor', 'Ventas al por menor', 'Sucursales', 'Otros'];
 
     const types = [
         { label: "Ingreso", type: "income", textColor: "text-emerald-600", border: 'border-t-emerald-600' },
@@ -115,19 +158,37 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                     Category
                                 </FormLabel>
                                 <FormControl>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger className="w-full flex items-center justify-between gap-2 p-2 border rounded-sm focus:outline-none !mt-0">
-                                        <p className="text-zinc-800 text-sm">{categories[0]}</p>
-                                        <ChevronsUpDown size={14} />
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        {categories?.map(category => (
-                                            <DropdownMenuItem key={category} className="min-w-60 flex items-center justify-center p-2" {...field}>
-                                                {capitalize(category)}
-                                            </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                    <div className="flex items-center gap-2">
+                                            {isLoadingCategories
+                                            ? <Skeleton className="h-8 w-[200px]" />
+                                            : (
+                                                newCategoryInput ? (
+                                                    <Input
+                                                        placeholder="Ventas por mayor..."
+                                                        className="!mt-0"
+                                                        disabled={isPending}
+                                                        {...field}
+                                                    />
+                                                ) : (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger className="w-full flex items-center justify-between gap-2 p-2 border rounded-sm focus:outline-none !mt-0" disabled={isPending || categories.length === 0}>
+                                                        <p className={cn("text-zinc-800 text-sm", categories.length === 0 && 'text-muted-foreground')}>{categories.length === 0 ? 'No existen categorias' : 'Escoge una categoria'}</p>
+                                                        <ChevronsUpDown size={14} className={categories.length === 0 ? 'text-muted-foreground' : ''} />
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent>
+                                                        {categories.length > 0 && categories?.map((category: string) => (
+                                                            <DropdownMenuItem key={category} className="min-w-60 flex items-center justify-center p-2" {...field}>
+                                                                {capitalize(category)}
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                                )
+                                            )}
+                                        {<Button type="button" variant="outline" size="icon" onClick={() => setNewCategoryInput(!newCategoryInput)}>
+                                           {newCategoryInput ? <XIcon className="h-[1.2rem] w-[1.2rem]" />  : <Plus className="h-[1.2rem] w-[1.2rem]" />}
+                                        </Button>}
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -164,11 +225,17 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                 <FormControl>
                                     <Input
                                         type="number"
-                                        placeholder="Import"
+                                        placeholder="0"
                                         className="!mt-0"
                                         min={0}
                                         disabled={isPending}
                                         {...field}
+                                        value={field.value || ''}
+                                        onChange={(e) => {
+                                            const valueAsNumber = e.target.value === '' ? undefined : Number(e.target.value);
+                                            field.onChange(valueAsNumber);
+                                        }}
+                                        onBlur={field.onBlur}
                                     />
                                 </FormControl>
                                 <FormMessage />

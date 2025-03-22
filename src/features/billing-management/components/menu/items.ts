@@ -7,7 +7,7 @@ export const items = [
     },
     {
         title: 'Estadisticas',
-        menuItems: ['incomes', 'excomes'],
+        menuItems: ['incomes', 'expenses'],
         bgColor: 'bg-rose-700',
         id: 'stats',
     },

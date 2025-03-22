@@ -6,3 +6,4 @@ export const TASKS_ID = process.env.NEXT_PUBLIC_APPWRITE_TASKS_ID!;
 
 export const RECORDS_ID = process.env.NEXT_PUBLIC_APPWRITE_RECORDS_ID!;
 export const BILLINGS_ID = process.env.NEXT_PUBLIC_APPWRITE_BILLINGS_ID!;
+export const BILLING_OPTIONS_ID = process.env.NEXT_PUBLIC_APPWRITE_BILLING_OPTIONS_ID!;
