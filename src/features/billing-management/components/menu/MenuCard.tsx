@@ -1,9 +1,11 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import capitalize from "@/utils/capitalize";
 import { dataServiceObserver } from "@/utils/dataServiceObserver";
 import { Dispatch, SetStateAction } from "react";
+import { useCurrentView } from "../../hooks/useCurrentView";
 
 interface MenuCardProps {
     title: string,
@@ -15,6 +17,7 @@ interface MenuCardProps {
 }
 
 const MenuCard = ({ title, menuItems, bgColor, isActive, id, setActiveView }: MenuCardProps) => {
+    const { currentView } = useCurrentView()
 
     const handleOnClick = (item: string) => {
         setActiveView(id);
@@ -28,7 +31,7 @@ const MenuCard = ({ title, menuItems, bgColor, isActive, id, setActiveView }: Me
                 {menuItems.map(item => (
                     <Button
                         variant='link'
-                        className="block p-1 h-8"
+                        className={cn("block p-1 h-8", item === currentView && 'text-blue-600')}
                         key={item}
                         onClick={() => handleOnClick(item)}
                     >
