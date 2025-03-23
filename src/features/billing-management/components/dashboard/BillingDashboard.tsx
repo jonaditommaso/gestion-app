@@ -1,20 +1,13 @@
 'use client'
-import { useEffect, useState } from "react";
 import { BillingTable } from "../details/BillingTable";
-import { dataServiceObserver } from "@/utils/dataServiceObserver";
 import Image from "next/image";
 import DetailsInfoCards from "../details/DetailsInfoCards";
 import AllCategoriesTable from "../categories/AllCategoriesTable";
 import OperationStats from "../stats/OperationStats";
+import { useCurrentView } from "../../hooks/useCurrentView";
 
 const BillingDashboard = () => {
-    const [currentView, setCurrentView] = useState('details')
-
-    useEffect(() => {
-      const subscription = dataServiceObserver.getData().subscribe(data => setCurrentView(data))
-
-      return () => subscription.unsubscribe()
-    }, [])
+    const { currentView } = useCurrentView();
 
     const views = {
         details: <>
