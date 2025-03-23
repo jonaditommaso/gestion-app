@@ -24,3 +24,9 @@ export function snakeCaseToTitleCase(text: string) {
     .replace(/_/g, ' ')
     .replace(/\b\w/g, character => character.toUpperCase())
 }
+
+const predefinedColors = ['#fd6f63', '#ff9750', '#ffd042', '#fee801', '#c1e746', '#72d26e', '#66e9da', '#a894cd', '#ff38f8', '#ff088d'];
+
+export const generateColorFromPalette = (index: number) => {
+  return predefinedColors[index % predefinedColors.length];
+};

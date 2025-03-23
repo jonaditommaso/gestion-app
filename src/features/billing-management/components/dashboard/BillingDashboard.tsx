@@ -4,6 +4,8 @@ import { BillingTable } from "../details/BillingTable";
 import { dataServiceObserver } from "@/utils/dataServiceObserver";
 import Image from "next/image";
 import DetailsInfoCards from "../details/DetailsInfoCards";
+import AllCategoriesTable from "../categories/AllCategoriesTable";
+import OperationStats from "../stats/OperationStats";
 
 const BillingDashboard = () => {
     const [currentView, setCurrentView] = useState('details')
@@ -19,6 +21,9 @@ const BillingDashboard = () => {
             <DetailsInfoCards />
             <BillingTable />
         </>,
+        categories: <AllCategoriesTable />,
+        incomes: (currentView === 'incomes' || currentView === 'expenses') && <OperationStats type={currentView} />,
+        expenses: (currentView === 'incomes' || currentView === 'expenses') && <OperationStats type={currentView} />
     }
 
     return (
