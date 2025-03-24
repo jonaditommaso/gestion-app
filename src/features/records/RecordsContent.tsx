@@ -17,7 +17,7 @@ const RecordsContent = () => {
     const [createTableModalIsOpen, setCreateTableModalIsOpen] = useState(false);
     const { mutate: createTable } = useCreateRecordsTable()
 
-    const [currentTab, setCurrentTab] = useState(dataRecords.documents[0].$id)
+    const [currentTab, setCurrentTab] = useState(dataRecords.documents[0]?.$id)
 
     if(isPending) return <FadeLoader color="#999" width={3} className="mt-5" />
 
@@ -48,7 +48,7 @@ const RecordsContent = () => {
                 setIsOpen={setCreateTableModalIsOpen}
                 onCreateTable={onCreateTable}
             />
-            <Tabs value={currentTab} onValueChange={value => setCurrentTab(value)} className="w-[800px]">
+            <Tabs value={currentTab ?? dataRecords.documents[0]?.$id} onValueChange={value => setCurrentTab(value)} className="w-[800px]">
                 <div className="flex justify-between">
                     <TabsList className="flex">
                         {dataRecords.documents.map(tab => (
