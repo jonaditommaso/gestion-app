@@ -14,6 +14,7 @@ interface Document {
   $createdAt: string;
   $updatedAt: string;
   $permissions: string[];
+  tableName: string
 }
 
 interface DataRecordsContextType {

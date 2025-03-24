@@ -8,55 +8,77 @@ import { Pencil, Plus } from 'lucide-react';
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
 import NoRecords from "./NoRecords";
+import { FormEvent, useState } from "react";
+import AddRecordsTableModal from "./components/AddRecordsTableModal";
+import { useCreateRecordsTable } from "./api/use-create-records-table";
 
 const RecordsContent = () => {
     const { data: dataRecords, isPending } = useGetContextRecords()
-
-    const tabs = [
-        { id: 'table-1', name: 'Tabla 1' },
-        { id: 'table-2', name: 'Tabla 2' }
-    ]
+    const [createTableModalIsOpen, setCreateTableModalIsOpen] = useState(false);
+    const { mutate: createTable } = useCreateRecordsTable()
 
     if(isPending) return <FadeLoader color="#999" width={3} className="mt-5" />
 
-    const record = dataRecords?.documents[0]
+    const onCreateTable = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        const { elements } = event.currentTarget
+
+        const tableNameInput = elements.namedItem('records-table');
+
+        const isInput = tableNameInput instanceof HTMLInputElement;
+        if (!isInput || isInput == null) return;
+
+        createTable({
+            json: {
+                tableName: tableNameInput.value
+            }
+        })
+
+        tableNameInput.value = ''
+        setCreateTableModalIsOpen(false)
+    }
 
     return (
         <div className="">
-            <Tabs defaultValue="table-1" className="w-[800px]">
+            <AddRecordsTableModal
+                isOpen={createTableModalIsOpen}
+                setIsOpen={setCreateTableModalIsOpen}
+                onCreateTable={onCreateTable}
+            />
+            <Tabs defaultValue={dataRecords.documents[0].$id} className="w-[800px]">
                 <div className="flex justify-between">
                     <TabsList className="flex">
-                        {tabs.map(tab => (
-                            <TabsTrigger value={tab.id} key={tab.id}>{tab.name}</TabsTrigger>
+                        {dataRecords.documents.map(tab => (
+                            <TabsTrigger value={tab.$id} key={tab.$id}>{tab.tableName}</TabsTrigger>
                         ))}
                     </TabsList>
                     <div className="flex items-center gap-2">
                         <TooltipContainer tooltipText="Agregar tabla">
-                            <Button variant="outline" size="icon">
+                            <Button variant="outline" size="icon" onClick={() => setCreateTableModalIsOpen(true)}>
                                 <Plus className="h-[1.2rem] w-[1.2rem]" />
                             </Button>
                         </TooltipContainer>
-                        <TooltipContainer tooltipText="Editar tablas">
+                        {/* <TooltipContainer tooltipText="Editar tablas">
                             <Button variant="outline" size="icon">
                                 <Pencil className="h-[1.2rem] w-[1.2rem]" />
                             </Button>
-                        </TooltipContainer>
+                        </TooltipContainer> */}
                         <AddRecords />
                     </div>
                 </div>
                 <div className="mt-20">
-                    <TabsContent value="table-1">
-                        {dataRecords.total > 0
-                        ? <DataTable
-                            headers={isPending ? [] : (record?.headers ?? [])}
-                            rows={isPending ? [] : (record?.rows ?? [])}
-                          />
-                        : <NoRecords />
-                        }
-                    </TabsContent>
-                    <TabsContent value="table-2">
-                        <NoRecords />
-                    </TabsContent>
+                    {dataRecords.documents.map(record => (
+                        <TabsContent value={record.$id}>
+                            {record.rows?.length === 0
+                                ? <NoRecords />
+                                : <DataTable
+                                    headers={isPending ? [] : (record?.headers ?? [])}
+                                    rows={isPending ? [] : (record?.rows ?? [])}
+                                />
+                            }
+                        </TabsContent>
+                    ))}
                 </div>
             </Tabs>
         </div>

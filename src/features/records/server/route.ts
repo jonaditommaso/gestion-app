@@ -1,7 +1,7 @@
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { dataRecordSchema } from "../schemas";
+import { dataRecordSchema, recordsTableSchema } from "../schemas";
 import { DATABASE_ID, RECORDS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 
@@ -50,6 +50,30 @@ const app = new Hono()
         );
 
         return ctx.json({ data: records })
+    }
+)
+
+.post(
+    "/records-table",
+    zValidator('json', recordsTableSchema),
+    sessionMiddleware,
+    async (ctx) => {
+        const { tableName } = ctx.req.valid('json');
+
+        const databases = ctx.get('databases')
+        const user = ctx.get('user');
+
+        const recordsTable = await databases.createDocument(
+            DATABASE_ID,
+            RECORDS_ID,
+            ID.unique(),
+            {
+                tableName,
+                userId: user.$id,
+            }
+        );
+
+        return ctx.json({ data: recordsTable })
     }
 );
 
