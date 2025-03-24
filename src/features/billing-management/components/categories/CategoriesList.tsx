@@ -41,6 +41,7 @@ const CategoriesList = ({ categories, header, type, handleOpenModal }: Categorie
                     actionDisabled={editingCategory !== undefined && editingCategory !== index}
                     setEditingCategory={setEditingCategory}
                     editingCategory={editingCategory}
+                    type={type}
                 />
             ))}
             </TableBody>
