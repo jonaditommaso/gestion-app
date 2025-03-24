@@ -1,7 +1,7 @@
 'use client'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Plus, XIcon } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import CategoryRow from "./CategoryRow";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,13 +10,11 @@ interface CategoriesListProps {
     categories: string[],
     header: string,
     type: string,
-    // onChangeCategory: () => void,
     handleOpenModal: (type: string) => void,
 }
 
 const CategoriesList = ({ categories, header, type, handleOpenModal }: CategoriesListProps) => {
     const [editingCategory, setEditingCategory] = useState<undefined | number>(undefined);
-
 
     return (
         <Table className="border p-4 min-w-[450px]">

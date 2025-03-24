@@ -29,10 +29,6 @@ const AllCategoriesTable = () => {
         {header: 'Expense categories', categories: expenseCategories, type: 'expense'}
     ], [incomeCategories, expenseCategories]);
 
-    // const onChangeCategory = () => {
-
-    // }
-
     const onAddCategory = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -87,7 +83,6 @@ const AllCategoriesTable = () => {
                     header={category.header}
                     categories={category.categories}
                     type={category.type}
-                    // onChangeCategory={onChangeCategory}
                     handleOpenModal={handleOpenModal}
                 />
             ))}

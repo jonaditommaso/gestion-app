@@ -5,9 +5,10 @@ import { Separator } from "@/components/ui/separator";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Check, Pencil, Trash2, XIcon } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { useGetBillingOptions } from "../../api/use-get-billing-options";
 import { useUpdateBillingOptions } from "../../api/use-update-billing-options";
+import { TooltipContainer } from "@/components/TooltipContainer";
 
 interface CategoryRowProps {
     category: string,
@@ -22,17 +23,33 @@ const disabledClassName = 'text-zinc-200 cursor-default pointer-events-none'
 
 const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, editingCategory, type }: CategoryRowProps) => {
     const { data } = useGetBillingOptions();
-    const {mutate: updateCategories} = useUpdateBillingOptions()
-    const [popoverIsOpen, setPopoverIsOpen] = useState(false)
+    const {mutate: updateCategories} = useUpdateBillingOptions();
+    const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+    const [newCategory, setNewCategory] = useState(category)
+
+    const incomeCategories = useMemo(() => data?.documents[0].incomeCategories || [], [data])
+    const expenseCategories = useMemo(() => data?.documents[0].expenseCategories || [], [data])
 
     const handleClick = () => {
-        setEditingCategory(index)
+        if (editingCategory === index) {
+            const newCategories = (type === 'income' ? incomeCategories : expenseCategories).with(index, newCategory)
+
+            const payload = {
+                incomeCategories,
+                expenseCategories,
+                [`${type}Categories`]: newCategories,
+            };
+
+            updateCategories({
+                json: payload,
+                param: { billingOptionId: data?.documents[0].$id || '' }
+            })
+        } else {
+            setEditingCategory(index)
+        }
     }
 
     const handleDelete = () => {
-        const incomeCategories = data?.documents[0].incomeCategories || []
-        const expenseCategories = data?.documents[0].expenseCategories || []
-
         const newCategories = (type === 'income' ? incomeCategories : expenseCategories).filter((typeCategory: string) => typeCategory !== category)
 
         const payload = {
@@ -54,20 +71,33 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
         <TableRow key={category}>
             <TableCell className="flex items-center justify-between">
                 {editingCategory === index
-                ? <Input placeholder="Nueva categoria..." value={''} className="border-l-0 border-t-0 border-r-0 rounded-none focus-visible:ring-0" />
-                : <p>{category}</p>
+                    ? <Input
+                        placeholder="Nueva categoria..."
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        className="border-l-0 border-t-0 border-r-0 rounded-none focus-visible:ring-0"
+                    />
+                    : <p>{category}</p>
                 }
                 <div className="flex gap-2 items-center">
-                    <span
-                        className={cn("cursor-pointer", editingCategory === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
-                        onClick={handleClick}
-                    >
-                        {editingCategory === index ? <Check className="size-4" /> : <Pencil className="size-4" />}
-                    </span>
-                    {/* <span className="cursor-pointer text-red-600"><XIcon className="size-4" /></span> */}
+                    <TooltipContainer tooltipText={editingCategory === index ? 'Guardar' :"Editar"}>
+                        <span
+                            className={cn("cursor-pointer", editingCategory === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
+                            onClick={handleClick}
+                        >
+                            {editingCategory === index ? <Check className="size-4" /> : <Pencil className="size-4" />}
+                        </span>
+                    </TooltipContainer>
+                    {editingCategory === index && (
+                        <TooltipContainer tooltipText="Cancelar">
+                            <span className="cursor-pointer text-red-600" onClick={() => setEditingCategory(undefined)}><XIcon className="size-4" /></span>
+                        </TooltipContainer>
+                    )}
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
                         <PopoverTrigger asChild>
-                            <span className="cursor-pointer text-red-600"><Trash2 className="size-4" /></span>
+                            <TooltipContainer tooltipText="Eliminar">
+                                <span className="cursor-pointer text-red-600"><Trash2 className="size-4" /></span>
+                            </TooltipContainer>
                         </PopoverTrigger>
                         <PopoverContent>
                             <p className="text-sm text-balance text-center">Are you sure you want to delete this category?</p>
