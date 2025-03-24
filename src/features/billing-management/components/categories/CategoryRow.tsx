@@ -94,11 +94,11 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                         </TooltipContainer>
                     )}
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
-                        <PopoverTrigger asChild>
                             <TooltipContainer tooltipText="Eliminar">
-                                <span className="cursor-pointer text-red-600"><Trash2 className="size-4" /></span>
+                                <PopoverTrigger asChild>
+                                    <span className="cursor-pointer text-red-600"><Trash2 className="size-4" /></span>
+                                </PopoverTrigger>
                             </TooltipContainer>
-                        </PopoverTrigger>
                         <PopoverContent>
                             <p className="text-sm text-balance text-center">Are you sure you want to delete this category?</p>
                             <Separator className="my-2"/>
