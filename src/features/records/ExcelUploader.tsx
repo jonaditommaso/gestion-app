@@ -19,10 +19,11 @@ interface ExcelData {
 
 interface ExcelUploaderProps {
     // setUploadedData: Dispatch<SetStateAction<ExcelData>>,
-    setIsOpen: Dispatch<SetStateAction<boolean>>
+    setIsOpen: Dispatch<SetStateAction<boolean>>,
+    currentTab: string
 }
 
-export default function ExcelUploader({ setIsOpen }: ExcelUploaderProps) {
+export default function ExcelUploader({ setIsOpen, currentTab }: ExcelUploaderProps) {
   const [excelData, setExcelData] = useState<ExcelData | null>(null)
   // const [selectedColumns, setSelectedColumns] = useState<string[]>([])
   const [fileName, setFileName] = useState<null | string>(null);
@@ -97,10 +98,13 @@ export default function ExcelUploader({ setIsOpen }: ExcelUploaderProps) {
       return transformedRow;
     });
 
-    mutate({json: {
-      headers,
-      rows: processedData
-    }})
+    mutate({
+      json: {
+        headers,
+        rows: processedData
+      },
+      param: { recordId: currentTab }
+    })
 
 
     setIsOpen(false)

@@ -17,6 +17,8 @@ const RecordsContent = () => {
     const [createTableModalIsOpen, setCreateTableModalIsOpen] = useState(false);
     const { mutate: createTable } = useCreateRecordsTable()
 
+    const [currentTab, setCurrentTab] = useState(dataRecords.documents[0].$id)
+
     if(isPending) return <FadeLoader color="#999" width={3} className="mt-5" />
 
     const onCreateTable = (event: FormEvent<HTMLFormElement>) => {
@@ -46,7 +48,7 @@ const RecordsContent = () => {
                 setIsOpen={setCreateTableModalIsOpen}
                 onCreateTable={onCreateTable}
             />
-            <Tabs defaultValue={dataRecords.documents[0].$id} className="w-[800px]">
+            <Tabs value={currentTab} onValueChange={value => setCurrentTab(value)} className="w-[800px]">
                 <div className="flex justify-between">
                     <TabsList className="flex">
                         {dataRecords.documents.map(tab => (
@@ -64,7 +66,7 @@ const RecordsContent = () => {
                                 <Pencil className="h-[1.2rem] w-[1.2rem]" />
                             </Button>
                         </TooltipContainer> */}
-                        <AddRecords />
+                        <AddRecords currentTab={currentTab} />
                     </div>
                 </div>
                 <div className="mt-20">

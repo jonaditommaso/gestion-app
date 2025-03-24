@@ -21,7 +21,7 @@ import ExcelUploader from "./ExcelUploader";
 
 const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
-export function AddRecords() {
+export function AddRecords({ currentTab }: { currentTab: string }) {
     const [recordData, setRecordData] = useState(INITIAL_RECORDS_STATE);
     const [isOpen, setIsOpen] = useState(false);
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -29,7 +29,7 @@ export function AddRecords() {
     const onChangeSheet = (isSheetOpen: boolean) => {
         setSheetOpen(isSheetOpen);
         if (!isSheetOpen) setRecordData(INITIAL_RECORDS_STATE);
-      }
+    }
 
     return (
         <>
@@ -39,7 +39,7 @@ export function AddRecords() {
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
             >
-                <ExcelUploader setIsOpen={setIsOpen} />
+                <ExcelUploader setIsOpen={setIsOpen} currentTab={currentTab} />
             </DialogContainer>
             <Sheet
                 open={sheetOpen}

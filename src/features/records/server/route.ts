@@ -28,8 +28,8 @@ const app = new Hono()
     }
 )
 
-.post(
-    "/upload",
+.patch(
+    "/upload/:recordId",
     zValidator('json', dataRecordSchema),
     sessionMiddleware,
     async (ctx) => {
@@ -38,14 +38,19 @@ const app = new Hono()
         const databases = ctx.get('databases')
         const user = ctx.get('user');
 
-        const records = await databases.createDocument(
+        if(!user) {
+            return ctx.json({ error: 'Unauthorized' }, 401)
+        }
+
+        const { recordId } = ctx.req.param()
+
+        const records = await databases.updateDocument(
             DATABASE_ID,
             RECORDS_ID,
-            ID.unique(),
+            recordId,
             {
                 headers,
                 rows: rows.map((row) => JSON.stringify(row)),
-                userId: user.$id,
             }
         );
 
