@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from 'lucide-react';
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
+import NoRecords from "./NoRecords";
 
 const RecordsContent = () => {
     const { data: dataRecords, isPending } = useGetContextRecords()
@@ -50,11 +51,11 @@ const RecordsContent = () => {
                             headers={isPending ? [] : (record?.headers ?? [])}
                             rows={isPending ? [] : (record?.rows ?? [])}
                           />
-                        : <p className="text-neutral-500 text-center">Aún no existen registros</p>
+                        : <NoRecords />
                         }
                     </TabsContent>
                     <TabsContent value="table-2">
-                        Table 2
+                        <NoRecords />
                     </TabsContent>
                 </div>
             </Tabs>
