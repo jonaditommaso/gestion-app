@@ -57,7 +57,7 @@ const RecordsContent = () => {
                     </TabsList>
                     <div className="flex items-center gap-2">
                         <TooltipContainer tooltipText="Agregar tabla">
-                            <Button variant="outline" size="icon" onClick={() => setCreateTableModalIsOpen(true)}>
+                            <Button variant="outline" size="icon" onClick={() => setCreateTableModalIsOpen(true)} disabled={dataRecords.total >= 3}>
                                 <Plus className="h-[1.2rem] w-[1.2rem]" />
                             </Button>
                         </TooltipContainer>
