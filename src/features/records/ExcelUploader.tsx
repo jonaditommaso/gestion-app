@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, FileSpreadsheet, X } from 'lucide-react'
+import { Upload, FileSpreadsheet, X, Loader } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useAddRecords } from './api/use-add-records'
+import { useGetContextRecords } from './hooks/useGetContextRecords'
 
 interface ExcelData {
   headers: string[];
@@ -20,14 +21,15 @@ interface ExcelData {
 interface ExcelUploaderProps {
     // setUploadedData: Dispatch<SetStateAction<ExcelData>>,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
-    currentTab: string
+    currentRecordTable: string
 }
 
-export default function ExcelUploader({ setIsOpen, currentTab }: ExcelUploaderProps) {
+export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUploaderProps) {
   const [excelData, setExcelData] = useState<ExcelData | null>(null)
   // const [selectedColumns, setSelectedColumns] = useState<string[]>([])
   const [fileName, setFileName] = useState<null | string>(null);
   const [firstRowHeader, setFirstRowHeader] = useState(true);
+  const { data: dataRecords } = useGetContextRecords()
 
   const { mutate, isPending } = useAddRecords()
 
@@ -86,8 +88,7 @@ export default function ExcelUploader({ setIsOpen, currentTab }: ExcelUploaderPr
 
   const handleSave = () => {
     if (excelData === null) return;
-    // console.log(excelData)
-    // setUploadedData(excelData);
+
     const { headers, rows } = excelData;
 
     const processedData = rows.map(row => {
@@ -98,16 +99,33 @@ export default function ExcelUploader({ setIsOpen, currentTab }: ExcelUploaderPr
       return transformedRow;
     });
 
+    const recordToEdit = dataRecords.documents.find(record => record.$id === currentRecordTable);
+
+    const existingRows = recordToEdit?.rows ? recordToEdit.rows.map(row => JSON.parse(row)) : [];
+
+    const updatedRows = [
+      ...existingRows,
+      ...processedData
+    ];
+
+    console.log(headers, rows)
     mutate({
       json: {
-        headers,
-        rows: processedData
+        headers: recordToEdit?.headers ? [...headers, ...recordToEdit?.headers] : headers,
+        rows: recordToEdit?.rows ? updatedRows : processedData
       },
-      param: { recordId: currentTab }
+      param: { recordId: currentRecordTable }
     })
 
-
     setIsOpen(false)
+  }
+
+  if(isPending) {
+    return (
+      <div className="size-10 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
+        <Loader className="size-4 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
 
   return ( //max-w-4xl

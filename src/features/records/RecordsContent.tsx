@@ -66,12 +66,12 @@ const RecordsContent = () => {
                                 <Pencil className="h-[1.2rem] w-[1.2rem]" />
                             </Button>
                         </TooltipContainer> */}
-                        <AddRecords currentTab={currentTab} />
+                        <AddRecords currentRecordTable={currentTab} />
                     </div>
                 </div>
                 <div className="mt-20">
                     {dataRecords.documents.map(record => (
-                        <TabsContent value={record.$id}>
+                        <TabsContent value={record.$id} key={record.$id}>
                             {record.rows?.length === 0
                                 ? <NoRecords />
                                 : <DataTable
