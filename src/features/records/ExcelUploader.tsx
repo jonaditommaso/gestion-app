@@ -19,9 +19,9 @@ interface ExcelData {
 }
 
 interface ExcelUploaderProps {
-    // setUploadedData: Dispatch<SetStateAction<ExcelData>>,
-    setIsOpen: Dispatch<SetStateAction<boolean>>,
-    currentRecordTable: string
+  // setUploadedData: Dispatch<SetStateAction<ExcelData>>,
+  setIsOpen: Dispatch<SetStateAction<boolean>>,
+  currentRecordTable: string,
 }
 
 export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUploaderProps) {
@@ -30,8 +30,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
   const [fileName, setFileName] = useState<null | string>(null);
   const [firstRowHeader, setFirstRowHeader] = useState(true);
   const { data: dataRecords } = useGetContextRecords()
-
-  const { mutate, isPending } = useAddRecords()
+  const { mutate: addRecords, isPending: addingRecords } = useAddRecords()
 
   const handleFirstRow = () => {
 
@@ -102,30 +101,22 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
     const recordToEdit = dataRecords.documents.find(record => record.$id === currentRecordTable);
 
     const existingRows = recordToEdit?.rows ? recordToEdit.rows.map(row => JSON.parse(row)) : [];
+    const filteredHeaders = headers.filter(header => !recordToEdit?.headers?.includes(header));
 
     const updatedRows = [
       ...existingRows,
       ...processedData
     ];
 
-    console.log(headers, rows)
-    mutate({
+    addRecords({
       json: {
-        headers: recordToEdit?.headers ? [...headers, ...recordToEdit?.headers] : headers,
+        headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
         rows: recordToEdit?.rows ? updatedRows : processedData
       },
       param: { recordId: currentRecordTable }
     })
 
     setIsOpen(false)
-  }
-
-  if(isPending) {
-    return (
-      <div className="size-10 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
-        <Loader className="size-4 animate-spin text-muted-foreground" />
-      </div>
-    )
   }
 
   return ( //max-w-4xl
@@ -251,7 +242,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
 
         </Card>
          <div className='flex justify-end pt-5'>
-            <Button type="button" onClick={handleSave} disabled={!excelData || isPending}>Guardar cambios</Button>
+            <Button type="button" onClick={handleSave} disabled={!excelData || addingRecords}>Guardar cambios</Button>
          </div>
     </div>
   )
