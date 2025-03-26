@@ -17,15 +17,24 @@ import {
 } from '@/components/ui/form'
 import { useRegister } from "../api/use-register";
 import { registerSchema } from "../schemas";
+import { useEffect } from "react";
 
 const SignUpCard = () => {
-    const { mutate, isPending } = useRegister()
+    const { mutate, isPending } = useRegister();
+
+    useEffect(() => {
+        return () => {
+          localStorage.removeItem("email");
+        };
+      }, []);
+
+    const storedEmail = typeof window !== "undefined" ? localStorage.getItem("email") || "" : ""
 
     const form = useForm<zod.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             name: '',
-            email: '',
+            email: storedEmail,
             password: '',
         }
     })

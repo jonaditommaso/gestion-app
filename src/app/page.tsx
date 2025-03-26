@@ -14,6 +14,7 @@ import TakeALookCard from "@/features/landing/components/TakeALookCard";
 import ScrollToTop from "@/features/landing/components/ScrollToTop";
 import LandingFooter from "@/features/landing/components/LandingFooter";
 import Link from "next/link";
+import LandingSignUp from "@/features/landing/components/LandingSignUp";
 // import UserButton from "@/features/auth/components/UserButton";
 // import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
 // import { redirect } from "next/navigation";
@@ -46,10 +47,7 @@ export default async function Home() {
             <div className="flex gap-14 w-[90%] justify-center ml-[200px]">
               <div className="flex w-full max-w-sm items-center space-x-2">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center space-x-2">
-                    <Input type="email" placeholder="Email" className="!placeholder-white focus:placeholder-white" />
-                    <Button type="submit">Registrate</Button>
-                  </div>
+                  <LandingSignUp />
                   <span>or</span>
                   <Button variant='success' type="submit">Obtener demo gratis sin registro</Button>
                 </div>
