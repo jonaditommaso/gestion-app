@@ -66,7 +66,7 @@ const RecordsContent = () => {
                                 <Pencil className="h-[1.2rem] w-[1.2rem]" />
                             </Button>
                         </TooltipContainer> */}
-                        <AddRecords currentRecordTable={currentTab} />
+                        <AddRecords currentRecordTable={currentTab} thereIsTable={dataRecords.total > 0} />
                     </div>
                 </div>
                 <div className="mt-20">

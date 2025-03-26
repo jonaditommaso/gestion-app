@@ -22,10 +22,11 @@ import ExcelUploader from "./ExcelUploader";
 const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
 interface AddRecordsProps {
-    currentRecordTable: string
+    currentRecordTable: string,
+    thereIsTable: boolean
 }
 
-export function AddRecords({ currentRecordTable }: AddRecordsProps) {
+export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps) {
     const [recordData, setRecordData] = useState(INITIAL_RECORDS_STATE);
     const [isOpen, setIsOpen] = useState(false);
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -53,7 +54,7 @@ export function AddRecords({ currentRecordTable }: AddRecordsProps) {
                 onOpenChange={onChangeSheet}
             >
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild disabled={!thereIsTable}>
                     <Button className="ml-auto">
                         Añadir registros <ChevronDown />
                     </Button>
