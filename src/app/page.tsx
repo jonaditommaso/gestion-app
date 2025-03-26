@@ -13,6 +13,7 @@ import { takeALook } from "@/features/landing/takeALook";
 import TakeALookCard from "@/features/landing/components/TakeALookCard";
 import ScrollToTop from "@/features/landing/components/ScrollToTop";
 import LandingFooter from "@/features/landing/components/LandingFooter";
+import Link from "next/link";
 // import UserButton from "@/features/auth/components/UserButton";
 // import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
 // import { redirect } from "next/navigation";
@@ -89,7 +90,11 @@ export default async function Home() {
             <div className="flex flex-col items-center gap-4 mb-10 p-10 text-white">
               <p className="font-bold text-4xl">Unite a Gestionate</p>
               <p className="font-normal text-3xl w-[800px] text-balance text-center">Planes a tu medida, y todas las funcionalidades disponibles para optimizar tu jornada laboral</p>
-              <Button type="submit" className="my-5">Ver precios</Button>
+                <Link href='/pricing'>
+                  <Button type="button" className="my-5">
+                    Ver precios
+                  </Button>
+                </Link>
               <div className="flex w-full justify-around">
                 <div className="flex flex-col gap-2">
                   {quickPlans.map(plan => (

@@ -108,8 +108,12 @@ export function LandingNavbar() {
       </NavigationMenuList>
 
       <div className="gap-2 flex">
-        <Button variant='outline' onClick={() => router.push('/login')}>Iniciar sesión</Button>
-        <Button>Regístrate</Button>
+        <Link href={'/login'}>
+          <Button variant='outline'>Iniciar sesión</Button>
+        </Link>
+        <Link href={'/signup'}>
+          <Button>Registrate</Button>
+        </Link>
       </div>
     </NavigationMenu>
   )
