@@ -121,31 +121,31 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                         control={form.control}
                         render={({ field }) => (
                             <FormItem>
-                            <div className="flex gap-2 w-full text-center">
-                                {types.map(({ label, type, textColor, border }) => (
-                                <label key={type} className="cursor-pointer flex-1">
-                                    <Input
-                                        type="radio"
-                                        {...field}
-                                        className="hidden"
-                                        checked={field.value === type}
-                                        onChange={() => field.onChange(type)}
-                                        defaultChecked={types[0].type === type}
-                                        defaultValue={types[0].type}
-                                    />
-                                    <div
-                                        className={`px-4 py-2 rounded-md w-full transition-colors ${
-                                            field.value === type
-                                            ? `border-2 border-t-8 ${border} ${textColor}`
-                                            : `border-2 border-t-8 border-t-zinc-300 bg-muted text-muted-foreground`
-                                        }`}
-                                    >
-                                    {label}
-                                    </div>
-                                </label>
-                                ))}
-                            </div>
-                            <FormMessage />
+                                <div className="flex gap-2 w-full text-center">
+                                    {types.map(({ label, type, textColor, border }) => (
+                                        <label key={type} className="cursor-pointer flex-1">
+                                            <Input
+                                                type="radio"
+                                                {...field}
+                                                className="hidden"
+                                                checked={field.value === type}
+                                                onChange={() => field.onChange(type)}
+                                                defaultChecked={types[0].type === type}
+                                                defaultValue={types[0].type}
+                                            />
+                                            <div
+                                                className={`px-4 py-2 rounded-md w-full transition-colors ${
+                                                    field.value === type
+                                                    ? `border-2 border-t-8 ${border} ${textColor}`
+                                                    : `border-2 border-t-8 border-t-zinc-300 bg-muted text-muted-foreground`
+                                                }`}
+                                            >
+                                            {label}
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                                <FormMessage />
                             </FormItem>
                         )}
                         />

@@ -1,12 +1,12 @@
 import { basicBenefits, enterpriseBenefits, proBenefits } from "@/features/landing/benefits";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { ChevronRight } from "lucide-react";
+import SelectPricingButton from "./SelectPricingButton";
 
 interface PricingCardProps {
-    type: 'basic' | 'pro' | 'enterprise',
+    type: 'free' | 'pro' | 'enterprise',
     description: string,
     textButton: string, //Únete gratis
     price: number,
@@ -14,18 +14,19 @@ interface PricingCardProps {
 }
 
 const planes_t = {
-    basic: 'Básico',
+    free: 'Básico',
     pro: 'Pro',
     enterprise: 'Empresa'
 }
 
 const benefits = {
-    basic: basicBenefits,
+    free: basicBenefits,
     pro: proBenefits,
     enterprise: enterpriseBenefits
 }
 
 const PricingCard = ({ type, description, textButton, price, featured }: PricingCardProps) => {
+
     return (
         <Card className={`w-full md:w-[400px] shadow ${featured ? 'border-4 border-blue-600 box-border' : ''}`}>
             <CardHeader className={`relative flex items-center justify-center text-center p-7 ${featured ? 'mt-[-8px]' : ''}`}>
@@ -40,10 +41,10 @@ const PricingCard = ({ type, description, textButton, price, featured }: Pricing
                     <span className="text-2xl">us$</span>
                     <div className="flex gap-2 items-center">
                         <p className="text-6xl">{price}</p>
-                        {type !== 'basic' && <p className="text-zinc-500">anual</p>}
+                        {type !== 'free' && <p className="text-zinc-500">anual</p>}
                     </div>
                 </div>
-                <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold">{textButton}</Button>
+                <SelectPricingButton textButton={textButton} type={type} />
             </CardHeader>
             <Separator />
             <CardContent className="p-7">

@@ -1,5 +1,5 @@
 {/* cambiar descripciones */}
-type PlanType = 'basic' | 'pro' | 'enterprise';
+type PlanType = 'free' | 'pro' | 'enterprise'; // basic changed to free
 
 interface Plan {
   type: PlanType;
@@ -10,7 +10,7 @@ interface Plan {
 
 export const plans: Plan[] = [
     {
-        type: 'basic',
+        type: 'free',
         description: 'Comienza con lo básico',
         textButton: 'Comenzar gratis',
         price: 0

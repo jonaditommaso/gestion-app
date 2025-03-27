@@ -46,15 +46,17 @@ const app = new Hono()
         '/register',
         zValidator('json', registerSchema),
         async ctx => {
-            const { name, email, password } = ctx.req.valid('json');
+            const { name, email, password, plan } = ctx.req.valid('json');
 
-            const { account } = await createAdminClient();
-            await account.create(
+            const { account, users } = await createAdminClient();
+            const newUser = await account.create(
                 ID.unique(),
                 email,
                 password,
                 name
             );
+
+            await users.updatePrefs(newUser.$id, { plan });
 
             const session = await account.createEmailPasswordSession(
                 email,
