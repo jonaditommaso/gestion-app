@@ -8,12 +8,13 @@ import { useLogout } from "../api/use-logout";
 import { redirect } from "next/navigation";
 import { Fragment, useState } from "react";
 import { userButtonOptions } from "../userButtonOptions";
-
+import { useTheme } from "next-themes";
 
 const UserButton = () => {
     const { data: user, isLoading } = useCurrent();
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
+    const { setTheme } = useTheme();
 
     if(isLoading) {
         return (
@@ -34,6 +35,7 @@ const UserButton = () => {
 
         if(action === 'logout') {
             logout();
+            setTheme('light');
             redirect('/')
         } else {
             action();
