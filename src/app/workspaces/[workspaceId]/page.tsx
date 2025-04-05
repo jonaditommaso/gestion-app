@@ -53,9 +53,14 @@ const WorkspaceView = () => {
                 </Button>
             </div>
 
-            {deferredWorkspaces && <TaskSwitcher />}
+            {}
 
-            {optionsView && <WorkspaceSettings />}
+            {optionsView
+                ? <WorkspaceSettings />
+                : (
+                    deferredWorkspaces && <TaskSwitcher />
+                )
+            }
         </div>
     );
 }
