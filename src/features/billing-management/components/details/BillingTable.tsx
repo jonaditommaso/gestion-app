@@ -52,7 +52,7 @@ export function BillingTable() {
         </TableHeader>
         <TableBody>
           {filteredData?.map(operation => (
-            <TableRow key={operation.$id} className={operation.type === 'income' ? 'bg-green-100 hover:bg-green-50' : 'bg-red-100 hover:bg-red-50'}>
+            <TableRow key={operation.$id} className={operation.type === 'income' ? 'bg-[#0bb31420] hover:bg-green-500' : 'bg-[#f0341020] hover:bg-red-500'}>
               <TableCell className="">{operation.$id.slice(-6).toUpperCase()}</TableCell>
               <TableCell className="">{capitalize(operation.type)}</TableCell>
               <TableCell className="">{dayjs(operation.date).format('DD/MM/YYYY HH:mm')}</TableCell>
