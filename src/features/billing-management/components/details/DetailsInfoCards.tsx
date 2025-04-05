@@ -1,7 +1,6 @@
 'use client'
 import { useGetOperations } from "../../api/use-get-operations";
 import InfoCard from "./InfoCard";
-import { Scale, TrendingDown, TrendingUp } from "lucide-react";
 
 const DetailsInfoCards = () => {
     const { data } = useGetOperations();
@@ -11,9 +10,9 @@ const DetailsInfoCards = () => {
 
     return (
         <div className="flex justify-center">
-            <InfoCard Icon={TrendingUp} colorIcon='#0bb314' numberMoney={incomeTotal} />
-            <InfoCard Icon={TrendingDown} colorIcon='#f03410' numberMoney={expenseTotal} />
-            <InfoCard Icon={Scale} colorIcon='#3f51b5' numberMoney={incomeTotal - expenseTotal} />
+            <InfoCard type='incomes' numberMoney={incomeTotal} />
+            <InfoCard type='expenses' numberMoney={expenseTotal} />
+            <InfoCard type='total' numberMoney={incomeTotal - expenseTotal} />
         </div>
     );
 }
