@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { zValidator } from '@hono/zod-validator';
-import { loginSchema, registerSchema } from "../schemas";
+import { loginSchema, registerSchema, userNameSchema } from "../schemas";
 import { createAdminClient } from "@/lib/appwrite";
 import { ID } from "node-appwrite";
 import { deleteCookie, setCookie } from 'hono/cookie';
@@ -87,6 +87,22 @@ const app = new Hono()
             await account.deleteSession('current')
 
             return ctx.json({ success: true })
+        }
+    )
+
+    .patch(
+        '/update-username',
+        zValidator('json', userNameSchema),
+        sessionMiddleware,
+        async (ctx) => {
+          const { userName } = ctx.req.valid('json');
+          const user = ctx.get('user');
+
+          const { users } = await createAdminClient();
+
+          await users.updateName(user.$id, userName);
+
+          return ctx.json({ success: true, message: 'Updated username' });
         }
     )
 

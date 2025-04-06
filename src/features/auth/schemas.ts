@@ -11,3 +11,7 @@ export const registerSchema = zod.object({
     password: zod.string().min(8, 'Minimo de 8 caracteres'),
     plan: zod.enum(['free', 'pro'])
 })
+
+export const userNameSchema = zod.object({
+    userName: zod.string().trim().min(1, 'User name cannot be empty')
+});
