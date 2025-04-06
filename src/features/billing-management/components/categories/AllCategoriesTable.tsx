@@ -15,19 +15,19 @@ const AllCategoriesTable = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [typeToChange, setTypeToChange] = useState<null | string>(null);
 
-    if (isLoadingCategories) return (
-        <div className="size-10 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
-            <Loader className="size-4 animate-spin text-muted-foreground" />
-        </div>
-    )
-
-    const incomeCategories = data?.documents[0].incomeCategories || []
-    const expenseCategories = data?.documents[0].expenseCategories || []
+    const incomeCategories = useMemo(() => data?.documents[0].incomeCategories || [], [data])
+    const expenseCategories = useMemo(() => data?.documents[0].expenseCategories || [], [data])
 
     const allCategories = useMemo(() => [
         {header: 'Income categories', categories: incomeCategories, type: 'income'},
         {header: 'Expense categories', categories: expenseCategories, type: 'expense'}
     ], [incomeCategories, expenseCategories]);
+
+    if (isLoadingCategories) return (
+        <div className="size-10 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
+            <Loader className="size-4 animate-spin text-muted-foreground" />
+        </div>
+    )
 
     const onAddCategory = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
