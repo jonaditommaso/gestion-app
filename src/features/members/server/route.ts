@@ -62,6 +62,33 @@ const app = new Hono()
         }
     )
 
+    .get(
+        '/current',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            const members = await databases.listDocuments(
+                DATABASE_ID,
+                MEMBERS_ID,
+                [
+                    Query.equal('userId', user.$id),
+                ]
+            );
+
+            const member = members.documents[0];
+
+            if(!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            return ctx.json({
+                data: member
+            })
+        }
+    )
+
     .delete(
         '/:memberId',
         sessionMiddleware,
