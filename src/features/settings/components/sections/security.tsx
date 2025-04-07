@@ -1,7 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getCurrent } from "@/features/auth/queries";
+import MFA from "./MFA";
 
-const Security = () => {
+const Security = async () => {
+    const user = await getCurrent();
+
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between w-full">
@@ -10,7 +13,7 @@ const Security = () => {
             </div>
             <div className="flex items-center justify-between w-full">
                 <h2>Autenticacion en 2 pasos</h2>
-                <Button variant='outline'>Agregar</Button>
+                <MFA hasMFA={user?.mfa} />
             </div>
         </div>
     );
