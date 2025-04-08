@@ -15,6 +15,7 @@ import ScrollToTop from "@/features/landing/components/ScrollToTop";
 import LandingFooter from "@/features/landing/components/LandingFooter";
 import Link from "next/link";
 import LandingSignUp from "@/features/landing/components/LandingSignUp";
+import { getTranslations } from "next-intl/server";
 // import UserButton from "@/features/auth/components/UserButton";
 // import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
 // import { redirect } from "next/navigation";
@@ -23,6 +24,7 @@ import LandingSignUp from "@/features/landing/components/LandingSignUp";
 
 export default async function Home() {
   const user = await getCurrent();
+  const t = await getTranslations('landing')
 
   //if(!user) redirect('/login');
 
@@ -48,7 +50,7 @@ export default async function Home() {
               <div className="flex w-full max-w-sm items-center space-x-2">
                 <div className="flex flex-col items-center gap-2">
                   <LandingSignUp />
-                  <span>or</span>
+                  <span>{t('or')}</span>
                   <Button variant='success' type="submit">Obtener demo gratis sin registro</Button>
                 </div>
 
