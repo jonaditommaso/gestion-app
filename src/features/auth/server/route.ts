@@ -46,7 +46,7 @@ const app = new Hono()
         '/register',
         zValidator('json', registerSchema),
         async ctx => {
-            const { name, email, password, plan } = ctx.req.valid('json');
+            const { name, email, password, plan, company } = ctx.req.valid('json');
 
             const { account, users } = await createAdminClient();
             const newUser = await account.create(
@@ -56,7 +56,7 @@ const app = new Hono()
                 name
             );
 
-            await users.updatePrefs(newUser.$id, { plan });
+            await users.updatePrefs(newUser.$id, { plan, company, role: 'ADMIN', });
 
             const session = await account.createEmailPasswordSession(
                 email,

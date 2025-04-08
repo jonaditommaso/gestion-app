@@ -1,23 +1,25 @@
 'use client'
 import SearchCommand from "@/components/SearchCommand";
-import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"; // DropdownMenuLabel, DropdownMenuSeparator,
+// import { Badge } from "@/components/ui/badge";
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"; // DropdownMenuLabel, DropdownMenuSeparator,
 import UserButton from "@/features/auth/components/UserButton";
-import { BellIcon, ChevronsUpDown } from "lucide-react"; // ChevronDown,
-import Image from "next/image";
+// import { BellIcon, ChevronsUpDown } from "lucide-react"; // ChevronDown,
+// import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ToggleThemeMode } from "./ToggleThemeMode";
 import { useTheme } from "next-themes";
+import { useCurrent } from "@/features/auth/api/use-current";
 
 const AppNavbar = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
+  const { data: user } = useCurrent();
 
   if(pathname === '/login' || pathname === '/signup') return null; //check how to implement it in ssr, and more gral
 
   return ( //ml-10
     <nav className={`border-b shadow-md fixed top-0 z-20 grid grid-cols-3 items-center w-full ${theme === 'dark' ? 'bg-[#212121]' : 'bg-white' }`}>
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger className="max-w-40 flex items-center gap-2 p-2 focus:outline-none">
           <Image src='/logo.svg' height={50} width={100} alt="logo" />
           <ChevronsUpDown size={14} />
@@ -25,7 +27,8 @@ const AppNavbar = () => {
         <DropdownMenuContent>
           <DropdownMenuItem>+ Agregar empresa</DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
+      <p className="max-w-40 flex items-center gap-2 p-2">{user?.prefs?.company}</p>
 
       <SearchCommand />
       <div className="flex items-center justify-end p-1 mr-5 gap-4">

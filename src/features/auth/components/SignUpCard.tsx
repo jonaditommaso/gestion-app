@@ -43,6 +43,7 @@ const SignUpCard = () => {
     const form = useForm<zod.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
+            company: '',
             name: '',
             email: storedEmail,
             password: '',
@@ -68,7 +69,25 @@ const SignUpCard = () => {
                 <CardContent className="p-7">
                     <Form {...form}>
                         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <FormField
+                            <FormField
+                                name="company"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input
+                                                type="text"
+                                                placeholder="Nombre de la organizacion"
+                                                disabled={isPending}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
                                 name="name"
                                 control={form.control}
                                 render={({ field }) => (
@@ -76,7 +95,7 @@ const SignUpCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                placeholder="Nombre"
+                                                placeholder="Nombre de usuario"
                                                 disabled={isPending}
                                                 {...field}
                                             />
@@ -94,7 +113,7 @@ const SignUpCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="email"
-                                                placeholder="Email"
+                                                placeholder="Your personal email"
                                                 disabled={isPending}
                                                 {...field}
                                             />
