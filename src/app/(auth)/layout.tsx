@@ -1,16 +1,19 @@
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 interface AuthLayoutProps {
     children: React.ReactNode
 }
 
-const AuthLayout = ({ children }: AuthLayoutProps) => {
+const AuthLayout = async ({ children }: AuthLayoutProps) => {
+    const t = await getTranslations('auth');
+
     return (
         <main className="bg-neutral-100 min-h-screen">
             <div className="p-10">
                 <Link href='/' className="inline-flex items-center hover:underline">
-                    <ArrowLeft className="mr-2"/> Regresar al inicio
+                    <ArrowLeft className="mr-2"/> {t('back-home')}
                 </Link>
             </div>
             <div className="mx-auto max-w-screen-2xl p-4">

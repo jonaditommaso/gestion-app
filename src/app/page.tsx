@@ -42,8 +42,8 @@ export default async function Home() {
           <ScrollToTop />
           <div className="flex flex-col items-center text-white">
             <div className=" flex flex-col justify-center mt-24 max-w-[700px]">
-              <p className="text-6xl font-bold text-balance text-center">Gestiona y organiza todo tu trabajo en un solo lugar</p>
-              <p className="font-semibold mt-5 text-center">Facilidad para tu equipo, resultados para tu negocio</p>
+              <p className="text-6xl font-bold text-balance text-center">{t('title')}</p>
+              <p className="font-semibold mt-5 text-center">{t('subtitle')}</p>
             </div>
 
             <div className="flex gap-14 w-[90%] justify-center ml-[200px]">
@@ -51,7 +51,7 @@ export default async function Home() {
                 <div className="flex flex-col items-center gap-2">
                   <LandingSignUp />
                   <span>{t('or')}</span>
-                  <Button variant='success' type="submit">Obtener demo gratis sin registro</Button>
+                  <Button variant='success' type="submit">{t('button-get-demo-1')}</Button>
                 </div>
 
               </div>
@@ -64,8 +64,8 @@ export default async function Home() {
 
           <div className="w-full p-10 bg-[#FFF2F2] mt-[-2px]">
             <div className="flex flex-col items-center gap-4 mb-10">
-              <p className="font-bold text-4xl">Que hacemos?</p>
-              <p className="font-normal text-3xl">Contamos con todos estos servicios</p>
+              <p className="font-bold text-4xl">{t('we-do')}</p>
+              <p className="font-normal text-3xl">{t('services')}</p>
             </div>
 
             <div className="w-[75%] m-auto grid gap-4 gap-y-10 grid-cols-[repeat(auto-fill,minmax(400px,1fr))] md:grid-cols-3 justify-items-center">
@@ -88,11 +88,11 @@ export default async function Home() {
           <div className="w-full mt-[-1px]" style={{ backgroundImage: 'linear-gradient(180deg, #9a3e6a  30%, #4d6dbb 80%)' }}>
 
             <div className="flex flex-col items-center gap-4 mb-10 p-10 text-white">
-              <p className="font-bold text-4xl">Unite a Gestionate</p>
-              <p className="font-normal text-3xl w-[800px] text-balance text-center">Planes a tu medida, y todas las funcionalidades disponibles para optimizar tu jornada laboral</p>
+              <p className="font-bold text-4xl">{t('join-gestionate')}</p>
+              <p className="font-normal text-3xl w-[800px] text-balance text-center">{t('join-gestionate-description')}</p>
                 <Link href='/pricing'>
                   <Button type="button" className="my-5">
-                    Ver precios
+                    {t('button-see-prices')}
                   </Button>
                 </Link>
               <div className="flex w-full justify-around">
@@ -113,8 +113,8 @@ export default async function Home() {
           <CustomWave rectColor="#4d6dbb" isBottom />
 
           <div className="w-full flex flex-col items-center gap-4 bg-[#FFF2F2] mt-[-2px]">
-            <p className="font-bold text-4xl">Echa un vistazo</p>
-            <p className="font-normal text-3xl">Prueba nuestra <span className="font-semibold">demo gratis</span> sin registrarte</p>
+            <p className="font-bold text-4xl">{t('take-a-look')}</p>
+            <p className="font-normal text-3xl">{t('tal-1')} <span className="font-semibold">{t('tal-2')}</span> {t('tal-3')}</p>
           </div>
 
           <div className="w-full flex justify-center gap-4 p-10 bg-[#FFF2F2] mt-[-1px]">
@@ -130,7 +130,7 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center justify-center w-full bg-[#FFF2F2]">
-            <Button type="submit" variant='success'>Obtener Demo sin registro</Button>
+            <Button type="submit" variant='success'>{t('button-get-demo-2')}</Button>
           </div>
 
           <LandingFooter />

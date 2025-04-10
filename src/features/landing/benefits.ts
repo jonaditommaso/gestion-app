@@ -1,27 +1,27 @@
 export const basicBenefits = [
     {
-        triggerText: '5 usuarios',
-        contentText: 'Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum'
+        triggerText: 'pricing-basic-benefit-1-title',
+        contentText: 'pricing-basic-benefit-1-description'
     },
     {
-        triggerText: 'Control de inventario',
-        contentText: ''
+        triggerText: 'pricing-basic-benefit-2-title',
+        contentText: 'pricing-basic-benefit-2-description'
     },
     {
-        triggerText: 'Control de facturación',
-        contentText: ''
+        triggerText: 'pricing-basic-benefit-3-title',
+        contentText: 'pricing-basic-benefit-3-description'
     },
     {
-        triggerText: 'Control de registros (hasta 5.000)',
-        contentText: ''
+        triggerText: 'pricing-basic-benefit-4-title',
+        contentText: 'pricing-basic-benefit-4-description'
     },
     {
-        triggerText: 'Base de datos hasta 200MB',
-        contentText: ''
+        triggerText: 'pricing-basic-benefit-5-title',
+        contentText: 'pricing-basic-benefit-5-description'
     },
     {
-        triggerText: '1 workspace',
-        contentText: ''
+        triggerText: 'pricing-basic-benefit-6-title',
+        contentText: 'pricing-basic-benefit-6-description'
     },
     // {
     //     triggerText: 'Control de registros',
@@ -35,28 +35,28 @@ export const basicBenefits = [
 
 export const proBenefits = [
     {
-        triggerText: '20 usuarios',
-        contentText: 'Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum'
+        triggerText: 'pricing-pro-benefit-1-title',
+        contentText: 'pricing-pro-benefit-1-description'
     },
     {
-        triggerText: 'Control de inventario',
-        contentText: ''
+        triggerText: 'pricing-pro-benefit-2-title',
+        contentText: 'pricing-pro-benefit-2-description'
     },
     {
-        triggerText: 'Control de facturación',
-        contentText: ''
+        triggerText: 'pricing-pro-benefit-3-title',
+        contentText: 'pricing-pro-benefit-3-description'
     },
     {
-        triggerText: 'Control de registros (hasta 50.000)',
-        contentText: ''
+        triggerText: 'pricing-pro-benefit-4-title',
+        contentText: 'pricing-pro-benefit-4-description'
     },
     {
-        triggerText: 'Base de datos hasta 10GB',
-        contentText: ''
+        triggerText: 'pricing-pro-benefit-5-title',
+        contentText: 'pricing-pro-benefit-5-description'
     },
     {
-        triggerText: '3 workspaces',
-        contentText: ''
+        triggerText: 'pricing-pro-benefit-6-title',
+        contentText: 'pricing-pro-benefit-6-description'
     },
     // {
     //     triggerText: 'Control de registros',
@@ -70,32 +70,28 @@ export const proBenefits = [
 
 export const enterpriseBenefits = [
     {
-        triggerText: 'Usuarios ilimitados',
-        contentText: 'Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum'
+        triggerText: 'pricing-enterprise-benefit-1-title',
+        contentText: 'pricing-enterprise-benefit-1-description'
     },
     {
-        triggerText: 'Control de inventario',
-        contentText: ''
+        triggerText: 'pricing-enterprise-benefit-2-title',
+        contentText: 'pricing-enterprise-benefit-2-description'
     },
     {
-        triggerText: 'Control de facturación',
-        contentText: ''
+        triggerText: 'pricing-enterprise-benefit-3-title',
+        contentText: 'pricing-enterprise-benefit-3-description'
     },
     {
-        triggerText: 'Control de registros (ilimitados)',
-        contentText: ''
+        triggerText: 'pricing-enterprise-benefit-4-title',
+        contentText: 'pricing-enterprise-benefit-4-description'
     },
     {
-        triggerText: 'Base de datos hasta 100GB',
-        contentText: ''
+        triggerText: 'pricing-enterprise-benefit-5-title',
+        contentText: 'pricing-enterprise-benefit-5-description'
     },
     {
-        triggerText: '10 workspaces',
-        contentText: ''
-    },
-    {
-        triggerText: 'Desarrollos personalizados',
-        contentText: ''
+        triggerText: 'pricing-enterprise-benefit-6-title',
+        contentText: 'pricing-enterprise-benefit-6-description'
     },
     // {
     //     triggerText: 'Control de registros',

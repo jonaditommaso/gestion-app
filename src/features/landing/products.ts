@@ -1,22 +1,22 @@
 export const products: { title: string; href: string; description: string }[] = [
   {
-    title: "Workspaces",
+    title: "navbar-products-workspaces-title",
     href: "/products#workspaces",
-    description: "Te ofrecemos Workspace Gestion para administrar las tareas de tu equipo",
+    description: "navbar-products-workspaces-description",
   },
   {
-    title: "Registros",
+    title: "navbar-products-records-title",
     href: "/products#registers",
-    description: "Carga todos los registros que necesites, y organizalas en tablas",
+    description: "navbar-products-records-description",
   },
   {
-    title: "Facturación",
+    title: "navbar-products-billing-title",
     href: "/products#billing",
-    description: "Gestion Bill te permitira cargar tus movimientos financieros y generar un resumen",
+    description: "navbar-products-billing-description",
   },
   {
-    title: "Inventario",
+    title: "navbar-products-inventary-title",
     href: "/products#inventory",
-    description: "Carga las entradas y salidas, y lleva un control eficiente de tu stock",
+    description: "navbar-products-inventary-description",
   },
 ]

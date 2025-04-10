@@ -11,20 +11,20 @@ interface Plan {
 export const plans: Plan[] = [
     {
         type: 'free',
-        description: 'Comienza con lo básico',
-        textButton: 'Comenzar gratis',
+        description: 'pricing-basic-description',
+        textButton: 'pricing-basic-button',
         price: 0
     },
     {
         type: 'pro',
-        description: 'Impulsa tu negocio al siguiente nivel',
-        textButton: 'Comenzar',
+        description: 'pricing-pro-description',
+        textButton: 'pricing-pro-button',
         price: 150
     },
     {
         type: 'enterprise',
-        description: 'Aprovecha el máximo potencial',
-        textButton: 'Contacta con Ventas',
+        description: 'pricing-enterprise-description',
+        textButton: 'pricing-enterprise-button',
         price: 220
     }
 ];

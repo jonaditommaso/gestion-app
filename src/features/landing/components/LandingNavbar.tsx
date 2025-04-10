@@ -17,11 +17,13 @@ import { Button } from "@/components/ui/button"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
+import { useTranslations } from "next-intl"
 //import { solutions } from "../solutions"
 
 export function LandingNavbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations('landing')
 
   if(pathname === '/login' || pathname === '/signup') return null; //check how to implement it in ssr, and more gral
 
@@ -32,7 +34,7 @@ export function LandingNavbar() {
       <Image src='/own-logo.svg' height={25} width={25} alt="own-logo" onClick={() => router.push('/')} className="cursor-pointer" />
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Comienza</NavigationMenuTrigger>
+          <NavigationMenuTrigger>{t('navbar-start')}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -45,36 +47,34 @@ export function LandingNavbar() {
                       Gestionate
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
-                      La aplicacion web que te permite gestionar tu empresa
-                      de manera mas eficiente. Todo lo que necesitas, en un
-                      solo sitio.
+                      {t('navbar-gestionate')}
                     </p>
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs#introduction" title="Introduccion">
-                De que trata Gestionate y como puede ayudarte en tu trabajo.
+              <ListItem href="/docs#introduction" title={t('navbar-intro')}>
+                {t('navbar-intro-description')}
               </ListItem>
-              <ListItem href="/docs#how-it-works" title="Como funciona">
-                Todo lo que debes saber para comenzar a usar Gestionate.
+              <ListItem href="/docs#how-it-works" title={t('navbar-how-it-works')}>
+                {t('navbar-how-it-works-description')}
               </ListItem>
-              <ListItem href="/docs#customize" title="Y ahora que?">
-                Gestionate es personalizable, mira todo lo que puedes hacer
+              <ListItem href="/docs#customize" title={t('navbar-now-what')}>
+                {t('navbar-now-what-description')}
               </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Productos</NavigationMenuTrigger>
+          <NavigationMenuTrigger>{t('navbar-products')}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {products.map((product) => (
                 <ListItem
                   key={product.title}
-                  title={product.title}
+                  title={t(product.title)}
                   href={product.href}
                 >
-                  {product.description}
+                  {t(product.description)}
                 </ListItem>
               ))}
             </ul>
@@ -101,7 +101,7 @@ export function LandingNavbar() {
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Precios
+              {t('navbar-pricing')}
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
@@ -109,10 +109,10 @@ export function LandingNavbar() {
 
       <div className="gap-2 flex">
         <Link href={'/login'}>
-          <Button variant='outline'>Iniciar sesión</Button>
+          <Button variant='outline'>{t('button-signin')}</Button>
         </Link>
         <Link href={'/signup'}>
-          <Button>Registrate</Button>
+          <Button>{t('button-signup')}</Button>
         </Link>
       </div>
     </NavigationMenu>

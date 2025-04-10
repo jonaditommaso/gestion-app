@@ -20,11 +20,13 @@ import { registerSchema } from "../schemas";
 import { useEffect, useState } from "react";
 import PlanSelected from "./PlanSelected";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const SignUpCard = () => {
     const { mutate, isPending } = useRegister();
     const searchParams = useSearchParams();
-    const plan = searchParams.get("plan")
+    const plan = searchParams.get("plan");
+    const t = useTranslations('auth');
 
     const [planSelected, setPlanSelected] = useState<null | string>(null);
 
@@ -63,7 +65,7 @@ const SignUpCard = () => {
 
             <Card className="w-full h-full md:w-[490px] border-none shadow-none">
                 <CardHeader className="flex items-center justify-center text-center p-7">
-                    <CardTitle className="text-2xl">Bienvenido</CardTitle>
+                    <CardTitle className="text-2xl">{t('welcome')}</CardTitle>
                 </CardHeader>
                 <Separator />
                 <CardContent className="p-7">
@@ -77,7 +79,7 @@ const SignUpCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                placeholder="Nombre de la organizacion"
+                                                placeholder={t('company-name')}
                                                 disabled={isPending}
                                                 {...field}
                                             />
@@ -95,7 +97,7 @@ const SignUpCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                placeholder="Nombre de usuario"
+                                                placeholder={t('user-name')}
                                                 disabled={isPending}
                                                 {...field}
                                             />
@@ -113,7 +115,7 @@ const SignUpCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="email"
-                                                placeholder="Your personal email"
+                                                placeholder={t('your-email')}
                                                 disabled={isPending}
                                                 {...field}
                                             />
@@ -131,7 +133,7 @@ const SignUpCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="password"
-                                                placeholder="Contraseña"
+                                                placeholder={t('password')}
                                                 disabled={isPending}
                                                 {...field}
                                             />
@@ -142,7 +144,7 @@ const SignUpCard = () => {
                             />
 
                             <Button size='lg' className="w-full" disabled={isPending}>
-                                Registrarse
+                                {t('signup-button')}
                             </Button>
                         </form>
                     </Form>
@@ -151,16 +153,16 @@ const SignUpCard = () => {
                 <CardContent className="p-7 flex flex-col gap-y-4">
                 <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
                     <FcGoogle className="mr-2 size-5" />
-                    Iniciar sesion con Google
+                    {t('login-with')} Google
                 </Button>
                 <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
                     <FaGithub className="mr-2 size-5" />
-                    Iniciar sesion con Github
+                    {t('login-with')} Github
                 </Button>
                 </CardContent>
             </Card>
             <div className="md:w-[490px] text-balance mt-4 text-center">
-                <p className="text-xs">* Si creas una cuenta, pero no escoges un plan, se creara una cuenta con plan free de manera automatica. Puedes modificarlo siempre que quieras.</p>
+                <p className="text-xs">* {t('signup-info')}</p>
             </div>
         </div>
     );
