@@ -2,8 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
+import { setCookie } from 'cookies-next';
 
-type ResponseType = InferResponseType<typeof client.api.auth.login['$post']>
+type ResponseType = InferResponseType<typeof client.api.auth.login['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.auth.login['$post']>
 
 export const useLogin = () => {
@@ -20,9 +21,15 @@ export const useLogin = () => {
 
             return await response.json()
         },
-        onSuccess: () => {
-            router.refresh();
-            queryClient.invalidateQueries({ queryKey: ['current'] })
+        onSuccess: ({ data }) => {
+            if (data.mfaRequired) {
+                const token = crypto.randomUUID();
+                setCookie('mfa_token', token);
+                router.push(`/mfa?token=${token}&challengeId=${data.challengeId}`);
+            } else {
+                router.refresh();
+                queryClient.invalidateQueries({ queryKey: ['current'] })
+            }
         }
     })
     return mutation

@@ -16,7 +16,7 @@ import {
 } from 'node-appwrite';
 import { AUTH_COOKIE } from '@/features/auth/constants';
 
-type ContextType = {
+export type ContextType = {
     Variables: {
         account: AccountType,
         databases: DatabasesType,

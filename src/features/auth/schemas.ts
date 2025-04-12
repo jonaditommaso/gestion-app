@@ -16,3 +16,8 @@ export const registerSchema = zod.object({
 export const userNameSchema = zod.object({
     userName: zod.string().trim().min(1, 'User name cannot be empty')
 });
+
+export const mfaSchema = zod.object({
+    mfaCode: zod.string().trim().length(6),
+    challengeId: zod.string()
+});

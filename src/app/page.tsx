@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { getCurrent } from "@/features/auth/queries";
 import Image from "next/image";
 import { CalendarDemo } from "@/features/home/components/Calendar";
@@ -16,11 +15,6 @@ import LandingFooter from "@/features/landing/components/LandingFooter";
 import Link from "next/link";
 import LandingSignUp from "@/features/landing/components/LandingSignUp";
 import { getTranslations } from "next-intl/server";
-// import UserButton from "@/features/auth/components/UserButton";
-// import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
-// import { redirect } from "next/navigation";
-// import AppNavbar from "../components/AppNavbar";
-// import AppSidebar from "../components/AppSidebar";
 
 export default async function Home() {
   const user = await getCurrent();

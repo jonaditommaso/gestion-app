@@ -145,6 +145,11 @@
         "signup-button": "Registrarse",
         "company-name": "Nombre de la organización",
         "user-name": "Nombre de usuario",
-        "your-email": "Tu Email"
+        "your-email": "Tu Email",
+        "authentication-code-mfa": "Verificación en dos pasos",
+        "authentication-code-title": "Código de autenticación",
+        "authentication-code-verify-button": "Verificar",
+        "authentication-code-verifying-button": "Verificando",
+        "authentication-code-info": "Abre tu aplicación de verificación en dos pasos (TOTP) para ver el código de autenticación"
     }
 }

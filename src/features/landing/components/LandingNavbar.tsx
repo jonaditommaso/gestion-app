@@ -25,7 +25,7 @@ export function LandingNavbar() {
   const pathname = usePathname();
   const t = useTranslations('landing')
 
-  if(pathname === '/login' || pathname === '/signup') return null; //check how to implement it in ssr, and more gral
+  if(pathname === '/login' || pathname === '/signup' || pathname === '/mfa') return null; //check how to implement it in ssr, and more gral
 
 
   return (
