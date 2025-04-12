@@ -63,14 +63,18 @@ const UserButton = () => {
                         <p className="text-xs text-neutral-500">{email}</p>
                     </div>
                 </div>
-                {userButtonOptions.map(option => (
-                    <Fragment key={option.key}>
-                        <Separator className="mb-1" />
-                        <DropdownMenuItem className={`h-10 flex items-center justify-center font-medium cursor-pointer ${option.color} ${option.hoverColor}`} onClick={() => handleOptionSelected(option.action)}>
-                            {option.icon} {option.text}
-                        </DropdownMenuItem>
-                    </Fragment>
-                ))}
+                {userButtonOptions.map(option => {
+                    if(option.permission === 'admin' && user?.prefs.role !== 'ADMIN') return null;
+
+                    return (
+                        <Fragment key={option.key}>
+                            <Separator className="my-1" />
+                            <DropdownMenuItem className={`h-10 flex items-center justify-center font-medium cursor-pointer ${option.color} ${option.hoverColor}`} onClick={() => handleOptionSelected(option.action)}>
+                                {option.icon} {option.text}
+                            </DropdownMenuItem>
+                        </Fragment>
+                    )
+                })}
             </DropdownMenuContent>
         </DropdownMenu>
     );

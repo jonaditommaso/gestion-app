@@ -8,6 +8,7 @@ type UserButtonOptionType = {
     action: 'logout' | (() => void);
     color: string;
     hoverColor: string;
+    permission?: string;
 };
 
 export const userButtonOptions: UserButtonOptionType[]  = [
@@ -18,6 +19,7 @@ export const userButtonOptions: UserButtonOptionType[]  = [
         action: () => redirect('/pricing'),
         color: 'text-blue-600',
         hoverColor: 'hover:!text-blue-400',
+        permission: 'admin'
     },
     {
         key: 'settings',

@@ -8,7 +8,7 @@ const Plan = async () => {
     return (
         <div className="flex items-center justify-between w-full">
             <h2>{capitalize(user?.prefs?.plan)}</h2>
-            <Button variant='outline'>Ver planes</Button>
+            {user?.prefs.role === 'ADMIN' && <Button variant='outline'>Ver planes</Button>}
         </div>
     );
 }
