@@ -58,9 +58,14 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
             import: 0,
             note: ''
         }
-    })
+    });
 
-    const categories = useMemo(() => data?.documents[0][`${form.getValues('type')}Categories`] || [], [data, form.getValues('type')])
+    const categories = useMemo(() => {
+        if (data?.documents[0]) {
+            return data?.documents[0][`${form.getValues('type')}Categories`]
+        }
+        return []
+    }, [data, form.getValues('type')])
 
     const onSubmit = (values: zod.infer<typeof billingOperationSchema>) => {
         mutate({json: values}, {
