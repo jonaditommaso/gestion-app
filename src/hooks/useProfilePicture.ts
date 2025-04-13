@@ -17,7 +17,7 @@ export const useProfilePicture = () => {
             onError: (err) => {
                 console.error('No se pudo obtener la imagen:', err);
             }
-            })
+        })
     }, []);
 
     return { imageUrl, isPending }

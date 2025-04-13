@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image';
-import { Pencil } from 'lucide-react';
+import { Loader, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useUploadImageProfile } from '../api/use-upload-image-profile';
@@ -20,7 +20,7 @@ interface ProfilePhotoEditionProps {
 const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadImageProfile, isPending } = useUploadImageProfile();
-    const { imageUrl } = useProfilePicture();
+    const { imageUrl, isPending: isProfilePicturePending } = useProfilePicture();
 
     const avatarFallback = user?.name.charAt(0).toUpperCase() ?? 'U';
 
@@ -48,6 +48,14 @@ const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
 
             form.handleSubmit(onSubmit)();
         }
+    }
+
+    if(isProfilePicturePending) {
+        return (
+            <div className="w-40 h-40 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
+                <Loader className="size-4 animate-spin text-muted-foreground" />
+            </div>
+        )
     }
 
     return (
