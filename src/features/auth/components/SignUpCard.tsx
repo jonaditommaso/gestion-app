@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import PlanSelected from "./PlanSelected";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 
 const SignUpCard = () => {
     const { mutate, isPending } = useRegister();
@@ -151,11 +152,11 @@ const SignUpCard = () => {
                 </CardContent>
                 <Separator />
                 <CardContent className="p-7 flex flex-col gap-y-4">
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
+                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
                     <FcGoogle className="mr-2 size-5" />
                     {t('login-with')} Google
                 </Button>
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
+                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
                     <FaGithub className="mr-2 size-5" />
                     {t('login-with')} Github
                 </Button>

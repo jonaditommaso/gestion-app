@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form'
 import { loginSchema } from "../schemas";
 import { useLogin } from "../api/use-login";
-import { signUpWithGithub } from "@/lib/oauth";
+import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import { useTranslations } from "next-intl";
 
 const LoginCard = () => {
@@ -94,7 +94,7 @@ const LoginCard = () => {
                 </CardContent>
                 <Separator />
                 <CardContent className="p-7 flex flex-col gap-y-4">
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
+                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
                     <FcGoogle className="mr-2 size-5" />
                     {t('login-with')} Google
                 </Button>
