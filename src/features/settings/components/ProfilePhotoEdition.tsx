@@ -2,24 +2,40 @@
 import Image from 'next/image';
 import { Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCurrent } from '@/features/auth/api/use-current';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useUploadImageProfile } from '../api/use-upload-image-profile';
-import { useMemo, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from "react-hook-form";
 import { profilePhotoSchema } from '../schemas';
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
+import { Models } from 'node-appwrite';
+import { useGetImageProfile } from '../api/use-get-image-profile';
 
-const ProfilePhotoEdition = () => {
-    const { data: user } = useCurrent();
+interface ProfilePhotoEditionProps {
+    user: Models.User<Models.Preferences>
+}
+
+const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
+    const [imageUrl, setImageUrl] = useState<any>(undefined);
+    const {mutate: getImageProfile } = useGetImageProfile()
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadImageProfile, isPending } = useUploadImageProfile();
 
-    const avatarFallback = user?.name.charAt(0).toUpperCase() ?? 'U';
+    useEffect(() => {
+        getImageProfile(undefined, {
+            onSuccess: (blob) => {
+              const url = URL.createObjectURL(blob);
+              setImageUrl(url);
+            },
+            onError: (err) => {
+              console.error('No se pudo obtener la imagen:', err);
+            }
+          })
+    }, []);
 
-    const image = useMemo(() => user?.prefs.image, [user]);
+    const avatarFallback = user?.name.charAt(0).toUpperCase() ?? 'U';
 
     const form = useForm<zod.infer<typeof profilePhotoSchema>>({
         resolver: zodResolver(profilePhotoSchema),
@@ -49,10 +65,10 @@ const ProfilePhotoEdition = () => {
 
     return (
         <div className="relative w-40 h-40 group">
-            {user?.prefs.image
+            {imageUrl
                 ? <Image
-                    src={image instanceof File ? URL.createObjectURL(image): image}
-                    alt="Foto de perfil"
+                    src={imageUrl}
+                    alt="Profile picture"
                     fill
                     className="rounded-full object-cover border border-gray-300"
                 />

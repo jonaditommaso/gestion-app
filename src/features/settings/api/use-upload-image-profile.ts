@@ -24,7 +24,7 @@ export const useUploadImageProfile = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Imagen actualizada con exito');
+            toast.success('Imagen actualizada con exito. Reinicia si no ves el cambio.');
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['image-profile'] })
         },

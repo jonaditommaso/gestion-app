@@ -27,7 +27,7 @@ const SettingsView = async () => {
                     })}
                 </div>
                 <div className="w-[400px] flex flex-col items-center">
-                    <ProfilePhotoEdition />
+                    <ProfilePhotoEdition user={user} />
                     <Separator className="my-10" />
                     <Languages />
                     <Separator className="my-10" />

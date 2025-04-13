@@ -55,32 +55,78 @@ const app = new Hono()
         const body = await ctx.req.formData()
         const image = body.get('image');
 
-        let uploadImageUrl: string | undefined;
-
         if (image && image instanceof File) {
 
+            const previousImage = user?.prefs?.image;
+
+            //eliminar foto previa
+            if (previousImage) {
+                const fileList = await storage.listFiles(IMAGES_BUCKET_ID);
+                const matchedFile = fileList.files.find(file => {
+                  return previousImage.includes(file.$id);
+                });
+
+                if (matchedFile) {
+                  try {
+                    await storage.deleteFile(IMAGES_BUCKET_ID, matchedFile.$id);
+                  } catch (err) {
+                    console.error('Error deleting previous image:', err);
+                    // no arrojar un error, seguir el flujo
+                  }
+                }
+            }
+
+            // upload new image, creating file
             const file = await storage.createFile(
                 IMAGES_BUCKET_ID,
                 ID.unique(),
                 image
-            )
-
-            const arrayBuffer = await storage.getFileDownload(
-                IMAGES_BUCKET_ID,
-                file.$id
             );
 
-            uploadImageUrl = `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`
-
             await users.updatePrefs(user.$id, {
-                ...user.prefs,
-                image: uploadImageUrl
+                ...(user.prefs ?? {}),
+                image: file.$id
             });
 
             return ctx.json({ success: true })
         }
 
         return ctx.json({ success: false, message: 'No file uploaded' }, 400);
+    }
+)
+
+.get(
+    '/get-image',
+    sessionMiddleware,
+    async ctx => {
+        const storage = ctx.get('storage');
+        const user = ctx.get('user');
+
+        const account = ctx.get('account')
+        const session = await account.getSession('current');
+
+        if (!user?.prefs?.image) {
+            return ctx.json({ success: false, message: 'No image found for the user' }, 400);
+        }
+
+        const imageId = user.prefs.image;
+
+        try {
+            const fileMetadata = await storage.getFile(IMAGES_BUCKET_ID, imageId);
+            const mimeType = fileMetadata.mimeType;
+
+            const fileBuffer = await storage.getFileView(IMAGES_BUCKET_ID, imageId);
+
+            return new Response(fileBuffer, {
+                headers: {
+                  'Content-Type': mimeType,
+                  'Access-Control-Allow-Origin': '*',
+                },
+              });
+        } catch (err) {
+            console.error('Error al obtener la imagen:', err);
+            return ctx.json({ success: false, message: 'Error fetching the image' }, 500);
+        }
     }
 )
 

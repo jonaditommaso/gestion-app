@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/v1/create-qr-code/**'
       },
+      {
+        protocol: 'https',
+        hostname: 'cloud.appwrite.io',
+        port: '',
+        pathname: '/**',
+      },
     ],
   }
 };
