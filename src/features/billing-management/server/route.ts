@@ -50,16 +50,21 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const operations = await databases.listDocuments(
-                DATABASE_ID,
-                BILLINGS_ID,
-                [
-                    Query.equal('userId', user.$id),
-                    Query.orderDesc('$createdAt'),
-                ]
-            );
+            try {
+                const operations = await databases.listDocuments(
+                    DATABASE_ID,
+                    BILLINGS_ID,
+                    [
+                        Query.equal('userId', user.$id),
+                        Query.orderDesc('$createdAt'),
+                    ]
+                );
 
-            return ctx.json({ data: operations })
+                return ctx.json({ data: operations });
+            } catch (err) {
+                console.error('Error fetching billing operations:', err);
+                return ctx.json({ data: { total: 0, documents: [] } }, 200);
+            }
         }
     )
 
