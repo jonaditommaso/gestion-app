@@ -54,6 +54,7 @@ const app = new Hono()
                 DATABASE_ID,
                 BILLINGS_ID,
                 [
+                    Query.equal('userId', user.$id),
                     Query.orderDesc('$createdAt'),
                 ]
             );
