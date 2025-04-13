@@ -9,12 +9,15 @@ import { redirect } from "next/navigation";
 import { Fragment, useState } from "react";
 import { userButtonOptions } from "../userButtonOptions";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import { useProfilePicture } from "@/hooks/useProfilePicture";
 
 const UserButton = () => {
     const { data: user, isLoading } = useCurrent();
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
     const { setTheme } = useTheme();
+    const { imageUrl } = useProfilePicture();
 
     if(isLoading) {
         return (
@@ -45,19 +48,39 @@ const UserButton = () => {
     return (
         <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger className="outline-none relative">
-                <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
-                    <AvatarFallback className="bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center">
-                        {avatarFallback}
-                    </AvatarFallback>
-                </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="bottom" className="w-60" sideOffset={10}>
-                <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
-                    <Avatar className="size-[50px] transition border border-neutral-300">
-                        <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">
+                {imageUrl
+                    ? <Image
+                        src={imageUrl}
+                        alt="Profile picture"
+                        height={50}
+                        width={40}
+                        className="rounded-sm object-cover border border-gray-300"
+                    />
+                    : (
+                    <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
+                        <AvatarFallback className="bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center">
                             {avatarFallback}
                         </AvatarFallback>
                     </Avatar>
+                )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="bottom" className="w-60" sideOffset={10}>
+                <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
+                    {imageUrl
+                        ? <Image
+                            src={imageUrl}
+                            alt="Profile picture"
+                            className="rounded-sm object-cover border border-gray-300"
+                            height={40}
+                            width={40}
+                        />
+                    : (
+                        <Avatar className="size-[50px] transition border border-neutral-300">
+                            <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">
+                                {avatarFallback}
+                            </AvatarFallback>
+                        </Avatar>
+                    )}
                     <div className="flex flex-col items-center justify-center">
                         <p className="text-sm font-medium text-neutral-900">{name || 'Usuario'}</p>
                         <p className="text-xs text-neutral-500">{email}</p>

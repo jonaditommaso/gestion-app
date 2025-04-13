@@ -4,36 +4,23 @@ import { Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useUploadImageProfile } from '../api/use-upload-image-profile';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useForm } from "react-hook-form";
 import { profilePhotoSchema } from '../schemas';
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { Models } from 'node-appwrite';
-import { useGetImageProfile } from '../api/use-get-image-profile';
+import { useProfilePicture } from '@/hooks/useProfilePicture';
 
 interface ProfilePhotoEditionProps {
     user: Models.User<Models.Preferences>
 }
 
 const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
-    const [imageUrl, setImageUrl] = useState<any>(undefined);
-    const {mutate: getImageProfile } = useGetImageProfile()
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadImageProfile, isPending } = useUploadImageProfile();
-
-    useEffect(() => {
-        getImageProfile(undefined, {
-            onSuccess: (blob) => {
-              const url = URL.createObjectURL(blob);
-              setImageUrl(url);
-            },
-            onError: (err) => {
-              console.error('No se pudo obtener la imagen:', err);
-            }
-          })
-    }, []);
+    const { imageUrl } = useProfilePicture();
 
     const avatarFallback = user?.name.charAt(0).toUpperCase() ?? 'U';
 
