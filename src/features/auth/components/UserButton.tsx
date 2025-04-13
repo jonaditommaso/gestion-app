@@ -17,9 +17,9 @@ const UserButton = () => {
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
     const { setTheme } = useTheme();
-    const { imageUrl } = useProfilePicture();
+    const { imageUrl, isPending } = useProfilePicture();
 
-    if(isLoading) {
+    if(isLoading || isPending) {
         return (
             <div className="size-10 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
                 <Loader className="size-4 animate-spin text-muted-foreground" />

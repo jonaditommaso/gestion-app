@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export const useProfilePicture = () => {
     const [imageUrl, setImageUrl] = useState<any>(undefined);
-    const {mutate: getImageProfile } = useGetImageProfile()
+    const {mutate: getImageProfile, isPending } = useGetImageProfile()
 
 
     useEffect(() => {
@@ -20,5 +20,5 @@ export const useProfilePicture = () => {
             })
     }, []);
 
-    return { imageUrl }
+    return { imageUrl, isPending }
 }
