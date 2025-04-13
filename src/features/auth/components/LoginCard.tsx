@@ -17,9 +17,12 @@ import {
 } from '@/components/ui/form'
 import { loginSchema } from "../schemas";
 import { useLogin } from "../api/use-login";
+import { signUpWithGithub } from "@/lib/oauth";
+import { useTranslations } from "next-intl";
 
 const LoginCard = () => {
-    const { mutate, isPending } = useLogin()
+    const { mutate, isPending } = useLogin();
+    const t = useTranslations('auth')
 
     const form = useForm<zod.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -84,7 +87,7 @@ const LoginCard = () => {
                             />
 
                             <Button size='lg' className="w-full" disabled={isPending}>
-                                Iniciar sesión
+                                {t('login')}
                             </Button>
                         </form>
                     </Form>
@@ -93,11 +96,11 @@ const LoginCard = () => {
                 <CardContent className="p-7 flex flex-col gap-y-4">
                 <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
                     <FcGoogle className="mr-2 size-5" />
-                    Iniciar sesión con Google
+                    {t('login-with')} Google
                 </Button>
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending}>
+                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
                     <FaGithub className="mr-2 size-5" />
-                    Iniciar sesión con Github
+                    {t('login-with')} Github
                 </Button>
                 </CardContent>
             </Card>
