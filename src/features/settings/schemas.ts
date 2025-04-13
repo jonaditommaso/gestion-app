@@ -7,3 +7,12 @@ export const userNameSchema = zod.object({
 export const mfaCodeSchema = zod.object({
   mfaCode: zod.string().min(1, 'Codigo requerido')
 });
+
+export const profilePhotoSchema = zod.object({
+  // image: zod.union([
+  //   zod.instanceof(File),
+  //   zod.string().transform((value) => value === '' ? undefined : value)
+  // ])
+  // .optional()
+  image: zod.any()
+})
