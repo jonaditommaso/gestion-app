@@ -151,5 +151,11 @@
         "authentication-code-verify-button": "Verificar",
         "authentication-code-verifying-button": "Verificando",
         "authentication-code-info": "Abre tu aplicación de verificación en dos pasos (TOTP) para ver el código de autenticación"
+    },
+    "info-messages": {
+        "empty-table": "Tabla vacía",
+        "no-records": "No tienes registros en esta tabla. Agrega al menos uno para ver un resultado.",
+        "no-billing-data": "No hay datos disponibles",
+        "add-operation": "Agrega una nueva operación para ver resultados."
     }
 }

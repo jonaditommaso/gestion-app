@@ -41,5 +41,8 @@
         "footer-faq": "FAQ",
         "footer-terms": "Terms",
         "footer-contact-us": "Contact us"
+    },
+    "info-messages": {
+        "empty-table": "Empty table"
     }
 }
