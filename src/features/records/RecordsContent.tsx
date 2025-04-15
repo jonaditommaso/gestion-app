@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from 'lucide-react';
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
-import NoRecords from "./NoRecords";
+import NoData from "../../components/NoData";
 import { FormEvent, useState } from "react";
 import AddRecordsTableModal from "./components/AddRecordsTableModal";
 import { useCreateRecordsTable } from "./api/use-create-records-table";
@@ -73,7 +73,7 @@ const RecordsContent = () => {
                     {dataRecords.documents.map(record => (
                         <TabsContent value={record.$id} key={record.$id}>
                             {record.rows?.length === 0
-                                ? <NoRecords />
+                                ? <NoData title="empty-table" description="no-records" />
                                 : <DataTable
                                     headers={isPending ? [] : (record?.headers ?? [])}
                                     rows={isPending ? [] : (record?.rows ?? [])}

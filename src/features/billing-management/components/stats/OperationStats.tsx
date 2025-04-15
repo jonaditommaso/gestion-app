@@ -4,6 +4,7 @@ import { useGetOperations } from "../../api/use-get-operations";
 import { generateColorFromPalette } from "@/lib/utils";
 import { StatsPieChart } from "./StatsPieChart";
 import StatsCategoriesList from "./StatsCategoriesList";
+import NoData from "@/components/NoData";
 
 interface OperationStatsProps {
     type: 'incomes' | 'expenses'
@@ -18,7 +19,11 @@ const OperationStats = ({ type }: OperationStatsProps) => {
         </div>
     )
 
-    if (data?.total === 0) return 'No hay datos disponibles'
+    if (data?.total === 0) return (
+      <div className="w-[800px]">
+          <NoData title="no-billing-data" description="add-operation" />
+      </div>
+    )
 
     const result = Object.groupBy(data?.documents!, ({ type }) =>
         type === 'income' ? "incomes" : "expenses",

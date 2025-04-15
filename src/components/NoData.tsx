@@ -1,15 +1,24 @@
+'use client'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FolderOpen } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
-const NoRecords = () => {
+interface NoDataProps {
+    title: string,
+    description: string
+}
+
+const NoData = ({ title, description }: NoDataProps) => {
+    const t = useTranslations('info-messages');
+
     return (
         <>
             <Alert variant='default'>
                 <FolderOpen className="h-4 w-4" />
-                <AlertTitle>Empty table</AlertTitle>
+                <AlertTitle>{t(title)}</AlertTitle>
                 <AlertDescription>
-                    No tienes registros en esta tabla. Agrega al menos uno para ver un resultado.
+                    {t(description)}
                 </AlertDescription>
             </Alert>
             <div className="flex justify-center mt-20">
@@ -19,4 +28,4 @@ const NoRecords = () => {
     );
 }
 
-export default NoRecords;
+export default NoData;
