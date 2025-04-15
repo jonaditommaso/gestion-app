@@ -13,7 +13,7 @@ export const items = [
     },
     {
         title: 'Opciones',
-        menuItems: ['categories', 'currencies', 'export', 'adjust budget'],
+        menuItems: ['categories', 'export'], //'currencies', 'adjust budget'],
         bgColor: "bg-sky-700",
         id: 'options',
     },
