@@ -1,19 +1,19 @@
 export const items = [
     {
-        title: 'Transacciones',
+        title: 'transactions',
         menuItems: ['details', 'calendar', 'accounts'],
         bgColor: 'bg-teal-700',
         id: 'transactions',
     },
     {
-        title: 'Estadisticas',
+        title: 'stats',
         menuItems: ['incomes', 'expenses'],
         bgColor: 'bg-rose-700',
         id: 'stats',
     },
     {
-        title: 'Opciones',
-        menuItems: ['categories', 'export'], //'currencies', 'adjust budget'],
+        title: 'options',
+        menuItems: ['categories'], //'export', 'currencies', 'adjust budget'],
         bgColor: "bg-sky-700",
         id: 'options',
     },

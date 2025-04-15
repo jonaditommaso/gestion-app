@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -9,6 +10,7 @@ import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { useGetBillingOptions } from "../../api/use-get-billing-options";
 import { useUpdateBillingOptions } from "../../api/use-update-billing-options";
 import { TooltipContainer } from "@/components/TooltipContainer";
+import { useTranslations } from "next-intl";
 
 interface CategoryRowProps {
     category: string,
@@ -25,10 +27,11 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
     const { data } = useGetBillingOptions();
     const {mutate: updateCategories} = useUpdateBillingOptions();
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
-    const [newCategory, setNewCategory] = useState(category)
+    const [newCategory, setNewCategory] = useState(category);
+    const t =  useTranslations('billing')
 
-    const incomeCategories = useMemo(() => data?.documents[0].incomeCategories || [], [data])
-    const expenseCategories = useMemo(() => data?.documents[0].expenseCategories || [], [data])
+    const incomeCategories = useMemo(() => data?.documents[0]?.incomeCategories || [], [data])
+    const expenseCategories = useMemo(() => data?.documents[0]?.expenseCategories || [], [data])
 
     const handleClick = () => {
         if (editingCategory === index) {
@@ -66,13 +69,12 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
         setPopoverIsOpen(false)
     }
 
-
     return (
         <TableRow key={category}>
             <TableCell className="flex items-center justify-between">
                 {editingCategory === index
                     ? <Input
-                        placeholder="Nueva categoria..."
+                        placeholder={t('new-category')}
                         value={newCategory}
                         onChange={(e) => setNewCategory(e.target.value)}
                         className="border-l-0 border-t-0 border-r-0 rounded-none focus-visible:ring-0"
@@ -80,7 +82,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                     : <p>{category}</p>
                 }
                 <div className="flex gap-2 items-center">
-                    <TooltipContainer tooltipText={editingCategory === index ? 'Guardar' :"Editar"}>
+                    <TooltipContainer tooltipText={editingCategory === index ? t('save') : t('edit')}>
                         <span
                             className={cn("cursor-pointer", editingCategory === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
                             onClick={handleClick}
@@ -89,22 +91,22 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                         </span>
                     </TooltipContainer>
                     {editingCategory === index && (
-                        <TooltipContainer tooltipText="Cancelar">
+                        <TooltipContainer tooltipText={t('cancel')}>
                             <span className="cursor-pointer text-red-600" onClick={() => setEditingCategory(undefined)}><XIcon className="size-4" /></span>
                         </TooltipContainer>
                     )}
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
-                            <TooltipContainer tooltipText="Eliminar">
+                            <TooltipContainer tooltipText={t('delete')}>
                                 <PopoverTrigger asChild>
                                     <span className="cursor-pointer text-red-600"><Trash2 className="size-4" /></span>
                                 </PopoverTrigger>
                             </TooltipContainer>
                         <PopoverContent>
-                            <p className="text-sm text-balance text-center">Are you sure you want to delete this category?</p>
+                            <p className="text-sm text-balance text-center">{t('are-you-sure-delete')}</p>
                             <Separator className="my-2"/>
                             <div className="flex items-center gap-2 justify-center">
-                                <Button variant='outline' size='sm' onClick={() => setPopoverIsOpen(false)}>Cancelar</Button>
-                                <Button variant='destructive' size='sm' onClick={handleDelete}>Eliminar</Button>
+                                <Button variant='outline' size='sm' onClick={() => setPopoverIsOpen(false)}>{t('cancel')}</Button>
+                                <Button variant='destructive' size='sm' onClick={handleDelete}>{t('delete')}</Button>
                             </div>
                         </PopoverContent>
                     </Popover>

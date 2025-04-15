@@ -16,7 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import capitalize from "@/utils/capitalize"
+import { useTranslations } from "next-intl"
 
 interface StatsPieChartProps {
   categoriesData: {
@@ -28,11 +28,12 @@ interface StatsPieChartProps {
 }
 
 export function StatsPieChart({ categoriesData, type }: StatsPieChartProps) {
+  const t = useTranslations('billing')
 
   return (
-    <Card className="flex flex-col p-0">
+    <Card className="flex flex-col p-0 pb-2">
       <CardHeader className="items-center pb-0">
-        <CardTitle>{capitalize(type)}</CardTitle>
+        <CardTitle>{t(type)}</CardTitle>
         {/* <CardDescription>Add description, maybe the range selected in future</CardDescription> */}
       </CardHeader>
       <CardContent className="flex-1 p-0">

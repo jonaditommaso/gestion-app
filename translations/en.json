@@ -44,5 +44,14 @@
     },
     "info-messages": {
         "empty-table": "Empty table"
+    },
+    "billing": {
+        "recent-invoices-list": "List of your recent invoices.",
+        "invoice": "Invoice",
+        "type": "Type",
+        "date": "Date",
+        "category": "Category",
+        "amount": "Amount",
+        "are-you-sure-delete": "Are you sure you want to delete this category?"
     }
 }

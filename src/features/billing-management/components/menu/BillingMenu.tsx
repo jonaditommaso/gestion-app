@@ -6,10 +6,12 @@ import { items } from "./items";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AddOperationModal from "../AddOperationModal";
+import { useTranslations } from "next-intl";
 
 const BillingMenu = () => {
     const [activeView, setActiveView] = useState('transactions');
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
+    const t = useTranslations('billing')
 
     return (
         <div className="flex flex-col items-center gap-4 mr-5">
@@ -22,7 +24,7 @@ const BillingMenu = () => {
                 className="w-56"
                 onClick={() => setIsOpen(true)}
             >
-                Agregar operacion <Plus />
+                {t('add-operation')} <Plus />
             </Button>
             {items.map(item => (
                 <MenuCard

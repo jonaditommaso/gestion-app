@@ -5,6 +5,7 @@ import { useState } from "react";
 import CategoryRow from "./CategoryRow";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface CategoriesListProps {
     categories: string[],
@@ -15,13 +16,14 @@ interface CategoriesListProps {
 
 const CategoriesList = ({ categories, header, type, handleOpenModal }: CategoriesListProps) => {
     const [editingCategory, setEditingCategory] = useState<undefined | number>(undefined);
+    const t = useTranslations('billing')
 
     return (
         <Table className="border p-4 min-w-[450px]">
             <TableHeader>
             <TableRow>
                 <TableHead className={cn("font-semibold text-center grid grid-cols-4 items-center w-[100%]", type === 'income' ? 'text-green-600' : 'text-red-600')}>
-                    <span className="col-span-3 ml-8">{header}</span>
+                    <span className="col-span-3 ml-8">{t(header)}</span>
                     <span className="col-span-1 text-end">
                         <Button className="h-[30px] text-gray-700" type="button" variant="outline" size="icon" onClick={() => handleOpenModal(type)}>
                             <Plus className="h-[1rem] w-[1rem]" />

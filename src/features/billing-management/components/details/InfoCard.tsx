@@ -5,6 +5,7 @@ import { Scale, TrendingDown, TrendingUp } from "lucide-react";
 import { useDataBillingTable } from "../../hooks/useDataBillingTable";
 import { billingServiceObserver } from "@/utils/billingServiceObserver";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface InfoCardProps {
     numberMoney: number,
@@ -16,24 +17,25 @@ const types = {
         icon: TrendingUp,
         color: '#0bb314',
         id: 'income',
-        message: 'Ver solo ingresos'
+        message: 'see-incomes'
     },
     expenses: {
         icon: TrendingDown,
         color: '#f03410',
         id: 'expense',
-        message: 'Ver solo gastos'
+        message: 'see-expenses'
     },
     total: {
         icon: Scale,
         color: '#3f51b5',
         id: 'total',
-        message: 'Ver total'
+        message: 'see-total'
     }
 }
 
 const InfoCard = ({ numberMoney, type }: InfoCardProps) => {
     const { selectedData } = useDataBillingTable();
+    const t = useTranslations('billing')
 
     const [dataType, setDataType] = useState(selectedData);
 
@@ -57,7 +59,7 @@ const InfoCard = ({ numberMoney, type }: InfoCardProps) => {
             </CardContent>
             <CardFooter className="justify-center">
                 <Button variant='link' size='sm' className={dataType === types[type].id ? 'text-blue-600' : ''} onClick={handleChangeDataView}>
-                    {types[type].message}
+                    {t(types[type].message)}
                 </Button>
             </CardFooter>
         </Card>

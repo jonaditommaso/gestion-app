@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useCreateBillingOptions } from "../api/use-create-billing-options";
 import { useUpdateBillingOptions } from "../api/use-update-billing-options";
+import { useTranslations } from "next-intl";
 
 const defaultValues = {
     type: 'income',
@@ -41,12 +42,13 @@ interface AddOperationModalProps {
 }
 
 const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
-    const { mutate, isPending } = useCreateOperation()
-    const { mutate: createCategory } = useCreateBillingOptions()
-    const {mutate: updateCategories} = useUpdateBillingOptions()
-    const { data, isLoading: isLoadingCategories } = useGetBillingOptions()
+    const { mutate, isPending } = useCreateOperation();
+    const { mutate: createCategory } = useCreateBillingOptions();
+    const {mutate: updateCategories} = useUpdateBillingOptions();
+    const { data, isLoading: isLoadingCategories } = useGetBillingOptions();
+    const t = useTranslations('billing')
 
-    const [newCategoryInput, setNewCategoryInput] = useState(false)
+    const [newCategoryInput, setNewCategoryInput] = useState(false);
 
     const form = useForm<zod.infer<typeof billingOperationSchema>>({
         resolver: zodResolver(billingOperationSchema),
@@ -108,14 +110,14 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
     }
 
     const types = [
-        { label: "Ingreso", type: "income", textColor: "text-emerald-600", border: 'border-t-emerald-600' },
-        { label: "Egreso", type: "expense", textColor: "text-red-600", border: 'border-t-red-600' },
+        { label: "income", type: "income", textColor: "text-emerald-600", border: 'border-t-emerald-600' },
+        { label: "expense", type: "expense", textColor: "text-red-600", border: 'border-t-red-600' },
     ]
 
     return (
         <DialogContainer
             // description=""
-            title="Anadir operacion"
+            title={t("add-operation")}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
         >
@@ -135,8 +137,6 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                                 className="hidden"
                                                 checked={field.value === type}
                                                 onChange={() => field.onChange(type)}
-                                                defaultChecked={types[0].type === type}
-                                                defaultValue={types[0].type}
                                             />
                                             <div
                                                 className={`px-4 py-2 rounded-md w-full transition-colors ${
@@ -145,7 +145,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                                     : `border-2 border-t-8 border-t-zinc-300 bg-muted text-muted-foreground`
                                                 }`}
                                             >
-                                            {label}
+                                            {t(label)}
                                             </div>
                                         </label>
                                     ))}
@@ -160,7 +160,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Category
+                                    {t('category')}
                                 </FormLabel>
                                 <FormControl>
                                     <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                             : (
                                                 newCategoryInput ? (
                                                     <Input
-                                                        placeholder="Ventas por mayor..."
+                                                        placeholder={t('wholesale-sales')}
                                                         className="!mt-0"
                                                         disabled={isPending}
                                                         {...field}
@@ -177,7 +177,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                                 ) : (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger className="w-full flex items-center justify-between gap-2 p-2 border rounded-sm focus:outline-none !mt-0" disabled={isPending || categories.length === 0}>
-                                                        <p className={cn("text-zinc-800 text-sm", categories.length === 0 && 'text-muted-foreground')}>{categories.length === 0 ? 'No existen categorias' : 'Escoge una categoria'}</p>
+                                                        <p className={cn("text-zinc-800 text-sm", categories.length === 0 && 'text-muted-foreground')}>{categories.length === 0 ? t('no-categories') : t('choise-category')}</p>
                                                         <ChevronsUpDown size={14} className={categories.length === 0 ? 'text-muted-foreground' : ''} />
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent>
@@ -206,7 +206,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Date
+                                    {t('date')}
                                 </FormLabel>
                                 <FormControl>
                                     <CustomDatePicker
@@ -225,7 +225,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Import
+                                    {t('amount')}
                                 </FormLabel>
                                 <FormControl>
                                     <Input
@@ -254,11 +254,11 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                         render={({ field }) => ( //className="flex items-center gap-2"
                             <FormItem >
                                 <FormLabel htmlFor="note">
-                                    Note
+                                    {t('note')}
                                 </FormLabel>
                                 <FormControl>
                                     <Input
-                                        placeholder="Relacionado con..."
+                                        placeholder={t('related-with')}
                                         className="!mt-0"
                                         disabled={isPending}
                                         {...field}
@@ -275,7 +275,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                             className="w-full"
                             disabled={isPending}
                         >
-                            Guardar
+                            {t('save')}
                         </Button>
                         <Button
                             size='lg'
@@ -283,7 +283,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                             disabled={isPending}
                             onClick={onCancel}
                         >
-                            Cancelar
+                            {t('cancel')}
                         </Button>
                     </div>
                 </form>

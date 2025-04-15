@@ -8,19 +8,21 @@ import { useUpdateBillingOptions } from "../../api/use-update-billing-options";
 import { DialogContainer } from "@/components/DialogContainer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 const AllCategoriesTable = () => {
-    const { data, isLoading: isLoadingCategories } = useGetBillingOptions()
-    const {mutate: updateCategories} = useUpdateBillingOptions()
+    const { data, isLoading: isLoadingCategories } = useGetBillingOptions();
+    const {mutate: updateCategories} = useUpdateBillingOptions();
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [typeToChange, setTypeToChange] = useState<null | string>(null);
+    const t = useTranslations('billing')
 
-    const incomeCategories = useMemo(() => data?.documents[0].incomeCategories || [], [data])
-    const expenseCategories = useMemo(() => data?.documents[0].expenseCategories || [], [data])
+    const incomeCategories = useMemo(() => data?.documents[0]?.incomeCategories || [], [data])
+    const expenseCategories = useMemo(() => data?.documents[0]?.expenseCategories || [], [data])
 
     const allCategories = useMemo(() => [
-        {header: 'Income categories', categories: incomeCategories, type: 'income'},
-        {header: 'Expense categories', categories: expenseCategories, type: 'expense'}
+        {header: 'income-categories', categories: incomeCategories, type: 'income'},
+        {header: 'expense-categories', categories: expenseCategories, type: 'expense'}
     ], [incomeCategories, expenseCategories]);
 
     if (isLoadingCategories) return (
@@ -64,7 +66,7 @@ const AllCategoriesTable = () => {
     return (
         <div className="flex gap-2">
             <DialogContainer
-                title="Add category"
+                title={t('add-category')}
                 isOpen={modalIsOpen}
                 setIsOpen={setModalIsOpen}
             >
@@ -72,7 +74,7 @@ const AllCategoriesTable = () => {
                     <div className="flex flex-col gap-4">
                         <Input name="newCategory" />
                         <Button className="w-[100%]" type="submit">
-                            Agregar
+                            {t('add')}
                         </Button>
                     </div>
                 </form>

@@ -17,12 +17,14 @@ import FadeLoader from "react-spinners/FadeLoader"
 import capitalize from "@/utils/capitalize"
 import { useDataBillingTable } from "../../hooks/useDataBillingTable"
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 
-const headers = ['Invoice', 'Type', 'Date', 'Category', 'Amount']
+const headers = ['invoice', 'type', 'date', 'category', 'amount']
 
 export function BillingTable() {
   const { data, isLoading } = useGetOperations();
   const { selectedData } = useDataBillingTable();
+  const t = useTranslations('billing')
 
   const [dataType, setDataType] = useState(selectedData);
 
@@ -42,11 +44,11 @@ export function BillingTable() {
   return (
     <div className="w-[900px] mt-10">
       <Table className="border p-4">
-        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableCaption>{t('recent-invoices-list')}</TableCaption>
         <TableHeader>
           <TableRow>
             {headers.map(header => (
-              <TableHead key={header} className={cn("w-[100px]", header === 'Amount' && 'text-right')}>{header}</TableHead>
+              <TableHead key={header} className={cn("w-[100px]", header === 'Amount' && 'text-right')}>{t(header)}</TableHead>
             ))}
           </TableRow>
         </TableHeader>
