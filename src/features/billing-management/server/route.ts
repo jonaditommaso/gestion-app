@@ -31,9 +31,34 @@ const app = new Hono()
                     date,
                     import: Number(importValue),
                     type,
-                    note
+                    note,
+                    userId: user.$id
                 }
             )
+
+            const billingOptions = await databases.listDocuments(
+                DATABASE_ID,
+                BILLING_OPTIONS_ID,
+                [
+                    Query.equal('userId', user.$id),
+                    Query.contains(`${type}Categories`, [category])
+                ]
+            );
+
+            if(billingOptions.total === 0) {
+                const payload = {
+                    [`${type}Categories`]: [category],
+                    [`${type === 'expense' ? 'income' : 'expense'}Categories`]: [],
+                    userId: user.$id,
+                }
+
+                await databases.createDocument(
+                    DATABASE_ID,
+                    BILLING_OPTIONS_ID,
+                    ID.unique(),
+                    payload
+                )
+            }
 
             return ctx.json({ data: newOperation })
         }
