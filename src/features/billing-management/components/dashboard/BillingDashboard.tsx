@@ -5,15 +5,19 @@ import DetailsInfoCards from "../details/DetailsInfoCards";
 import AllCategoriesTable from "../categories/AllCategoriesTable";
 import OperationStats from "../stats/OperationStats";
 import { useCurrentView } from "../../hooks/useCurrentView";
+import BillingCalendar from "../calendar/BillingCalendar";
+import { useTranslations } from "next-intl";
 
 const BillingDashboard = () => {
     const { currentView } = useCurrentView();
+    const t = useTranslations('info-messages');
 
     const views = {
         details: <>
             <DetailsInfoCards />
             <BillingTable />
         </>,
+        calendar: <BillingCalendar />,
         categories: <AllCategoriesTable />,
         incomes: (currentView === 'incomes' || currentView === 'expenses') && <OperationStats type={currentView} />,
         expenses: (currentView === 'incomes' || currentView === 'expenses') && <OperationStats type={currentView} />
@@ -25,7 +29,7 @@ const BillingDashboard = () => {
             ?? (
                 <div>
                     <Image src={'/working.svg'} alt='working' width={600} height={600} />
-                    <p className="p-4 text-center">Estamos trabajando en ello</p>
+                    <p className="p-4 text-center">{t('working')}</p>
                 </div>
             )
            }
