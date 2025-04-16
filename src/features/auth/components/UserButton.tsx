@@ -82,7 +82,7 @@ const UserButton = () => {
                         </Avatar>
                     )}
                     <div className="flex flex-col items-center justify-center">
-                        <p className="text-sm font-medium text-neutral-900">{name || 'Usuario'}</p>
+                        <p className="text-sm font-medium text-primary">{name || 'Usuario'}</p>
                         <p className="text-xs text-neutral-500">{email}</p>
                     </div>
                 </div>
