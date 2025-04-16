@@ -20,16 +20,16 @@ const OperationStats = ({ type }: OperationStatsProps) => {
     )
 
     if (data?.total === 0) return (
-      <div className="w-[800px]">
-          <NoData title="no-billing-data" description="add-operation" />
-      </div>
+        <div className="w-[800px]">
+            <NoData title="no-billing-data" description="add-operation" />
+        </div>
     )
 
     const result = Object.groupBy(data?.documents!, ({ type }) =>
         type === 'income' ? "incomes" : "expenses",
     );
 
-    const incomeStats = (result[type] || []).toSorted((a, b) => b.import - a.import).map((element, index) => {
+    const stats = (result[type] || []).toSorted((a, b) => b.import - a.import).map((element, index) => {
         return {
             category: element.category,
             import: element.import,
@@ -40,8 +40,8 @@ const OperationStats = ({ type }: OperationStatsProps) => {
 
     return (
         <div className="flex flex-col lg:flex-row gap-5 justify-around sm:flex-col">
-            <StatsCategoriesList categoriesData={incomeStats} />
-            <StatsPieChart categoriesData={incomeStats} type={type} />
+            <StatsCategoriesList categoriesData={stats} />
+            <StatsPieChart categoriesData={stats} type={type} />
         </div>
     );
 }
