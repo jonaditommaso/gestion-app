@@ -40,8 +40,6 @@ const BillingCalendar = () => {
         type: operation.type
     })) : []
 
-    console.log(operations)
-
     const handleNavigate = (action: 'PREV' | 'NEXT' | 'TODAY') => {
         if (action === 'PREV') {
             setValue(subMonths(value, 1))

@@ -43,7 +43,6 @@ const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
         const file = event.target.files?.[0];
 
         if (file) {
-            console.log(file)
             form.setValue('image', file);
 
             form.handleSubmit(onSubmit)();
