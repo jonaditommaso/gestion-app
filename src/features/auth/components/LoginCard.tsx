@@ -40,11 +40,11 @@ const LoginCard = () => {
         <div className="flex gap-36 items-center">
             <div className="justify-center">
                 <p className="text-6xl font-bold text-gray-800">Gestionate</p>
-                <p className="text-center text-lg mt-4">Trabajando duro o durando en el trabajo</p>
+                <p className="text-center text-lg mt-4">{t('initial-login-message')}</p>
             </div>
             <Card className="w-full h-full md:w-[490px] border-none shadow-none">
                 <CardHeader className="flex items-center justify-center text-center p-7">
-                    <CardTitle className="text-2xl">Iniciar sesión</CardTitle>
+                    <CardTitle className="text-2xl">{t('login')}</CardTitle>
                 </CardHeader>
                 <Separator />
                 <CardContent className="p-7">

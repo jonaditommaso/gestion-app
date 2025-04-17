@@ -136,10 +136,10 @@
     },
     "auth": {
         "welcome": "Bienvenido",
+        "initial-login-message": "¿Trabajando duro o durando en el trabajo?",
         "login": "Iniciar sesión",
         "login-with": "Iniciar sesión con",
         "password": "Contraseña",
-        "login-message": "Trabajando duro o durando en el trabajo",
         "back-home": "Regresar al inicio",
         "signup-info": "Si creas una cuenta, pero no escoges un plan, se creará una cuenta con Plan Free de manera automática. Puedes modificarlo siempre que quieras.",
         "signup-button": "Registrarse",
@@ -197,5 +197,19 @@
         "delete": "Eliminar",
         "edit": "Editar",
         "are-you-sure-delete": "¿Estás seguro que quieres eliminar esta categoría?"
+    },
+    "records": {
+        "create-records-table": "Crear nueva tabla de registros",
+        "add": "Agregar",
+        "add-table": "Agregar tabla",
+        "new-table": "Nueva tabla...",
+        "see-tables": "Ver tablas",
+        "your-tables": "Tus tablas",
+        "my-table-placeholder": "Esta es mi tabla...",
+        "delete": "Eliminar",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "edit": "Editar",
+        "are-you-sure-delete": "¿Estás seguro que quieres eliminar esta tabla?"
     }
 }

@@ -41,5 +41,8 @@
         "footer-faq": "Domande frequenti",
         "footer-terms": "Termini",
         "footer-contact-us": "Contattaci"
-}
+    },
+    "auth": {
+        "initial-login-message": "Lavori duro o duri al lavoro?"
+    }
 }

@@ -42,6 +42,9 @@
         "footer-terms": "Terms",
         "footer-contact-us": "Contact us"
     },
+    "auth": {
+        "initial-login-message": "Working hard or hardly working?"
+    },
     "info-messages": {
         "empty-table": "Empty table"
     },
@@ -53,5 +56,8 @@
         "category": "Category",
         "amount": "Amount",
         "are-you-sure-delete": "Are you sure you want to delete this category?"
+    },
+    "records": {
+        "create-records-table": "Create new records table"
     }
 }
