@@ -1,30 +1,26 @@
+'use client'
 import { DialogContainer } from "@/components/DialogContainer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 import { Dispatch, FormEvent, SetStateAction } from "react";
+import AddRecordsTable from "./AddRecordsTable";
 
 interface AddRecordsTableModalProps {
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
-    onCreateTable: (event: FormEvent<HTMLFormElement>) => void
+    onCreateTable: (event: FormEvent<HTMLFormElement>) => void,
+    isCreating: boolean
 }
 
-const AddRecordsTableModal = ({ isOpen, setIsOpen, onCreateTable }: AddRecordsTableModalProps) => {
+const AddRecordsTableModal = ({ isOpen, setIsOpen, onCreateTable, isCreating }: AddRecordsTableModalProps) => {
+    const t = useTranslations('records')
 
     return (
         <DialogContainer
-            title="Create new records table"
+            title={t('create-records-table')}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
         >
-            <form onSubmit={onCreateTable}>
-                <div className="flex flex-col gap-4">
-                    <Input name="records-table" />
-                    <Button className="w-[100%]" type="submit">
-                        Agregar
-                    </Button>
-                </div>
-            </form>
+            <AddRecordsTable onCreateTable={onCreateTable} isModal isCreating={isCreating} />
         </DialogContainer>
     );
 }
