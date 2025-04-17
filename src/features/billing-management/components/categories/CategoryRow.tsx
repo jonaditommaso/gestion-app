@@ -69,6 +69,11 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
         setPopoverIsOpen(false)
     }
 
+    const handleCancel = () => {
+        setEditingCategory(undefined);
+        setNewCategory(category);
+    }
+
     return (
         <TableRow key={category}>
             <TableCell className="flex items-center justify-between">
@@ -92,7 +97,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                     </TooltipContainer>
                     {editingCategory === index && (
                         <TooltipContainer tooltipText={t('cancel')}>
-                            <span className="cursor-pointer text-red-600" onClick={() => setEditingCategory(undefined)}><XIcon className="size-4" /></span>
+                            <span className="cursor-pointer text-red-600" onClick={handleCancel}><XIcon className="size-4" /></span>
                         </TooltipContainer>
                     )}
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
