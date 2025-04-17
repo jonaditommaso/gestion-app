@@ -57,6 +57,7 @@ const RecordsContent = () => {
             <ListTablesModal
                 isOpen={editTablesModalIsOpen}
                 setIsOpen={setEditTablesModalIsOpen}
+                tables={dataRecords.documents}
             />
             {dataRecords.total === 0
                 ? (

@@ -80,6 +80,60 @@ const app = new Hono()
 
         return ctx.json({ data: recordsTable })
     }
-);
+)
+
+.delete(
+        '/records-table/:tableId',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            const { tableId } = ctx.req.param();
+
+            await databases.deleteDocument(
+                DATABASE_ID,
+                RECORDS_ID,
+                tableId
+            );
+
+            const remaining = await databases.listDocuments(
+                DATABASE_ID,
+                RECORDS_ID,
+                [Query.equal('userId', user.$id)]
+            );
+
+            return ctx.json({ data: { $id: tableId, remaining: remaining.total } })
+        }
+)
+
+.patch(
+    "/records-table/:tableId",
+    zValidator('json', recordsTableSchema),
+    sessionMiddleware,
+    async (ctx) => {
+        const { tableName } = ctx.req.valid('json');
+
+        const databases = ctx.get('databases')
+        const user = ctx.get('user');
+
+        if(!user) {
+            return ctx.json({ error: 'Unauthorized' }, 401)
+        }
+
+        const { tableId } = ctx.req.param()
+
+        const table = await databases.updateDocument(
+            DATABASE_ID,
+            RECORDS_ID,
+            tableId,
+            {
+                tableName
+            }
+        );
+
+        return ctx.json({ data: table })
+    }
+)
 
 export default app;

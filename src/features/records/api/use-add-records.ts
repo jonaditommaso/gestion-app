@@ -4,7 +4,7 @@ import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-type ResponseType = InferResponseType<typeof client.api.records.upload[':recordId']['$patch']>
+type ResponseType = InferResponseType<typeof client.api.records.upload[':recordId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.records.upload[':recordId']['$patch']>
 
 export const useAddRecords = () => {
@@ -21,10 +21,11 @@ export const useAddRecords = () => {
 
             return await response.json()
         },
-        onSuccess: () => {
+        onSuccess: ({ data }) => {
             toast.success('Datos subidos con éxito')
             router.refresh();
-            queryClient.invalidateQueries({ queryKey: ['records'] })
+            queryClient.invalidateQueries({ queryKey: ['tables'] })
+            queryClient.invalidateQueries({ queryKey: ['table', data.$id] })
         },
         onError: () => {
             toast.error('Lo sentimos, hubo un error al subir los datos')

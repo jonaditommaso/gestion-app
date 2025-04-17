@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 
 export const useGetRecords = () => {
     const query = useQuery({
-        queryKey: ['records'],
+        queryKey: ['tables'],
         queryFn: async () => {
             const response = await client.api.records.$get();
 
@@ -14,7 +14,8 @@ export const useGetRecords = () => {
             const { data } = await response.json();
 
             return data;
-        }
+        },
+        refetchOnMount: true
     })
 
     return query;
