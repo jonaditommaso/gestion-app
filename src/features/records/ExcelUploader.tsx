@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, FileSpreadsheet, X, Loader } from 'lucide-react'
+import { Upload, FileSpreadsheet, X } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useAddRecords } from './api/use-add-records'
@@ -30,7 +30,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
   // const [selectedColumns, setSelectedColumns] = useState<string[]>([])
   const [fileName, setFileName] = useState<null | string>(null);
   const [firstRowHeader, setFirstRowHeader] = useState(true);
-  const { data: dataRecords } = useGetContextRecords()
+  const { data: dataRecords } = useGetContextRecords();
   const { mutate: addRecords, isPending: addingRecords } = useAddRecords();
   const t = useTranslations('records')
 

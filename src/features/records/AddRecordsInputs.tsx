@@ -86,7 +86,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
 
             <div className="flex items-center gap-4">
                 <Separator className="flex-1" />
-                <span className="w-40px"><Plus className="border rounded-md p-0.5 cursor-pointer hover:bg-neutral-100" size={20} onClick={() => handleAddData()} /></span>
+                <span className="w-40px"><Plus className="border rounded-md p-0.5 cursor-pointer hover:opacity-70 text-primary" size={20} onClick={() => handleAddData()} /></span>
                 <Separator className="flex-1" />
             </div>
         </div>

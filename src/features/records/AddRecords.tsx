@@ -19,6 +19,8 @@ import { useState } from "react"
 import { DialogContainer } from "@/components/DialogContainer"
 import ExcelUploader from "./ExcelUploader";
 import { useTranslations } from "next-intl"
+import { useAddRecords } from "./api/use-add-records"
+import { useGetContextRecords } from "./hooks/useGetContextRecords"
 
 const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
@@ -31,11 +33,50 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
     const [recordData, setRecordData] = useState(INITIAL_RECORDS_STATE);
     const [isOpen, setIsOpen] = useState(false);
     const [sheetOpen, setSheetOpen] = useState(false);
-    const t = useTranslations('records')
+    const { data: dataRecords } = useGetContextRecords();
+    const { mutate: addRecords, isPending: addingRecords } = useAddRecords();
+    const t = useTranslations('records');
 
     const onChangeSheet = (isSheetOpen: boolean) => {
         setSheetOpen(isSheetOpen);
         if (!isSheetOpen) setRecordData(INITIAL_RECORDS_STATE);
+    }
+
+    const onSave = () => {
+        if (recordData.some(record => record.field.trim() === '' || record.value.trim() === '')) {
+            return;
+        }
+
+        const headers: string[] = [];
+        const rows: string[] = [];
+
+        recordData.forEach(record => {
+            headers.push(record.field);
+            rows.push(record.value)
+        })
+
+        const transformedRow: Record<string, string> = {};
+
+        headers.forEach((header, index) => {
+          transformedRow[header] = rows[index];
+        });
+
+        const recordToEdit = dataRecords.documents.find(record => record.$id === currentRecordTable);
+        const existingRows = recordToEdit?.rows ? recordToEdit.rows.map(row => JSON.parse(row)) : [];
+        const filteredHeaders = headers.filter(header => !recordToEdit?.headers?.includes(header));
+
+        const updatedRows = [
+          ...existingRows,
+          transformedRow
+        ];
+
+        addRecords({
+            json: {
+                headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
+                rows: recordToEdit?.rows ? updatedRows : [transformedRow]
+            },
+            param: { recordId: currentRecordTable }
+        });
     }
 
     return (
@@ -95,7 +136,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
 
                     <SheetFooter className="">
                         <SheetClose asChild>
-                            <Button type="submit">{t('save-changes')}</Button>
+                            <Button type="button" onClick={onSave} disabled={addingRecords}>{t('save-changes')}</Button>
                         </SheetClose>
                     </SheetFooter>
                 </SheetContent>
