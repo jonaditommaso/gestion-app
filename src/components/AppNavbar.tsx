@@ -1,5 +1,5 @@
 'use client'
-// import SearchCommand from "@/components/SearchCommand";
+import SearchCommand from "@/components/SearchCommand";
 // import { Badge } from "@/components/ui/badge";
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"; // DropdownMenuLabel, DropdownMenuSeparator,
 import UserButton from "@/features/auth/components/UserButton";
@@ -18,7 +18,7 @@ const AppNavbar = () => {
   if(pathname === '/login' || pathname === '/signup') return null; //check how to implement it in ssr, and more gral
 
   return ( //ml-10
-    <nav className={`border-b shadow-md fixed top-0 z-20 grid grid-cols-2 items-center w-full ${theme === 'dark' ? 'bg-[#212121]' : 'bg-white' }`}>
+    <nav className={`border-b shadow-md fixed top-0 z-20 grid grid-cols-3 items-center w-full ${theme === 'dark' ? 'bg-[#212121]' : 'bg-white' }`}>
       {/* <DropdownMenu>
         <DropdownMenuTrigger className="max-w-40 flex items-center gap-2 p-2 focus:outline-none">
           <Image src='/logo.svg' height={50} width={100} alt="logo" />
@@ -30,8 +30,7 @@ const AppNavbar = () => {
       </DropdownMenu> */}
       <p className="max-w-40 flex items-center gap-2 p-2">{user?.prefs?.company}</p>
 
-      {/* //! TODO: APPLY THIS SEARCH LATER and put grid-cols-3 in nav to restore style */}
-      {/* <SearchCommand /> */}
+      <SearchCommand />
       <div className="flex items-center justify-end p-1 mr-5 gap-4">
         <ToggleThemeMode />
         {/* <div className="relative cursor-pointer">

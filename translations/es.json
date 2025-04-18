@@ -271,5 +271,14 @@
         "cancel": "Cancelar",
         "my-workspace": "Mi workspace..."
 
+    },
+    "app": {
+        "search": "Buscar...",
+        "no-results-found": "No se encontraron resultados",
+        "commands": "Comandos",
+        "billing": "Facturación",
+        "records": "Registros",
+        "workspaces": "Workspaces",
+        "profile": "Perfil"
     }
 }
