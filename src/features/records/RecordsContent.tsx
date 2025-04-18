@@ -8,7 +8,7 @@ import { List, Plus } from 'lucide-react';
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
 import NoData from "../../components/NoData";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import AddRecordsTableModal from "./components/AddRecordsTableModal";
 import { useCreateRecordsTable } from "./api/use-create-records-table";
 import { useTranslations } from "next-intl";
@@ -20,11 +20,18 @@ const RecordsContent = () => {
     const [createTableModalIsOpen, setCreateTableModalIsOpen] = useState(false);
     const [editTablesModalIsOpen, setEditTablesModalIsOpen] = useState(false);
     const { mutate: createTable, isPending: isCreatingTable } = useCreateRecordsTable();
-    const t = useTranslations('records')
+    const t = useTranslations('records');
 
-    const [currentTab, setCurrentTab] = useState(dataRecords.documents[0]?.$id)
+    const [currentTab, setCurrentTab] = useState<undefined | string>(undefined)
 
-    if(isPending) return <FadeLoader color="#999" width={3} className="mt-5" />
+    useEffect(() => {
+        if (dataRecords?.documents?.length > 0 && !currentTab) {
+            setCurrentTab(dataRecords.documents[0].$id);
+        }
+    }, [dataRecords.documents, currentTab])
+
+
+    if(isPending || !currentTab) return <FadeLoader color="#999" width={3} className="mt-5" />
 
     const onCreateTable = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
