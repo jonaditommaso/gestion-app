@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { useCreateWorkspace } from "../api/use-create-workspace";
 import { useRouter } from "next/navigation";
 import { WorkspaceType } from "../types";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
 //import { toast } from "sonner";
 
 interface CreateWorkspaceFormProps {
@@ -23,6 +25,7 @@ interface CreateWorkspaceFormProps {
 const CreateWorkspaceForm = ({ onCancel,  }: CreateWorkspaceFormProps) => {
     const { mutate, isPending } = useCreateWorkspace();
     const router = useRouter();
+    const t = useTranslations('workspaces')
 
     const form = useForm<zod.infer<typeof createWorkspaceSchema>>({
         resolver: zodResolver(createWorkspaceSchema),
@@ -47,53 +50,59 @@ const CreateWorkspaceForm = ({ onCancel,  }: CreateWorkspaceFormProps) => {
     // }
 
     return (
-        <Card className="w-full h-full">
-            <CardHeader className="flex p-3">
-                <CardTitle className="text-xl font-semibold text-center">
-                    Crear un workspace
-                </CardTitle>
-            </CardHeader>
-            <div className="px-7">
-                <Separator />
-            </div>
-            <CardContent className="pt-5">
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}>
-                        <div className="flex flex-col gap-y-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        {/* <FormLabel>Nombre del workspace</FormLabel> */}
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Nombre"
-                                                {...field}
-                                                disabled={isPending}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <div className="py-5 px-0">
-                            <Separator  />
-                        </div>
-                        <div className="flex items-center gap-2 justify-end">
-                            <Button type="button" size='lg' variant='outline' onClick={onCancel} disabled={isPending}>
-                                Cancelar
-                            </Button>
-                            <Button type="submit" size='lg' disabled={isPending}>
-                                Crear workspace
-                            </Button>
+        <div>
+            <Card className="w-full h-full">
+                <CardHeader className="flex p-3">
+                    <CardTitle className="text-xl font-semibold text-center">
+                        {t('create-workspace')}
+                    </CardTitle>
+                </CardHeader>
+                <div className="px-7">
+                    <Separator />
+                </div>
+                <CardContent className="pt-5">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                            <div className="flex flex-col gap-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            {/* <FormLabel>Nombre del workspace</FormLabel> */}
+                                            <FormControl>
+                                                <Input
+                                                    placeholder={t('my-workspace')}
+                                                    {...field}
+                                                    disabled={isPending}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="py-5 px-0">
+                                <Separator  />
+                            </div>
+                            <div className="flex items-center gap-2 justify-end">
+                                <Button type="button" size='lg' variant='outline' onClick={onCancel} disabled={isPending}>
+                                    {t('cancel')}
+                                </Button>
+                                <Button type="submit" size='lg' disabled={isPending}>
+                                    {t('create')}
+                                </Button>
 
-                        </div>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
+                            </div>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+            <div className="flex justify-center mt-20">
+                <Image width={400} height={400} alt='new workspace image' src={'/new-workspace.svg'} />
+            </div>
+        </div>
+
     );
 }
 

@@ -264,5 +264,12 @@
         "no-results": "No se encontraron resultados.",
         "first-row-header": "La primer fila es el encabezado",
         "choise-field": "Escoge un campo"
+    },
+    "workspaces": {
+        "create-workspace": "Crear nuevo workspace",
+        "create": "Crear",
+        "cancel": "Cancelar",
+        "my-workspace": "Mi workspace..."
+
     }
 }
