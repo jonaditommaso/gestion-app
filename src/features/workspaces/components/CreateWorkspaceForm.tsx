@@ -22,7 +22,7 @@ interface CreateWorkspaceFormProps {
     workspaceId?: string
 }
 
-const CreateWorkspaceForm = ({ onCancel,  }: CreateWorkspaceFormProps) => {
+const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
     const { mutate, isPending } = useCreateWorkspace();
     const router = useRouter();
     const t = useTranslations('workspaces')
@@ -86,9 +86,9 @@ const CreateWorkspaceForm = ({ onCancel,  }: CreateWorkspaceFormProps) => {
                                 <Separator  />
                             </div>
                             <div className="flex items-center gap-2 justify-end">
-                                <Button type="button" size='lg' variant='outline' onClick={onCancel} disabled={isPending}>
+                                {/* <Button type="button" size='lg' variant='outline' onClick={onCancel} disabled={isPending}>
                                     {t('cancel')}
-                                </Button>
+                                </Button> */}
                                 <Button type="submit" size='lg' disabled={isPending}>
                                     {t('create')}
                                 </Button>
