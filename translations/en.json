@@ -58,6 +58,7 @@
         "are-you-sure-delete": "Are you sure you want to delete this category?"
     },
     "records": {
-        "create-records-table": "Create new records table"
+        "create-records-table": "Create new records table",
+        "drop-file-here": "Drop the Excel file here..."
     }
 }

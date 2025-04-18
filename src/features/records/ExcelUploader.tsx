@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useAddRecords } from './api/use-add-records'
 import { useGetContextRecords } from './hooks/useGetContextRecords'
+import { useTranslations } from 'next-intl'
 
 interface ExcelData {
   headers: string[];
@@ -30,7 +31,8 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
   const [fileName, setFileName] = useState<null | string>(null);
   const [firstRowHeader, setFirstRowHeader] = useState(true);
   const { data: dataRecords } = useGetContextRecords()
-  const { mutate: addRecords, isPending: addingRecords } = useAddRecords()
+  const { mutate: addRecords, isPending: addingRecords } = useAddRecords();
+  const t = useTranslations('records')
 
   const handleFirstRow = () => {
 
@@ -135,7 +137,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
                     </div> */}
                     <div className='flex justify-center gap-3 items-center'>
                         <div>
-                            <p>Selecciona otro archivo</p>
+                            <p>{t('select-another-file')}</p>
                             {/* <p className="text-sm text-gray-500">Se perderá el progreso actual</p> */}
                         </div>
 
@@ -156,13 +158,13 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
                 <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-3 text-center focus:outline-none cursor-pointer ${isDragActive ? 'border-primary bg-primary/10' : 'border-blue-300'}`}>
                     <input {...getInputProps()} />
                     {isDragActive ? (
-                    <p>Drop the Excel file here...</p>
+                    <p>{t('drop-file-here')}</p>
                     ) : (
                     <div className="space-y-2">
                         <Upload className="mx-auto h-8 w-8 text-blue-500" />
                         {/* <p>Drag and drop an Excel file here, or click to select a file</p> */}
-                        <p className='text-balance'>Arrastra y suelta un archivo Excel aquí, o haz click y selecciona el archivo</p>
-                        <p className="text-sm text-gray-500">Solamente son soportados archivos .xlsx y .xls</p>
+                        <p className='text-balance'>{t('drop-or-select-file')}</p>
+                        <p className="text-sm text-gray-500">{t('supported-files')}</p>
                     </div>
                     )}
                 </div>
@@ -222,7 +224,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
                   htmlFor="first-row"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  La primer fila es el encabezado
+                  {t('first-row-header')}
                 </label>
                 {/* <p className="text-sm text-muted-foreground">
                   Marcalo .
@@ -232,7 +234,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
             <div className="flex items-center space-x-2">
               <FileSpreadsheet className="h-5 w-5 text-gray-500" />
               <span className="text-sm text-gray-500">
-                {excelData ? `${excelData.rows.length} registros cargados` : 'Aún no se ha subido ningún archivo'}
+                {excelData ? `${excelData.rows.length} ${t('records-loaded')}` : t('no-file-yet')}
               </span>
             </div>
             {/* <Button onClick={handleFinalize} disabled={!excelData || selectedColumns.length === 0}>
@@ -242,7 +244,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
 
         </Card>
          <div className='flex justify-end pt-5'>
-            <Button type="button" onClick={handleSave} disabled={!excelData || addingRecords}>Guardar cambios</Button>
+            <Button type="button" onClick={handleSave} disabled={!excelData || addingRecords}>{t('save-changes')}</Button>
          </div>
     </div>
   )

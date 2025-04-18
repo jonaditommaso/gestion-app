@@ -6,6 +6,7 @@ import { ChevronsUpDown, Plus } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
 import capitalize from "@/utils/capitalize";
+import { useTranslations } from "next-intl";
 
 type RecordData = {
     field: string;
@@ -19,10 +20,11 @@ interface AddRecordsInputsProps {
 }
 
 const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps) => {
-    const [customField, setCustomField] = useState(false);
-    const { data: dataRecords } = useGetContextRecords()
-
+    const { data: dataRecords } = useGetContextRecords();
     const headers = dataRecords?.documents[0]?.headers;
+
+    const [customField, setCustomField] = useState(headers?.length === 0);
+    const t = useTranslations('records')
 
     const handleAddData = () => {
         const emptyNewData = {field: '', value: ''}
@@ -46,7 +48,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                 {customField
                 ? (
                     <div className="grid grid-cols-4 items-center gap-4 justify-between">
-                        <Label htmlFor={`field-name-${index}`} className="text-center">Campo</Label>
+                        <Label htmlFor={`field-name-${index}`} className="text-center">{t('field')}</Label>
                         <Input id={`field-name-${index}`} value={data.field} className="col-span-3" onChange={(e) => onChange(e.target.value, 'field')} />
                     </div>
                 )
@@ -64,7 +66,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                                 </DropdownMenuItem>
                             ))}
                             <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
-                                <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> Crear nuevo campo
+                                <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> {t('create-new-field')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -73,7 +75,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
             </>
 
             <div className="grid grid-cols-4 items-center gap-4 justify-between">
-                <Label htmlFor={`field-value-${index}`} className="text-center">Valor</Label>
+                <Label htmlFor={`field-value-${index}`} className="text-center">{t('value')}</Label>
                 <Input
                     id={`field-value-${index}`}
                     value={data.value}

@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button"
 import { useMemo, useState } from "react"
 import { AddRecords } from "./AddRecords"
 import capitalize from "@/utils/capitalize"
+import { useTranslations } from "next-intl"
 
 interface DataTableProps<TData, TValue> {
   // columns: ColumnDef<TData, TValue>[]
@@ -51,7 +52,9 @@ export function DataTable<TData, TValue>({
     []
   )
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
+  const [rowSelection, setRowSelection] = useState({});
+
+  const t = useTranslations('records')
 
   // const [uploadedData, setUploadedData] = useState<ExcelData>({ headers: [], rows: [] })
 
@@ -94,7 +97,7 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filtrar..."
+          placeholder={t('filter')}
           // value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           // onChange={(event) => table.getColumn("email")?.setFilterValue(event.target.value)}
           value={table.getState().globalFilter ?? ""}
@@ -175,7 +178,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t('no-results')}
                 </TableCell>
               </TableRow>
             )}
@@ -194,7 +197,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            {t('prev')}
           </Button>
           <Button
             variant="outline"
@@ -202,7 +205,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            {t('next')}
           </Button>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Upload, FileSpreadsheet } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
+import { useTranslations } from 'next-intl'
 
 interface ExcelData {
   headers: string[];
@@ -20,7 +21,8 @@ interface ExcelUploaderProps {
 }
 
 export default function ExcelUploader({ setUploadedData, setIsOpen }: ExcelUploaderProps) {
-  const [excelData, setExcelData] = useState<ExcelData | null>(null)
+  const [excelData, setExcelData] = useState<ExcelData | null>(null);
+  const t = useTranslations('records')
 
   // const [selectedColumns, setSelectedColumns] = useState<string[]>([])
 
@@ -78,12 +80,12 @@ export default function ExcelUploader({ setUploadedData, setIsOpen }: ExcelUploa
           {excelData ? (
             <div className='flex items-center justify-between'>
               <div>
-                <h3 className="text-lg font-semibold mb-4">Previsualización y configuración</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('config-file')}</h3>
               </div>
               <div className='flex justify-end gap-3'>
                 <div>
-                  <p>Selecciona otro archivo</p>
-                  <p className="text-sm text-gray-500">Se perderá el progreso actual</p>
+                  <p>{t('select-another-file')}</p>
+                  <p className="text-sm text-gray-500">{t('loose-current-progress')}</p>
                 </div>
 
                 <div {...getRootProps()} className={`border self-center rounded-md p-2 text-center cursor-pointer ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'}`}>
@@ -98,12 +100,12 @@ export default function ExcelUploader({ setUploadedData, setIsOpen }: ExcelUploa
             <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-10 text-center focus:outline-none cursor-pointer ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'}`}>
               <input {...getInputProps()} />
               {isDragActive ? (
-                <p>Drop the Excel file here...</p>
+                <p>{t('drop-file-here')}</p>
               ) : (
                 <div className="space-y-2">
                   <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <p>Arrastra y suelta un archivo Excel aquí, o haz click y selecciona el archivo</p>
-                  <p className="text-sm text-gray-500">Solamente son soportados archivos .xlsx y .xls</p>
+                  <p>{t('drop-or-select-file')}</p>
+                  <p className="text-sm text-gray-500">{t('supported-files')}</p>
                 </div>
               )}
             </div>
@@ -157,7 +159,7 @@ export default function ExcelUploader({ setUploadedData, setIsOpen }: ExcelUploa
           <div className="flex items-center space-x-2">
             <FileSpreadsheet className="h-5 w-5 text-gray-500" />
             <span className="text-sm text-gray-500">
-              {excelData ? `${excelData.rows.length} rows loaded` : 'Aún no se ha subido ningún archivo'}
+              {excelData ? `${excelData.rows.length} ${t('rows-loaded')}` : t('no-file-yet')}
             </span>
           </div>
           {/* <Button onClick={handleFinalize} disabled={!excelData || selectedColumns.length === 0}>
@@ -167,7 +169,7 @@ export default function ExcelUploader({ setUploadedData, setIsOpen }: ExcelUploa
 
       </Card>
       <div className='flex justify-end pt-5'>
-        <Button type="button" onClick={handleSave} disabled={!excelData}>Guardar cambios</Button>
+        <Button type="button" onClick={handleSave} disabled={!excelData}>{t('save-changes')}</Button>
       </div>
     </div>
   )

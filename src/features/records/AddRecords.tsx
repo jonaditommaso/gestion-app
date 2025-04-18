@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 import { DialogContainer } from "@/components/DialogContainer"
 import ExcelUploader from "./ExcelUploader";
+import { useTranslations } from "next-intl"
 
 const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
@@ -30,6 +31,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
     const [recordData, setRecordData] = useState(INITIAL_RECORDS_STATE);
     const [isOpen, setIsOpen] = useState(false);
     const [sheetOpen, setSheetOpen] = useState(false);
+    const t = useTranslations('records')
 
     const onChangeSheet = (isSheetOpen: boolean) => {
         setSheetOpen(isSheetOpen);
@@ -40,7 +42,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
         <>
             <DialogContainer
                 // description="Carga tu archivo y verás una previsualización de los datos. Podrás ignorar columnas si así lo deseas"
-                title="Cargar registros"
+                title={t('upload-records')}
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
             >
@@ -56,7 +58,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild disabled={!thereIsTable}>
                     <Button className="ml-auto">
-                        Añadir registros <ChevronDown />
+                        {t('add-records')} <ChevronDown />
                     </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" >
@@ -66,17 +68,16 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                             </DropdownMenuItem>
                         </SheetTrigger>
                         <DropdownMenuItem className="flex items-center justify-between min-w-36 cursor-pointer" onClick={() => setIsOpen(true)}>
-                            <span>Cargar Excel</span> <Upload />
+                            <span>{t('upload-excel')}</span> <Upload />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <SheetContent className="flex flex-col justify-between">
                     <div>
                         <SheetHeader>
-                        <SheetTitle>Añadir registros</SheetTitle>
+                        <SheetTitle>{t('add-records')}</SheetTitle>
                             <SheetDescription>
-                                Añade todos los datos necesarios de un mismo registro.
-                                No olvides guardar los cambios.
+                                {t('add-records-description')}
                             </SheetDescription>
                         </SheetHeader>
 
@@ -94,7 +95,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
 
                     <SheetFooter className="">
                         <SheetClose asChild>
-                            <Button type="submit">Guardar cambios</Button>
+                            <Button type="submit">{t('save-changes')}</Button>
                         </SheetClose>
                     </SheetFooter>
                 </SheetContent>
