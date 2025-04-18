@@ -7,6 +7,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
 import capitalize from "@/utils/capitalize";
 import { useTranslations } from "next-intl";
+import { cn } from '../../lib/utils';
 
 type RecordData = {
     field: string;
@@ -56,12 +57,13 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                     <div className="grid grid-cols-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger className="max-w-full flex items-center justify-between gap-2 p-2 border rounded-sm focus:outline-none">
-                            <p className="text-zinc-800 text-sm">Nombre</p>
+
+                            <p className={cn('text-sm', data.field ? 'text-primary' : 'text-muted-foreground')}>{data.field ? capitalize(data.field) : t('choise-field')}</p>
                             <ChevronsUpDown size={14} />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {headers?.map(header => (
-                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
+                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')}>
                                     {capitalize(header)}
                                 </DropdownMenuItem>
                             ))}

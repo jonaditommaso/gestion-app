@@ -231,6 +231,7 @@
         "next": "Siguiente",
         "filter": "Filtrar...",
         "no-results": "No se encontraron resultados.",
-        "first-row-header": "La primer fila es el encabezado"
+        "first-row-header": "La primer fila es el encabezado",
+        "choise-field": "Escoge un campo"
     }
 }
