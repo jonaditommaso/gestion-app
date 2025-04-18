@@ -4,8 +4,8 @@ type PlanType = 'free' | 'pro' | 'enterprise'; // basic changed to free
 interface Plan {
   type: PlanType;
   description: string,
-  textButton: string
-  price: number
+  textButton: string,
+  price: number | { normal: number, plus: number }
 }
 
 export const plans: Plan[] = [
@@ -19,12 +19,15 @@ export const plans: Plan[] = [
         type: 'pro',
         description: 'pricing-pro-description',
         textButton: 'pricing-pro-button',
-        price: 150
+        price: {
+            normal: 49,
+            plus: 99
+        }
     },
     {
         type: 'enterprise',
         description: 'pricing-enterprise-description',
         textButton: 'pricing-enterprise-button',
-        price: 220
+        price: 150
     }
 ];

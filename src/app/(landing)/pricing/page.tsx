@@ -19,7 +19,7 @@ const PricingView = async () => {
                         description={plan.description}
                         textButton={plan.textButton}
                         price={plan.price}
-                        featured={plan.type === 'enterprise'}
+                        featured={plan.type === 'enterprise' || plan.type === 'pro'}
                     />
                 ))}
             </div>
