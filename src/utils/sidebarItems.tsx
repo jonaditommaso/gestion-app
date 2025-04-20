@@ -50,10 +50,10 @@ export const sidebarItems = [
 
 export const sidebarBottomItems = [
   {
-    title: "Miembros",
-    url: "/members",
+    title: "Equipo",
+    url: "/team",
     icon: Users,
-    key: 'members'
+    key: 'team'
   },
   // {
   //   title: "Chat",

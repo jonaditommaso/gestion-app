@@ -272,6 +272,9 @@
         "my-workspace": "Mi workspace..."
 
     },
+    "team": {
+        "add-tag": "Agregar tag"
+    },
     "app": {
         "search": "Buscar...",
         "no-results-found": "No se encontraron resultados",
