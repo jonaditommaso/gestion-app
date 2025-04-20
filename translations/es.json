@@ -273,7 +273,14 @@
 
     },
     "team": {
-        "add-tag": "Agregar tag"
+        "team-title": "Equipo",
+        "add-tag": "Agregar tag",
+        "add": "Agregar",
+        "add-new-member": "Agregar nuevo miembro",
+        "placeholder-tag": "Tag...",
+        "cancel": "Cancelar",
+        "update": "Actualizar",
+        "not-specified": "Sin especificar"
     },
     "app": {
         "search": "Buscar...",

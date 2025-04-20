@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 
 export const useGetMembers = () => {
     const query = useQuery({
-        queryKey: ['team'],
+        queryKey: ['team', 'member-tag'],
         queryFn: async () => {
             const response = await client.api.team.$get();
 
