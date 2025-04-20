@@ -137,7 +137,7 @@ const app = new Hono<ContextType>()
                 sameSite: 'strict',
                 maxAge: 60 * 60 * 24 * 30
             })
-            return ctx.json({ data: { mfaRequired: false, success: true, challengeId: null } })
+            return ctx.json({ success: true, data: { mfaRequired: false, challengeId: null } })
         }
     )
 
@@ -147,7 +147,19 @@ const app = new Hono<ContextType>()
         async ctx => {
             const { name, email, password, plan, company } = ctx.req.valid('json');
 
-            const { account, users } = await createAdminClient();
+            const { account, users, teams } = await createAdminClient();
+
+            const newTeam = await teams.create(
+                ID.unique(),
+                company
+            )
+
+            await teams.createMembership(
+                newTeam.$id,
+                ['OWNER'],
+                email,
+            );
+
             const newUser = await account.create(
                 ID.unique(),
                 email,
@@ -155,7 +167,10 @@ const app = new Hono<ContextType>()
                 name
             );
 
-            await users.updatePrefs(newUser.$id, { plan, company, role: 'ADMIN', });
+            await users.updatePrefs(newUser.$id, { plan, company, role: 'ADMIN', teamId: newTeam.$id });
+
+            await teams.updatePrefs(newTeam.$id, { plan })
+
 
             const session = await account.createEmailPasswordSession(
                 email,
