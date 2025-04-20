@@ -9,7 +9,7 @@ const TeamView = async () => {
     if(!user) redirect('/login');
 
     return (
-        <div className="w-full flex mt-24 justify-center">
+        <div className="w-full flex px-10">
             <TeamList />
         </div>
     );
