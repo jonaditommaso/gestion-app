@@ -3,9 +3,9 @@
 import { useGetImageProfile } from "@/features/settings/api/use-get-image-profile";
 import { useEffect, useState } from "react";
 
-export const useProfilePicture = () => {
+export const useProfilePicture = (id?: string | undefined) => {
     const [imageUrl, setImageUrl] = useState<any>(undefined);
-    const {mutate: getImageProfile, isPending } = useGetImageProfile()
+    const {mutate: getImageProfile, isPending } = useGetImageProfile(id)
 
 
     useEffect(() => {

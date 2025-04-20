@@ -96,20 +96,30 @@ const app = new Hono()
 )
 
 .get(
-    '/get-image',
+    '/get-image/:userId?',
     sessionMiddleware,
     async ctx => {
         const storage = ctx.get('storage');
         const user = ctx.get('user');
 
-        const account = ctx.get('account')
-        const session = await account.getSession('current');
+        const { userId } = ctx.req.param();
 
-        if (!user?.prefs?.image) {
+        const { users } = await createAdminClient();
+
+        let prefs;
+
+        if (userId) {
+            prefs = await users.getPrefs(userId);
+          } else {
+            prefs = user?.prefs;
+          }
+
+        if (!prefs?.image) {
             return ctx.json({ success: false, message: 'No image found for the user' }, 400);
         }
 
-        const imageId = user.prefs.image;
+
+        const imageId = prefs.image;
 
         try {
             const fileMetadata = await storage.getFile(IMAGES_BUCKET_ID, imageId);

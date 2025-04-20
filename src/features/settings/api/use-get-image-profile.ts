@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useGetImageProfile = () => {
+export const useGetImageProfile = (id: string | undefined) => {
     const queryClient = useQueryClient();
 
     const mutation = useMutation<Blob, Error, void>({
         mutationFn: async () => {
-            const response = await fetch('/api/settings/get-image');
+            const response = await fetch(`/api/settings/get-image${id ? `/${id}` : ''}`);
 
             if(!response.ok) {
                 throw new Error('Failed getting image')
