@@ -14,19 +14,22 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Button } from "@/components/ui/button"
-import { usePathname, useRouter } from "next/navigation"
+import { useParams, usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
 import { useTranslations } from "next-intl"
 //import { solutions } from "../solutions"
 
+
 export function LandingNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const t = useTranslations('landing')
+  const params = useParams();
+  const t = useTranslations('landing');
 
-  if(pathname === '/login' || pathname === '/signup' || pathname === '/mfa') return null; //check how to implement it in ssr, and more gral
+  const notShowInView = ['/login', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
 
+  if(notShowInView.includes(pathname)) return null; //check how to implement it in ssr, and more gral
 
   return (
     <NavigationMenu className="p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 bg-white shadow-md">
