@@ -67,21 +67,22 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
                 <CardContent className="p-7 flex flex-col items-center gap-2 h-[250px]">
                     <div className="flex gap-2">
                         {code.map((char, index) => (
-                        <Input
-                            key={index}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={1}
-                            value={char}
-                            placeholder="X"
-                            autoComplete="one-time-code"
-                            ref={(el) => {
-                                if (el) inputRefs.current[index] = el;
-                            }}
-                            onChange={(e) => handleChange(e.target.value, index)}
-                            onKeyDown={(e) => handleKeyDown(e, index)}
-                            className={"w-10 h-12 text-center font-semibold text-lg focus:outline-none focus:ring-0 focus:border-primary caret-transparent"}
-                        />
+                        // also exist InputOTP component, check it out
+                            <Input
+                                key={index}
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={1}
+                                value={char}
+                                placeholder="X"
+                                autoComplete="one-time-code"
+                                ref={(el) => {
+                                    if (el) inputRefs.current[index] = el;
+                                }}
+                                onChange={(e) => handleChange(e.target.value, index)}
+                                onKeyDown={(e) => handleKeyDown(e, index)}
+                                className={"w-10 h-12 text-center font-semibold text-lg focus:outline-none focus:ring-0 focus:border-primary caret-transparent"}
+                            />
                         ))}
                     </div>
 
