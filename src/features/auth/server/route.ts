@@ -149,6 +149,13 @@ const app = new Hono<ContextType>()
 
             const { account, users, teams } = await createAdminClient();
 
+            const newUser = await account.create(
+                ID.unique(),
+                email,
+                password,
+                name
+            );
+
             const newTeam = await teams.create(
                 ID.unique(),
                 company
@@ -158,13 +165,6 @@ const app = new Hono<ContextType>()
                 newTeam.$id,
                 ['OWNER'],
                 email,
-            );
-
-            const newUser = await account.create(
-                ID.unique(),
-                email,
-                password,
-                name
             );
 
             await users.updatePrefs(newUser.$id, { plan, company, role: 'ADMIN', teamId: newTeam.$id });
