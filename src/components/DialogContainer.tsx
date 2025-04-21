@@ -12,7 +12,7 @@ interface DialogContainerProps {
     title: string,
     description?: string,
     isOpen: boolean,
-    setIsOpen: Dispatch<SetStateAction<boolean>>,
+    setIsOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void),
 }
 
 export function DialogContainer({ isOpen, children, setIsOpen, title, description }: DialogContainerProps) {
@@ -24,7 +24,7 @@ export function DialogContainer({ isOpen, children, setIsOpen, title, descriptio
       <DialogContent className="sm:max-w-[550px] pb-0 focus:outline-none">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-balance">
             {description}
           </DialogDescription>
         </DialogHeader>

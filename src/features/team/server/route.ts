@@ -3,8 +3,11 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { createAdminClient } from "@/lib/appwrite";
 import { zValidator } from '@hono/zod-validator';
 import { birthdaySchema, inviteSchema, tagsSchema } from "../schema";
-import { ID, Query } from "node-appwrite";
+import { Client, Databases, ID, Query } from "node-appwrite";
 import { DATABASE_ID, INVITES_ID } from "@/config";
+import { registerByInvitationSchema } from "@/features/auth/schemas";
+import { setCookie } from "hono/cookie";
+import { AUTH_COOKIE } from "@/features/auth/constants";
 
 const app = new Hono()
 
@@ -85,6 +88,49 @@ const app = new Hono()
     }
 )
 
+//? aparentemente parece que esta logica creando peticion pendiente de membership funcionaria si tuviera SMTP server configurado
+// .post(
+//     '/invite',
+//     zValidator('json', inviteSchema),
+//     sessionMiddleware,
+//     async ctx => {
+//         const user = ctx.get('user');
+//         const databases = ctx.get('databases');
+//         const { teams } = await createAdminClient();
+
+//         const { email } = ctx.req.valid('json');
+
+//         const token = crypto.randomUUID();
+
+//         await databases.createDocument(
+//             DATABASE_ID,
+//             INVITES_ID,
+//             ID.unique(),
+//             {
+//                 token,
+//                 teamId: user.prefs.teamId,
+//                 email,
+//                 accepted: false,
+//                 invitedBy: user.$id,
+//                 invitedByName: user.name,
+//             }
+//         );
+
+//         await teams.createMembership(
+//             user.prefs.teamId,
+//             ['CREATOR'],
+//             email,
+//             undefined,
+//             undefined,
+//             `http://localhost:3000/join-team?token=${token}`,
+//             user.prefs.company
+//         )
+
+//         return ctx.json({ success: true });
+//     }
+// )
+
+//? modificamos un poco el flujo, adaptandolo a la invitacion por copy code
 .post(
     '/invite',
     zValidator('json', inviteSchema),
@@ -92,7 +138,6 @@ const app = new Hono()
     async ctx => {
         const user = ctx.get('user');
         const databases = ctx.get('databases');
-        const { teams } = await createAdminClient();
 
         const { email } = ctx.req.valid('json');
 
@@ -105,33 +150,31 @@ const app = new Hono()
             {
                 token,
                 teamId: user.prefs.teamId,
+                teamName: user.prefs.company,
                 email,
-                accepted: false
+                accepted: false,
+                invitedBy: user.$id,
+                invitedByName: user.name,
             }
         );
 
-        await teams.createMembership(
-            user.prefs.teamId,
-            ['CREATOR'],
-            email,
-            user.$id,
-            undefined,
-            `http://localhost:3000/join-team?token=${token}`,
-            user.prefs.company
-        )
-
-        return ctx.json({ success: true });
+        return ctx.json({ invitationUrl: `http://localhost:3000/team/join-team/${token}` , success: true })
     }
 )
 
 .get(
-    '/join-team:token',
-    sessionMiddleware,
+    '/join-team/:token',
     async ctx => {
         const token = ctx.req.param('token');
-        const databases = ctx.get('databases');
 
         if(!token) return ctx.json({ error: 'No token provided' }, 400)
+
+        // we cannot use sessionMiddleware because there is not a registered user.
+        const client = new Client()
+        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+
+        const databases = new Databases(client);
 
         const invite = await databases.listDocuments(
             DATABASE_ID,
@@ -146,7 +189,61 @@ const app = new Hono()
             return ctx.json({ error: 'Invalid or expired token' }, 400);
         }
 
-        return ctx.json({ valid: true, email: invite.documents[0].email });
+        return ctx.json({ data: invite.documents[0] });
+    }
+)
+
+.post(
+    '/join-team',
+    zValidator('json', registerByInvitationSchema),
+    async ctx => {
+        const { name, email, password, teamId, teamName, inviteId } = ctx.req.valid('json');
+
+        const { account, users, teams } = await createAdminClient();
+
+        const newUser = await account.create(
+            ID.unique(),
+            email,
+            password,
+            name
+        );
+
+        await teams.createMembership(
+            teamId,
+            ['CREATOR'],
+            email,
+        );
+
+        await users.updatePrefs(newUser.$id, { plan: 'invited', company: teamName, role: 'CREATOR', teamId });
+
+
+        const client = new Client()
+        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+
+        const databases = new Databases(client);
+
+        await databases.updateDocument(
+            DATABASE_ID,
+            INVITES_ID,
+            inviteId,
+            { accepted: true }
+        );
+
+        const session = await account.createEmailPasswordSession(
+            email,
+            password
+        )
+
+        setCookie(ctx, AUTH_COOKIE, session.secret, {
+            path: '/',
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 24 * 30
+        })
+
+        return ctx.json({ success: true})
     }
 )
 

@@ -24,8 +24,8 @@ import { useTranslations } from "next-intl"
 export function LandingNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
   const t = useTranslations('landing');
+  const params = useParams();
 
   const notShowInView = ['/login', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
 
