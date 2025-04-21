@@ -31,7 +31,7 @@ const MemberCard = ({ name, email, position, tags = [], userId, image, birthday 
     const t = useTranslations('team');
 
     return (
-        <Card className="w-[300px] bg-sidebar">
+        <Card className="w-[300px] h-[445px] bg-sidebar">
             {!image && <ImageMock name={name} />}
             {isPending
                 ? (
