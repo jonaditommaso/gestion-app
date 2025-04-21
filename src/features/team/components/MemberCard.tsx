@@ -26,7 +26,7 @@ const ImageMock = ({name}: {name: string}) => (
     </div>
 )
 
-const MemberCard = ({ name, email, position = 'not-specified', tags = [], userId, image, birthday }: MemberCardProps) => {
+const MemberCard = ({ name, email, position, tags = [], userId, image, birthday }: MemberCardProps) => {
     const { imageUrl, isPending } = useProfilePicture(userId);
     const t = useTranslations('team');
 
@@ -49,7 +49,7 @@ const MemberCard = ({ name, email, position = 'not-specified', tags = [], userId
                         <p className="text-xs text-muted-foreground">{email}</p>
                     </div>
                     <div className="border p-1 px-2 rounded-md border-green-600 bg-green-100 text-green-600 text-sm">
-                        {position ? position : t(position)}
+                        {position ? position : t('not-specified')}
                     </div>
                     <Separator />
                 </div>
