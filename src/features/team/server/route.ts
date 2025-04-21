@@ -2,7 +2,9 @@ import { Hono } from "hono";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { createAdminClient } from "@/lib/appwrite";
 import { zValidator } from '@hono/zod-validator';
-import { birthdaySchema, tagsSchema } from "../schema";
+import { birthdaySchema, inviteSchema, tagsSchema } from "../schema";
+import { ID, Query } from "node-appwrite";
+import { DATABASE_ID, INVITES_ID } from "@/config";
 
 const app = new Hono()
 
@@ -80,6 +82,71 @@ const app = new Hono()
         });
 
         return ctx.json({ birthday });
+    }
+)
+
+.post(
+    '/invite',
+    zValidator('json', inviteSchema),
+    sessionMiddleware,
+    async ctx => {
+        const user = ctx.get('user');
+        const databases = ctx.get('databases');
+        const { teams } = await createAdminClient();
+
+        const { email } = ctx.req.valid('json');
+
+        const token = crypto.randomUUID();
+
+        await databases.createDocument(
+            DATABASE_ID,
+            INVITES_ID,
+            ID.unique(),
+            {
+                token,
+                teamId: user.prefs.teamId,
+                email,
+                accepted: false
+            }
+        );
+
+        await teams.createMembership(
+            user.prefs.teamId,
+            ['CREATOR'],
+            email,
+            user.$id,
+            undefined,
+            `http://localhost:3000/join-team?token=${token}`,
+            user.prefs.company
+        )
+
+        return ctx.json({ success: true });
+    }
+)
+
+.get(
+    '/join-team:token',
+    sessionMiddleware,
+    async ctx => {
+        const token = ctx.req.param('token');
+        const databases = ctx.get('databases');
+
+        if(!token) return ctx.json({ error: 'No token provided' }, 400)
+
+        const invite = await databases.listDocuments(
+            DATABASE_ID,
+            INVITES_ID,
+            [
+                Query.equal('token', token),
+                Query.equal('accepted', false)
+            ]
+        );
+
+        if (invite.total === 0) {
+            return ctx.json({ error: 'Invalid or expired token' }, 400);
+        }
+
+        return ctx.json({ valid: true, email: invite.documents[0].email });
     }
 )
 

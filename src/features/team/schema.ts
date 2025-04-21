@@ -7,3 +7,7 @@ export const tagsSchema = zod.object({
 export const birthdaySchema = zod.object({
     birthday: zod.string().trim() // put real schema
 })
+
+export const inviteSchema = zod.object({
+    email: zod.string().email()
+})
