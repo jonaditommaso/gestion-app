@@ -8,6 +8,7 @@ import tasks from '@/features/tasks/server/route'
 import billing from '@/features/billing-management/server/route'
 import settings from '@/features/settings/server/route'
 import team from '@/features/team/server/route'
+import home from '@/features/home/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -21,6 +22,7 @@ const routes = app
   .route('/billing', billing)
   .route('/settings', settings)
   .route('/team', team)
+  .route('/', home)
 
 export const GET = handle(app)
 export const POST = handle(app)
