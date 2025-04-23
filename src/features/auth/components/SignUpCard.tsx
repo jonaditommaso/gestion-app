@@ -22,6 +22,7 @@ import PlanSelected from "./PlanSelected";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
+import Image from "next/image";
 
 const SignUpCard = () => {
     const { mutate, isPending } = useRegister();
@@ -66,7 +67,7 @@ const SignUpCard = () => {
 
             <Card className="w-full h-full md:w-[490px] border-none shadow-none">
                 <CardHeader className="flex items-center justify-center text-center p-7">
-                    <CardTitle className="text-2xl">{t('welcome')}</CardTitle>
+                    <CardTitle className="text-2xl flex items-center gap-4">{t('welcome')} <Image src='/gestionate-logo.svg' height={40} width={40} alt="gestionate-logo" /></CardTitle>
                 </CardHeader>
                 <Separator />
                 <CardContent className="p-7">

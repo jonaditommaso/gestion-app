@@ -34,7 +34,7 @@ export function LandingNavbar() {
   return (
     <NavigationMenu className="p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 bg-white shadow-md">
       <NavigationMenuList className="flex gap-1">
-      <Image src='/own-logo.svg' height={25} width={25} alt="own-logo" onClick={() => router.push('/')} className="cursor-pointer" />
+      <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>{t('navbar-start')}</NavigationMenuTrigger>

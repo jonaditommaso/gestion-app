@@ -19,6 +19,7 @@ import { loginSchema } from "../schemas";
 import { useLogin } from "../api/use-login";
 import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 const LoginCard = () => {
     const { mutate, isPending } = useLogin();
@@ -37,9 +38,12 @@ const LoginCard = () => {
     }
 
     return (
-        <div className="flex gap-36 items-center">
-            <div className="justify-center">
-                <p className="text-6xl font-bold text-gray-800">Gestionate</p>
+        <div className="flex gap-36 items-start">
+            <div className="">
+                <div className="flex justify-center mb-10">
+                    <Image width={200} height={200} alt="gestionate logo login" src={'/gestionate-logo.svg'} />
+                </div>
+                <p className="text-6xl font-bold text-gray-800 text-center">Gestionate</p>
                 <p className="text-center text-lg mt-4">{t('initial-login-message')}</p>
             </div>
             <Card className="w-full h-full md:w-[490px] border-none shadow-none">
