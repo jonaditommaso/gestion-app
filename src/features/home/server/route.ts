@@ -3,7 +3,7 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
 import { DATABASE_ID, MESSAGES_ID, NOTES_ID } from "@/config";
-import { messagesSchema, notesSchema } from "../schema";
+import { messagesSchema, notesSchema, unreadMessagesSchema } from "../schema";
 
 const app = new Hono()
 
@@ -85,6 +85,59 @@ const app = new Hono()
         );
 
         return ctx.json({ success: true })
+    }
+)
+
+.get(
+    '/messages',
+    sessionMiddleware,
+    async ctx => {
+        const databases = ctx.get('databases');
+        const user = ctx.get('user');
+
+        const messages = await databases.listDocuments(
+            DATABASE_ID,
+            MESSAGES_ID,
+            [Query.equal('to', user.$id)]
+        );
+
+        if(messages.total === 0) {
+            return ctx.json({ data: { documents: [], total: 0 } })
+        }
+
+        return ctx.json({ data: messages })
+    }
+)
+
+.post(
+    '/messages/bulk-update',
+    sessionMiddleware,
+    zValidator('json', unreadMessagesSchema),
+    async ctx => {
+        const databases = ctx.get('databases');
+        const user = ctx.get('user');
+
+        if(!user) {
+            return ctx.json({ error: 'Unauthorized' }, 401)
+        }
+
+        const { unreadMessages } = ctx.req.valid('json');
+
+        const updatedMessages = await Promise.all(unreadMessages.map(async message => {
+            const { $id } = message;
+
+            return databases.updateDocument(
+                DATABASE_ID,
+                MESSAGES_ID,
+                $id,
+                {
+                    read: true
+                }
+            )
+        }))
+
+
+        return ctx.json({ data: updatedMessages })
     }
 )
 

@@ -10,3 +10,18 @@ export const messagesSchema = zod.object({
     content: zod.string().trim().min(1, 'Required'),
     to: zod.string().trim().min(1, 'Required'),
 })
+
+export const unreadMessagesSchema  = zod.object({
+    unreadMessages: zod.array(
+        zod.object({
+            $id: zod.string(),
+            content: zod.string().trim().min(1, 'Required'),
+            to: zod.string().trim().min(1, 'Required'),
+            read: zod.boolean(),
+            $collectionId: zod.string(),
+            $databaseId: zod.string(),
+            $createdAt: zod.string(),
+            $updatedAt: zod.string(),
+            $permissions: zod.array(zod.string())
+        }))
+});

@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { CalendarDemo } from "./Calendar";
-import { CardNotes } from "./CardNotes";
 import MyNotes from "./MyNotes";
 import ToDoTasksWidget from "./ToDoTasksWidget";
 import { Headset, Plus } from "lucide-react";
 import CalendarEvents from "./CalendarEvents";
 import SendMessageButton from "./messages/SendMessageButton";
+import { MessagesContainer } from "./messages/MessagesContainer";
 
 const HomeView = () => {
     return (
         <div className="mt-24 gap-4 ml-14 grid grid-cols-3">
             <MyNotes />
-            <CardNotes />
+            <MessagesContainer />
             <div className="flex col-span-1 gap-2">
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
                     <SendMessageButton />
