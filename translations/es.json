@@ -282,6 +282,13 @@
         "update": "Actualizar",
         "not-specified": "Sin especificar"
     },
+    "home": {
+        "send-a-message": "Enviar un mensaje",
+        "send-message": "Enviar mensaje",
+        "message": "Mensaje...",
+        "choise-addressee": "Escoge un destinatario",
+        "cancel": "Cancelar"
+    },
     "app": {
         "search": "Buscar...",
         "no-results-found": "No se encontraron resultados",

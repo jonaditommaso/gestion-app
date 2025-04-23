@@ -8,7 +8,7 @@ const CalendarEvents = () => {
                 <CardHeader className="flex justify-between flex-row">
                     <div className="pt-1">
                         <CardTitle>Calendar events</CardTitle>
-                        <CardDescription>Los eventos de hoy</CardDescription>
+                        <CardDescription>Proximos eventos</CardDescription>
                     </div>
                     <TabsList className="mt-0">
                         <TabsTrigger value="own">Mis eventos</TabsTrigger>

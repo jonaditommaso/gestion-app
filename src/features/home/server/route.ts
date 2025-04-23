@@ -2,8 +2,8 @@ import { Hono } from "hono";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
-import { DATABASE_ID, NOTES_ID } from "@/config";
-import { notesSchema } from "../schema";
+import { DATABASE_ID, MESSAGES_ID, NOTES_ID } from "@/config";
+import { messagesSchema, notesSchema } from "../schema";
 
 const app = new Hono()
 
@@ -55,6 +55,36 @@ const app = new Hono()
         }
 
         return ctx.json({ data: notes })
+    }
+)
+
+.post(
+    '/messages',
+    zValidator('json', messagesSchema),
+    sessionMiddleware,
+    async ctx => {
+        const user = ctx.get('user');
+        const databases = ctx.get('databases');
+
+        const { content, to } = ctx.req.valid('json');
+
+        if(!to && !content) {
+            return ctx.json({ error: 'Cannot create the message' }, 400)
+        }
+
+        await databases.createDocument(
+            DATABASE_ID,
+            MESSAGES_ID,
+            ID.unique(),
+            {
+                read: false,
+                content,
+                to,
+                from: user.$id,
+            }
+        );
+
+        return ctx.json({ success: true })
     }
 )
 

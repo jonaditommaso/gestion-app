@@ -3,8 +3,9 @@ import { CalendarDemo } from "./Calendar";
 import { CardNotes } from "./CardNotes";
 import MyNotes from "./MyNotes";
 import ToDoTasksWidget from "./ToDoTasksWidget";
-import { Headset, MessageSquareText, Plus } from "lucide-react";
+import { Headset, Plus } from "lucide-react";
 import CalendarEvents from "./CalendarEvents";
+import SendMessageButton from "./messages/SendMessageButton";
 
 const HomeView = () => {
     return (
@@ -13,9 +14,7 @@ const HomeView = () => {
             <CardNotes />
             <div className="flex col-span-1 gap-2">
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
-                    <Button className="w-full py-10 h-auto" variant='outline'>
-                        <MessageSquareText /> <span>Enviar un mensaje</span>
-                    </Button>
+                    <SendMessageButton />
                     <Button className="w-full py-10 h-auto" variant='outline'>
                         <Headset /> <span>Setear una reunion</span>
                     </Button>
