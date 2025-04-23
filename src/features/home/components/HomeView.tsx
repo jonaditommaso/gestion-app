@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { CalendarDemo } from "./Calendar";
 import MyNotes from "./MyNotes";
 import ToDoTasksWidget from "./ToDoTasksWidget";
-import { Headset, Plus } from "lucide-react";
+import { Headset } from "lucide-react";
 import CalendarEvents from "./CalendarEvents";
 import SendMessageButton from "./messages/SendMessageButton";
 import { MessagesContainer } from "./messages/MessagesContainer";
+import ShortcutButton from "./ShortcutButton";
 
 const HomeView = () => {
     return (
@@ -18,9 +19,7 @@ const HomeView = () => {
                     <Button className="w-full py-10 h-auto" variant='outline'>
                         <Headset /> <span>Setear una reunion</span>
                     </Button>
-                    <Button className="w-full py-10 h-auto" variant='outline'>
-                        <Plus /> <span>Agregar atajo</span>
-                    </Button>
+                    <ShortcutButton />
                 </div>
                 <CalendarDemo />
                 {/* Mas adelante puedo poner algunas integraciones por aca (spotify por ej) */}

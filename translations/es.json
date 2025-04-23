@@ -287,7 +287,12 @@
         "send-message": "Enviar mensaje",
         "message": "Mensaje...",
         "choise-addressee": "Escoge un destinatario",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "add": "Agregar",
+        "add-shortcut": "Agregar atajo",
+        "text": "Texto",
+        "text-display": "Texto a mostrar",
+        "paste-link": "Pegar enlace"
     },
     "app": {
         "search": "Buscar...",

@@ -25,3 +25,8 @@ export const unreadMessagesSchema  = zod.object({
             $permissions: zod.array(zod.string())
         }))
 });
+
+export const shortcutSchema = zod.object({
+    text: zod.string().trim().min(1, 'Required'),
+    link: zod.string().trim().min(1, 'Required'),
+})

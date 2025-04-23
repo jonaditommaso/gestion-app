@@ -54,6 +54,7 @@ const JoinTeamView = () => {
             } }
         )
     }
+
     return (
         <Card className="flex flex-col items-center justify-center w-[400px] p-4 gap-4 m-auto">
             <CardTitle>Unete a {data.teamName}</CardTitle>

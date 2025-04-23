@@ -3,7 +3,8 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
 import { DATABASE_ID, MESSAGES_ID, NOTES_ID } from "@/config";
-import { messagesSchema, notesSchema, unreadMessagesSchema } from "../schema";
+import { messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
+import { createAdminClient } from "@/lib/appwrite";
 
 const app = new Hono()
 
@@ -138,6 +139,29 @@ const app = new Hono()
 
 
         return ctx.json({ data: updatedMessages })
+    }
+)
+
+.patch(
+    '/shortcut',
+    zValidator('json', shortcutSchema),
+    sessionMiddleware,
+    async ctx => {
+        const user = ctx.get('user');
+        const { users } = await createAdminClient();
+
+        const { link, text } = ctx.req.valid('json');
+
+        if(!link || !text) {
+            return ctx.json({ error: 'Cannot create the shortcut' }, 400)
+        }
+
+        await users.updatePrefs(user.$id, {
+            ...(user.prefs ?? {}),
+            shortcut: `${link},${text}`
+        });
+
+        return ctx.json({ success: true })
     }
 )
 
