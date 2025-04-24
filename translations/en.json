@@ -60,5 +60,8 @@
     "records": {
         "create-records-table": "Create new records table",
         "drop-file-here": "Drop the Excel file here..."
+    },
+    "home": {
+        "mark-all-read": "Mark all as read"
     }
 }

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 import { useGetMessages } from "../../api/use-get-messages"
 import '@github/relative-time-element';
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import FadeLoader from "react-spinners/FadeLoader"
 import { useBulkReadMessages } from "../../api/use-bulk-read-messages"
 import { Message } from './types';
@@ -24,6 +24,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const { data: messages, isPending } = useGetMessages();
   const { mutate: markAsRead, isPending: markingReadMessages } = useBulkReadMessages();
   const locale = useLocale();
+  const t = useTranslations();
 
   if (isPending) return (
     <div className="w-full flex justify-center row-span-2">
@@ -45,8 +46,8 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   return (
     <Card className={cn("col-span-1 bg-sidebar-accent max-h-[355px]", className)} {...props}>
       <CardHeader className="py-4">
-        <CardTitle>Messages</CardTitle>
-        <CardDescription>You have {unreadMessages?.length} unread messages.</CardDescription>
+        <CardTitle>{t('messages')}</CardTitle>
+        <CardDescription>{!messages?.total ? 'Aun no has recibido ningun mensaje' : `You have ${unreadMessages?.length} unread messages.`}</CardDescription>
       </CardHeader>
       <div className="flex flex-col justify-between h-[80%]">
         <CardContent className="grid gap-4 pb-2 overflow-auto mb-1">
@@ -71,7 +72,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         </CardContent>
         <CardFooter className='p-2 my-1'>
           <Button className="w-full" disabled={markingReadMessages || !unreadMessages.length} onClick={handleMarkAsRead}>
-            <Check /> Mark all as read
+            <Check />
           </Button>
         </CardFooter>
       </div>

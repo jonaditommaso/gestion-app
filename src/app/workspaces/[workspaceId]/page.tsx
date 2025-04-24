@@ -3,7 +3,7 @@ import CreateWorkspaceForm from "@/features/workspaces/components/CreateWorkspac
 import { useWorkspaceId } from "../hooks/use-workspace-id";
 import { Settings2 } from "lucide-react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import WorkspaceSettings from "@/features/workspaces/components/WorkspaceSettings";
@@ -12,9 +12,7 @@ import TaskSwitcher from "@/features/tasks/components/TaskSwitcher";
 
 const WorkspaceView = () => {
     const workspaceId = useWorkspaceId();
-    const { data: workspaces } = useGetWorkspaces();
-    const deferredWorkspaces = useDeferredValue(workspaces);
-
+    const { data: workspaces, isLoading } = useGetWorkspaces();
 
     const [optionsView, setOptionsView] = useState(false);
 
@@ -28,11 +26,11 @@ const WorkspaceView = () => {
     return (
         <div className="w-[90%] ml-5">
             <div className="flex items-center gap-2">
-                {!deferredWorkspaces
+                {isLoading
                 ? <Skeleton className="w-60 h-10" />
                 : <DropdownItems
-                    itemLogo={deferredWorkspaces?.documents[0].name[0].toUpperCase()}
-                    itemName={deferredWorkspaces?.documents[0].name}
+                    itemLogo={workspaces?.documents[0]?.name[0].toUpperCase()}
+                    itemName={workspaces?.documents[0]?.name}
                     itemType="workspace"
                   />}
                 <Button
@@ -53,12 +51,10 @@ const WorkspaceView = () => {
                 </Button>
             </div>
 
-            {}
-
             {optionsView
                 ? <WorkspaceSettings />
                 : (
-                    deferredWorkspaces && <TaskSwitcher />
+                    workspaces && <TaskSwitcher />
                 )
             }
         </div>

@@ -286,13 +286,18 @@
         "send-a-message": "Enviar un mensaje",
         "send-message": "Enviar mensaje",
         "message": "Mensaje...",
+        "messages": "Mensajes",
         "choise-addressee": "Escoge un destinatario",
         "cancel": "Cancelar",
         "add": "Agregar",
         "add-shortcut": "Agregar atajo",
         "text": "Texto",
         "text-display": "Texto a mostrar",
-        "paste-link": "Pegar enlace"
+        "paste-link": "Pegar enlace",
+        "todo-tasks": "Tareas que hacer",
+        "from-workspace": "De tu tablero de actividades.",
+        "limit-date": "Fecha límite",
+        "mark-all-read": "Marcar todo como leído Mark all as read"
     },
     "app": {
         "search": "Buscar...",

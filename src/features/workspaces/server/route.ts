@@ -36,7 +36,8 @@ const app = new Hono()
                 WORKSPACES_ID,
                 [
                     Query.orderDesc('$createdAt'),
-                    Query.contains('$id', workspacesIds)
+                    Query.contains('teamId', user.prefs.teamId),
+                    Query.contains('$id', workspacesIds),
                 ]
             );
 
@@ -59,7 +60,8 @@ const app = new Hono()
                 ID.unique(),
                 {
                     name,
-                    userId: user.$id,
+                    createdBy: user.$id,
+                    teamId: user.prefs.teamId,
                     inviteCode: generateInviteCode(6)
                 }
             );
