@@ -24,7 +24,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const { data: messages, isPending } = useGetMessages();
   const { mutate: markAsRead, isPending: markingReadMessages } = useBulkReadMessages();
   const locale = useLocale();
-  const t = useTranslations();
+  const t = useTranslations('home');
 
   if (isPending) return (
     <div className="w-full flex justify-center row-span-2">
@@ -47,7 +47,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
     <Card className={cn("col-span-1 bg-sidebar-accent max-h-[355px]", className)} {...props}>
       <CardHeader className="py-4">
         <CardTitle>{t('messages')}</CardTitle>
-        <CardDescription>{!messages?.total ? 'Aun no has recibido ningun mensaje' : `You have ${unreadMessages?.length} unread messages.`}</CardDescription>
+        <CardDescription>{!messages?.total ? t('not-messages-yet') : `${t('you-have')} ${unreadMessages?.length} ${t('unread-messages')}`}</CardDescription>
       </CardHeader>
       <div className="flex flex-col justify-between h-[80%]">
         <CardContent className="grid gap-4 pb-2 overflow-auto mb-1">
@@ -72,7 +72,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         </CardContent>
         <CardFooter className='p-2 my-1'>
           <Button className="w-full" disabled={markingReadMessages || !unreadMessages.length} onClick={handleMarkAsRead}>
-            <Check />
+            <Check /> {t('mark-all-read')}
           </Button>
         </CardFooter>
       </div>
