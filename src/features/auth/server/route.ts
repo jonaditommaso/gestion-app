@@ -256,4 +256,24 @@ const app = new Hono<ContextType>()
         }
     })
 
+
+    .delete(
+        '/',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+
+            const { users } = await createAdminClient();
+
+            const account = ctx.get('account')
+
+            deleteCookie(ctx, AUTH_COOKIE);
+            await account.deleteSession('current')
+
+            await users.delete(user.$id)
+
+            return ctx.json({ success: true })
+        }
+    )
+
 export default app;
