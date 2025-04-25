@@ -178,7 +178,13 @@
         "pricing-enterprise-benefit-7-title": "Registros (hasta 50.000)",
         "pricing-enterprise-benefit-7-description": "Cantidad máxima de registros por equipo, incluyendo todas las tablas.",
         "pricing-enterprise-benefit-8-title": "Tablero Kanban",
-        "pricing-enterprise-benefit-8-description": "Disponible dentro del workspace de tareas, las cuales además se pueden listar en una tabla o en un calendario."
+        "pricing-enterprise-benefit-8-description": "Disponible dentro del workspace de tareas, las cuales además se pueden listar en una tabla o en un calendario.",
+
+        "pricing-enterprise-contact-title": "Ingresa tu email y te contactaremos cuanto antes",
+        "pricing-enterprise-contact-description": "Nos pondremos en contacto contigo para tratar los detalles para crear un plan personalizado que sea el que mejor se adecúe a ti",
+        "email-placeholder": "Ingresa tu email",
+        "additionnal-query-placeholder": "Añade cualquier consulta adicional...",
+        "send": "Enviar"
     },
     "auth": {
         "welcome": "Bienvenido",

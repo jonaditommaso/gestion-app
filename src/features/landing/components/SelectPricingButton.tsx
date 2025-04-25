@@ -2,8 +2,11 @@
 import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { useRequestEnterprisePlan } from "../api/use-request-enterprise-plan";
 
 interface SelectPricingButtonProps {
     textButton: string,
@@ -12,7 +15,9 @@ interface SelectPricingButtonProps {
 
 const SelectPricingButton = ({ textButton, type }: SelectPricingButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
-    const router = useRouter()
+    const { mutate: sendRequest } = useRequestEnterprisePlan()
+    const t = useTranslations('pricing');
+    const router = useRouter();
 
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -20,13 +25,23 @@ const SelectPricingButton = ({ textButton, type }: SelectPricingButtonProps) => 
         const { elements } = event.currentTarget
 
         const emailInput = elements.namedItem('email');
+        const textInput = elements.namedItem('text');
 
-        const isInput = emailInput instanceof HTMLInputElement;
-        if (!isInput || isInput == null) return;
+        const isEmailInput = emailInput instanceof HTMLInputElement;
+        if (!isEmailInput || isEmailInput == null) return;
 
-        console.log(emailInput.value) // save it
-        emailInput.value = ''
+        const isTextInput = textInput instanceof HTMLTextAreaElement;
+        if (!isTextInput || isTextInput == null) return;
         setIsOpen(false)
+
+        sendRequest({
+            json: {
+                email: emailInput.value,
+                message: textInput.value
+            }
+        })
+        emailInput.value = ''
+        textInput.value = ''
     }
 
     const handleClick = () => {
@@ -43,14 +58,15 @@ const SelectPricingButton = ({ textButton, type }: SelectPricingButtonProps) => 
             <DialogContainer
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
-                title='Ingresa tu email y te contactaremos cuanto antes'
-                description="Nos pondremos en contacto contigo para tratar los detalles del plan que mejor se adecue a ti"
+                title={t('pricing-enterprise-contact-title')}
+                description={t('pricing-enterprise-contact-description')}
             >
                 <form onSubmit={onSubmit}>
                     <div className="flex flex-col gap-4">
-                        <Input name="email" type='email' />
+                        <Input name="email" type='email' placeholder={t('email-placeholder')} />
+                        <Textarea name="text" placeholder={t('additionnal-query-placeholder')} className="resize-none h-36" maxLength={256} />
                         <Button className="w-[100%]" type="submit">
-                            Enviar
+                            {t('send')}
                         </Button>
                     </div>
                 </form>
