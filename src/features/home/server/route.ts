@@ -82,6 +82,7 @@ const app = new Hono()
                 content,
                 to,
                 from: user.$id,
+                userId: user.$id
             }
         );
 

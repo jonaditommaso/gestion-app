@@ -141,7 +141,8 @@ const app = new Hono()
                     workspaceId,
                     dueDate,
                     assigneeId,
-                    position: newPosition
+                    position: newPosition,
+                    userId: user.$id,
                 }
             )
 

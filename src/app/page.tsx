@@ -14,6 +14,7 @@ import Link from "next/link";
 import LandingSignUp from "@/features/landing/components/LandingSignUp";
 import { getTranslations } from "next-intl/server";
 import HomeView from "@/features/home/components/HomeView";
+import DemoButton from "@/features/landing/components/DemoButton";
 
 export default async function Home() {
   const user = await getCurrent();
@@ -40,7 +41,7 @@ export default async function Home() {
                 <div className="flex flex-col items-center gap-2">
                   <LandingSignUp />
                   <span>{t('or')}</span>
-                  <Button variant='success' type="submit">{t('button-get-demo-1')}</Button>
+                  <DemoButton text={t('button-get-demo-1')} />
                 </div>
 
               </div>
@@ -119,7 +120,7 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center justify-center w-full bg-[#FFF2F2]">
-            <Button type="submit" variant='success'>{t('button-get-demo-2')}</Button>
+            <DemoButton text={t('button-get-demo-2')} />
           </div>
 
           <LandingFooter />

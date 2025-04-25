@@ -33,8 +33,23 @@
         "facturation": "Facturación",
         "records": "Registros",
         "activities": "Actividades",
+
         "button-get-demo-1": "Obtener demo gratis sin registro",
         "button-get-demo-2": "Obtener Demo sin registro",
+        "cancel": "Cancelar",
+        "create-account": "Crear cuenta",
+        "demo-info-title": "Creación de cuenta Demo",
+        "demo-info-description-1": "Vas a crear una cuenta demo gratuita para explorar la plataforma. No necesitás ingresar nombre, email ni ningún dato personal: todo se genera de forma automática.",
+        "demo-info-description-2": "La cuenta y toda la información asociada estarán disponibles por un máximo de 15 días.",
+        "demo-info-description-3": "Pasado ese tiempo, los datos se eliminan automáticamente y no quedará ningún registro que hayas creado en nuestra base de datos. La limpieza de datos se genera de manera automática, y es posible que si creas tu cuenta cerca del final de ese ciclo, el período de prueba puede ser menor.",
+        "demo-info-description-4": "Podés invitar usuarios a formar parte de tu equipo durante este período.",
+        "demo-info-description-5": "Ellos también usarán cuentas temporales, y podrán explorar la aplicación, y todas las features disponibles. Tanto el equipo, como la cuenta de tus invitados, como todos sus datos se eliminarán cumplido el ciclo de la demo.",
+        "demo-info-description-6": "La cuenta es genérica y sin configuración personalizada.",
+        "demo-info-description-7": "El mail, el nombre de usuario y el nombre de la organización corresponden a una cuenta demo. Son simplemente ilustrativos. La cuenta se crea con el plan Free por defecto.",
+        "demo-info-description-8": "Rápido y seguro, sin compromisos ni necesidad de registro.",
+        "demo-info-description-9": "Comienza a explorar Gestionate y descubre todo su potencial.",
+
+
         "button-signup": "Registrate",
         "button-signin": "Iniciar sesión",
         "button-see-prices": "Ver precios",

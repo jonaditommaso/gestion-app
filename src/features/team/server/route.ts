@@ -154,6 +154,7 @@ const app = new Hono()
                 email,
                 accepted: false,
                 invitedBy: user.$id,
+                userId: user.$id,
                 invitedByName: user.name,
             }
         );
@@ -214,7 +215,9 @@ const app = new Hono()
             email,
         );
 
-        await users.updatePrefs(newUser.$id, { plan: 'invited', company: teamName, role: 'CREATOR', teamId });
+        const teamPrefs = await teams.getPrefs(teamId)
+
+        await users.updatePrefs(newUser.$id, { plan: 'invited', company: teamName, role: 'CREATOR', teamId, isDemo: teamPrefs?.isDemo });
 
 
         const client = new Client()

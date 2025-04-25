@@ -10,7 +10,8 @@ export const registerSchema = zod.object({
     name: zod.string().trim().min(1, 'Required'),
     email: zod.string().email(),
     password: zod.string().min(8, 'Minimo de 8 caracteres'),
-    plan: zod.enum(['free', 'pro'])
+    plan: zod.enum(['free', 'pro']),
+    isDemo: zod.boolean().optional().default(false) // Added to obtain demo without registering
 })
 
 export const userNameSchema = zod.object({
