@@ -1,4 +1,4 @@
-import { LogOut, Rocket, Settings } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { redirect } from "next/navigation";
 
 type UserButtonOptionType = {
@@ -12,15 +12,15 @@ type UserButtonOptionType = {
 };
 
 export const userButtonOptions: UserButtonOptionType[]  = [
-    {
-        key: 'plan',
-        text: 'Mejora tu plan',
-        icon: <Rocket className="size-4 mr-2" />,
-        action: () => redirect('/pricing'),
-        color: 'text-blue-600',
-        hoverColor: 'hover:!text-blue-400',
-        permission: 'admin'
-    },
+    // {
+    //     key: 'plan',
+    //     text: 'Mejora tu plan',
+    //     icon: <Rocket className="size-4 mr-2" />,
+    //     action: () => redirect('/pricing'),
+    //     color: 'text-blue-600',
+    //     hoverColor: 'hover:!text-blue-400',
+    //     permission: 'admin'
+    // }, --> restore when upgrading works
     {
         key: 'settings',
         text: 'Configuración',

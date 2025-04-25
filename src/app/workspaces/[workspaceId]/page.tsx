@@ -1,12 +1,12 @@
 'use client'
 import CreateWorkspaceForm from "@/features/workspaces/components/CreateWorkspaceForm";
 import { useWorkspaceId } from "../hooks/use-workspace-id";
-import { Settings2 } from "lucide-react";
+//import { Settings2 } from "lucide-react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
-import { useState } from "react";
+//import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import WorkspaceSettings from "@/features/workspaces/components/WorkspaceSettings";
+//import { Button } from "@/components/ui/button";
+//import WorkspaceSettings from "@/features/workspaces/components/WorkspaceSettings";
 import DropdownItems from "@/components/DropdownItems";
 import TaskSwitcher from "@/features/tasks/components/TaskSwitcher";
 
@@ -14,7 +14,7 @@ const WorkspaceView = () => {
     const workspaceId = useWorkspaceId();
     const { data: workspaces, isLoading } = useGetWorkspaces();
 
-    const [optionsView, setOptionsView] = useState(false);
+    //const [optionsView, setOptionsView] = useState(false);
 
     if(workspaceId === 'create') return (
         <div className="w-[40%]">
@@ -33,7 +33,7 @@ const WorkspaceView = () => {
                     itemName={workspaces?.documents[0]?.name}
                     itemType="workspace"
                   />}
-                <Button
+                {/* <Button
                     variant='outline'
                     className="rounded-md size-9"
                     disabled={optionsView}
@@ -48,15 +48,16 @@ const WorkspaceView = () => {
                     onClick={() => setOptionsView(false)}
                 >
                     Regresar
-                </Button>
+                </Button> */}
             </div>
 
-            {optionsView
-                ? <WorkspaceSettings />
+            {/* {optionsView
+                ? <WorkspaceSettings /> --> //? restore when workspaceSettings really works
                 : (
                     workspaces && <TaskSwitcher />
                 )
-            }
+            } */}
+            {workspaces && <TaskSwitcher />}
         </div>
     );
 }
