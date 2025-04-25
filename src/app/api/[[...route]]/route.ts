@@ -10,6 +10,7 @@ import settings from '@/features/settings/server/route'
 import team from '@/features/team/server/route'
 import home from '@/features/home/server/route'
 import landing from '@/features/landing/server/route'
+import pricing from '@/features/pricing/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -24,6 +25,7 @@ const routes = app
   .route('/settings', settings)
   .route('/team', team)
   .route('/landing', landing)
+  .route('/pricing', pricing)
   .route('/', home)
 
 export const GET = handle(app)

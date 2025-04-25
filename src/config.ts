@@ -14,3 +14,5 @@ export const MESSAGES_ID = process.env.NEXT_PUBLIC_APPWRITE_MESSAGES_ID!;
 export const IMAGES_BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID!;
 
 export const PRICING_ID = process.env.NEXT_PUBLIC_APPWRITE_PRICING_ID!;
+
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!

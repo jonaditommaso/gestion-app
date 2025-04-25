@@ -67,7 +67,7 @@ const PricingCard = ({ type, description, textButton, price, featured }: Pricing
                         {type !== 'free' && <p className="text-zinc-500">{t('pricing-monthly')}</p>}
                     </div>
                 </div>
-                <SelectPricingButton textButton={t(textButton)} type={type} />
+                <SelectPricingButton textButton={t(textButton)} type={type} isProChecked={proPlusChecked} />
             </CardHeader>
             <Separator />
             <CardContent className="p-7">

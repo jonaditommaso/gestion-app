@@ -7,15 +7,18 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useRequestEnterprisePlan } from "../api/use-request-enterprise-plan";
+import { useStripeCheckout } from "@/features/pricing/api/use-stripe-checkout";
 
 interface SelectPricingButtonProps {
     textButton: string,
-    type: string
+    type: string,
+    isProChecked: boolean
 }
 
-const SelectPricingButton = ({ textButton, type }: SelectPricingButtonProps) => {
+const SelectPricingButton = ({ textButton, type, isProChecked }: SelectPricingButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
-    const { mutate: sendRequest } = useRequestEnterprisePlan()
+    const { mutate: sendRequest } = useRequestEnterprisePlan();
+    const { mutate: stripeCheckout, isPending } = useStripeCheckout();
     const t = useTranslations('pricing');
     const router = useRouter();
 
@@ -44,13 +47,23 @@ const SelectPricingButton = ({ textButton, type }: SelectPricingButtonProps) => 
         textInput.value = ''
     }
 
-    const handleClick = () => {
+    const handleClick = async () => {
         if (type === 'enterprise') {
             setIsOpen(true);
-            return
+            return;
         }
 
-        router.push(`/signup?plan=${type}`)
+        if (type === 'pro') {
+            stripeCheckout({
+                json: {
+                    plan: `pro${isProChecked ? 'plus' : ''}`
+                }
+            })
+        }
+
+        else {
+            router.push(`/signup?plan=${type}`)
+        }
     }
 
     return (
@@ -71,7 +84,7 @@ const SelectPricingButton = ({ textButton, type }: SelectPricingButtonProps) => 
                     </div>
                 </form>
             </DialogContainer>
-            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold" onClick={handleClick}>{textButton}</Button>
+            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold" onClick={handleClick} disabled={isPending}>{textButton}</Button>
         </>
     );
 }
