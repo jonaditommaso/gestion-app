@@ -286,7 +286,21 @@
         "create-workspace": "Crear nuevo workspace",
         "create": "Crear",
         "cancel": "Cancelar",
-        "my-workspace": "Mi workspace..."
+        "my-workspace": "Mi workspace...",
+        "table": "Tabla",
+        "calendar": "Calendario",
+        "new": "Nuevo",
+        "task-name": "Nombre de la tarea",
+        "enter-task-name": "Ingresa el nombre...",
+        "due-date": "Fecha límite",
+        "assignee": "Asignado",
+        "select-assignee": "Seleccionar asignado",
+        "status": "Estado",
+        "in-progress": "En progreso",
+        "todo": "Hacer",
+        "in-review": "En revisión",
+        "done": "Hecho",
+        "create-task": "Crear tarea"
 
     },
     "team": {
@@ -338,5 +352,8 @@
         "irreversible-action": "Esta acción es irreversible",
         "cancel": "Cancelar",
         "delete": "Eliminar"
+    },
+    "general": {
+        "create-new": "Crear nuevo"
     }
 }

@@ -15,6 +15,7 @@ import CustomDatePicker from "@/components/CustomDatePicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TaskStatus } from "../types";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
+import { useTranslations } from "next-intl";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -24,7 +25,8 @@ interface CreateTaskFormProps {
 
 const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
-    const workspaceId = useWorkspaceId()
+    const workspaceId = useWorkspaceId();
+    const t = useTranslations('workspaces');
 
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
@@ -61,12 +63,12 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Task name
+                                            {t('task-name')}
                                         </FormLabel>
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                placeholder="Enter task name"
+                                                placeholder={t('enter-task-name')}
                                                 className="!mt-0"
                                             />
                                         </FormControl>
@@ -80,7 +82,7 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Due Date
+                                            {t('due-date')}
                                         </FormLabel>
                                         <FormControl>
                                             <CustomDatePicker
@@ -98,7 +100,7 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Assignee
+                                            {t('assignee')}
                                         </FormLabel>
                                         <Select
                                             defaultValue={field.value}
@@ -106,7 +108,7 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                         >
                                             <FormControl>
                                                 <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder='Select assignee' />
+                                                    <SelectValue placeholder={t('select-assignee')} />
                                                 </SelectTrigger>
                                             </FormControl >
                                             <FormMessage />
@@ -133,7 +135,7 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Status
+                                            {t('status')}
                                         </FormLabel>
                                         <Select
                                             defaultValue={field.value}
@@ -145,22 +147,22 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <FormMessage />
-                                            {/*  REFACTOR THIS! */}
+                                            {/* //! REFACTOR THIS! */}
                                             <SelectContent>
                                                 <SelectItem value={TaskStatus.BACKLOG}>
                                                     Backlog
                                                 </SelectItem>
+                                                <SelectItem value={TaskStatus.TODO}>
+                                                    {t('todo')}
+                                                </SelectItem>
                                                 <SelectItem value={TaskStatus.IN_PROGRESS}>
-                                                    In Progress
+                                                    {t('in-progress')}
                                                 </SelectItem>
                                                 <SelectItem value={TaskStatus.IN_REVIEW}>
-                                                    In Review
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.TODO}>
-                                                    Todo
+                                                    {t('in-review')}
                                                 </SelectItem>
                                                 <SelectItem value={TaskStatus.DONE}>
-                                                    Done
+                                                    {t('done')}
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
@@ -180,14 +182,14 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                 disabled={isPending}
                                 className={cn(!onCancel && 'invisible')}
                             >
-                                Cancelar
+                                {t('cancel')}
                             </Button>
                             <Button
                                 type='submit'
                                 size='lg'
                                 disabled={isPending}
                             >
-                                Crear task
+                                {t('create-task')}
                             </Button>
                         </div>
                     </form>

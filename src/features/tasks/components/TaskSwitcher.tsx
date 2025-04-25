@@ -16,11 +16,13 @@ import DataKanban from "./DataKanban";
 import { TaskStatus } from "../types";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import DataCalendar from "./DataCalendar";
+import { useTranslations } from "next-intl";
 
 const TaskSwitcher = () => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
     const [currentTab, setCurrentTab] = useState('table') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
+    const t = useTranslations('workspaces');
 
     const [{
         status,
@@ -57,13 +59,13 @@ const TaskSwitcher = () => {
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
                             <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
-                                Table
+                                {t('table')}
                             </TabsTrigger>
                             <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto">
                                 Kanban
                             </TabsTrigger>
                             <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto">
-                                Calendar
+                                {t('calendar')}
                             </TabsTrigger>
                         </TabsList>
                         <Button
@@ -72,7 +74,7 @@ const TaskSwitcher = () => {
                             onClick={handleNewTask}
                         >
                             <PlusIcon className="size-4 mr-2" />
-                            New
+                            {t('new')}
                         </Button>
                     </div>
 

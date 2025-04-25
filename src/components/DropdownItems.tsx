@@ -1,6 +1,7 @@
 'use client'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 interface DropdownItemsProps {
@@ -11,6 +12,7 @@ interface DropdownItemsProps {
 
 const DropdownItems = ({ itemLogo, itemName, itemType }: DropdownItemsProps) => {
     const { theme } = useTheme();
+    const t = useTranslations('general')
 
     return (
         <DropdownMenu>
@@ -21,7 +23,7 @@ const DropdownItems = ({ itemLogo, itemName, itemType }: DropdownItemsProps) => 
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" disabled>
-                    <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> Crear nuevo {itemType}
+                    <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> {t('create-new')} {itemType}
                     {/* podria anadir un drawer para una mobile implementation */}
                 </DropdownMenuItem>
             </DropdownMenuContent>
