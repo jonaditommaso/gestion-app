@@ -10,6 +10,7 @@ type SettingsSection = {
     description: string,
     section: React.ReactNode,
     type?: 'destructive' | undefined
+    permission?: 'demo' | undefined
 }
 
 export const settingsSections: SettingsSection[] = [
@@ -36,6 +37,7 @@ export const settingsSections: SettingsSection[] = [
         title: 'Destructive',
         description: 'Delete your account. Irreversible action.',
         section: <RemoveAccount />,
-        type: 'destructive'
+        type: 'destructive',
+        permission: 'demo' // modificar esta logica, porque se entiende al reves de lo que se busca
     }
 ]

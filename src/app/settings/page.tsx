@@ -18,7 +18,9 @@ const SettingsView = async () => {
             <div className="w-full flex justify-around">
                 <div>
                     {settingsSections.map(setting => {
-                        const { title, id, section, type = undefined } = setting;
+                        const { title, id, section, type = undefined, permission = undefined } = setting;
+
+                        if (permission === 'demo') return;
                         return (
                             <SettingSection title={title} key={id} type={type}>
                                 {section}
