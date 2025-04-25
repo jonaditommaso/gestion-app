@@ -31,7 +31,7 @@ const RecordsContent = () => {
     }, [dataRecords.documents, currentTab])
 
 
-    if(isPending || !currentTab) return <FadeLoader color="#999" width={3} className="mt-5" />
+    if(isPending || (dataRecords?.total && !currentTab)) return <FadeLoader color="#999" width={3} className="mt-5" />
 
     const onCreateTable = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -89,7 +89,7 @@ const RecordsContent = () => {
                                     <Plus className="h-[1.2rem] w-[1.2rem]" />
                                 </Button>
                             </TooltipContainer>
-                            <AddRecords currentRecordTable={currentTab} thereIsTable={dataRecords.total > 0} />
+                            <AddRecords currentRecordTable={currentTab ?? ''} thereIsTable={dataRecords.total > 0} />
                         </div>
                     </div>
                     <div className="mt-20">
