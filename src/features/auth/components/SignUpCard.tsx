@@ -153,7 +153,7 @@ const SignUpCard = () => {
                     </Form>
                 </CardContent>
                 <Separator />
-                <CardContent className="p-7 flex flex-col gap-y-4">
+                {/* <CardContent className="p-7 flex flex-col gap-y-4">
                 <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
                     <FcGoogle className="mr-2 size-5" />
                     {t('login-with')} Google
@@ -162,8 +162,8 @@ const SignUpCard = () => {
                     <FaGithub className="mr-2 size-5" />
                     {t('login-with')} Github
                 </Button>
-                </CardContent>
-                <CardFooter className="flex items-center gap-2 justify-center">
+                </CardContent> */}
+                <CardFooter className="flex items-center gap-2 justify-center mt-2">
                     <p>{t('already-have-account')}</p> <Link href={'/login'} className="underline">{t('login')}</Link>
                 </CardFooter>
             </Card>
