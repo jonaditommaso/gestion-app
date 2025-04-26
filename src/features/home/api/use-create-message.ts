@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.messages['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.messages['$post']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.messages['$post']>
 export const useCreateMessage = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
+    const t = useTranslations('home');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -22,12 +24,12 @@ export const useCreateMessage = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Mensaje creado con éxito')
+            toast.success(t('message-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['messages'] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error creando el mensaje')
+            toast.error(t('failed-create-message'))
         }
     })
     return mutation

@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = { qr: string };
 
 export const useGetMfaQr = () => {
     const queryClient = useQueryClient();
+    const t = useTranslations('settings')
 
     const mutation = useMutation<ResponseType, Error, void>({
         mutationFn: async () => {
@@ -21,7 +23,7 @@ export const useGetMfaQr = () => {
             queryClient.invalidateQueries({ queryKey: ['mfa-qr'] })
         },
         onError: () => {
-            toast.error('Hubo un error obteniendo MFA QR')
+            toast.error(t('failed-get-mfa-qr'))
         }
     })
     return mutation

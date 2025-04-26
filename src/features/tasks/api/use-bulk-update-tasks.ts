@@ -2,12 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.tasks['bulk-update']['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.tasks['bulk-update']['$post']>
 
 export const useBulkUpdateTasks = () => {
     const queryClient = useQueryClient();
+    const t = useTranslations('workspaces');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json }) => {
@@ -20,12 +22,12 @@ export const useBulkUpdateTasks = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Tasks updated')
+            toast.success(t('tasks-updated'))
 
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
         },
         onError: () => {
-            toast.error('Hubo un error actualizando las tasks')
+            toast.error(t('failed-update-tasks'))
         }
     })
     return mutation

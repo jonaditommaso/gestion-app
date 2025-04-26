@@ -6,7 +6,7 @@ import { client } from "@/lib/rpc";
 type ResponseType = InferResponseType<typeof client.api.workspaces[':workspaceId']['join']['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.workspaces[':workspaceId']['join']['$post']>
 
-export const useJoinWorkspace = () => {
+export const useJoinWorkspace = () => { //todo, without translation because we are not handling this way to join yet
     const queryClient = useQueryClient();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({

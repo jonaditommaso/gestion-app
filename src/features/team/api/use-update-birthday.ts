@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.team.birthday['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.team.birthday['$patch']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.team.birthday['$patch']>
 export const useUpdateBirthday = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
+    const t = useTranslations('team');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -22,12 +24,12 @@ export const useUpdateBirthday = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Cumpleaños actualizado con éxito')
+            toast.success(t('birthday-updated'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['team', 'birthday'] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error actualizando el cumpleaños')
+            toast.error(t('failed-update-birthday'))
         }
     })
     return mutation

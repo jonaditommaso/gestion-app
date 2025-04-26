@@ -19,12 +19,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from 'next/navigation';
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 
 const AppSidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
     const { theme } = useTheme();
-
+    const t = useTranslations('general')
 
     const handleMouseEnter = () => setIsCollapsed(true);
     const handleMouseLeave = () => setIsCollapsed(false);
@@ -47,11 +48,11 @@ const AppSidebar = () => {
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-3 mt-1">
                             {initialItem.map((item) => (
-                                <SidebarMenuItem key={item.title} >
+                                <SidebarMenuItem key={t(item.title)}>
                                 <SidebarMenuButton asChild>
                                     <Link href={item.url}>
                                         <item.icon size={30} color={pathname === item.url ? '#60a5fa' : (theme === 'dark' ? 'white' : '#212121')} />
-                                        <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{item.title}</span>
+                                        <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{t(item.title)}</span>
                                     </Link>
                                 </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -67,11 +68,11 @@ const AppSidebar = () => {
                     <SidebarGroupContent>
                         <SidebarMenu className="gap-3">
                         {sidebarItems.map((item) => (
-                            <SidebarMenuItem key={item.title} >
+                            <SidebarMenuItem key={t(item.title)} >
                             <SidebarMenuButton asChild>
                                 <Link href={item.url}>
                                 <item.icon size={30} color={pathname === item.url ? '#60a5fa' : (theme === 'dark' ? 'white' : '#212121')} />
-                                <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{item.title}</span>
+                                <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{t(item.title)}</span>
                                 </Link>
                             </SidebarMenuButton>
                             </SidebarMenuItem>
@@ -86,11 +87,11 @@ const AppSidebar = () => {
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-3">
                             {sidebarBottomItems.map((item) => (
-                                <SidebarMenuItem key={item.title} >
+                                <SidebarMenuItem key={t(item.title)} >
                                 <SidebarMenuButton asChild>
                                     <Link href={item.url}>
                                     <item.icon size={30} color={pathname === item.url ?'#60a5fa' : (theme === 'dark' ? 'white' : '#212121')} />
-                                    <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{item.title}</span>
+                                    <span className={`mt-[2px] ${pathname === item.url ? 'text-[#60a5fa]' : ''}`}>{t(item.title)}</span>
                                     </Link>
                                 </SidebarMenuButton>
                                 </SidebarMenuItem>

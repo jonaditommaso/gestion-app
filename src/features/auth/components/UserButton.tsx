@@ -11,6 +11,7 @@ import { userButtonOptions } from "../userButtonOptions";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useProfilePicture } from "@/hooks/useProfilePicture";
+import { useTranslations } from "next-intl";
 
 const UserButton = () => {
     const { data: user, isLoading } = useCurrent();
@@ -18,6 +19,7 @@ const UserButton = () => {
     const [open, setOpen] = useState(false);
     const { setTheme } = useTheme();
     const { imageUrl, isPending } = useProfilePicture();
+    const t = useTranslations('general')
 
     if(isLoading || isPending) {
         return (
@@ -82,7 +84,7 @@ const UserButton = () => {
                         </Avatar>
                     )}
                     <div className="flex flex-col items-center justify-center">
-                        <p className="text-sm font-medium text-primary">{name || 'Usuario'}</p>
+                        <p className="text-sm font-medium text-primary">{name || t('user')}</p>
                         <p className="text-xs text-neutral-500">{email}</p>
                     </div>
                 </div>
@@ -93,7 +95,7 @@ const UserButton = () => {
                         <Fragment key={option.key}>
                             <Separator className="my-1" />
                             <DropdownMenuItem className={`h-10 flex items-center justify-center font-medium cursor-pointer ${option.color} ${option.hoverColor}`} onClick={() => handleOptionSelected(option.action)}>
-                                {option.icon} {option.text}
+                                {option.icon} {t(option.text)}
                             </DropdownMenuItem>
                         </Fragment>
                     )

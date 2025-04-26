@@ -81,7 +81,7 @@ const LoginCard = () => {
                                         <FormControl>
                                             <Input
                                                 type="password"
-                                                placeholder="Contraseña"
+                                                placeholder={t('password')}
                                                 disabled={isPending}
                                                 {...field}
                                             />

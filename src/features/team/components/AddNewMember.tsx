@@ -55,8 +55,8 @@ const AddNewMember = () => {
             <DialogContainer
                 isOpen={isOpen}
                 setIsOpen={handleClose}
-                title="Agregar un nuevo miembro al equipo"
-                description="Ingresa el mail de tu invitado y genera una URL de invitacion. Tu invitado debera registrarse desde la URL generada aqui"
+                title={t('add-new-member-title')}
+                description={t('add-new-member-description')}
                 //description="Ingresa el mail al que se enviara la invitacion"
             >
                 {!data
@@ -71,7 +71,7 @@ const AddNewMember = () => {
                                     <Input type="email" placeholder="Email..." name="email-invitation" />
                                     <div className="flex items-center justify-end gap-2">
                                         <Button onClick={() => setIsOpen(false)} variant='outline' type="button" disabled={isPending}>{t('cancel')}</Button>
-                                        <Button disabled={isPending}>Generar URL</Button>
+                                        <Button disabled={isPending}>{t('generate-url')}</Button>
                                     </div>
                                 </div>
                             </form>
@@ -80,7 +80,7 @@ const AddNewMember = () => {
                         <div className="max-w-[500px] gap-4 flex flex-col">
                             <Alert variant='success' className="w-full">
                                 <CircleCheckBig className="h-4 w-4" />
-                                <AlertTitle>URL de invitacion generada con exito</AlertTitle>
+                                <AlertTitle>{t('invitation-url-generated')}</AlertTitle>
                             </Alert>
                             <div className="flex items-center justify-between border rounded-md p-1">
                                 <p className="text-sm text-muted-foreground text-ellipsis overflow-hidden whitespace-nowrap w-[80%] select-none">{data.invitationUrl}</p>
@@ -91,7 +91,7 @@ const AddNewMember = () => {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-fit p-1">
-                                        Copiado!
+                                        {t('copied')}
                                     </PopoverContent>
                                 </Popover>
                             </div>

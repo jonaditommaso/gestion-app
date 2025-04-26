@@ -6,7 +6,7 @@ import { toast } from "sonner";
 type ResponseType = InferResponseType<typeof client.api.workspaces[':workspaceId']['reset-invite-code']['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.workspaces[':workspaceId']['reset-invite-code']['$post']>
 
-export const useResetInviteCodeWorkspace = () => {
+export const useResetInviteCodeWorkspace = () => { //todo, without translation because we are not handling this way to join yet
     const queryClient = useQueryClient();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({

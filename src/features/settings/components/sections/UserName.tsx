@@ -3,11 +3,13 @@ import { useUpdateUsername } from "@/features/auth/api/use-update-username";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 const UserName = ({ name }: { name: string }) => {
-    const { mutate: updateUsername, isPending } = useUpdateUsername()
+    const { mutate: updateUsername, isPending } = useUpdateUsername();
 
-    const [userName, setUserName] = useState(name ?? '')
+    const [userName, setUserName] = useState(name ?? '');
+    const t = useTranslations('settings')
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserName(e.target.value)
@@ -34,14 +36,14 @@ const UserName = ({ name }: { name: string }) => {
                             onClick={handleSave}
                             disabled={isPending || userName.length < 3}
                         >
-                            Guardar
+                            {t('save')}
                         </Button>
                         <Button
                             variant='secondary'
                             onClick={handleCancel}
                             disabled={isPending}
                         >
-                            Cancelar
+                            {t('cancel')}
                         </Button>
                     </div>
                 </div>

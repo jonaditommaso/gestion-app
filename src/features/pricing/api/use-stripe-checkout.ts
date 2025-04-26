@@ -3,12 +3,14 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.pricing['stripe']['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.pricing['stripe']['$post']>
 
 export const useStripeCheckout = () => {
     const router = useRouter();
+    const t = useTranslations('pricing');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json }) => {
@@ -22,13 +24,13 @@ export const useStripeCheckout = () => {
         },
         onSuccess: ({ url }) => {
             if (!url) {
-                toast.error('No se pudo obtener el link de pago');
+                toast.error(t('cannot-get-payment-link'));
                 return;
               }
               router.push(url);
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error redireccionando a Stripe')
+            toast.error(t('redirection-stripe-error'))
         }
     })
     return mutation

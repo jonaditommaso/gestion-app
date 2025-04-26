@@ -1,16 +1,16 @@
 export const takeALook = [
     {
-        title: 'Facturacion',
+        title: 'facturation',
         image: '/mock-img.png',
         altImage: 'image1'
     },
     {
-        title: 'Registros',
+        title: 'records',
         image: '/mock-img.png',
         altImage: 'image2'
     },
     {
-        title: 'Actividades',
+        title: 'activities',
         image: '/mock-img.png',
         altImage: 'image3'
     },

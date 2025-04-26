@@ -53,6 +53,7 @@
         "button-signup": "Registrate",
         "button-signin": "Iniciar sesión",
         "button-see-prices": "Ver precios",
+        "enter-valid-email": "Ingresa un email válido",
 
         "navbar-start": "Comienza",
         "navbar-gestionate": "La aplicación web que te permite gestionar tu empresa de manera más eficiente. Todo lo que necesitas, en un solo sitio.",
@@ -94,8 +95,32 @@
         "products-records-title": "Registros",
         "products-records-description": "Carga tus registros de clientes, potenciales clientes, proveedores, afiliados, o el listado que tu quieras y necesites. Podrás subir tu archivo excel para varios registros y también podrás cargarlos manualmente. Tienes diferentes tablas a tu total disposición.",
         "products-innventory-title": "Inventario",
-        "products-innventory-description": "Con G-Inventory llevarás un control eficiente de tu inventario. Carga fácilmente las entradas, salidas y gestiona tu stock. Te proveemos múltiples herramientas de fácil usabilidad. Verás que llevar un control de inventario nunca fue tan sencillo."
+        "products-innventory-description": "Con G-Inventory llevarás un control eficiente de tu inventario. Carga fácilmente las entradas, salidas y gestiona tu stock. Te proveemos múltiples herramientas de fácil usabilidad. Verás que llevar un control de inventario nunca fue tan sencillo.",
 
+        "faq-title": "Las preguntas más frecuentes",
+        "faq-description":"¿Tienes aún mas curiosidad sobre como funciona Gestionate? Posiblemente la respuesta la encuentres aquí",
+        "faq-question-1": "¿Gestionate es solo para empresas?",
+        "faq-answer-1": "No, Gestionate es una herramienta destinada a cualquier tipo de organización, ya sea una empresa, una institución educativa o incluso trabajores independientes",
+        "faq-question-2": "¿Todos los planes incluyen todas las funcionalidades?",
+        "faq-answer-2": "Sí. Podrás manejar distinto volumen de datos, miembros, workspaces, etc., pero tendrás todos nuestros productos disponibles",
+        "faq-question-3": "¿Cómo funciona la 'demo gratis sin registro'?",
+        "faq-answer-3": "Te brindamos acceso por tiempo determinado a toda nuestra aplicación con un plan básico, así de esta manera podrás ver 'desde adentro' cómo se ve y cómo funciona. Todo lo que hagas permanecerá solo hasta un máximo de 15 días. Cumplido ese tiempo, se eliminará toda actividad que hayas realizado, desde tu cuenta hasta los documentos creados.",
+        "faq-question-4": "¿Puedo cambiar de plan en cualquier momento?",
+        "faq-answer-4": "Sí, así es. Siempre tendrás la posibilidad de hacer un upgrade o un downgrade de tu plan. Tampoco cobraremos ningún tipo de costo adicional por ello si es que realizas el cambio en el transcurso del mes.",
+        "faq-question-5": "¿Cuento con soporte técnico?",
+        "faq-answer-5": "Por supuesto, nosotros estamos para ayudarte con cualquier inconveniente o dificulad que se te pueda presentar. Nuestros canales de contacto están abiertos todos los días a tu dispocición.",
+        "faq-question-6": "¿Cómo puedo cancelar mi suscripción?",
+        "faq-answer-6": "Solo basta un click. Tienes libre disposición para cancelar tu suscripción en el momento que quieras. Sería una situación que nos apenaría, por lo que te consultaremos sobre los motivos que te invitan a cerrar tu cuenta. Se trata de una mini-encuesta que nos ayuda a entenderte con mas claridad y poder mejorar a futuro",
+
+        "who-we-are-title": "Quiénes somos",
+        "who-we-are-description": "Descubre el equipo detrás de la máquina. Te contamos brevemente nuestra misión y lo que nos motiva a entregarte el mejor servicio",
+        "who-we-are-1": "es la herramienta ideal para administrar todo tu trabajo. La idea nace de la necesidad de unificar todos los sistemas utilizados en nuestro día a día.",
+        "who-we-are-2": "Con",
+        "who-we-are-3": "tenés un control total de todo el flujo laboral, y seguimos desarrollando aún más herramientas para vos. Nuestra misión es que todo aquello que podamos gestionar por vos, lo hagas aquí, con nosotros.",
+        "who-we-are-4": "Te daremos todas las comodidades posibles, para facilitar tu jornada de trabajo. No vamos a dejar de trabajar por ti.",
+
+        "message-created": "Mensaje creado con éxito",
+        "failed-create-message": "Lo sentimos, hubo un error creando el mensaje"
     },
     "pricing": {
         "pricing-title": "Elige el plan perfecto para tu equipo",
@@ -184,7 +209,10 @@
         "pricing-enterprise-contact-description": "Nos pondremos en contacto contigo para tratar los detalles para crear un plan personalizado que sea el que mejor se adecúe a ti",
         "email-placeholder": "Ingresa tu email",
         "additionnal-query-placeholder": "Añade cualquier consulta adicional...",
-        "send": "Enviar"
+        "send": "Enviar",
+
+        "cannot-get-payment-link": "No se pudo obtener el link de pago",
+        "redirection-stripe-error": "Lo sentimos, hubo un error redireccionando al pago en Stripe"
     },
     "auth": {
         "welcome": "Bienvenido",
@@ -204,7 +232,16 @@
         "authentication-code-title": "Código de autenticación",
         "authentication-code-verify-button": "Verificar",
         "authentication-code-verifying-button": "Verificando",
-        "authentication-code-info": "Abre tu aplicación de verificación en dos pasos (TOTP) para ver el código de autenticación"
+        "authentication-code-info": "Abre tu aplicación de verificación en dos pasos (TOTP) para ver el código de autenticación",
+        "user-deleted": "Usuario eliminado",
+        "failed-delete-account": "No se pudo eliminar la cuenta",
+        "sorry-failed-delete-account": "Lo sentimos, hubo un error al crear la cuenta",
+        "account-created": "Cuenta creada con éxito",
+        "username-updated": "Nombre de usuario actualizado",
+        "failed-updating-username": "Hubo un error actualizando el nombre de usuario",
+        "free-plan": "Plan Free",
+        "pro-plan": "Plan Pro"
+
     },
     "info-messages": {
         "empty-table": "Tabla vacía",
@@ -250,7 +287,12 @@
         "add": "Agregar",
         "delete": "Eliminar",
         "edit": "Editar",
-        "are-you-sure-delete": "¿Estás seguro que quieres eliminar esta categoría?"
+        "are-you-sure-delete": "¿Estás seguro que quieres eliminar esta categoría?",
+        "option-updated": "Opción actualizada",
+        "failed-update-options": "Hubo un error actualizando las opciones",
+        "operation-created": "Operación creada",
+        "failed-create-operation": "Hubo un error creando la operación",
+        "total": "Total"
     },
     "records": {
         "create-records-table": "Crear nueva tabla de registros",
@@ -270,6 +312,7 @@
         "add-records": "Añadir registros",
         "add-records-description": "Añade todos los datos necesarios de un mismo registro. No olvides guardar los cambios.",
         "upload-excel": "Cargar Excel",
+        "manual": "Manual",
         "field": "Campo",
         "value": "Valor",
         "create-new-field": "Crear nuevo campo",
@@ -286,7 +329,16 @@
         "filter": "Filtrar...",
         "no-results": "No se encontraron resultados.",
         "first-row-header": "La primer fila es el encabezado",
-        "choise-field": "Escoge un campo"
+        "choise-field": "Escoge un campo",
+
+        "records-uploaded": "Datos subidos con éxito",
+        "failed-upload-records": "Lo sentimos, hubo un error al subir los datos",
+        "table-created": "Tabla creada con éxito",
+        "failed-create-table": "Lo sentimos, hubo un error al crear la tabla",
+        "table-deleted": "Tabla eliminada con éxito",
+        "failed-delete-table": "Hubo un error eliminando la tabla",
+        "table-name-updated": "Nombre de la tabla actualizada",
+        "failed-update-table-name": "Hubo un error actualizando el nombre de la tabla"
     },
     "workspaces": {
         "create-workspace": "Crear nuevo workspace",
@@ -306,8 +358,31 @@
         "todo": "Hacer",
         "in-review": "En revisión",
         "done": "Hecho",
-        "create-task": "Crear tarea"
-
+        "create-task": "Crear tarea",
+        "delete-task": "Eliminar tarea",
+        "action-cannot-be-undone": "Esta acción no puede ser deshecha",
+        "task-details": "Detalles de tarea",
+        "edit-task": "Editar tarea",
+        "tasks-updated": "Tareas actualizadas",
+        "failed-update-tasks": "Hubo un error actualizando las tareas",
+        "task-created": "Tarea creada",
+        "failed-create-task": "Hubo un error creando la tarea",
+        "task-deleted": "Tarea eliminada",
+        "failed-delete-task": "Hubo un error eliminando la tarea",
+        "task-updated": "Tarea actualizada",
+        "failed-update-task": "Hubo un error actualizando la tarea",
+        "select-status": "Seleccionar estado",
+        "all-statuses": "Todos los estados",
+        "all-assignees": "Todos asignados",
+        "no-results": "No se encontraron resultados.",
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "workspace-created": "Workspace creado",
+        "failed-create-workspace": "Hubo un error creando el Workspace",
+        "workspace-deleted": "Workspace eliminado",
+        "failed-delete-workspace": "Hubo un error eliminando el Workspace",
+        "workspace-updated": "Workspace actualizado",
+        "failed-update-workspace": "Hubo un error actualizando el Workspace"
     },
     "team": {
         "team-title": "Equipo",
@@ -317,7 +392,25 @@
         "placeholder-tag": "Tag...",
         "cancel": "Cancelar",
         "update": "Actualizar",
-        "not-specified": "Sin especificar"
+        "not-specified": "Sin especificar",
+        "join-to": "Unete a",
+        "in-order-to-join": "para unirte a",
+        "create-account": "Crear cuenta",
+        "enter-new-password-placeholder": "Ingresa nueva contraseña",
+        "name-placeholder": "Nombre",
+        "invitation-recived-by": "Has recibido una invitación de",
+        "invitation-description": "Se registrará tu cuenta con el email que fue provisto en la invitación. Ingresa un nombre y una contraseña para completar el registro",
+        "tag-added": "Tag agregado con éxito",
+        "failed-create-tag": "Lo sentimos, hubo un error creando el tag",
+        "invitation-created": "Invitación creada con éxito",
+        "failed-create-invitation": "Lo sentimos, hubo un error creando la invitación",
+        "birthday-updated": "Cumpleaños actualizado con éxito",
+        "failed-update-birthday": "Lo sentimos, hubo un error actualizando el cumpleaños",
+        "copied": "¡Copiado!",
+        "invitation-url-generated": "URL de invitación generada con éxito",
+        "generate-url": "Generar URL",
+        "add-new-member-title": "Agregar un nuevo miembro al equipo",
+        "add-new-member-description": "Ingresa el mail de tu invitado y genera una URL de invitación. Tu invitado deberá registrarse desde la URL generada aquí"
     },
     "home": {
         "send-a-message": "Enviar un mensaje",
@@ -341,7 +434,15 @@
         "my-notes": "Mis notas",
         "add-note": "Agregar nota",
         "remember-placeholder": "Recuerda que...",
-        "title": "Título"
+        "title": "Título",
+        "shortcut-created": "Atajo creada con éxito",
+        "failed-create-shortcut": "Lo sentimos, hubo un error creando el atajo",
+        "messages-updated": "Mensajes actualizados",
+        "failed-update-messages": "Hubo un error actualizando los mensajes",
+        "message-created": "Mensaje creado con éxito",
+        "failed-create-message": "Lo sentimos, hubo un error creando el mensaje",
+        "note-created": "Nota creada con éxito",
+        "failed-create-note": "Lo sentimos, hubo un error creando la nota"
     },
     "app": {
         "search": "Buscar...",
@@ -356,10 +457,46 @@
         "remove-account": "Eliminar cuenta",
         "are-you-sure-delete": "¿Estás seguro que quieres eliminar tu cuenta?",
         "irreversible-action": "Esta acción es irreversible",
+        "save": "Guardar",
         "cancel": "Cancelar",
-        "delete": "Eliminar"
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "account-settings": "Configuración de la cuenta",
+        "general": "General",
+        "plan": "Plan",
+        "destructive": "Destructivo",
+        "mfa-created": "MFA creado con éxito",
+        "failed-create-mfa": "Hubo un error creando MFA",
+        "failed-get-mfa-qr": "Hubo un error obteniendo MFA QR",
+        "image-updated": "Imagen actualizada con éxito. Reinicia si no ves el cambio.",
+        "failed-update-image": "Hubo un error actualizando la imagen",
+        "cannot-change-email": "No es posible cambiar el email por ahora",
+        "name": "Nombre",
+        "no-6-digits": "No ingresaste 6 dígitos",
+        "mfa-title": "Verificación en 2 pasos",
+        "mfa-description": "Escanea el QR con tu aplicación de autenticación e ingresa el código",
+        "verify": "Verificar",
+        "verified": "Verificado",
+        "enter-code": "Ingresa el código de",
+        "digits": "dígitos",
+        "see-plans": "Ver planes",
+        "2fa": "Autenticación en 2 pasos",
+        "password": "Contraseña",
+        "account-type": "Tipo de cuenta",
+        "language": "Idioma"
     },
     "general": {
-        "create-new": "Crear nuevo"
+        "create-new": "Crear nuevo",
+        "back-to-home": "Volver al Inicio",
+        "something-went-wrong": "Algo salió mal",
+        "home": "Inicio",
+        "billing": "Facturación",
+        "records": "Registros",
+        "activities": "Actividades",
+        "team": "Equipo",
+        "select-date": "Seleccionar fecha",
+        "logout": "Cerrar sesión",
+        "settings": "Configuración",
+        "user": "Usuario"
     }
 }

@@ -47,7 +47,7 @@ const TaskSwitcher = () => {
 
     return (
        <div className="mt-2">
-            <DialogContainer title="Crear task" isOpen={modalOpen} setIsOpen={setModalOpen}>
+            <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
                 <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} />
             </DialogContainer>
             <Tabs

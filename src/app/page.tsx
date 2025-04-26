@@ -113,7 +113,7 @@ export default async function Home() {
                 key={element.altImage}
                 image={element.image}
                 altImage={element.altImage}
-                title={element.title}
+                title={t(element.title)}
               />
             ))}
 

@@ -16,13 +16,13 @@ type SettingsSection = {
 export const settingsSections: SettingsSection[] = [
     {
         id: 'general',
-        title: 'General',
+        title: 'general',
         description: 'General account settings',
         section: <General />
     },
     {
         id: 'plan',
-        title: 'Plan',
+        title: 'plan',
         description: 'Current plan and usage',
         section: <Plan />
     },
@@ -34,8 +34,8 @@ export const settingsSections: SettingsSection[] = [
     // },
     {
         id: 'remove-account',
-        title: 'Destructive',
-        description: 'Delete your account. Irreversible action.',
+        title: 'destructive',
+        description: 'Delete your account. Irreversible action.', // no parece que esto se este mostrando en algun lado.
         section: <RemoveAccount />,
         type: 'destructive',
         permission: 'demo' // modificar esta logica, porque se entiende al reves de lo que se busca

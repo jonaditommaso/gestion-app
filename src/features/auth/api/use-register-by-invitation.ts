@@ -2,12 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.team['join-team']['$post']>
 type RequestType = InferRequestType<typeof client.api.team['join-team']['$post']>
 
 export const useRegisterByInvitation = () => {
     const queryClient = useQueryClient();
+    const t = useTranslations('auth');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json}) => {
@@ -20,12 +22,12 @@ export const useRegisterByInvitation = () => {
             return await response.json()
         },
         onSuccess: async () => {
-            toast.success('Cuenta creada con éxito');
+            toast.success(t('account-created'));
             window.location.href = '/'
             queryClient.invalidateQueries({ queryKey: ['current'] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error al crear la cuenta')
+            toast.error(t('sorry-failed-delete-account'))
         }
     })
     return mutation

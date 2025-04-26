@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.records['records-table']['$post']>
 type RequestType = InferRequestType<typeof client.api.records['records-table']['$post']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.records['records-table']['
 export const useCreateRecordsTable = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
+    const t = useTranslations('records');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -22,13 +24,13 @@ export const useCreateRecordsTable = () => {
             return await response.json()
         },
         onSuccess: ({ data }) => {
-            toast.success('Tabla creada con éxito')
+            toast.success(t('table-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tables'] })
             queryClient.invalidateQueries({ queryKey: ['table', data.$id] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error al crear la tabla')
+            toast.error(t('failed-create-table'))
         }
     })
     return mutation

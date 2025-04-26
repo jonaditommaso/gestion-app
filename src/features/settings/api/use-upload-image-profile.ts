@@ -3,12 +3,14 @@ import { InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.settings['upload-image']['$post']>
 
 export const useUploadImageProfile = () => {
     const queryClient = useQueryClient();
     const router = useRouter();
+    const t = useTranslations('settings')
 
     const mutation = useMutation<ResponseType, Error, FormData>({
         mutationFn: async (formData) => {
@@ -24,12 +26,12 @@ export const useUploadImageProfile = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Imagen actualizada con exito. Reinicia si no ves el cambio.');
+            toast.success(t('image-updated'));
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['image-profile'] })
         },
         onError: () => {
-            toast.error('Hubo un error actualizando la imagen')
+            toast.error(t('failed-update-image'))
         }
     })
     return mutation

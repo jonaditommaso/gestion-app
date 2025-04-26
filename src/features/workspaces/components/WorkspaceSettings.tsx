@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { CopyIcon } from "lucide-react";
 
-const WorkspaceSettings = () => {
+const WorkspaceSettings = () => { //todo, without translation
     return (
         <div className="flex justify-evenly gap-3 mt-10">
             <Card className="w-[400px]">

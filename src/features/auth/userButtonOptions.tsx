@@ -23,7 +23,7 @@ export const userButtonOptions: UserButtonOptionType[]  = [
     // }, --> restore when upgrading works
     {
         key: 'settings',
-        text: 'Configuración',
+        text: 'settings',
         icon: <Settings className="size-4 mr-2" /> ,
         action: () => redirect('/settings'),
         color: '',//'text-neutral-950',
@@ -31,7 +31,7 @@ export const userButtonOptions: UserButtonOptionType[]  = [
     },
     {
         key: 'logout',
-        text: 'Cerrar sesión',
+        text: 'logout',
         icon: <LogOut className="size-4 mr-2" />,
         action: 'logout',
         color: 'text-red-600',

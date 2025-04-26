@@ -22,7 +22,6 @@ interface CreateTaskFormProps {
     onCancel: () => void
 }
 
-
 const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
     const workspaceId = useWorkspaceId();
@@ -143,7 +142,7 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                         >
                                             <FormControl>
                                                 <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder='Select status' />
+                                                    <SelectValue placeholder={t('select-status')} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <FormMessage />

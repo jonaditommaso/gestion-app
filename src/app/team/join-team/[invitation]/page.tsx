@@ -13,11 +13,13 @@ import { useForm } from "react-hook-form";
 import FadeLoader from "react-spinners/FadeLoader";
 import { useRegisterByInvitation } from "@/features/auth/api/use-register-by-invitation";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 const JoinTeamView = () => {
     const params = useParams();
     const { data, isPending } = useGetInvitation(typeof params.invitation === 'string' ? params.invitation : '');
-    const { mutate: register, isPending: isCreating } = useRegisterByInvitation()
+    const { mutate: register, isPending: isCreating } = useRegisterByInvitation();
+    const t = useTranslations('team')
 
     const form = useForm<zod.infer<typeof registerByInvitationFormSchema>>({
         resolver: zodResolver(registerByInvitationFormSchema),
@@ -57,8 +59,8 @@ const JoinTeamView = () => {
 
     return (
         <Card className="flex flex-col items-center justify-center w-[400px] p-4 gap-4 m-auto">
-            <CardTitle>Unete a {data.teamName}</CardTitle>
-            <CardDescription>Has recibido una invitacion de <span className="font-medium">{data.invitedByName}</span> para unirte a <span className="font-medium">{data.teamName}</span>. Se registrara tu cuenta con el email que fue provisto en la invitacion. Ingresa un nombre y una contrasena para completar el registro</CardDescription>
+            <CardTitle>{t('join-to')} {data.teamName}</CardTitle>
+            <CardDescription>{t('invitation-recived-by')} <span className="font-medium">{data.invitedByName}</span> {t('in-order-to-join')} <span className="font-medium">{data.teamName}</span>. {t('invitation-description')}</CardDescription>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2 w-full">
                     <FormField
@@ -85,7 +87,7 @@ const JoinTeamView = () => {
                                 <FormControl>
                                     <Input
                                         type="text"
-                                        placeholder={'name'}
+                                        placeholder={t('name-placeholder')}
                                         disabled={isCreating}
                                         {...field}
                                     />
@@ -102,7 +104,7 @@ const JoinTeamView = () => {
                                 <FormControl>
                                     <Input
                                         type="password"
-                                        placeholder={'Ingresa nueva contrasena'}
+                                        placeholder={t('enter-new-password-placeholder')}
                                         disabled={isCreating}
                                         {...field}
                                     />
@@ -112,7 +114,7 @@ const JoinTeamView = () => {
                         )}
                     />
                     <Separator />
-                    <Button className="w-full" disabled={isCreating} type="submit">Crear cuenta</Button>
+                    <Button className="w-full" disabled={isCreating} type="submit">{t('create-account')}</Button>
                 </form>
             </Form>
         </Card>

@@ -105,7 +105,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                     <DropdownMenuContent align="end" >
                         <SheetTrigger asChild>
                             <DropdownMenuItem className="flex items-center justify-between min-w-36 cursor-pointer">
-                                <span>Manual</span> <FilePenLine />
+                                <span>{t('manual')}</span> <FilePenLine />
                             </DropdownMenuItem>
                         </SheetTrigger>
                         <DropdownMenuItem className="flex items-center justify-between min-w-36 cursor-pointer" onClick={() => setIsOpen(true)}>

@@ -65,7 +65,7 @@ export function BillingTable() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={4}>Total</TableCell>
+            <TableCell colSpan={4}>{t('total')}</TableCell>
             <TableCell className="text-right">$ {total}</TableCell>
           </TableRow>
         </TableFooter>

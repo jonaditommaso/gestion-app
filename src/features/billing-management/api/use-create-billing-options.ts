@@ -2,12 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.billing.options['$post']>
 type RequestType = InferRequestType<typeof client.api.billing.options['$post']>
 
 export const useCreateBillingOptions = () => {
     const queryClient = useQueryClient();
+    const t = useTranslations('billing');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -20,11 +22,11 @@ export const useCreateBillingOptions = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Opcion actualizada')
+            toast.success(t('option-updated'))
             queryClient.invalidateQueries({ queryKey: ['billing-options'] })
         },
         onError: () => {
-            toast.error('Hubo un error actualizando las opciones')
+            toast.error(t('failed-update-options'))
         }
     })
     return mutation

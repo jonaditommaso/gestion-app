@@ -3,13 +3,15 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.records.upload[':recordId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.records.upload[':recordId']['$patch']>
 
 export const useAddRecords = () => {
-    const router = useRouter()
+    const router = useRouter();
     const queryClient = useQueryClient();
+    const t = useTranslations('records');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json, param }) => {
@@ -22,13 +24,13 @@ export const useAddRecords = () => {
             return await response.json()
         },
         onSuccess: ({ data }) => {
-            toast.success('Datos subidos con éxito')
+            toast.success(t('records-uploaded'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tables'] })
             queryClient.invalidateQueries({ queryKey: ['table', data.$id] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error al subir los datos')
+            toast.error(t('failed-upload-records'))
         }
     })
     return mutation

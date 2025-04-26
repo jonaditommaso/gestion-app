@@ -1,9 +1,11 @@
+'use client'
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 import { Dispatch, SetStateAction } from "react";
 
 const types = [
-    { label: "Free plan", type: "free" },
-    { label: "Pro plan", type: "pro" },
+    { label: "free-plan", type: "free" },
+    { label: "pro-plan", type: "pro" },
 ]
 
 interface PlanSelectedProps {
@@ -12,6 +14,7 @@ interface PlanSelectedProps {
 }
 
 const PlanSelected = ({planSelected, setPlanSelected}: PlanSelectedProps) => {
+    const t = useTranslations('auth')
 
     return (
         <div className="flex gap-2 w-full text-center mb-4">
@@ -32,7 +35,7 @@ const PlanSelected = ({planSelected, setPlanSelected}: PlanSelectedProps) => {
                             : `border-2 border-t-8 border-t-zinc-300 bg-muted text-muted-foreground`
                         }`}
                     >
-                        {label}
+                        {t(label)}
                     </div>
                 </label>
             ))} *

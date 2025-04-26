@@ -11,11 +11,13 @@ import { useGetMfaQr } from "../../api/use-get-mfa-qr";
 import { useCreateMfa } from "../../api/use-create-mfa";
 import { toast } from "sonner";
 import CustomLoader from "@/components/CustomLoader";
+import { useTranslations } from "next-intl";
 
 const MFA = ({ hasMFA }: { hasMFA: boolean | undefined }) => {
     const [qrModalIsOpen, setQrModalIsOpen] = useState(false);
     const { mutate, data, isSuccess } = useGetMfaQr();
     const { mutate: createMfa, isPending } = useCreateMfa();
+    const t = useTranslations('settings');
 
     const activateMFA = () => {
         setQrModalIsOpen(true)
@@ -32,7 +34,7 @@ const MFA = ({ hasMFA }: { hasMFA: boolean | undefined }) => {
         if (!isInput || isInput == null) return;
 
         if (mfaInput.value.length !== 6) {
-            toast.error('No ingresaste 6 digitos')
+            toast.error('no-6-digits')
             return;
         }
 
@@ -46,7 +48,7 @@ const MFA = ({ hasMFA }: { hasMFA: boolean | undefined }) => {
 
     return (
         <div className="flex items-center gap-2">
-            <DialogContainer isOpen={qrModalIsOpen} setIsOpen={setQrModalIsOpen} title="Verificacion en 2 pasos" description="Escanea el QR con tu aplicacion de autenticacion e ingresa el codigo">
+            <DialogContainer isOpen={qrModalIsOpen} setIsOpen={setQrModalIsOpen} title={t('mfa-title')} description={t('mfa-description')}>
                 <div className="w-full flex justify-center">
                     {isSuccess
                         ? <Image
@@ -62,9 +64,9 @@ const MFA = ({ hasMFA }: { hasMFA: boolean | undefined }) => {
 
                 </div>
                 <form onSubmit={handleVerify} className="flex flex-col m-auto mt-4">
-                    <Label className="mb-2">Ingresa el código de <span className="font-semibold">6</span> dígitos</Label>
+                    <Label className="mb-2">{t('enter-code')} <span className="font-semibold">6</span> {t('digits')}</Label>
                     <Input name="mfa-code" className="text-center text-xl" maxLength={6} />
-                    <Button type="submit" className="mt-2" disabled={!isSuccess || isPending}>Verificar</Button>
+                    <Button type="submit" className="mt-2" disabled={!isSuccess || isPending}>{t('verify')}</Button>
                 </form>
             </DialogContainer>
             {!hasMFA && <TriangleAlert className="text-yellow-400" />}
@@ -74,7 +76,7 @@ const MFA = ({ hasMFA }: { hasMFA: boolean | undefined }) => {
                 onClick={activateMFA}
                 disabled={hasMFA}
             >
-                {hasMFA ? 'Verificado' : 'Verificar'}
+                {hasMFA ? t('verified') : t('verify')}
             </Button>
         </div>
     );

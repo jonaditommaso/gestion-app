@@ -2,7 +2,7 @@ import {  Home, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-
 
 export const initialItem = [
   {
-    title: "Inicio",
+    title: "home",
     url: "/",
     icon: Home,
     key: 'home'
@@ -11,7 +11,7 @@ export const initialItem = [
 
 export const sidebarItems = [
   {
-    title: "Facturación",
+    title: "billing",
     url: "/billing-management",
     icon: ReceiptText,
     key: 'billing-management'
@@ -35,13 +35,13 @@ export const sidebarItems = [
   //   key: 'marketing'
   // },
   {
-    title: "Registros",
+    title: "records",
     url: "/records",
     icon: UserRoundSearch,
     key: 'records'
   },
   {
-    title: "Actividades",
+    title: "activities",
     url: "/workspaces",
     icon: NotepadText,
     key: 'workspaces'
@@ -50,7 +50,7 @@ export const sidebarItems = [
 
 export const sidebarBottomItems = [
   {
-    title: "Equipo",
+    title: "team",
     url: "/team",
     icon: Users,
     key: 'team'

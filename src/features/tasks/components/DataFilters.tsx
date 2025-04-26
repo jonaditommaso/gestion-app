@@ -7,10 +7,12 @@ import { TaskStatus } from "../types";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
+import { useTranslations } from "next-intl";
 
 const DataFilters = () => {
-    const workspaceId = useWorkspaceId()
-    const { data: members, isLoading } = useGetMembers({ workspaceId })
+    const workspaceId = useWorkspaceId();
+    const { data: members, isLoading } = useGetMembers({ workspaceId });
+    const t = useTranslations('workspaces');
 
     const memberOptions = members?.documents.map(member => ({
         id: member.$id,
@@ -46,26 +48,26 @@ const DataFilters = () => {
                 <SelectTrigger className="w-full lg:w-auto h-8">
                     <div className="flex items-center pr-2">
                         <ListChecksIcon className="size-4 mr-2" />
-                        <SelectValue placeholder='All statuses' />
+                        <SelectValue placeholder={t('all-statuses')} />
                     </div>
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="all">{t('all-statuses')}</SelectItem>
                     <SelectSeparator />
                     <SelectItem value={TaskStatus.BACKLOG}>
                         Backlog
                     </SelectItem>
+                    <SelectItem value={TaskStatus.TODO}>
+                        {t('todo')}
+                    </SelectItem>
                     <SelectItem value={TaskStatus.IN_PROGRESS}>
-                        In Progress
+                        {t('in-progress')}
                     </SelectItem>
                     <SelectItem value={TaskStatus.IN_REVIEW}>
-                        In Review
-                    </SelectItem>
-                    <SelectItem value={TaskStatus.TODO}>
-                        Todo
+                        {t('in-review')}
                     </SelectItem>
                     <SelectItem value={TaskStatus.DONE}>
-                        Done
+                        {t('done')}
                     </SelectItem>
                 </SelectContent>
             </Select>
@@ -76,11 +78,11 @@ const DataFilters = () => {
                 <SelectTrigger className="w-full lg:w-auto h-8">
                     <div className="flex items-center pr-2">
                         <UserIcon className="size-4 mr-2" />
-                        <SelectValue placeholder='All assignees' />
+                        <SelectValue placeholder={t('all-assignees')} />
                     </div>
                 </SelectTrigger>
                 <SelectContent >
-                    <SelectItem value="all">All assignees</SelectItem>
+                    <SelectItem value="all">{t('all-assignees')}</SelectItem>
                     <SelectSeparator />
                     {memberOptions?.map(member => (
                         <SelectItem key={member.id} value={member.id}>
@@ -96,7 +98,7 @@ const DataFilters = () => {
                 </SelectContent>
             </Select>
             <CustomDatePicker
-                placeholder="Due date"
+                placeholder={t('due-date')}
                 className="h-8 w-full lg:w-auto"
                 value={dueDate ? new Date(dueDate) : undefined}
                 onChange={date => { setFilters({ dueDate: date ? date.toISOString() : null }) }}

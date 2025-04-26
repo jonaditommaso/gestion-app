@@ -3,13 +3,15 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.tasks[':taskId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.tasks[':taskId']['$patch']>
 
 export const useUpdateTask = () => {
     const queryClient = useQueryClient();
-    const router = useRouter()
+    const router = useRouter();
+    const t = useTranslations('workspaces');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json, param }) => {
@@ -22,14 +24,14 @@ export const useUpdateTask = () => {
             return await response.json()
         },
         onSuccess: ({ data }) => {
-            toast.success('Task updated')
+            toast.success(t('task-updated'))
 
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
             queryClient.invalidateQueries({ queryKey: ['task', data.$id] })
         },
         onError: () => {
-            toast.error('Hubo un error actualizando la task')
+            toast.error(t('failed-update-task'))
         }
     })
     return mutation

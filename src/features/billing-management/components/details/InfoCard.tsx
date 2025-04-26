@@ -40,7 +40,7 @@ const InfoCard = ({ numberMoney, type }: InfoCardProps) => {
     const [dataType, setDataType] = useState(selectedData);
 
     useEffect(() => {
-    setDataType(selectedData);
+        setDataType(selectedData);
     }, [selectedData])
 
     const handleChangeDataView = () => {

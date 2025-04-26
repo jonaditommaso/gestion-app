@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { Models } from 'node-appwrite';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
+import { useTranslations } from 'next-intl';
 
 interface ProfilePhotoEditionProps {
     user: Models.User<Models.Preferences>
@@ -21,6 +22,7 @@ const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadImageProfile, isPending } = useUploadImageProfile();
     const { imageUrl, isPending: isProfilePicturePending } = useProfilePicture();
+    const t = useTranslations('settings');
 
     const avatarFallback = user?.name.charAt(0).toUpperCase() ?? 'U';
 
@@ -94,7 +96,7 @@ const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
                             onClick={() => inputRef.current?.click()}
                         >
                             <Pencil className="w-4 h-4 mr-1" />
-                            {/* {t('edit')} */}
+                            {t('edit')}
                         </Button>
                     </div>
                 </form>

@@ -4,6 +4,7 @@ import { ExternalLinkIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
+import { useTranslations } from "next-intl";
 
 interface TaskActionsProps {
     id: string,
@@ -11,9 +12,10 @@ interface TaskActionsProps {
 }
 
 const TaskActions = ({ id, children }: TaskActionsProps) => {
+    const t = useTranslations('workspaces')
     const [ConfirmDialog, confirm] = useConfirm(
-        'Delete task',
-        'This action cannot be undone',
+        t('delete-task'),
+        t('action-cannot-be-undone'),
         'destructive'
     );
 
@@ -46,14 +48,14 @@ const TaskActions = ({ id, children }: TaskActionsProps) => {
                         className="font-medium p-[10px]"
                     >
                         <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
-                        Task details
+                        {t('task-details')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => {}}
                         className="font-medium p-[10px]"
                     >
                         <PencilIcon className="size-4 mr-2 stroke-2" />
-                        Edit task
+                        {t('edit-task')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={onDelete}
@@ -61,7 +63,7 @@ const TaskActions = ({ id, children }: TaskActionsProps) => {
                         className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
                     >
                         <TrashIcon className="size-4 mr-2 stroke-2" />
-                        Delete task
+                        {t('delete-task')}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

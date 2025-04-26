@@ -2,12 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.billing['$post']>
 type RequestType = InferRequestType<typeof client.api.billing['$post']>
 
 export const useCreateOperation = () => {
     const queryClient = useQueryClient();
+    const t = useTranslations('billing');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json}) => {
@@ -20,11 +22,11 @@ export const useCreateOperation = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Operation creada')
+            toast.success(t('operation-created'))
             queryClient.invalidateQueries({ queryKey: ['billing'] })
         },
         onError: () => {
-            toast.error('Hubo un error creando la operacion')
+            toast.error(t('failed-create-operation'))
         }
     })
     return mutation

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { PopoverContent } from "@radix-ui/react-popover";
 import { Calendar } from "./ui/calendar";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 
 interface CustomDatePickerProps {
     value: Date | undefined,
@@ -16,8 +17,9 @@ interface CustomDatePickerProps {
     placeholder?: string
 }
 
-const CustomDatePicker = ({ value, onChange, className, placeholder = 'Select date' }: CustomDatePickerProps) => {
+const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-date' }: CustomDatePickerProps) => {
     const { theme } = useTheme();
+    const t = useTranslations('general')
 
     return (
         <Popover>
@@ -32,7 +34,7 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'Select da
                     )}
                 >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    { value ? format(value, 'PPP') : <span>{placeholder}</span> }
+                    { value ? format(value, 'PPP') : <span>{t(placeholder)}</span> }
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-white rounded-sm border-2" style={{ background: (theme === 'light' ? 'white' : '#212121') }}>

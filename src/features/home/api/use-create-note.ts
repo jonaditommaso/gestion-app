@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.notes['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.notes['$post']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.notes['$post']>
 export const useCreateNote = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
+    const t = useTranslations('home');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -22,12 +24,12 @@ export const useCreateNote = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Nota creada con éxito')
+            toast.success(t('note-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['notes'] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error creando la nota')
+            toast.error(t('failed-create-note'))
         }
     })
     return mutation

@@ -3,13 +3,15 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.records['records-table'][':tableId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.records['records-table'][':tableId']['$patch']>
 
 export const useUpdateRecordsTable = () => {
     const queryClient = useQueryClient();
-    const router = useRouter()
+    const router = useRouter();
+    const t = useTranslations('records');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json, param }) => {
@@ -22,7 +24,7 @@ export const useUpdateRecordsTable = () => {
             return await response.json()
         },
         onSuccess: ({ data }) => {
-            toast.success('Table name updated')
+            toast.success(t('table-name-updated'))
 
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tables'] })
@@ -30,7 +32,7 @@ export const useUpdateRecordsTable = () => {
             queryClient.invalidateQueries({ queryKey: ['table', data.$id] })
         },
         onError: () => {
-            toast.error('Hubo un error actualizando el nombre de la tabla')
+            toast.error(t('failed-update-table-name'))
         }
     })
     return mutation

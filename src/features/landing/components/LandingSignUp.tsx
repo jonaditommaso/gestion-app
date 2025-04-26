@@ -2,13 +2,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 const LandingSignUp = () => {
     const [email, setEmail] = useState('');
     const [isInvalid, setIsInvalid] = useState(false);
-    const router = useRouter()
+    const router = useRouter();
+    const t = useTranslations('landing');
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
@@ -35,11 +37,11 @@ const LandingSignUp = () => {
                     required
                     style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
                 />
-                <Button type="submit">Registrate</Button>
+                <Button type="submit">{t('button-signup')}</Button>
             </form>
 
             <span className={cn("text-red-400 text-sm text-center mt-2", isInvalid ? "opacity-100 visible" : "opacity-0 invisible")}>
-                Ingresa un email válido
+                {t('enter-valid-email')}
             </span>
         </div>
     );

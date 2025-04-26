@@ -5,16 +5,18 @@ import Languages from "@/features/settings/components/Languages";
 import ProfilePhotoEdition from "@/features/settings/components/ProfilePhotoEdition";
 import { settingsSections } from "@/features/settings/components/sections";
 import SettingSection from "@/features/settings/components/SettingSection";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 const SettingsView = async () => {
     const user = await getCurrent();
+    const t = await getTranslations('settings')
 
     if(!user) redirect('/login');
 
     return (
         <div className="w-full mt-24 flex flex-col items-center">
-            <h1 className="font-semibold text-2xl mb-10">Account settings</h1>
+            <h1 className="font-semibold text-2xl mb-10">{t('account-settings')}</h1>
             <div className="w-full flex justify-around">
                 <div>
                     {settingsSections.map(setting => {

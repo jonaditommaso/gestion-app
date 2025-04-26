@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.auth['update-username']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.auth['update-username']['$patch']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.auth['update-username']['$
 export const useUpdateUsername = () => {
     const queryClient = useQueryClient();
     const router = useRouter()
+    const t = useTranslations('auth');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json }) => {
@@ -22,13 +24,13 @@ export const useUpdateUsername = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Username updated')
+            toast.success(t('username-updated'))
 
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['current'] })
         },
         onError: () => {
-            toast.error('Hubo un error actualizando el nombre de usuario')
+            toast.error(t('failed-updating-username'))
         }
     })
     return mutation

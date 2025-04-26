@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.team.invite['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.team.invite['$post']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.team.invite['$post']>
 export const useInviteMember = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
+    const t = useTranslations('team');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -22,12 +24,12 @@ export const useInviteMember = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Invitacion creada con éxito')
+            toast.success(t('invitation-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['team'] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error creando la invitacion')
+            toast.error(t('failed-create-invitation'))
         }
     })
     return mutation

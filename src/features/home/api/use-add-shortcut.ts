@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.shortcut['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.shortcut['$patch']>
@@ -10,6 +11,7 @@ type RequestType = InferRequestType<typeof client.api.shortcut['$patch']>
 export const useAddShortcut = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
+    const t = useTranslations('home');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({json }) => {
@@ -22,12 +24,12 @@ export const useAddShortcut = () => {
             return await response.json()
         },
         onSuccess: () => {
-            toast.success('Atajo creada con éxito')
+            toast.success(t('shortcut-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['current'] })
         },
         onError: () => {
-            toast.error('Lo sentimos, hubo un error creando el atajo')
+            toast.error(t('failed-create-shortcut'))
         }
     })
     return mutation

@@ -63,5 +63,8 @@
     },
     "home": {
         "mark-all-read": "Mark all as read"
+    },
+    "settings": {
+        "cannot-change-email": "Is not possible change the email for now"
     }
 }
