@@ -494,6 +494,7 @@
         "activities": "Actividades",
         "team": "Equipo",
         "select-date": "Seleccionar fecha",
+        "due-date": "Fecha límite",
         "logout": "Cerrar sesión",
         "settings": "Configuración",
         "user": "Usuario"

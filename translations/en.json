@@ -492,6 +492,7 @@
         "activities": "Activities",
         "team": "Team",
         "select-date": "Select date",
+        "due-date": "Due date",
         "logout": "Logout",
         "settings": "Settings",
         "user": "User"
