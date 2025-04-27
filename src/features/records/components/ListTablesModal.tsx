@@ -4,14 +4,12 @@ import { DialogContainer } from "@/components/DialogContainer";
 import { useTranslations } from "next-intl";
 import { Dispatch, SetStateAction, useState } from "react";
 import RecordsTableRow from "./RecordsTableRow";
+import { Models } from "node-appwrite";
 
 interface ListTablesModalProps {
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
-    tables: {
-        tableName: string,
-        $id: string
-    }[]
+    tables: Models.Document[]
 }
 
 const ListTablesModal = ({ isOpen, setIsOpen, tables }: ListTablesModalProps) => {
@@ -24,7 +22,7 @@ const ListTablesModal = ({ isOpen, setIsOpen, tables }: ListTablesModalProps) =>
             isOpen={isOpen}
             setIsOpen={setIsOpen}
         >
-            {tables?.map((table, index) => (
+            {tables?.map((table, index: number) => (
                     <RecordsTableRow
                         index={index}
                         id={table.$id}

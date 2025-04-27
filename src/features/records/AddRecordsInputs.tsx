@@ -62,7 +62,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                             <ChevronsUpDown size={14} />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            {headers?.map(header => (
+                            {headers?.map((header: string) => (
                                 <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')}>
                                     {capitalize(header)}
                                 </DropdownMenuItem>

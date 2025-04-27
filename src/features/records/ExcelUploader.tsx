@@ -102,7 +102,7 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
 
     const recordToEdit = dataRecords.documents.find(record => record.$id === currentRecordTable);
 
-    const existingRows = recordToEdit?.rows ? recordToEdit.rows.map(row => JSON.parse(row)) : [];
+    const existingRows = recordToEdit?.rows ? recordToEdit.rows.map((row: string) => JSON.parse(row)) : [];
     const filteredHeaders = headers.filter(header => !recordToEdit?.headers?.includes(header));
 
     const updatedRows = [

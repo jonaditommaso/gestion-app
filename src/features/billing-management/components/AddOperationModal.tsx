@@ -27,14 +27,14 @@ import { useCreateBillingOptions } from "../api/use-create-billing-options";
 import { useUpdateBillingOptions } from "../api/use-update-billing-options";
 import { useTranslations } from "next-intl";
 
-const defaultValues = {
-    type: 'income',
-    date: new Date(),
-    account: '',
-    category: '',
-    import: '',
-    note: ''
-}
+// const defaultValues = {
+//     type: 'income',
+//     date: new Date(),
+//     account: '',
+//     category: '',
+//     import: '',
+//     note: ''
+// }
 
 interface AddOperationModalProps {
     isOpen: boolean,

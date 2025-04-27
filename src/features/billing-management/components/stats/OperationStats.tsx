@@ -25,9 +25,9 @@ const OperationStats = ({ type }: OperationStatsProps) => {
         </div>
     )
 
-    const result = Object.groupBy(data?.documents!, ({ type }) =>
+    const result = data && Object.groupBy(data?.documents, ({ type }) =>
         type === 'income' ? "incomes" : "expenses",
-    );
+    ) || {};
 
     const stats = (result[type] || []).toSorted((a, b) => b.import - a.import).map((element, index) => {
         return {

@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from 'react-icons/fc'
-import { FaGithub } from 'react-icons/fa'
+// import { FcGoogle } from 'react-icons/fc'
+// import { FaGithub } from 'react-icons/fa'
 import { z as zod } from 'zod';
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form'
 import { loginSchema } from "../schemas";
 import { useLogin } from "../api/use-login";
-import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
+//import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";

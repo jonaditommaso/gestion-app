@@ -1,10 +1,10 @@
-import { ExecutionContext } from 'hono';
+// import { ExecutionContext } from 'hono';
 
 export const fetchWithCredentials = (
   input: RequestInfo | URL,
   init?: RequestInit,
-  env?: any,
-  executionCtx?: ExecutionContext
+  // env?: any,
+  // executionCtx?: ExecutionContext
 ): Promise<Response> => {
   return fetch(input, {
     ...init,

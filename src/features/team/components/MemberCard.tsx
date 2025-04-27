@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useProfilePicture } from "@/hooks/useProfilePicture";
-import { EllipsisVertical, MessageSquareText, Users } from "lucide-react";
+import { MessageSquareText } from "lucide-react"; //Users, EllipsisVertical,
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import FadeLoader from "react-spinners/FadeLoader";

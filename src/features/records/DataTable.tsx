@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  Row,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -22,15 +23,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useMemo, useState } from "react"
-import { AddRecords } from "./AddRecords"
 import capitalize from "@/utils/capitalize"
 import { useTranslations } from "next-intl"
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps {
   // columns: ColumnDef<TData, TValue>[]
   headers: string[],
   rows: string[]
@@ -46,7 +44,7 @@ export function DataTable<TData, TValue>({
   headers,
   rows
   // data,
-}: DataTableProps<any, TValue>) {
+}: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
@@ -58,12 +56,12 @@ export function DataTable<TData, TValue>({
 
   // const [uploadedData, setUploadedData] = useState<ExcelData>({ headers: [], rows: [] })
 
-  const columns = useMemo(
+  const columns: ColumnDef<TData, TValue>[] = useMemo(
     () =>
       headers.map((header: string) => ({
         accessorKey: header,
         header: capitalize(header),
-        cell: ({ row }: { row: any }) => (
+        cell: ({ row }: { row: Row<TData> }) => (
           <div className="capitalize">{row.getValue(header)}</div>
         ),
       })),
@@ -163,7 +161,8 @@ export function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => {
                    return ( // window.open(`/records/${row.id}`, '_blank')
-                    <TableCell key={cell.id} onClick={() => window.open(`/records/${cell.row.original.id}`, '_blank')} className="cursor-pointer">
+                    //onClick={() => window.open(`/records/${cell.row.original.id}`, '_blank')}
+                    <TableCell key={cell.id}  className="cursor-pointer">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

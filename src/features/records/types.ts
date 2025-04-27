@@ -1,3 +1,5 @@
+import { Models } from "node-appwrite"
+
 export type Payment = {
   id: string
   amount: number
@@ -5,25 +7,7 @@ export type Payment = {
   email: string
 }
 
-interface Document {
-  headers?: string[];
-  rows?: string[];
-  $id: string;
-  $collectionId: string;
-  $databaseId: string;
-  $createdAt: string;
-  $updatedAt: string;
-  $permissions: string[];
-  tableName: string
-}
-
-interface DataRecordsContextType {
-  total: number;
-  documents: Document[];
-
-}
-
 export interface RecordsContextType {
-  data: DataRecordsContextType,
+  data: Models.DocumentList<Models.Document>,
   isPending: boolean
 }

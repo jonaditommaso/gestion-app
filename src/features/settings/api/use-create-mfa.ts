@@ -28,6 +28,7 @@ export const useCreateMfa = () => {
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['create-mfa'] })
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onError: (err) => {
             toast.error(t('failed-create-mfa')) // Improve err message giving more info
         }

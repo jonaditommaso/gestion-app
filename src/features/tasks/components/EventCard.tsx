@@ -7,6 +7,8 @@ import React from "react";
 
 interface EventCardProps {
     title: string,
+    // todo, solve this any, and search this (eslint-disable-next-line @typescript-eslint/no-explicit-any) in another files to solve it
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     assignee: any, // type
     status: TaskStatus,
     id: string

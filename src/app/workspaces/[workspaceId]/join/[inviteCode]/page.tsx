@@ -5,13 +5,13 @@ import { getCurrent } from "@/features/auth/queries";
 // import { getWorkspaceInfo } from "@/features/workspaces/queries";
 import { redirect } from "next/navigation";
 
-interface WorkspaceJoinViewProps {
-    params: {
-        workspaceId: string
-    }
-}
+// interface WorkspaceJoinViewProps {
+//     params: {
+//         workspaceId: string
+//     }
+// }
 
-const WorkspaceJoinView = async ({ params }: WorkspaceJoinViewProps) => {
+const WorkspaceJoinView = async () => {
     const user = await getCurrent();
     if(!user) redirect('/login');
 
