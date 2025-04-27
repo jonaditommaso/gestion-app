@@ -48,7 +48,7 @@ const AddNewMember = () => {
           reset(); // <- limpia el estado del mutation
         }
         setIsOpen(open); // <- luego actualizás el estado original
-      };
+    };
 
     return (
         <div>

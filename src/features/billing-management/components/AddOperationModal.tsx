@@ -114,12 +114,19 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
         { label: "expense", type: "expense", textColor: "text-red-600", border: 'border-t-red-600' },
     ]
 
+    const handleClose = (open: boolean) => {
+        if (!open) {
+            onCancel();
+        }
+        setIsOpen(open);
+    }
+
     return (
         <DialogContainer
             // description=""
             title={t("add-operation")}
             isOpen={isOpen}
-            setIsOpen={setIsOpen}
+            setIsOpen={handleClose}
         >
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -177,12 +184,12 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                                                 ) : (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger className="w-full flex items-center justify-between gap-2 p-2 border rounded-sm focus:outline-none !mt-0" disabled={isPending || categories.length === 0}>
-                                                        <p className={cn("text-zinc-800 text-sm", categories.length === 0 && 'text-muted-foreground')}>{categories.length === 0 ? t('no-categories') : t('choise-category')}</p>
+                                                        <p className={cn("text-zinc-800 text-sm", categories.length === 0 && 'text-muted-foreground')}>{categories.length === 0 ? t('no-categories') : (field.value ? field.value : t('choise-category'))}</p>
                                                         <ChevronsUpDown size={14} className={categories.length === 0 ? 'text-muted-foreground' : ''} />
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent>
                                                         {categories.length > 0 && categories?.map((category: string) => (
-                                                            <DropdownMenuItem key={category} className="min-w-60 flex items-center justify-center p-2" {...field}>
+                                                            <DropdownMenuItem key={category} className="min-w-60 flex items-center justify-center p-2" onClick={() => field.onChange(category)} {...field}>
                                                                 {capitalize(category)}
                                                             </DropdownMenuItem>
                                                         ))}
