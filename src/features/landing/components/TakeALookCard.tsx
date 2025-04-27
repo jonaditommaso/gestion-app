@@ -9,11 +9,11 @@ interface TakeALookCardProps {
 
 const TakeALookCard = ({ title, image, altImage }: TakeALookCardProps) => {
     return (
-        <Card className="w-[400px] h-[320px] flex flex-col items-center justify-center">
-            <CardContent className="p-4">
-            <Image width={400} height={400} alt={altImage} src={image} />
+        <Card className="w-[400px] h-[250px] flex flex-col items-center justify-center">
+            <CardContent className="p-4 pt-0">
+                <Image width={400} height={400} alt={altImage} src={image} className="border rounded-md" />
             </CardContent>
-            <CardFooter className="text-[#9a3e6a] font-semibold">{title}</CardFooter>
+            <CardFooter className="text-[#9a3e6a] font-semibold p-0">{title}</CardFooter>
         </Card>
     );
 }
