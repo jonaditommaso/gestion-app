@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, SquareArrowOutUpRight } from "lucide-react";
+import { Pencil, Plus, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAddShortcut } from "../api/use-add-shortcut";
 import { useState } from "react";
@@ -15,6 +15,7 @@ import { shortcutSchema } from "../schemas";
 import { Separator } from "@/components/ui/separator";
 import { useCurrent } from "@/features/auth/api/use-current";
 import FadeLoader from "react-spinners/FadeLoader";
+import { TooltipContainer } from "@/components/TooltipContainer";
 
 const ShortcutButton = () => {
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
@@ -50,6 +51,14 @@ const ShortcutButton = () => {
         setPopoverIsOpen(prev => !prev)
     }
 
+    const handleEdition = () => {
+        const shortcut = user?.prefs?.shortcut.split(',');
+        form.setValue('link', shortcut[0]);
+        form.setValue('text', shortcut[1]);
+
+        setPopoverIsOpen(true);
+    }
+
 
     return (
         <Popover open={popoverIsOpen} onOpenChange={handlePopoverChange}>
@@ -60,12 +69,19 @@ const ShortcutButton = () => {
                             <FadeLoader color="#999" width={3} />
                         </div>
                     ) : (
-                        <Button className="w-full py-10 h-auto" variant='outline' disabled={popoverIsOpen} onClick={handleNavigation}>
-                            {user?.prefs?.shortcut
-                                ? <><span>{user?.prefs?.shortcut.split(',')[1]}</span> <SquareArrowOutUpRight /></>
-                                : <><Plus /> <span>{t('add-shortcut')}</span></>
-                            }
-                        </Button>
+                        <div className="relative group w-full">
+                            <Button className="w-full py-10 h-auto" variant='outline' disabled={popoverIsOpen} onClick={handleNavigation}>
+                                {user?.prefs?.shortcut
+                                    ? <><span>{user?.prefs?.shortcut.split(',')[1]}</span> <SquareArrowOutUpRight /></>
+                                    : <><Plus /> <span>{t('add-shortcut')}</span></>
+                                }
+                            </Button>
+                            {user?.prefs?.shortcut && <div className="p-2 hover:bg-neutral-500 rounded-full absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer hover:text-white" onClick={handleEdition}>
+                                <TooltipContainer tooltipText={t('edit')} side="top">
+                                    <Pencil className="  w-4 h-4" />
+                                </TooltipContainer>
+                            </div>}
+                      </div>
                     )
                 }
             </PopoverTrigger>

@@ -433,6 +433,7 @@
         "add-note": "Add note",
         "remember-placeholder": "Remember...",
         "title": "Title",
+        "edit": "Edit",
         "shortcut-created": "Shortcut successfully created",
         "failed-create-shortcut": "Sorry, there was an error creating the shortcut",
         "messages-updated": "Messages updated",
