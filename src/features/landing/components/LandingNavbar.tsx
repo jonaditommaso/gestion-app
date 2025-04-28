@@ -18,6 +18,9 @@ import { useParams, usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
 import { useTranslations } from "next-intl"
+import { Languages } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { LanguagesSelection } from "@/components/LanguagesSelection"
 //import { solutions } from "../solutions"
 
 
@@ -26,6 +29,7 @@ export function LandingNavbar() {
   const pathname = usePathname();
   const t = useTranslations('landing');
   const params = useParams();
+  const [open, setOpen] = React.useState(false);
 
   const notShowInView = ['/login', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
 
@@ -110,7 +114,17 @@ export function LandingNavbar() {
         </NavigationMenuItem>
       </NavigationMenuList>
 
-      <div className="gap-2 flex">
+      <div className="gap-2 flex items-center">
+        <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
+          <DropdownMenuTrigger className="outline-none">
+            <Button variant='outline' size='icon' className="mr-5">
+              <Languages />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="bottom" className="w-fit">
+            <LanguagesSelection className="flex-col" label={true} />
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Link href={'/login'}>
           <Button variant='outline'>{t('button-signin')}</Button>
         </Link>
