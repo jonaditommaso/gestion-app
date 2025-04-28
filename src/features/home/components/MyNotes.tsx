@@ -55,13 +55,18 @@ const MyNotes = () => {
                         value={newNote.title}
                         onChange={(e) => onChange(e.target.value, 'title')}
                     />
-                    <Textarea
-                        placeholder={t('remember-placeholder')}
-                        maxLength={256}
-                        className="resize-none h-40 bg-sidebar"
-                        value={newNote.content}
-                        onChange={(e) => onChange(e.target.value, 'content')}
-                    />
+                    <div className="relative">
+                        <Textarea
+                            placeholder={t('remember-placeholder')}
+                            maxLength={256}
+                            className="resize-none h-40 bg-sidebar"
+                            value={newNote.content}
+                            onChange={(e) => onChange(e.target.value, 'content')}
+                        />
+                        <div className="absolute bottom-1.5 right-2 text-xs text-muted-foreground pointer-events-none">
+                            {newNote.content.length}/256
+                        </div>
+                    </div>
                     <div className="flex justify-between">
                         <ColorNoteSelector onChange={onChange} />
                         <Button onClick={handleCreateNote} disabled={isCreatingNote || (!newNote.content && !newNote.title)}>
