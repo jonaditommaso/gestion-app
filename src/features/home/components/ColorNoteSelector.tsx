@@ -4,11 +4,11 @@ import { Check, DropletOff } from "lucide-react";
 
 const colors = [
   { name: "none", label: "Sin color" },
-  { name: "bg-chart-1", label: "Color 1" },
-  { name: "bg-chart-2", label: "Color 2" },
-  { name: "bg-chart-3", label: "Color 3" },
-  { name: "bg-chart-4", label: "Color 4" },
-  { name: "bg-chart-5", label: "Color 5" },
+  { name: "bg-[#2662d9]", label: "Color 1" },
+  { name: "bg-[#2eb88a]", label: "Color 2" },
+  { name: "bg-[#e88c30]", label: "Color 3" },
+  { name: "bg-[#af57db]", label: "Color 4" },
+  { name: "bg-[#e23670]", label: "Color 5" },
 ];
 
 export default function ColorNoteSelector({ onChange }: { onChange: (value: string, field: "bgColor") => void }) {
