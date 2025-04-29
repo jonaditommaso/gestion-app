@@ -9,8 +9,14 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { CircleCheckBig, CopyIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import FadeLoader from "react-spinners/FadeLoader";
+import { Models } from "node-appwrite";
+import NoTeamWarningIcon from "./NoTeamWarningIcon";
 
-const AddNewMember = () => {
+interface AddNewMemberProps {
+    user: Models.User<Models.Preferences>
+}
+
+const AddNewMember = ({ user }: AddNewMemberProps) => { //we receive the user quickly from server component
     const [isOpen, setIsOpen] = useState(false);
     const { mutate: inviteMember, isPending, data, reset } = useInviteMember();
     const t = useTranslations('team');
@@ -99,7 +105,10 @@ const AddNewMember = () => {
                     )
                 }
             </DialogContainer>
-            <Button onClick={() => setIsOpen(true)}>+ {t('add-new-member')}</Button>
+            <div className="flex items-center gap-2">
+                {!user.prefs.company && <NoTeamWarningIcon />}
+                <Button disabled={!user.prefs.company} onClick={() => setIsOpen(true)}>+ {t('add-new-member')}</Button>
+            </div>
         </div>
     );
 }

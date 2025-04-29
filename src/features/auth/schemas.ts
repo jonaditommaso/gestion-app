@@ -37,3 +37,7 @@ export const registerByInvitationFormSchema = zod.object({
     password: zod.string().min(8, 'Minimo de 8 caracteres'),
     email: zod.string().email(),
 })
+
+export const companyNameSchema = zod.object({
+    company: zod.string().trim().min(1, 'Company name cannot be empty')
+});

@@ -5,7 +5,7 @@ import { zValidator } from '@hono/zod-validator';
 import { birthdaySchema, inviteSchema, tagsSchema } from "../schema";
 import { Client, Databases, ID, Query } from "node-appwrite";
 import { DATABASE_ID, INVITES_ID } from "@/config";
-import { registerByInvitationSchema } from "@/features/auth/schemas";
+import { companyNameSchema, registerByInvitationSchema } from "@/features/auth/schemas";
 import { setCookie } from "hono/cookie";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 
@@ -247,6 +247,31 @@ const app = new Hono()
         })
 
         return ctx.json({ success: true})
+    }
+)
+
+.patch(
+    '/edit-name',
+    zValidator('json', companyNameSchema),
+    sessionMiddleware,
+    async ctx => {
+        const { company } = ctx.req.valid('json');
+
+        const user = ctx.get('user');
+        const { users, teams } = await createAdminClient();
+
+        await teams.updateName(
+            user.prefs.teamId,
+            company
+        );
+
+        await users.updatePrefs(user.$id, {
+            ...(user.prefs ?? {}),
+            company
+        });
+
+        return ctx.json({ success: true })
+
     }
 )
 
