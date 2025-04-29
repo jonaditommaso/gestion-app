@@ -116,7 +116,7 @@ export function LandingNavbar() {
 
       <div className="gap-2 flex items-center">
         <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
-          <DropdownMenuTrigger className="outline-none">
+          <DropdownMenuTrigger className="outline-none" asChild>
             <Button variant='outline' size='icon' className="mr-5">
               <Languages />
             </Button>
