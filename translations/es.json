@@ -51,6 +51,7 @@
 
 
         "button-signup": "Registrate",
+        "get-started": "Comenzar",
         "button-signin": "Iniciar sesión",
         "button-see-prices": "Ver precios",
         "enter-valid-email": "Ingresa un email válido",
@@ -218,10 +219,11 @@
         "welcome": "Bienvenido",
         "initial-login-message": "¿Trabajando duro o durando en el trabajo?",
         "login": "Iniciar sesión",
+        "logging-in": "Iniciando sesión...",
         "login-with": "Iniciar sesión con",
+        "register-with": "Registrarse con",
         "password": "Contraseña",
         "back-home": "Regresar al Inicio",
-        "signup-info": "Si creas una cuenta, pero no escoges un plan, se creará una cuenta con Plan Free de manera automática. Puedes modificarlo siempre que quieras.",
         "signup-button": "Registrarse",
         "dont-have-account": "¿No tienes una cuenta?",
         "already-have-account": "¿Ya tienes una cuenta?",
@@ -384,6 +386,15 @@
         "failed-update-workspace": "Hubo un error actualizando el Workspace"
     },
     "team": {
+        "no-team-title": "No tienes un equipo",
+        "no-team-description": "Es necesario que crees uno si quieres añadir miembros a tu espacio de trabajo.",
+        "add-company-name-title": "Completa el último paso de la configuración de tu perfil",
+        "add-company-name-description": "Inserta el nombre de la organización para crear un equipo",
+        "team-created": "Equipo creado con éxito",
+        "failed-create-team": "Hubo un error creando el equipo",
+        "company-name": "Nombre de la organización",
+        "add-team": "Crear equipo",
+        "not-company-provided": "No tienes un equipo, crea uno en el Inicio",
         "team-title": "Equipo",
         "add-tag": "Agregar tag",
         "add": "Agregar",
