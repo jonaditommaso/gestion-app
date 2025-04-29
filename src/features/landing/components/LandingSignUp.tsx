@@ -37,7 +37,7 @@ const LandingSignUp = () => {
                     required
                     style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
                 />
-                <Button type="submit">{t('button-signup')}</Button>
+                <Button type="submit">{t('get-started')}</Button>
             </form>
 
             <span className={cn("text-red-400 text-sm text-center mt-2", isInvalid ? "opacity-100 visible" : "opacity-0 invisible")}>

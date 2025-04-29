@@ -17,7 +17,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
                 </Link>
             </div>
             <div className="mx-auto max-w-screen-2xl p-4">
-                <div className="flex flex-col items-center justify-center pt-4 md:pt-14">
+                <div className="flex flex-col items-center justify-center pt-4 md:pt-10">
                     {children}
                 </div>
             </div>

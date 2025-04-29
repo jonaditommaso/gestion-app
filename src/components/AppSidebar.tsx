@@ -32,6 +32,8 @@ const AppSidebar = () => {
 
     const currentView = `/${pathname.split('/')[1]}`
 
+    if (pathname === '/oauth/loading') return null
+
     return (
         <SidebarProvider open={isCollapsed}>
             <div className="md:hidden">

@@ -16,7 +16,7 @@ const TeamLayout = async ({children}: TeamLayoutProps) => {
                 <>
                     <div className="m-10 flex w-full justify-between">
                         <h1 className=" text-2xl font-semibold">{t('team-title')}</h1>
-                        <AddNewMember />
+                        <AddNewMember user={user} />
                     </div>
                     <div>
                         {children}

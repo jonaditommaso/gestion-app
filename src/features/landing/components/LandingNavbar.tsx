@@ -31,7 +31,7 @@ export function LandingNavbar() {
   const params = useParams();
   const [open, setOpen] = React.useState(false);
 
-  const notShowInView = ['/login', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
+  const notShowInView = ['/login', '/oauth/loading', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
 
   if(notShowInView.includes(pathname)) return null; //check how to implement it in ssr, and more gral
 
@@ -128,8 +128,8 @@ export function LandingNavbar() {
         <Link href={'/login'}>
           <Button variant='outline'>{t('button-signin')}</Button>
         </Link>
-        <Link href={'/signup'}>
-          <Button>{t('button-signup')}</Button>
+        <Link href={'/pricing'}>
+          <Button>{t('get-started')}</Button>
         </Link>
       </div>
     </NavigationMenu>

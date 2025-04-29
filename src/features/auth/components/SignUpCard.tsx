@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-// import { FcGoogle } from 'react-icons/fc'
-// import { FaGithub } from 'react-icons/fa'
+import { FcGoogle } from 'react-icons/fc'
+import { FaGithub } from 'react-icons/fa'
 import { z as zod } from 'zod';
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,17 +18,16 @@ import {
 import { useRegister } from "../api/use-register";
 import { registerSchema } from "../schemas";
 import { useEffect, useState } from "react";
-import PlanSelected from "./PlanSelected";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-//import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
+import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import Image from "next/image";
 import Link from "next/link";
 
 const SignUpCard = () => {
     const { mutate, isPending } = useRegister();
     const searchParams = useSearchParams();
-    const plan = searchParams.get("plan");
+    const plan = searchParams.get("plan") || 'free';
     const t = useTranslations('auth');
 
     const [planSelected, setPlanSelected] = useState<null | string>(null);
@@ -64,7 +63,7 @@ const SignUpCard = () => {
 
     return (
         <div>
-            <PlanSelected planSelected={planSelected} setPlanSelected={setPlanSelected} />
+            {/* <PlanSelected planSelected={planSelected} setPlanSelected={setPlanSelected} /> */}
 
             <Card className="w-full h-full md:w-[490px] border-none shadow-none">
                 <CardHeader className="flex items-center justify-center text-center p-7">
@@ -153,23 +152,23 @@ const SignUpCard = () => {
                     </Form>
                 </CardContent>
                 <Separator />
-                {/* <CardContent className="p-7 flex flex-col gap-y-4">
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
+                <CardContent className="p-7 flex flex-col gap-y-4">
+                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle(plan)}>
                     <FcGoogle className="mr-2 size-5" />
-                    {t('login-with')} Google
+                    {t('register-with')} Google
                 </Button>
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
+                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub(plan)}>
                     <FaGithub className="mr-2 size-5" />
-                    {t('login-with')} Github
+                    {t('register-with')} Github
                 </Button>
-                </CardContent> */}
+                </CardContent>
                 <CardFooter className="flex items-center gap-2 justify-center mt-2">
                     <p>{t('already-have-account')}</p> <Link href={'/login'} className="underline">{t('login')}</Link>
                 </CardFooter>
             </Card>
-            <div className="md:w-[490px] text-balance mt-4 text-center">
+            {/* <div className="md:w-[490px] text-balance mt-4 text-center">
                 <p className="text-xs">* {t('signup-info')}</p>
-            </div>
+            </div> */}
         </div>
     );
 }
