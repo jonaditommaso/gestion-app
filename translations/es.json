@@ -453,7 +453,16 @@
         "message-created": "Mensaje creado con éxito",
         "failed-create-message": "Lo sentimos, hubo un error creando el mensaje",
         "note-created": "Nota creada con éxito",
-        "failed-create-note": "Lo sentimos, hubo un error creando la nota"
+        "failed-create-note": "Lo sentimos, hubo un error creando la nota",
+        "set-up-metting": "Programar una reunión",
+        "meet-title": "Título de la reunión",
+        "weekly-meeting": "Reunión semanal...",
+        "invited": "Invitado",
+        "date": "Fecha",
+        "time": "Hora",
+        "duration": "Duración",
+        "meeting-created-successfully": "Reunión creada con éxito",
+        "no-team-members": "No tienes miembros en tu equipo"
     },
     "app": {
         "search": "Buscar...",

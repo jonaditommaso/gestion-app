@@ -452,7 +452,16 @@
         "message-created": "Message successfully created",
         "failed-create-message": "Sorry, there was an error creating the message",
         "note-created": "Note successfully created",
-        "failed-create-note": "Sorry, there was an error creating the note"
+        "failed-create-note": "Sorry, there was an error creating the note",
+        "set-up-metting": "Set up a meeting",
+        "meet-title": "Title of the meeting",
+        "weekly-meeting": "Weekly meeting...",
+        "invited": "Invited",
+        "date": "Date",
+        "time": "Time",
+        "duration": "Duration",
+        "meeting-created-successfully": "Meeting created successfully",
+        "no-team-members": "You have no members in your team"
     },
     "app": {
         "search": "Search...",
