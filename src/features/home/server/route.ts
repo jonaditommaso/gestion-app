@@ -1,10 +1,13 @@
 import { Hono } from "hono";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
-import { ID, Query } from "node-appwrite";
-import { DATABASE_ID, MESSAGES_ID, NOTES_ID } from "@/config";
-import { messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
+import { Client, Databases, ID, Query } from "node-appwrite";
+import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MESSAGES_ID, NOTES_ID } from "@/config";
+import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
 import { createAdminClient } from "@/lib/appwrite";
+import { google } from 'googleapis';
+import { cookies } from "next/headers";
+import dayjs from "dayjs";
 
 const app = new Hono()
 
@@ -163,6 +166,112 @@ const app = new Hono()
         });
 
         return ctx.json({ success: true })
+    }
+)
+
+.post(
+    '/meet-validation-permission',
+    zValidator('json', meetSchema),
+    sessionMiddleware,
+    async ctx => {
+
+        const { dateStart, invited, title, duration, userId } = ctx.req.valid('json');
+
+        const oauth2Client = new google.auth.OAuth2(
+            GOOGLE_CLIENT_ID,
+            GOOGLE_CLIENT_SECRET,
+            GOOGLE_REDIRECT_URI,
+        );
+
+        const scopes = [
+            'openid',
+            'email',
+            'profile',
+            'https://www.googleapis.com/auth/calendar.events'
+        ]
+
+        const url = oauth2Client.generateAuthUrl({
+            access_type: 'offline',
+            prompt: 'consent', // CHEQUEAR SI ES NECESARIO O ESTAMOS AGREGANDO UNA CAPA AL PEDO.
+            client_id: GOOGLE_CLIENT_ID,
+            scope: scopes,
+            state: JSON.stringify({ dateStart, invited, title, duration, userId })
+        });
+
+        return ctx.json({ data: url })
+    }
+)
+
+.get(
+    '/meet',
+    async ctx => {
+
+        const cookieStore = await cookies();
+        const token = cookieStore.get('google_access_token')?.value;
+
+        const url = new URL(ctx.req.url);
+        const invited = url.searchParams.get('invited');
+        const dateStart = url.searchParams.get('dateStart');
+        const title = url.searchParams.get('title');
+        const duration = url.searchParams.get('duration') || '';
+        const userId = url.searchParams.get('userId');
+
+        const date = dayjs(dateStart)
+
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        const [amount, unit] = duration.split('-');
+        const eventEnd = date.add(Number(amount), unit === 'minute' ? unit : 'hour');
+
+        const oAuth2Client = new google.auth.OAuth2();
+        oAuth2Client.setCredentials({ access_token: token });
+
+        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+        const response = await calendar.events.insert({
+            calendarId: 'primary',
+            requestBody: {
+                summary: title,
+                start: {
+                    dateTime: date.toISOString(),
+                    timeZone,
+                },
+                end: {
+                    dateTime: eventEnd.toISOString(),
+                    timeZone,
+                },
+                attendees: [
+                    { email: invited }
+                ],
+                conferenceData: {
+                    createRequest: {
+                        requestId: `meet-${Date.now()}`,
+                        conferenceSolutionKey: { type: 'hangoutsMeet' },
+                    },
+                },
+            },
+            conferenceDataVersion: 1,
+        });
+
+        const client = new Client()
+        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+
+        const databases = new Databases(client);
+
+        await databases.createDocument(
+            DATABASE_ID,
+            MEETS_ID,
+            ID.unique(),
+            {
+                userId: userId,
+                with: invited,
+                url: response.data?.hangoutLink ?? ''
+            }
+        )
+
+        return ctx.redirect('/?meet=success');
+
     }
 )
 

@@ -2,13 +2,13 @@
 import { CalendarDemo } from "./Calendar";
 import MyNotes from "./MyNotes";
 import ToDoTasksWidget from "./ToDoTasksWidget";
-//import { Headset } from "lucide-react";
 //import CalendarEvents from "./CalendarEvents";
 import SendMessageButton from "./messages/SendMessageButton";
 import { MessagesContainer } from "./messages/MessagesContainer";
 import ShortcutButton from "./ShortcutButton";
 import NoTeamWarning from "./NoTeamWarning";
 import { getCurrent } from "@/features/auth/queries";
+import CreateMeetButton from "./CreateMeetButton";
 
 
 const HomeView = async () => {
@@ -47,9 +47,7 @@ const HomeView = async () => {
                 <ToDoTasksWidget />
                     <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
                         <SendMessageButton />
-                        {/* <Button className="w-full py-10 h-auto" variant='outline'>
-                            <Headset /> <span>Setear una reunion</span>
-                        </Button> */}
+                        <CreateMeetButton />
                         <ShortcutButton />
                     </div>
                 {/* <CalendarEvents /> */}

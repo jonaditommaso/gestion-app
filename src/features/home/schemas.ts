@@ -30,3 +30,28 @@ export const shortcutSchema = zod.object({
     text: zod.string().trim().min(1, 'Required'),
     link: zod.string().trim().min(1, 'Required'),
 })
+
+export const meetSchemaForm = zod.object({
+    invited: zod.string().trim().min(1, 'Required'),
+    title: zod.string().trim().min(1, 'Required'),
+    dateStart: zod.preprocess(
+        (arg) => typeof arg === 'string' ? new Date(arg) : arg,
+        zod.date()
+    ),
+    timeStart: zod.preprocess(
+        (arg) => typeof arg === 'string' ? new Date(arg) : arg,
+        zod.date()
+    ),
+    duration: zod.string()
+})
+
+export const meetSchema = zod.object({
+    invited: zod.string().trim().min(1, 'Required'),
+    title: zod.string().trim().min(1, 'Required'),
+    dateStart: zod.preprocess(
+        (arg) => typeof arg === 'string' ? new Date(arg) : arg,
+        zod.date()
+    ),
+    duration: zod.string(),
+    userId: zod.string()
+})
