@@ -7,9 +7,9 @@ import { Plus } from "lucide-react";
 import Note from './Note';
 import { useState } from "react";
 import ColorNoteSelector from "./ColorNoteSelector";
-import { useGetNotes } from "../api/use-get-notes";
+import { useGetNotes } from "../../api/use-get-notes";
 import FadeLoader from "react-spinners/FadeLoader";
-import { useCreateNote } from "../api/use-create-note";
+import { useCreateNote } from "../../api/use-create-note";
 import { useTranslations } from "next-intl";
 
 const INITIAL_STATE_NOTE = {

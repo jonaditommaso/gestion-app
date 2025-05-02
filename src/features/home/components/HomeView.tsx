@@ -1,6 +1,6 @@
 //import { Button } from "@/components/ui/button";
 import { CalendarDemo } from "./Calendar";
-import MyNotes from "./MyNotes";
+import MyNotes from "./notes/MyNotes";
 import ToDoTasksWidget from "./ToDoTasksWidget";
 //import CalendarEvents from "./CalendarEvents";
 import SendMessageButton from "./messages/SendMessageButton";
