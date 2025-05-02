@@ -1,0 +1,127 @@
+:root {
+    --selected-bg: black;
+    --selected-text: white;
+  }
+
+  /* Estilos para elementos seleccionados */
+  [data-state="checked"] {
+    background-color: var(--selected-bg) !important;
+    color: var(--selected-text) !important;
+  }
+
+  [data-state="checked"] svg {
+    color: var(--selected-text) !important;
+  }
+
+  .select-content-center [role="option"] {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .select-content-center [role="option"] > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .select-content button[data-orientation="vertical"] {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .select-content button[data-orientation="vertical"][data-disabled] {
+    opacity: 0.3 !important;
+    cursor: not-allowed;
+  }
+
+  /* Estilos específicos para los botones de desplazamiento de Radix UI */
+  [data-radix-select-viewport] {
+    position: relative;
+  }
+
+  [data-radix-select-viewport]::before,
+  [data-radix-select-viewport]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 24px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  [data-radix-select-viewport]::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--popover), transparent);
+  }
+
+  [data-radix-select-viewport]::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--popover), transparent);
+  }
+
+  /* Estilos específicos para los botones de desplazamiento */
+  [data-radix-select-scroll-up-button],
+  [data-radix-select-scroll-down-button] {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    height: 24px !important;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--popover);
+    z-index: 20;
+    position: relative;
+  }
+
+  [data-radix-select-scroll-up-button][data-disabled],
+  [data-radix-select-scroll-down-button][data-disabled] {
+    opacity: 0.3 !important;
+  }
+
+  /* Estilos para los botones de desplazamiento en shadcn/ui */
+  .select-content-center div[role="presentation"] > div:first-child,
+  .select-content-center div[role="presentation"] > div:last-child {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    height: 24px !important;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--popover);
+    z-index: 20;
+    position: relative;
+  }
+
+  .select-content-center div[role="presentation"] > div:first-child[data-disabled],
+  .select-content-center div[role="presentation"] > div:last-child[data-disabled] {
+    opacity: 0.3 !important;
+  }
+
+  /* Estilos adicionales para asegurar que los botones de desplazamiento estén siempre visibles */
+  .select-content-center [cmdk-select-scroll-up-button],
+  .select-content-center [cmdk-select-scroll-down-button] {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .select-content-center [cmdk-select-scroll-up-button][data-disabled],
+  .select-content-center [cmdk-select-scroll-down-button][data-disabled] {
+    opacity: 0.3 !important;
+  }
+
+  [data-radix-select-scroll-up-button],
+[data-radix-select-scroll-down-button] {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+[data-radix-select-scroll-up-button][data-disabled],
+[data-radix-select-scroll-down-button][data-disabled] {
+  opacity: 0.3 !important;
+}

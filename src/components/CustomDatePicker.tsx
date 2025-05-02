@@ -9,6 +9,7 @@ import { PopoverContent } from "@radix-ui/react-popover";
 import { Calendar } from "./ui/calendar";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 interface CustomDatePickerProps {
     value: Date | undefined,
@@ -18,11 +19,17 @@ interface CustomDatePickerProps {
 }
 
 const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-date' }: CustomDatePickerProps) => {
+    const [pickerIsOpen, setPickerIsOpen] = useState(false);
+    const t = useTranslations('general');
     const { theme } = useTheme();
-    const t = useTranslations('general')
+
+    const handleSelect = (date: Date) => {
+        onChange(date);
+        setPickerIsOpen(false);
+    }
 
     return (
-        <Popover>
+        <Popover open={pickerIsOpen} onOpenChange={setPickerIsOpen}>
             <PopoverTrigger asChild>
                 <Button
                     variant='outline'
@@ -41,7 +48,7 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-da
                 <Calendar
                     mode="single"
                     selected={value}
-                    onSelect={(date)=> onChange(date as Date)}
+                    onSelect={(date)=> handleSelect(date as Date)}
                     initialFocus
                 />
             </PopoverContent>
