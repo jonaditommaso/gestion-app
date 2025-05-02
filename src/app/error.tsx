@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 const ErrorPage = () => {
-    const t = useTranslations('');
+    const t = useTranslations('general');
 
     return (
         <div className="h-screen flex flex-col gap-y-4 items-center justify-center">
