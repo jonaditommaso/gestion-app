@@ -13,6 +13,17 @@ export const NOTES_ID = process.env.NEXT_PUBLIC_APPWRITE_NOTES_ID!;
 export const MESSAGES_ID = process.env.NEXT_PUBLIC_APPWRITE_MESSAGES_ID!;
 export const IMAGES_BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID!;
 
+export const MEETS_ID = process.env.NEXT_PUBLIC_APPWRITE_MEETS_ID!
+
 export const PRICING_ID = process.env.NEXT_PUBLIC_APPWRITE_PRICING_ID!;
 
 export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!
+
+
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
+export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
+export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
+
+export const GOOGLE_CREATE_MEET_REDIRECT_URI = process.env.GOOGLE_CREATE_MEET_REDIRECT_URI
+
+export const NEXT_PUBLIC_ORIGIN_URL = process.env.NEXT_PUBLIC_ORIGIN_URL

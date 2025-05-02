@@ -37,6 +37,12 @@ export async function signUpWithGoogle(plan?: string) {
 		OAuthProvider.Google,
 		`${origin}/oauth?${queryParams.toString()}`,
 		`${origin}/signup`,
+		[
+			'openid',
+			'email',
+			'profile',
+			'https://www.googleapis.com/auth/calendar.events'
+		]
 	);
 
 	return redirect(redirectUrl);
