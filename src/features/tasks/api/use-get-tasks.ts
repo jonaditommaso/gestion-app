@@ -47,7 +47,8 @@ export const useGetTasks = ({
 
             return data;
         },
-        retry: false
+        retry: false,
+        refetchOnMount: false
     })
 
     return query;

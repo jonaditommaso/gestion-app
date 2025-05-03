@@ -15,7 +15,8 @@ export const useGetMember = () => {
 
             return data;
         },
-        retry: false
+        retry: false,
+        refetchOnMount: false
     })
 
     return query;

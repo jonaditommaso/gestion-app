@@ -14,7 +14,8 @@ export const useGetMeets = () => {
             const { data } = await response.json();
 
             return data;
-        }
+        },
+        refetchOnMount: false
     })
 
     return query;
