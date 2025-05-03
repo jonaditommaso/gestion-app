@@ -150,7 +150,7 @@ const CreateMeetButton = () => {
                                                                 variant="outline"
                                                                 onClick={() => field.onChange(member.email)}
                                                                 className={cn(
-                                                                    "h-[50px] cursor-pointer w-[160px] p-6 flex flex-col gap-1 border-2",
+                                                                    "h-[50px] cursor-pointer w-[160px] p-6 flex flex-col gap-1 border-2 min-w-fit",
                                                                     isSelected ? "border-blue-600" : 'border-transparent'
                                                                 )}
                                                             >

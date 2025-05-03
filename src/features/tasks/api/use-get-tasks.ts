@@ -46,7 +46,8 @@ export const useGetTasks = ({
             const { data } = await response.json();
 
             return data;
-        }
+        },
+        retry: false
     })
 
     return query;

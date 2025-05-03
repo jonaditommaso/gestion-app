@@ -264,14 +264,38 @@ const app = new Hono()
             MEETS_ID,
             ID.unique(),
             {
-                userId: userId,
+                userId,
+                title,
                 with: invited,
-                url: response.data?.hangoutLink ?? ''
+                url: response.data?.hangoutLink ?? '',
+                date: date.toISOString(),
             }
         )
 
         return ctx.redirect('/?meet=success');
 
+    }
+)
+
+.get(
+    '/meets',
+    sessionMiddleware,
+    async ctx => {
+        const user = ctx.get('user');
+        const databases = ctx.get('databases');
+
+        const [createdMeets, invitedMeets] = await Promise.all([
+            databases.listDocuments(DATABASE_ID, MEETS_ID, [
+                Query.equal('userId', user.$id)
+            ]),
+            databases.listDocuments(DATABASE_ID, MEETS_ID, [
+                Query.contains('with', user.email)
+            ])
+        ]);
+
+        const meets = [...createdMeets.documents, ...invitedMeets.documents];
+
+        return ctx.json({ data: meets })
     }
 )
 

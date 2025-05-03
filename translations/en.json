@@ -461,7 +461,10 @@
         "time": "Time",
         "duration": "Duration",
         "meeting-created-successfully": "Meeting created successfully",
-        "no-team-members": "You have no members in your team"
+        "no-team-members": "You have no members in your team",
+        "calendar-events": "Calendar events",
+        "upcoming-events": "Upcoming events",
+        "with": "with"
     },
     "app": {
         "search": "Search...",

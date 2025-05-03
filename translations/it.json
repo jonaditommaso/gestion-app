@@ -462,7 +462,10 @@
         "time": "Ora",
         "duration": "Durata",
         "meeting-created-successfully": "Riunione creata con successo",
-        "no-team-members": "Non hai membri nel tuo team"
+        "no-team-members": "Non hai membri nel tuo team",
+        "calendar-events": "Eventi del calendario",
+        "upcoming-events": "Prossimi eventi",
+        "with": "con"
     },
     "app": {
         "search": "Cerca...",

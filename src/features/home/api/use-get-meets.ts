@@ -1,21 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetMember = () => {
+export const useGetMeets = () => {
     const query = useQuery({
-        queryKey: ['member'],
+        queryKey: ['meets'],
         queryFn: async () => {
-            const response = await client.api.members['current'].$get();
+            const response = await client.api.meets.$get();
 
             if(!response.ok) {
-                throw new Error('Failed to fetch current member')
+                throw new Error('Failed to fetch meets')
             }
 
             const { data } = await response.json();
 
             return data;
-        },
-        retry: false
+        }
     })
 
     return query;

@@ -1,53 +1,75 @@
+'use client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+//import { Tabs, TabsContent,  } from "@/components/ui/tabs"; //TabsList, TabsTrigger
+import { useLocale, useTranslations } from "next-intl";
+import { useGetMeets } from "../api/use-get-meets";
+import dayjs from "dayjs";
+import 'dayjs/locale/es'
+import 'dayjs/locale/en'
+import 'dayjs/locale/it'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+import capitalize from '@/utils/capitalize';
 
 const CalendarEvents = () => {
+    const t = useTranslations('home');
+    const { data } = useGetMeets();
+    const locale = useLocale();
+
+    console.log(data)
+
+    dayjs.extend(localizedFormat)
+    dayjs.extend(utc)
+    dayjs.extend(timezone)
+    dayjs.locale(locale) // Setea el idioma a español
+    const timeZone = dayjs.tz.guess()
+
     return (
         <Card className="col-span-1 max-w-lg bg-sidebar-accent">
-            <Tabs defaultValue="own">
+            {/* <Tabs defaultValue="own"> */}
                 <CardHeader className="flex justify-between flex-row">
                     <div className="pt-1">
-                        <CardTitle>Calendar events</CardTitle>
-                        <CardDescription>Proximos eventos</CardDescription>
+                        <CardTitle>{t('calendar-events')}</CardTitle>
+                        <CardDescription>{t('upcoming-events')}</CardDescription>
                     </div>
-                    <TabsList className="mt-0">
+                    {/* <TabsList className="mt-0">
                         <TabsTrigger value="own">Mis eventos</TabsTrigger>
                         <TabsTrigger value="team">Vatican Pancho</TabsTrigger>
-                    </TabsList>
+                    </TabsList> */}
                 </CardHeader>
-                <TabsContent value="own">
+                {/* <TabsContent value=""> */}
+                    <CardContent className="grid gap-4">
+                        {data?.map(meet => (
+                            <div className="border bg-sidebar p-2 rounded-md">
+                                <p className="font-medium text-sm">{meet.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                {capitalize(dayjs.utc(meet.date).tz(timeZone).format('dddd D [de] MMMM, h:mm A'))} {t('with')} <span className="italic font-medium">{meet.with} </span>
+                                    (<relative-time lang={locale} datetime={meet.date} className="text-muted-foreground text-xs">
+                                    </relative-time>)
+                                </p>
+                                <p className="text-xs hover:underline text-blue-400 cursor-pointer" onClick={() => window.open(meet.url, '_blank')}>{meet.url}</p>
+                            </div>
+                        ))}
+                    </CardContent>
+                {/* </TabsContent> */}
+                {/* <TabsContent value="team">
                     <CardContent className="grid gap-4">
                         <div className="border bg-sidebar p-2 rounded-md">
-                            <p className="font-medium">Empezar seccion de inicio</p>
+                            <p className="font-medium">Terminar seccion de inicio</p>
                             <p className="text-sm text-muted-foreground">Creada el 24/03/2024</p>
                         </div>
                         <div className="border bg-sidebar p-2 rounded-md">
-                            <p className="font-medium">Empezar seccion de inicio</p>
+                            <p className="font-medium">Terminar seccion de inicio</p>
                             <p className="text-sm text-muted-foreground">Creada el 24/03/2024</p>
                         </div>
                         <div className="border bg-sidebar p-2 rounded-md">
-                            <p className="font-medium">Empezar seccion de inicio</p>
+                            <p className="font-medium">Terminar seccion de inicio</p>
                             <p className="text-sm text-muted-foreground">Creada el 24/03/2024</p>
                         </div>
                     </CardContent>
-                </TabsContent>
-                <TabsContent value="team">
-                    <CardContent className="grid gap-4">
-                        <div className="border bg-sidebar p-2 rounded-md">
-                            <p className="font-medium">Terminar seccion de inicio</p>
-                            <p className="text-sm text-muted-foreground">Creada el 24/03/2024</p>
-                        </div>
-                        <div className="border bg-sidebar p-2 rounded-md">
-                            <p className="font-medium">Terminar seccion de inicio</p>
-                            <p className="text-sm text-muted-foreground">Creada el 24/03/2024</p>
-                        </div>
-                        <div className="border bg-sidebar p-2 rounded-md">
-                            <p className="font-medium">Terminar seccion de inicio</p>
-                            <p className="text-sm text-muted-foreground">Creada el 24/03/2024</p>
-                        </div>
-                    </CardContent>
-                </TabsContent>
-            </Tabs>
+                </TabsContent> */}
+            {/* </Tabs> */}
         </Card>
     );
 }
