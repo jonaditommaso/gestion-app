@@ -299,6 +299,8 @@ const app = new Hono()
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .slice(0, 3);
 
+        // los filtros los aplico ahora porque solo las pido en la home, pero cuando tenga una view, sera por query.
+
         return ctx.json({ data: meets })
     }
 )
