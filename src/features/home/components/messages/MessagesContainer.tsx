@@ -49,7 +49,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         <CardTitle>{t('messages')}</CardTitle>
         <CardDescription>{!messages?.total ? t('not-messages-yet') : `${t('you-have')} ${unreadMessages?.length} ${t('unread-messages')}`}</CardDescription>
       </CardHeader>
-      <div className="flex flex-col justify-between h-[75%]"> {/* restore to h-[80%] when calendar events its ok */}
+      <div className="flex flex-col justify-between h-[80%]">
         <CardContent className="grid gap-4 pb-2 overflow-auto mb-1">
           <div>
             {messages?.documents?.map((message, index) => (
