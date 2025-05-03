@@ -176,29 +176,55 @@ const app = new Hono()
     async ctx => {
 
         const { dateStart, invited, title, duration, userId } = ctx.req.valid('json');
+        const user = ctx.get('user');
 
-        const oauth2Client = new google.auth.OAuth2(
-            GOOGLE_CLIENT_ID,
-            GOOGLE_CLIENT_SECRET,
-            GOOGLE_REDIRECT_URI,
-        );
+        const cookieStore = await cookies();
+        const accessToken = cookieStore.get('google_access_token')?.value;
+        const expiresAt = parseInt(cookieStore.get('google_token_exp')?.value ?? '0');
 
-        const scopes = [
-            'openid',
-            'email',
-            'profile',
-            'https://www.googleapis.com/auth/calendar.events'
-        ]
+        if ((!accessToken || Date.now() > expiresAt) && !user?.prefs.google_refresh_token) { // escenario 1, no hay ni token ni refresh
 
-        const url = oauth2Client.generateAuthUrl({
-            access_type: 'offline',
-            prompt: 'consent', // CHEQUEAR SI ES NECESARIO O ESTAMOS AGREGANDO UNA CAPA AL PEDO.
-            client_id: GOOGLE_CLIENT_ID,
-            scope: scopes,
-            state: JSON.stringify({ dateStart, invited, title, duration, userId })
-        });
+            const oauth2Client = new google.auth.OAuth2(
+                GOOGLE_CLIENT_ID,
+                GOOGLE_CLIENT_SECRET,
+                GOOGLE_REDIRECT_URI,
+            );
 
-        return ctx.json({ data: url })
+            const scopes = [
+                'openid',
+                'email',
+                'profile',
+                'https://www.googleapis.com/auth/calendar.events'
+            ]
+
+            const url = oauth2Client.generateAuthUrl({
+                access_type: 'offline',
+                prompt: 'consent', // CHEQUEAR SI ES NECESARIO O ESTAMOS AGREGANDO UNA CAPA AL PEDO.
+                client_id: GOOGLE_CLIENT_ID,
+                scope: scopes,
+                state: JSON.stringify({ dateStart, invited, title, duration, userId })
+            });
+
+            return ctx.json({ data: url })
+        }
+
+        const params = new URLSearchParams();
+
+        params.set("invited", invited);
+        params.set("dateStart", dateStart.toISOString());
+        params.set("title", title);
+        params.set("duration", duration);
+        params.set("userId", userId);
+
+        if ((Date.now() > expiresAt || !accessToken) && user?.prefs.google_refresh_token) { // escenario 2, no hay token o expiro pero tenes el refresh en las prefs
+            params.set("use-refresh", 'true');
+        }
+
+        if(accessToken && Date.now() < expiresAt) { // escenario 3, todo ok, el access tiene validez
+            params.set("use-access-token", 'true');
+        }
+
+        return ctx.json({ data: `${GOOGLE_REDIRECT_URI}?${params.toString()}` })
     }
 )
 
@@ -254,8 +280,8 @@ const app = new Hono()
         });
 
         const client = new Client()
-        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+            .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+            .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
 
         const databases = new Databases(client);
 
@@ -272,7 +298,7 @@ const app = new Hono()
             }
         )
 
-        return ctx.redirect('/?meet=success');
+        return ctx.redirect('/meets/loading');
 
     }
 )

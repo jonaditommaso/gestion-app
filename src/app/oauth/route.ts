@@ -1,3 +1,4 @@
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } from "@/config";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
 import { Hono } from "hono";
@@ -14,12 +15,15 @@ app.get(
     const url = new URL(c.req.url);
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
+    const useRefresh = url.searchParams.get('use-refresh');
+    const useAccessToken = url.searchParams.get('use-access-token')
 
     let invited;
     let dateStart;
     let title;
     let duration;
     let userId;
+
     if (state) {
       try {
         const parsed = JSON.parse(state);
@@ -32,11 +36,52 @@ app.get(
       } catch (err) {
         console.error('Error parsing state', err);
       }
+    } else {
+      invited = url.searchParams.get('invited');
+      dateStart = url.searchParams.get('dateStart');
+      title = url.searchParams.get('title');
+      duration = url.searchParams.get('duration');
+      userId = url.searchParams.get('userId');
     }
 
-    if (!code) {
-      return c.redirect('/');
+    const queryParams = new URLSearchParams();
+    queryParams.set("invited", invited);
+    queryParams.set("dateStart", dateStart);
+    queryParams.set("title", title);
+    queryParams.set("duration", duration);
+    queryParams.set("userId", userId);
+
+    if(useAccessToken) {
+      return c.redirect(`http://localhost:3000/api/meet?${queryParams.toString()}`);
     }
+
+    const params: Record<string, string> = {
+      client_id: GOOGLE_CLIENT_ID!,
+      client_secret: GOOGLE_CLIENT_SECRET!,
+      redirect_uri: GOOGLE_REDIRECT_URI!,
+      grant_type: useRefresh ? 'refresh_token' : 'authorization_code',
+    };
+
+    const { users } = await createAdminClient();
+    const prefs = await users.getPrefs(userId);
+
+    if (useRefresh) {
+
+      if (!prefs?.google_refresh_token) {
+        console.error('No refresh token found');
+        return c.redirect('/');
+      }
+
+      params.refresh_token = prefs?.google_refresh_token;
+
+    } else {
+      if (!code) {
+        console.error('No authorization code provided');
+        return c.redirect('/');
+      }
+      params.code = code;
+    }
+
 
     try {
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -44,30 +89,31 @@ app.get(
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          code,
-          client_id: process.env.GOOGLE_CLIENT_ID!,
-          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-          redirect_uri: 'http://localhost:3000/api/oauth/callback', // Debe coincidir con el que registraste
-          grant_type: 'authorization_code',
-        }),
+        body: new URLSearchParams(params),
       });
 
       const tokenData = await tokenRes.json();
+
+      if(!prefs?.google_refresh_token) {
+        await users.updatePrefs(userId, {
+          ...(prefs ?? {}),
+          google_refresh_token: tokenData.refresh_token
+        });
+      }
 
       setCookie(c, 'google_access_token', tokenData.access_token, {
         path: '/',
         httpOnly: true,
         secure: true,
-        maxAge: 60 * 60 // 1 hora
+        maxAge: 60 * 60 // 1 hora (== tokenData.expires_in)
       });
 
-      const queryParams = new URLSearchParams();
-      queryParams.set("invited", invited);
-      queryParams.set("dateStart", dateStart);
-      queryParams.set("title", title);
-      queryParams.set("duration", duration);
-      queryParams.set("userId", userId);
+      setCookie(c, 'google_access_token_exp', String(Date.now() + tokenData.expires_in * 1000), {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        maxAge: tokenData.expires_in
+      });
 
       return c.redirect(`http://localhost:3000/api/meet?${queryParams.toString()}`);
     } catch (err) {
