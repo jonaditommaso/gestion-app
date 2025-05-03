@@ -293,11 +293,13 @@ const app = new Hono()
             ])
         ]);
 
-        const meets = [...createdMeets.documents, ...invitedMeets.documents];
+        const now = new Date();
+        const meets = [...createdMeets.documents, ...invitedMeets.documents]
+            .filter(meet => new Date(meet.date) > now)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .slice(0, 3);
 
-        const orderedMeets = meets.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-        return ctx.json({ data: orderedMeets })
+        return ctx.json({ data: meets })
     }
 )
 
