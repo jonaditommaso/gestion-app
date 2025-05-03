@@ -295,7 +295,9 @@ const app = new Hono()
 
         const meets = [...createdMeets.documents, ...invitedMeets.documents];
 
-        return ctx.json({ data: meets })
+        const orderedMeets = meets.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        return ctx.json({ data: orderedMeets })
     }
 )
 
