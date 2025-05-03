@@ -121,7 +121,7 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center justify-center w-full bg-[#FFF2F2]">
-            <DemoButton text={t('button-get-demo-2')} />
+            <DemoButton text={t('button-get-demo-2')} fit />
           </div>
 
           <LandingFooter />

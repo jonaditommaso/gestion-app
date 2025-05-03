@@ -10,7 +10,7 @@ import { ClockAlert, Rocket, Settings, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-const DemoButton = ({ text }: { text: string }) => {
+const DemoButton = ({ text, fit }: { text: string, fit?: boolean }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { mutate: demoRegister, isPending } = useRegister();
     const t = useTranslations('landing');
@@ -64,7 +64,7 @@ const DemoButton = ({ text }: { text: string }) => {
                     </CardFooter>
                 </Card>
             </DialogContainer>
-            <Button className="w-full" size='lg' type="button" variant='success' onClick={() => setIsModalOpen(true)} disabled={isPending}>{text}</Button>
+            <Button className={fit ? 'w-fit' : "w-full"} size='lg' type="button" variant='success' onClick={() => setIsModalOpen(true)} disabled={isPending}>{text}</Button>
         </>
     );
 }
