@@ -41,7 +41,7 @@ const CalendarEvents = () => {
                 {/* <TabsContent value=""> */}
                     <CardContent className="grid gap-4">
                         {data?.map(meet => (
-                            <div className="border bg-sidebar p-2 rounded-md">
+                            <div className="border bg-sidebar p-2 rounded-md" key={meet.$id}>
                                 <p className="font-medium text-sm">{meet.title}</p>
                                 <p className="text-xs text-muted-foreground">
                                 {capitalize(dayjs.utc(meet.date).tz(timeZone).format('dddd D [de] MMMM, h:mm A'))} {t('with')} <span className="italic font-medium">{meet.with} </span>
