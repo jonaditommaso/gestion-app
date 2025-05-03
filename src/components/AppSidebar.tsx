@@ -32,7 +32,7 @@ const AppSidebar = () => {
 
     const currentView = `/${pathname.split('/')[1]}`
 
-    if (pathname === '/oauth/loading') return null
+    if (pathname === '/oauth/loading' || pathname === '/meets/loading') return null
 
     return (
         <SidebarProvider open={isCollapsed}>

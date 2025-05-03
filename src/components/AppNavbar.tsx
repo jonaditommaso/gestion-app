@@ -16,7 +16,7 @@ const AppNavbar = () => {
   const { theme } = useTheme();
   const { data: user } = useCurrent();
 
-  if(pathname === '/login' || pathname === '/signup' || pathname === '/oauth/loading') return null; //check how to implement it in ssr, and more gral
+  if(pathname === '/login' || pathname === '/signup' || pathname === '/oauth/loading' || pathname === '/meets/loading') return null; //check how to implement it in ssr, and more gral
 
   return ( //ml-10
     <nav className={`border-b shadow-md fixed top-0 z-20 grid grid-cols-3 items-center w-full ${theme === 'dark' ? 'bg-[#212121]' : 'bg-white' }`}>

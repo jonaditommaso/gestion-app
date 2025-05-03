@@ -120,8 +120,6 @@
         "message-created": "Messaggio creato con successo",
         "failed-create-message": "Ci scusiamo, si è verificato un errore durante la creazione del messaggio"
     },
-
-
     "pricing": {
         "pricing-title": "Scegli il piano perfetto per il tuo team",
         "pricing-annual": "annuale",
@@ -461,6 +459,7 @@
         "time": "Ora",
         "duration": "Durata",
         "meeting-created-successfully": "Riunione creata con successo",
+        "creating-meet": "Creazione di una riunione...",
         "no-team-members": "Non hai membri nel tuo team",
         "calendar-events": "Eventi del calendario",
         "upcoming-events": "Prossimi eventi",

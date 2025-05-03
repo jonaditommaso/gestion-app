@@ -461,6 +461,7 @@
         "time": "Hora",
         "duration": "Duración",
         "meeting-created-successfully": "Reunión creada con éxito",
+        "creating-meet": "Creando reunión...",
         "no-team-members": "No tienes miembros en tu equipo",
         "calendar-events": "Eventos de calendario",
         "upcoming-events": "Próximos eventos",

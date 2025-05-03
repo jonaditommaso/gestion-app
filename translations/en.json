@@ -460,6 +460,7 @@
         "time": "Time",
         "duration": "Duration",
         "meeting-created-successfully": "Meeting created successfully",
+        "creating-meet": "Creating meeting...",
         "no-team-members": "You have no members in your team",
         "calendar-events": "Calendar events",
         "upcoming-events": "Upcoming events",
