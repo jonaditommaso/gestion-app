@@ -26,24 +26,23 @@ const LandingSignUp = () => {
     };
 
     return (
-        <div>
-            <form className="flex items-center space-x-2" onSubmit={handleSubmit} noValidate>
+        <>
+            <span className={cn("text-red-400 text-sm text-center mt-2", isInvalid ? "opacity-100 visible" : "opacity-0 invisible")}>
+                {t('enter-valid-email')}
+            </span>
+            <form className="flex items-center space-x-2 w-full" onSubmit={handleSubmit} noValidate>
                 <Input
                     type="email"
                     placeholder="Email"
-                    className="!placeholder-white focus:placeholder-white focus-visible:ring-0 focus:outline-none"
+                    className=" focus-visible:ring-0 focus:outline-none bg-white text-black h-10 flex-1"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
                 />
-                <Button type="submit">{t('get-started')}</Button>
+                <Button size='lg' type="submit">{t('get-started')}</Button>
             </form>
-
-            <span className={cn("text-red-400 text-sm text-center mt-2", isInvalid ? "opacity-100 visible" : "opacity-0 invisible")}>
-                {t('enter-valid-email')}
-            </span>
-        </div>
+        </>
     );
 }
 

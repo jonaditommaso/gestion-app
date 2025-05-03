@@ -15,6 +15,7 @@ import LandingSignUp from "@/features/landing/components/LandingSignUp";
 import { getTranslations } from "next-intl/server";
 import HomeView from "@/features/home/components/HomeView";
 import DemoButton from "@/features/landing/components/DemoButton";
+import { Separator } from "@/components/ui/separator";
 
 export default async function Home() {
   const user = await getCurrent();
@@ -31,22 +32,22 @@ export default async function Home() {
         <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 30%, #4d6dbb 90%)' }}>
           <ScrollToTop />
           <div className="flex flex-col items-center text-white">
-            <div className=" flex flex-col justify-center mt-24 max-w-[700px]">
-              <p className="text-6xl font-bold text-balance text-center">{t('title')}</p>
+            <div className=" flex flex-col justify-center mt-36">
+              <p className="text-6xl font-bold text-balance text-center whitespace-pre-line tracking-tighter">{t('title')}</p>
               <p className="font-semibold mt-5 text-center">{t('subtitle')}</p>
             </div>
 
-            <div className="flex gap-14 w-[90%] justify-center ml-[200px]">
+            <div className="flex gap-20 w-[75%] justify-start m-auto">
               <div className="flex w-full max-w-sm items-center space-x-2">
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 w-[450px]">
                   <LandingSignUp />
-                  <span>{t('or')}</span>
+                  <Separator />
                   <DemoButton text={t('button-get-demo-1')} />
                 </div>
 
               </div>
 
-              <Image width={500} height={500} alt='work image' src={'/home-1.svg'} />
+              <Image width={450} height={450} alt='work image' src={'/home-1.svg'} className="ml-[200px]" />
             </div>
           </div>
 

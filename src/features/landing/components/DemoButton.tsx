@@ -64,7 +64,7 @@ const DemoButton = ({ text }: { text: string }) => {
                     </CardFooter>
                 </Card>
             </DialogContainer>
-            <Button type="button" variant='success' onClick={() => setIsModalOpen(true)} disabled={isPending}>{text}</Button>
+            <Button className="w-full" size='lg' type="button" variant='success' onClick={() => setIsModalOpen(true)} disabled={isPending}>{text}</Button>
         </>
     );
 }
