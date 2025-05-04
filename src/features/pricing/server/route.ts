@@ -1,4 +1,4 @@
-import { STRIPE_SECRET_KEY } from "@/config";
+import { NEXT_PUBLIC_APP_URL, STRIPE_SECRET_KEY } from "@/config";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { Stripe } from 'stripe'
@@ -39,8 +39,8 @@ const app = new Hono()
                 price: product?.default_price.toString(),
                 quantity: 1
             }],
-            success_url: `http://localhost:3000/signup?plan=${plan}`,
-            cancel_url: 'http://localhost:3000/pricing',
+            success_url: `${NEXT_PUBLIC_APP_URL}/signup?plan=${plan}`,
+            cancel_url: `${NEXT_PUBLIC_APP_URL}/pricing`,
         });
 
         return ctx.json({ url: session.url })

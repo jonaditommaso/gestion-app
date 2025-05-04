@@ -1,4 +1,4 @@
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } from "@/config";
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, NEXT_PUBLIC_APP_URL } from "@/config";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
 import { Hono } from "hono";
@@ -52,7 +52,7 @@ app.get(
     queryParams.set("userId", userId);
 
     if(useAccessToken) {
-      return c.redirect(`http://localhost:3000/api/meet?${queryParams.toString()}`);
+      return c.redirect(`${NEXT_PUBLIC_APP_URL}/api/meet?${queryParams.toString()}`);
     }
 
     const params: Record<string, string> = {
@@ -115,7 +115,7 @@ app.get(
         maxAge: tokenData.expires_in
       });
 
-      return c.redirect(`http://localhost:3000/api/meet?${queryParams.toString()}`);
+      return c.redirect(`${NEXT_PUBLIC_APP_URL}/api/meet?${queryParams.toString()}`);
     } catch (err) {
       console.error('❌ Error getting access token:', err);
       return c.redirect('/?error=token_failed');

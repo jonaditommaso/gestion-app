@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { zValidator } from '@hono/zod-validator';
 import { birthdaySchema, inviteSchema, tagsSchema } from "../schema";
 import { Client, Databases, ID, Query } from "node-appwrite";
-import { DATABASE_ID, INVITES_ID } from "@/config";
+import { DATABASE_ID, INVITES_ID, NEXT_PUBLIC_APP_URL } from "@/config";
 import { companyNameSchema, registerByInvitationSchema } from "@/features/auth/schemas";
 import { setCookie } from "hono/cookie";
 import { AUTH_COOKIE } from "@/features/auth/constants";
@@ -159,7 +159,7 @@ const app = new Hono()
             }
         );
 
-        return ctx.json({ invitationUrl: `http://localhost:3000/team/join-team/${token}` , success: true })
+        return ctx.json({ invitationUrl: `${NEXT_PUBLIC_APP_URL}/team/join-team/${token}` , success: true })
     }
 )
 
