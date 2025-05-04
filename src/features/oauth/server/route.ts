@@ -1,10 +1,7 @@
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, NEXT_PUBLIC_APP_URL } from "@/config";
-import { AUTH_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
 import { Hono } from "hono";
 import { setCookie } from "hono/cookie";
-import { cookies } from "next/headers";
-import { ID } from "node-appwrite";
 
 const app = new Hono()
 
@@ -119,61 +116,6 @@ const app = new Hono()
         console.error('❌ Error getting access token:', err);
         return c.redirect('/?error=token_failed');
       }
-    }
-  )
-
-  .get(
-    '/',
-    async (c) => {
-      const userId = c.req.query('userId');
-      const secret = c.req.query('secret');
-      const plan = c.req.query('plan');
-      const provider = c.req.query('provider');
-
-      if (!userId || !secret) return c.json({ error: 'Missing fields' }, 400);
-
-      const { account, users, teams } = await createAdminClient();
-      const session = await account.createSession(userId, secret);
-
-      const cookieStore = await cookies();
-      cookieStore.set(AUTH_COOKIE, session.secret, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "strict",
-        secure: true,
-      });
-
-      const user = await users.get(userId);
-
-      const isNewUser = !user.prefs?.role && !user.prefs?.plan;
-
-      if (isNewUser) {
-        const newTeam = await teams.create(
-          ID.unique(),
-          'not-provided-yet' // create company with generic name, the user doesnt know wigo behind scenes.
-        )
-
-        await teams.createMembership(
-          newTeam.$id,
-          ['OWNER'],
-          user.email,
-        );
-
-        await teams.updatePrefs(newTeam.$id, { plan })
-
-        await users.updatePrefs(userId, {
-          role: "ADMIN",
-          teamId: newTeam.$id,
-          plan,
-          // we don't set company at this time
-        });
-      }
-
-      if (provider === 'google') {
-        return c.redirect(`${NEXT_PUBLIC_APP_URL}/oauth/loading`);
-      }
-
-      return c.redirect(`${NEXT_PUBLIC_APP_URL}/`);
     }
   )
 
