@@ -11,7 +11,7 @@ import team from '@/features/team/server/route'
 import home from '@/features/home/server/route'
 import landing from '@/features/landing/server/route'
 import pricing from '@/features/pricing/server/route'
-import oauth from '@/app/oauth/route'
+import oauth from '@/features/oauth/server/route'
 
 const app = new Hono().basePath('/api')
 

@@ -10,7 +10,7 @@ const durationOptions = [
 
 interface DurationSelectorProps {
     value: string,
-    setValue: (...event: any[]) => void
+    setValue: (value: string) => void
 }
 
 const DurationSelector = ({ value = '30-minute', setValue }: DurationSelectorProps) => {
