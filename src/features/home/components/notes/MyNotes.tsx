@@ -38,52 +38,55 @@ const MyNotes = () => {
         setNewNote(INITIAL_STATE_NOTE)
     }
 
-    if (isPending) return (
-        <div className="w-full flex justify-center row-span-2">
-            <FadeLoader color="#999" width={3} className="mt-5" />
-        </div>
-    )
-
     return (
         <Card className="col-span-1 row-span-2 flex flex-col justify-start items-center bg-sidebar-accent">
             <CardTitle className="p-4">{t('my-notes')}</CardTitle>
             <CardContent className="flex flex-col gap-y-4 w-full mt-2">
-                <div className="flex flex-col gap-2">
-                    <Input
-                        placeholder={t('title')}
-                        className="bg-sidebar"
-                        value={newNote.title}
-                        onChange={(e) => onChange(e.target.value, 'title')}
-                    />
-                    <div className="relative">
-                        <Textarea
-                            placeholder={t('remember-placeholder')}
-                            maxLength={256}
-                            className="resize-none h-40 bg-sidebar"
-                            value={newNote.content}
-                            onChange={(e) => onChange(e.target.value, 'content')}
-                        />
-                        <div className="absolute bottom-1.5 right-2 text-xs text-muted-foreground pointer-events-none">
-                            {newNote.content.length}/256
+                {isPending ? (
+                        <div className="w-full flex justify-center">
+                            <FadeLoader color="#999" width={3} className="mt-5" />
                         </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <ColorNoteSelector onChange={onChange} />
-                        <Button onClick={handleCreateNote} disabled={isCreatingNote || (!newNote.content && !newNote.title)}>
-                            <Plus /> {t('add-note')}
-                        </Button>
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 justify-center">
-                    {data?.documents.map(note => (
-                        <Note
-                            key={note.$id}
-                            title={note.title}
-                            content={note.content}
-                            bgColor={note.bgColor}
-                        />
-                    ))}
-                </div>
+                    ) : (
+                    <>
+                        <div className="flex flex-col gap-2">
+                            <Input
+                                placeholder={t('title')}
+                                className="bg-sidebar"
+                                value={newNote.title}
+                                onChange={(e) => onChange(e.target.value, 'title')}
+                            />
+                            <div className="relative">
+                                <Textarea
+                                    placeholder={t('remember-placeholder')}
+                                    maxLength={256}
+                                    className="resize-none h-40 bg-sidebar"
+                                    value={newNote.content}
+                                    onChange={(e) => onChange(e.target.value, 'content')}
+                                />
+                                <div className="absolute bottom-1.5 right-2 text-xs text-muted-foreground pointer-events-none">
+                                    {newNote.content.length}/256
+                                </div>
+                            </div>
+                            <div className="flex justify-between">
+                                <ColorNoteSelector onChange={onChange} />
+                                <Button onClick={handleCreateNote} disabled={isCreatingNote || (!newNote.content && !newNote.title)}>
+                                    <Plus /> {t('add-note')}
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 justify-center">
+                            {data?.documents.map(note => (
+                                <Note
+                                    key={note.$id}
+                                    title={note.title}
+                                    content={note.content}
+                                    bgColor={note.bgColor}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )
+            }
             </CardContent>
         </Card>
     );

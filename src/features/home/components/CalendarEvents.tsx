@@ -11,18 +11,17 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import capitalize from '@/utils/capitalize';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CalendarEvents = () => {
     const t = useTranslations('home');
-    const { data } = useGetMeets();
+    const { data, isLoading } = useGetMeets();
     const locale = useLocale();
-
-    console.log(data)
 
     dayjs.extend(localizedFormat)
     dayjs.extend(utc)
     dayjs.extend(timezone)
-    dayjs.locale(locale) // Setea el idioma a español
+    dayjs.locale(locale)
     const timeZone = dayjs.tz.guess()
 
     return (
@@ -40,17 +39,21 @@ const CalendarEvents = () => {
                 </CardHeader>
                 {/* <TabsContent value=""> */}
                     <CardContent className="grid gap-4">
-                        {data?.map(meet => (
-                            <div className="border bg-sidebar p-2 rounded-md" key={meet.$id}>
-                                <p className="font-medium text-sm">{meet.title}</p>
-                                <p className="text-xs text-muted-foreground">
-                                {capitalize(dayjs.utc(meet.date).tz(timeZone).format('dddd D [de] MMMM, h:mm A'))} {t('with')} <span className="italic font-medium">{meet.with} </span>
-                                    (<relative-time lang={locale} datetime={meet.date} className="text-muted-foreground text-xs">
-                                    </relative-time>)
-                                </p>
-                                <p className="text-xs hover:underline text-blue-400 cursor-pointer" onClick={() => window.open(meet.url, '_blank')}>{meet.url}</p>
-                            </div>
-                        ))}
+                        {isLoading ?
+                            Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="p-2 rounded-md h-12" />)
+                            : (
+                            data?.map(meet => (
+                                <div className="border bg-sidebar p-2 rounded-md" key={meet.$id}>
+                                    <p className="font-medium text-sm">{meet.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                    {capitalize(dayjs.utc(meet.date).tz(timeZone).format('dddd D [de] MMMM, h:mm A'))} {t('with')} <span className="italic font-medium">{meet.with} </span>
+                                        (<relative-time lang={locale} datetime={meet.date} className="text-muted-foreground text-xs">
+                                        </relative-time>)
+                                    </p>
+                                    <p className="text-xs hover:underline text-blue-400 cursor-pointer" onClick={() => window.open(meet.url, '_blank')}>{meet.url}</p>
+                                </div>
+                            ))
+                        )}
                     </CardContent>
                 {/* </TabsContent> */}
                 {/* <TabsContent value="team">
