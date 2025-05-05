@@ -86,7 +86,7 @@ export default async function Home() {
                   </Button>
                 </Link>
               <div className="flex w-full justify-around max-sm:flex-col">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 max-sm:items-center">
                   {quickPlans.map(plan => (
                     <QuickPlansCard
                       key={plan.planTitle}
@@ -107,7 +107,7 @@ export default async function Home() {
             <p className="font-normal text-3xl max-sm:text-base max-sm:text-center">{t('tal-1')} <span className="font-semibold">{t('tal-2')}</span> {t('tal-3')}</p>
           </div>
 
-          <div className="w-full flex justify-center gap-4 p-10 bg-[#FFF2F2] mt-[-1px] max-sm:flex-col max-sm:pb-5">
+          <div className="w-full flex justify-center gap-4 p-10 bg-[#FFF2F2] mt-[-1px] max-sm:flex-col max-sm:pb-5 max-sm:items-center">
             {takeALook.map(element => (
               <TakeALookCard
                 key={element.altImage}

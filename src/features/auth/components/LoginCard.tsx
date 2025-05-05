@@ -21,10 +21,12 @@ import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const LoginCard = () => {
     const { mutate, isPending } = useLogin();
-    const t = useTranslations('auth')
+    const t = useTranslations('auth');
+    const isMobile = useIsMobile();
 
     const form = useForm<zod.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -39,17 +41,19 @@ const LoginCard = () => {
     }
 
     return (
-        <div className="flex gap-36 items-start">
-            <div className="">
-                <div className="flex justify-center mb-10">
-                    <Image width={200} height={200} alt="gestionate logo login" src={'/gestionate-logo.svg'} />
+        <div className="flex gap-36 items-start max-sm:flex-col max-sm:gap-10">
+            <div className="max-sm:flex">
+                <div className="flex justify-center mb-10 max-sm:mb-0">
+                    <Image width={isMobile ? 100 : 200} height={isMobile ? 100 : 200} alt="gestionate logo login" src={'/gestionate-logo.svg'} />
                 </div>
-                <p className="text-6xl font-bold text-gray-800 text-center">Gestionate</p>
-                <p className="text-center text-lg mt-4">{t('initial-login-message')}</p>
+                <div className="max-sm:flex-col">
+                    <p className="text-6xl font-bold text-gray-800 text-center max-sm:text-2xl">Gestionate</p>
+                    <p className="text-center text-lg mt-4 max-sm:text-base max-sm:w-[70%] max-sm:m-auto">{t('initial-login-message')}</p>
+                </div>
             </div>
             <Card className="w-full h-full md:w-[490px] border-none shadow-none">
-                <CardHeader className="flex items-center justify-center text-center p-7">
-                    <CardTitle className="text-2xl">{t('login')}</CardTitle>
+                <CardHeader className="flex items-center justify-center text-center p-7 max-sm:p-4">
+                    <CardTitle className="text-2xl max-sm:text-lg">{t('login')}</CardTitle>
                 </CardHeader>
                 <Separator />
                 <CardContent className="p-7">
@@ -66,6 +70,7 @@ const LoginCard = () => {
                                                 placeholder="Email"
                                                 disabled={isPending}
                                                 {...field}
+                                                className="max-sm:text-sm max-sm:h-8"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -84,6 +89,7 @@ const LoginCard = () => {
                                                 placeholder={t('password')}
                                                 disabled={isPending}
                                                 {...field}
+                                                className="max-sm:text-sm max-sm:h-8"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -91,7 +97,7 @@ const LoginCard = () => {
                                 )}
                             />
 
-                            <Button size='lg' className="w-full" disabled={isPending}>
+                            <Button size={isMobile ? 'sm' : 'lg'} className="w-full" disabled={isPending}>
                                 {t('login')}
                             </Button>
                         </form>
@@ -99,16 +105,16 @@ const LoginCard = () => {
                 </CardContent>
                 <Separator />
                 <CardContent className="p-7 flex flex-col gap-y-4">
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
+                <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
                     <FcGoogle className="mr-2 size-5" />
                     {t('login-with')} Google
                 </Button>
-                <Button size='lg' className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
+                <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
                     <FaGithub className="mr-2 size-5" />
                     {t('login-with')} Github
                 </Button>
                 </CardContent>
-                <CardFooter className="flex items-center gap-2 justify-center mt-2">
+                <CardFooter className="flex items-center gap-2 justify-center mt-2 max-sm:text-sm">
                     <p>{t('dont-have-account')}</p> <Link href={'/signup'} className="underline">{t('signup-button')}</Link>
                 </CardFooter>
             </Card>
