@@ -14,7 +14,7 @@ const WhoWeAreView = async () => {
 
     return (
         <div className='flex flex-col items-center min-h-screen mt-[-1px]' style={{ backgroundImage: 'linear-gradient(350deg, red 30%, #4d6dbb 90%)' }}>
-            <div className="flex gap-14 w-[90%] justify-around mt-20 p-8">
+            <div className="flex gap-14 w-[90%] justify-around mt-20 p-8 max-sm:flex-col">
                 <Image width={400} height={400} alt='who we are image' src={'/who-we-are-2.svg'} />
                 <div className="flex w-full max-w-sm items-center space-x-2 text-white">
                     <div className="flex flex-col items-center gap-2 text-center">
@@ -26,8 +26,8 @@ const WhoWeAreView = async () => {
 
             <CustomWave />
 
-            <div className='bg-[#FFF2F2] w-full mt-[-2px] flex flex-grow justify-center p-10'>
-                <div className='w-[50%] p-4 text-2xl text-balance flex flex-col text-center gap-4'>
+            <div className='bg-[#FFF2F2] w-full mt-[-2px] flex flex-grow justify-center p-10 max-sm:flex-col'>
+                <div className='w-[50%] p-4 text-2xl text-balance flex flex-col text-center gap-4 max-sm:w-[100%] max-sm:p-0 max-sm:mb-2'>
                     <p><span className='font-semibold'>Gestionate</span> {t('who-we-are-1')}</p>
                     <p>{t('who-we-are-2')} <span className='font-semibold'>Gestionate</span> {t('who-we-are-3')}</p>
                     <p>{t('who-we-are-4')}</p>

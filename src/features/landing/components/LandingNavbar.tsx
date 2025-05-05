@@ -18,9 +18,10 @@ import { useParams, usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
 import { useTranslations } from "next-intl"
-import { Languages } from "lucide-react"
+import { AlignJustify, Languages, X } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LanguagesSelection } from "@/components/LanguagesSelection"
+import { useIsMobile } from "@/hooks/use-mobile"
 //import { solutions } from "../solutions"
 
 
@@ -30,15 +31,34 @@ export function LandingNavbar() {
   const t = useTranslations('landing');
   const params = useParams();
   const [open, setOpen] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
+  const isMobile = useIsMobile();
+
+  React.useEffect(() => {
+    if(isMobileMenuOpen && isMobile === false) {
+      setIsMobileMenuOpen(false)
+    }
+  }, [isMobile]);
 
   const notShowInView = ['/login', '/oauth/loading', '/meets/loading', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
 
   if(notShowInView.includes(pathname)) return null; //check how to implement it in ssr, and more gral
 
+  if (isMobile === undefined) return null;
+
+  const handleNavigation = (route: string) => {
+    setIsMobileMenuOpen(false);
+    router.push(route);
+  }
+
   return (
     <NavigationMenu className="p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 bg-white shadow-md">
-      <NavigationMenuList className="flex gap-1">
-      <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />
+      {isMobile && <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
+
+      {!isMobile && (
+        <NavigationMenuList className="flex gap-1">
+        <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>{t('navbar-start')}</NavigationMenuTrigger>
@@ -113,11 +133,12 @@ export function LandingNavbar() {
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
+    )}
 
       <div className="gap-2 flex items-center">
         <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger className="outline-none" asChild>
-            <Button variant='outline' size='icon' className="mr-5">
+            <Button variant='outline' size='icon' className="mr-5 max-sm:mr-0">
               <Languages />
             </Button>
           </DropdownMenuTrigger>
@@ -128,10 +149,27 @@ export function LandingNavbar() {
         <Link href={'/login'}>
           <Button variant='outline'>{t('button-signin')}</Button>
         </Link>
-        <Link href={'/pricing'}>
+        {!isMobile && <Link href={'/pricing'}>
           <Button>{t('get-started')}</Button>
-        </Link>
+        </Link>}
+        {isMobile && (
+           <AlignJustify onClick={() => setIsMobileMenuOpen(true)} />
+        )}
       </div>
+      {isMobile && isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-white z-20 flex flex-col items-center justify-center gap-4 text-2xl">
+          <X className="absolute m-auto top-40" size={40} onClick={() => setIsMobileMenuOpen(false)} />
+          <div onClick={() => handleNavigation("/docs")}>
+            Gestionate
+          </div>
+          <div onClick={() => handleNavigation("/products")}>
+            {t('navbar-products')}
+          </div>
+          <div onClick={() => handleNavigation("/pricing")}>
+            {t('navbar-pricing')}
+          </div>
+        </div>
+      )}
     </NavigationMenu>
   )
 }

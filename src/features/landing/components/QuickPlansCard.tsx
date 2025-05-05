@@ -12,7 +12,7 @@ const QuickPlansCard = async ({ planTitle, planDescription }: QuickPlansCardProp
   const t = await getTranslations('landing')
 
     return (
-        <Card className="w-[450px]">
+        <Card className="w-[450px] max-sm:w-[300px]">
             <CardContent>
                 <div className={cn("p-4 flex gap-2", planTitle === 'Empresa' && 'text-blue-600')}>
                     <CheckIcon fontSize={20} />

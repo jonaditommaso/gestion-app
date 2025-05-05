@@ -16,7 +16,7 @@ const FaqView = async () => {
 
     return (
         <div className='flex flex-col items-center min-h-screen mt-[-1px]' style={{ backgroundImage: 'linear-gradient(350deg, red 30%, #4d6dbb 90%)' }}>
-            <div className="flex gap-14 w-[90%] justify-around mt-20 p-2">
+            <div className="flex gap-14 w-[90%] justify-around mt-20 p-2 max-sm:flex-col">
                 <Image width={400} height={400} alt='faq image' src={'/faq.svg'} />
                 <div className="flex w-full max-w-sm items-center space-x-2 text-white">
                     <div className="flex flex-col items-center gap-2 text-center">
@@ -29,10 +29,10 @@ const FaqView = async () => {
             <CustomWave />
 
             <div className='bg-[#FFF2F2] w-full mt-[-2px] flex-grow'>
-                <Accordion type="single" collapsible className="w-[60%] m-auto mt-5 flex flex-col gap-4 mb-5">
+                <Accordion type="single" collapsible className="w-[60%] m-auto mt-5 flex flex-col gap-4 mb-5 max-sm:w-[100%] max-sm:px-2">
                     {faq.map((item, index) => (
                     <AccordionItem key={index} value={`item-${index}`} className='shadow-lg rounded-lg px-2 bg-white'>
-                        <AccordionTrigger className="hover:no-underline text-[#9a3e6a] text-lg [&>svg]:text-[#4d6dbb] [&>svg]:w-6 [&>svg]:h-6 ">
+                        <AccordionTrigger className="hover:no-underline text-[#9a3e6a] text-lg [&>svg]:text-[#4d6dbb] [&>svg]:w-6 [&>svg]:h-6 max-sm:text-sm">
                             {t(item.question)}
                         </AccordionTrigger>
                         <AccordionContent>

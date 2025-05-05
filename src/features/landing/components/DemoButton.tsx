@@ -4,6 +4,7 @@ import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useRegister } from "@/features/auth/api/use-register";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { generateInviteCode } from "@/lib/utils";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { ClockAlert, Rocket, Settings, Users } from "lucide-react";
@@ -14,6 +15,7 @@ const DemoButton = ({ text, fit }: { text: string, fit?: boolean }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { mutate: demoRegister, isPending } = useRegister();
     const t = useTranslations('landing');
+    const isMobile = useIsMobile();
 
     const handleGetDemo = () => {
         demoRegister({
@@ -64,7 +66,7 @@ const DemoButton = ({ text, fit }: { text: string, fit?: boolean }) => {
                     </CardFooter>
                 </Card>
             </DialogContainer>
-            <Button className={fit ? 'w-fit' : "w-full"} size='lg' type="button" variant='success' onClick={() => setIsModalOpen(true)} disabled={isPending}>{text}</Button>
+            <Button className={fit ? 'w-fit' : "w-full"} size={isMobile ? 'sm' : 'lg'} type="button" variant='success' onClick={() => setIsModalOpen(true)} disabled={isPending}>{text}</Button>
         </>
     );
 }

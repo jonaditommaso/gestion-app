@@ -1,6 +1,7 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ const LandingSignUp = () => {
     const [isInvalid, setIsInvalid] = useState(false);
     const router = useRouter();
     const t = useTranslations('landing');
+    const isMobile = useIsMobile();
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
@@ -34,13 +36,13 @@ const LandingSignUp = () => {
                 <Input
                     type="email"
                     placeholder="Email"
-                    className=" focus-visible:ring-0 focus:outline-none bg-white text-black h-10 flex-1"
+                    className="focus-visible:ring-0 focus:outline-none bg-white text-black h-10 flex-1 max-sm:h-8 max-sm:text-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
                 />
-                <Button size='lg' type="submit">{t('get-started')}</Button>
+                <Button size={isMobile ? 'sm' : 'lg'} type="submit">{t('get-started')}</Button>
             </form>
         </>
     );
