@@ -22,6 +22,7 @@ import { AlignJustify, Languages, X } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LanguagesSelection } from "@/components/LanguagesSelection"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useScrolling } from "@/hooks/useScrolling"
 //import { solutions } from "../solutions"
 
 
@@ -34,12 +35,13 @@ export function LandingNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const isMobile = useIsMobile();
+  const isScrolled = useScrolling()
 
   React.useEffect(() => {
     if(isMobileMenuOpen && isMobile === false) {
       setIsMobileMenuOpen(false)
     }
-  }, [isMobile]);
+  }, [isMobile, isMobileMenuOpen]);
 
   const notShowInView = ['/login', '/oauth/loading', '/meets/loading', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
 
@@ -53,15 +55,15 @@ export function LandingNavbar() {
   }
 
   return (
-    <NavigationMenu className="p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 bg-white shadow-md">
+    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
       {isMobile && <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
 
       {!isMobile && (
         <NavigationMenuList className="flex gap-1">
-        <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />
+        <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>{t('navbar-start')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={!isScrolled ? 'bg-transparent hover:bg-transparent text-white' : ''}>{t('navbar-start')}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -92,7 +94,7 @@ export function LandingNavbar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>{t('navbar-products')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={!isScrolled ? 'bg-transparent hover:bg-transparent text-white' : ''}>{t('navbar-products')}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {products.map((product) => (
@@ -127,7 +129,7 @@ export function LandingNavbar() {
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), !isScrolled ? 'bg-transparent hover:bg-white text-white' : '')}>
               {t('navbar-pricing')}
             </NavigationMenuLink>
           </Link>
