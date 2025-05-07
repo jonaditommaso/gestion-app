@@ -7,9 +7,9 @@ const LandingFooter = async () => {
 
     return (
         <>
-            <CustomWave rotated rectColor="#9a3e6a" isBottom />
+            <CustomWave rotated rectColor="#a11c55" isBottom />
 
-            <div className="w-full p-0 pb-2 bg-[#9a3e6a] mt-[-1px] text-white">
+            <div className="w-full p-0 pb-2 bg-[#a11c55] mt-[-1px] text-white">
             <div className="flex flex-col items-start gap-1 ml-20 max-sm:ml-0 max-sm:items-center max-sm:text-sm">
                 <Link href='/who-we-are'>{t('footer-who-we-are')}</Link>
                 <Link href='/faq'>{t('footer-faq')}</Link>

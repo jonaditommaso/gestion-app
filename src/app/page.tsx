@@ -29,7 +29,7 @@ export default async function Home() {
         ? <HomeView />
         : (
 
-        <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 30%, #4d6dbb 90%)' }}>
+        <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 30%, #0061a9  90%)' }}>
           <ScrollToTop />
           <div className="flex flex-col items-center text-white">
             <div className="flex flex-col justify-center mt-36 max-sm:mt-24">
@@ -73,9 +73,8 @@ export default async function Home() {
             </div>
           </div>
 
-          <CustomWave rotated rectColor='#9a3e6a' isBottom />
-
-          <div className="w-full mt-[-1px]" style={{ backgroundImage: 'linear-gradient(180deg, #9a3e6a  30%, #4d6dbb 80%)' }}>
+          <CustomWave rotated rectColor='#a11c55' isBottom />
+          <div className="w-full mt-[-1px]" style={{ backgroundImage: 'linear-gradient(180deg, #a11c55  30%, #0061a9 80%)' }}>
 
             <div className="flex flex-col items-center gap-4 mb-10 p-10 text-white max-sm:mb-2">
               <p className="font-bold text-4xl max-sm:text-center max-sm:text-2xl">{t('join-gestionate')}</p>
@@ -100,7 +99,7 @@ export default async function Home() {
             </div>
           </div>
 
-          <CustomWave rectColor="#4d6dbb" isBottom />
+          <CustomWave rectColor="#0061a9" isBottom />
 
           <div className="w-full flex flex-col items-center gap-4 bg-[#FFF2F2] mt-[-2px] max-sm:gap-2">
             <p className="font-bold text-4xl max-sm:text-2xl">{t('take-a-look')}</p>
