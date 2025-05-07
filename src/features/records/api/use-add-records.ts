@@ -27,6 +27,7 @@ export const useAddRecords = () => {
             toast.success(t('records-uploaded'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tables'] })
+            queryClient.invalidateQueries({ queryKey: ['records'] })
             queryClient.invalidateQueries({ queryKey: ['table', data.$id] })
         },
         onError: () => {
