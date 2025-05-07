@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useAddHeaders } from './api/use-add-headers'
 import { useGetContextRecords } from './hooks/useGetContextRecords'
 import { useTranslations } from 'next-intl'
+import { useAddRecords } from './api/use-add-records'
 
 interface ExcelData {
   headers: string[];
@@ -31,7 +32,8 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
   const [fileName, setFileName] = useState<null | string>(null);
   const [firstRowHeader, setFirstRowHeader] = useState(true);
   const { data: dataRecords } = useGetContextRecords();
-  const { mutate: addRecords, isPending: addingRecords } = useAddHeaders(); //todo: adapt like I made to manual uploading
+  const { mutate: addHeaders, isPending: addingRecords } = useAddHeaders(); //todo: adapt like I made to manual uploading
+  const { mutate: addRecords } = useAddRecords(); //todo: should to use isPending from this hook too
   const t = useTranslations('records');
 
   const handleFirstRow = () => {
@@ -110,12 +112,18 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
       ...processedData
     ];
 
-    addRecords({
+    addHeaders({
       json: {
         headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
-        //rows: recordToEdit?.rows ? updatedRows : processedData
       },
       param: { tableId: currentRecordTable }
+    })
+
+    addRecords({
+      json: {
+        tableId: currentRecordTable,
+        data: recordToEdit?.rows ? updatedRows : [processedData]
+      }
     })
 
     setIsOpen(false)
