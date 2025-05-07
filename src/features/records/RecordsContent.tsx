@@ -73,8 +73,8 @@ const RecordsContent = () => {
                     <AddRecordsTable onCreateTable={onCreateTable} isCreating={isCreatingTable} />
                 )
             : (
-                <Tabs value={currentTab ?? dataRecords.documents[0]?.$id} onValueChange={value => setCurrentTab(value)} className="w-[800px]">
-                    <div className="flex justify-between">
+                <Tabs value={currentTab ?? dataRecords.documents[0]?.$id} onValueChange={value => setCurrentTab(value)}>
+                    <div className="flex justify-between w-[800px] m-auto">
                         <TabsList className="flex">
                             {dataRecords.documents.map(tab => (
                                 <TabsTrigger value={tab.$id} key={tab.$id}>{tab.tableName}</TabsTrigger>
