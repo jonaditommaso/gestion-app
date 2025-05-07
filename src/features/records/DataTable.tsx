@@ -27,11 +27,13 @@ import { Button } from "@/components/ui/button"
 import { useMemo, useState } from "react"
 import capitalize from "@/utils/capitalize"
 import { useTranslations } from "next-intl"
+import { Models } from "node-appwrite"
 
 interface DataTableProps {
   // columns: ColumnDef<TData, TValue>[]
   headers: string[],
-  rows: string[]
+  //rows: string[]
+  rows: Models.Document[] | []
   // data: TData[]
 }
 
@@ -68,9 +70,7 @@ export function DataTable<TData, TValue>({
     [headers]
   );
 
-  const data = useMemo(() => rows.map((row: string) => JSON.parse(row)), [rows]);
-
-  // console.log(uploadedData)
+  const data = useMemo(() => rows.map((row) => ({ id: row.$id, ...JSON.parse(row.data) })), [rows]);
 
   const table = useReactTable({
     data,
@@ -162,7 +162,7 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => {
                    return ( // window.open(`/records/${row.id}`, '_blank')
                     //onClick={() => window.open(`/records/${cell.row.original.id}`, '_blank')}
-                    <TableCell key={cell.id}  className="cursor-pointer">
+                    <TableCell key={cell.id} className="cursor-pointer" onClick={() => window.open(`/records/${cell.row.original.id}`, '_blank')}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

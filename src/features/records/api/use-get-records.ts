@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetRecords = () => {
+export const useGetRecords = ({ tableId }: { tableId: string }) => {
     const query = useQuery({
-        queryKey: ['tables'],
+        queryKey: ['records'],
         queryFn: async () => {
-            const response = await client.api.records.$get();
+            const response = await client.api.records[':tableId'].$get({ param: { tableId } });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to fetch records')
             }
 
@@ -15,7 +15,8 @@ export const useGetRecords = () => {
 
             return data;
         },
-        refetchOnMount: true
+        refetchOnMount: true,
+        enabled: !!tableId
     })
 
     return query;

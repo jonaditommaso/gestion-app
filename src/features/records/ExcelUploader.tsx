@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Upload, FileSpreadsheet, X } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useAddRecords } from './api/use-add-records'
+import { useAddHeaders } from './api/use-add-headers'
 import { useGetContextRecords } from './hooks/useGetContextRecords'
 import { useTranslations } from 'next-intl'
 
@@ -31,8 +31,8 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
   const [fileName, setFileName] = useState<null | string>(null);
   const [firstRowHeader, setFirstRowHeader] = useState(true);
   const { data: dataRecords } = useGetContextRecords();
-  const { mutate: addRecords, isPending: addingRecords } = useAddRecords();
-  const t = useTranslations('records')
+  const { mutate: addRecords, isPending: addingRecords } = useAddHeaders(); //todo: adapt like I made to manual uploading
+  const t = useTranslations('records');
 
   const handleFirstRow = () => {
 
@@ -113,9 +113,9 @@ export default function ExcelUploader({ setIsOpen, currentRecordTable }: ExcelUp
     addRecords({
       json: {
         headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
-        rows: recordToEdit?.rows ? updatedRows : processedData
+        //rows: recordToEdit?.rows ? updatedRows : processedData
       },
-      param: { recordId: currentRecordTable }
+      param: { tableId: currentRecordTable }
     })
 
     setIsOpen(false)

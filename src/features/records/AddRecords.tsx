@@ -19,8 +19,9 @@ import { useState } from "react"
 import { DialogContainer } from "@/components/DialogContainer"
 import ExcelUploader from "./ExcelUploader";
 import { useTranslations } from "next-intl"
-import { useAddRecords } from "./api/use-add-records"
+import { useAddHeaders } from "./api/use-add-headers"
 import { useGetContextRecords } from "./hooks/useGetContextRecords"
+import { useAddRecords } from "./api/use-add-records"
 
 const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
@@ -34,7 +35,8 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
     const [isOpen, setIsOpen] = useState(false);
     const [sheetOpen, setSheetOpen] = useState(false);
     const { data: dataRecords } = useGetContextRecords();
-    const { mutate: addRecords, isPending: addingRecords } = useAddRecords();
+    const { mutate: addHeaders, isPending: addingRecords } = useAddHeaders();
+    const { mutate: addRecords } = useAddRecords(); //todo: should to use isPending from this hook too
     const t = useTranslations('records');
 
     const onChangeSheet = (isSheetOpen: boolean) => {
@@ -70,13 +72,19 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
           transformedRow
         ];
 
-        addRecords({
+        addHeaders({
             json: {
                 headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
-                rows: recordToEdit?.rows ? updatedRows : [transformedRow]
             },
-            param: { recordId: currentRecordTable }
+            param: { tableId: currentRecordTable }
         });
+
+        addRecords({
+            json: {
+                tableId: currentRecordTable,
+                data: recordToEdit?.rows ? updatedRows : [transformedRow]
+            }
+        })
     }
 
     return (

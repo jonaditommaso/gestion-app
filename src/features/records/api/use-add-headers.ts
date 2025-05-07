@@ -5,20 +5,20 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
-type ResponseType = InferResponseType<typeof client.api.records.upload['$post'], 200>
-type RequestType = InferRequestType<typeof client.api.records.upload['$post']>
+type ResponseType = InferResponseType<typeof client.api.records.upload[':tableId']['$patch'], 200>
+type RequestType = InferRequestType<typeof client.api.records.upload[':tableId']['$patch']>
 
-export const useAddRecords = () => {
+export const useAddHeaders = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
     const t = useTranslations('records');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({ json }) => {
-            const response = await client.api.records.upload['$post']({ json });
+        mutationFn: async ({ json, param }) => {
+            const response = await client.api.records.upload[':tableId']['$patch']({ json, param });
 
             if (!response.ok) {
-                throw new Error('Failed to upload records');
+                throw new Error('Failed to upload headers');
             }
 
             return await response.json()

@@ -14,6 +14,7 @@ import { useCreateRecordsTable } from "./api/use-create-records-table";
 import { useTranslations } from "next-intl";
 import AddRecordsTable from "./components/AddRecordsTable";
 import ListTablesModal from "./components/ListTablesModal";
+import { useGetRecords } from "./api/use-get-records";
 
 const RecordsContent = () => {
     const { data: dataRecords, isPending } = useGetContextRecords()
@@ -22,7 +23,8 @@ const RecordsContent = () => {
     const { mutate: createTable, isPending: isCreatingTable } = useCreateRecordsTable();
     const t = useTranslations('records');
 
-    const [currentTab, setCurrentTab] = useState<undefined | string>(undefined)
+    const [currentTab, setCurrentTab] = useState<undefined | string>(undefined);
+    const { data: records, isPending: isGettingRecords } = useGetRecords({tableId: currentTab || ''})
 
     useEffect(() => {
         if (dataRecords?.documents?.length > 0 && !currentTab) {
@@ -31,7 +33,7 @@ const RecordsContent = () => {
     }, [dataRecords.documents, currentTab])
 
 
-    if(isPending || (dataRecords?.total && !currentTab)) return <FadeLoader color="#999" width={3} className="mt-5" />
+    if(isPending || isGettingRecords || (dataRecords?.total && !currentTab)) return <FadeLoader color="#999" width={3} className="mt-5" />
 
     const onCreateTable = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -80,7 +82,7 @@ const RecordsContent = () => {
                         </TabsList>
                         <div className="flex items-center gap-2">
                             <TooltipContainer tooltipText={t('see-tables')}>
-                                <Button variant="outline" size="icon" onClick={() => setEditTablesModalIsOpen(true)} disabled={dataRecords.total >= 3}>
+                                <Button variant="outline" size="icon" onClick={() => setEditTablesModalIsOpen(true)}>
                                     <List className="h-[1.2rem] w-[1.2rem]" />
                                 </Button>
                             </TooltipContainer>
@@ -99,7 +101,7 @@ const RecordsContent = () => {
                                     ? <NoData title="empty-table" description="no-records" />
                                     : <DataTable
                                         headers={isPending ? [] : (record?.headers ?? [])}
-                                        rows={isPending ? [] : (record?.rows ?? [])}
+                                        rows={isGettingRecords ? [] : (records?.documents ?? [])}
                                     />
                                 }
                             </TabsContent>
