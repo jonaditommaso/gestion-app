@@ -39,6 +39,8 @@ const RecordsTableRow = ({ tableName, index, actionDisabled, setEditingTable, ed
                 json: {tableName: editedNameTable},
                 param: { tableId: id }
             })
+            setIsOpen(false);
+            setEditingTable(undefined)
         } else {
             setEditingTable(index)
         }
