@@ -5,7 +5,7 @@ export const useGetRecords = ({ tableId }: { tableId: string }) => {
     const query = useQuery({
         queryKey: ['records'],
         queryFn: async () => {
-            const response = await client.api.records[':tableId'].$get({ param: { tableId } });
+            const response = await client.api.records['record-headers'][':tableId'].$get({ param: { tableId } });
 
             if (!response.ok) {
                 throw new Error('Failed to fetch records')

@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { recordSchema, recordsTableSchema, recordsTableNameSchema } from "../schemas";
 import { DATABASE_ID, RECORD_TABLES_ID, RECORDS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
+import { Record } from "../types";
 
 const app = new Hono()
 
@@ -31,7 +32,7 @@ const app = new Hono()
 
     // obtener los registros de una tabla
     .get(
-        '/:tableId',
+        '/record-headers/:tableId',
         sessionMiddleware,
         async ctx => {
             const databases = ctx.get('databases');
@@ -77,6 +78,33 @@ const app = new Hono()
             );
 
             return ctx.json({ data: records })
+        }
+    )
+
+    .get(
+        '/:recordId',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            if (!user) {
+                return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            const { recordId } = ctx.req.param();
+
+            const record = await databases.getDocument<Record>(
+                DATABASE_ID,
+                RECORDS_ID,
+                recordId
+            );
+
+            if (user.prefs.teamId !== record.teamId) {
+                return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            return ctx.json({ data: record })
         }
     )
 
