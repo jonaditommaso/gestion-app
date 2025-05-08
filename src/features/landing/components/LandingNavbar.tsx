@@ -23,8 +23,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { LanguagesSelection } from "@/components/LanguagesSelection"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useScrolling } from "@/hooks/useScrolling"
-//import { solutions } from "../solutions"
-
 
 export function LandingNavbar() {
   const router = useRouter();
@@ -63,7 +61,7 @@ export function LandingNavbar() {
         <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger className={!isScrolled ? 'bg-transparent hover:bg-transparent text-white' : ''}>{t('navbar-start')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={cn(!isScrolled && 'bg-transparent hover:bg-transparent text-white', pathname === '/pricing' && 'text-black')}>{t('navbar-start')}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -94,7 +92,7 @@ export function LandingNavbar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className={!isScrolled ? 'bg-transparent hover:bg-transparent text-white' : ''}>{t('navbar-products')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={cn(!isScrolled && 'bg-transparent hover:bg-transparent text-white', pathname === '/pricing' && 'text-black')}>{t('navbar-products')}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {products.map((product) => (
@@ -129,7 +127,7 @@ export function LandingNavbar() {
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
-            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), !isScrolled ? 'bg-transparent hover:bg-white text-white' : '')}>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), !isScrolled && 'bg-transparent hover:bg-white text-white', pathname === '/pricing' && 'text-black')}>
               {t('navbar-pricing')}
             </NavigationMenuLink>
           </Link>
