@@ -29,7 +29,7 @@ export default async function Home() {
         ? <HomeView />
         : (
 
-        <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 30%, #0061a9  90%)' }}>
+        <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 40%, #0061a9  90%)' }}>
           <ScrollToTop />
           <div className="flex flex-col items-center text-white">
             <div className="flex flex-col justify-center mt-36 max-sm:mt-24">

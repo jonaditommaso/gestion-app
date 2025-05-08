@@ -13,7 +13,7 @@ const DocsView = async () => {
     if(user) redirect('/');
 
     return (
-        <div className='flex flex-col items-center min-h-screen mt-[-1px]' style={{ backgroundImage: 'linear-gradient(350deg, red 30%, #4d6dbb 90%)' }}>
+        <div className='flex flex-col items-center min-h-screen mt-[-1px]' style={{ backgroundImage: 'linear-gradient(350deg, red 40%, #0061a9 90%)' }}>
             <div className="flex gap-10 w-[80%] justify-around mt-20 p-2 max-sm:flex-col">
 
                 <Image width={500} height={500} alt='gestionate image' src={'/gestionate-docs.png'} />

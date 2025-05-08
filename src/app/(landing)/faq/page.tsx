@@ -15,7 +15,7 @@ const FaqView = async () => {
     if(user) redirect('/');
 
     return (
-        <div className='flex flex-col items-center min-h-screen mt-[-1px]' style={{ backgroundImage: 'linear-gradient(350deg, red 30%, #4d6dbb 90%)' }}>
+        <div className='flex flex-col items-center min-h-screen mt-[-1px]' style={{ backgroundImage: 'linear-gradient(350deg, red 40%, #0061a9 90%)' }}>
             <div className="flex gap-14 w-[90%] justify-around mt-20 p-2 max-sm:flex-col">
                 <Image width={400} height={400} alt='faq image' src={'/faq.svg'} />
                 <div className="flex w-full max-w-sm items-center space-x-2 text-white">
