@@ -22,3 +22,8 @@ export const recordUpdateSchema = zod.object({
   tableId: zod.string(),
   data: zod.array(zod.record(zod.any())), // Array de objetos con estructura libre
 });
+
+
+export const fileSchema = zod.object({
+  file: zod.any()
+})

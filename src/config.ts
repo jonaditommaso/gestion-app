@@ -13,6 +13,7 @@ export const INVITES_ID = process.env.NEXT_PUBLIC_APPWRITE_INVITES_ID!;
 export const NOTES_ID = process.env.NEXT_PUBLIC_APPWRITE_NOTES_ID!;
 export const MESSAGES_ID = process.env.NEXT_PUBLIC_APPWRITE_MESSAGES_ID!;
 export const IMAGES_BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID!;
+export const FILES_ID = process.env.NEXT_PUBLIC_APPWRITE_FILES_ID!
 
 export const MEETS_ID = process.env.NEXT_PUBLIC_APPWRITE_MEETS_ID!
 
