@@ -317,6 +317,7 @@
         "records-loaded": "registri caricati",
         "no-file-yet": "Nessun file caricato ancora",
         "supported-files": "Solo i file .xlsx e .xls sono supportati",
+        "supported-record-files": "Supportati file .jpg, .png, .jpeg e .pdf",
         "drop-file-here": "Trascina il file Excel qui...",
         "drop-or-select-file": "Trascina e rilascia un file Excel qui, o fai clic per selezionare il file",
         "config-file": "Anteprima e configurazione",
@@ -329,6 +330,8 @@
         "first-row-header": "La prima riga è l'intestazione",
         "choise-field": "Scegli un campo",
 
+        "file-uploaded": "File caricati con successo",
+        "failed-upload-file": "Ci scusiamo, si è verificato un errore durante il caricamento dei file",
         "records-uploaded": "Dati caricati con successo",
         "failed-upload-records": "Ci scusiamo, si è verificato un errore durante il caricamento dei dati",
         "table-created": "Tabella creata con successo",

@@ -318,6 +318,7 @@
         "records-loaded": "records uploaded",
         "no-file-yet": "No files have been uploaded yet",
         "supported-files": "Only .xlsx and .xls files are supported",
+        "supported-record-files": "Supported files .jpg, .png, .jpeg and .pdf",
         "drop-file-here": "Drop the Excel file here...",
         "drop-or-select-file": "Drag and drop an Excel file here, or click and select the file",
         "config-file": "Preview and configuration",
@@ -330,6 +331,8 @@
         "first-row-header": "The first row is the header",
         "choise-field": "Choose a field",
 
+        "file-uploaded": "File uploaded successfully",
+        "failed-upload-file": "Sorry, there was an error uploading the file",
         "records-uploaded": "Data uploaded successfully",
         "failed-upload-records": "Sorry, there was an error uploading the data",
         "table-created": "Table created successfully",
