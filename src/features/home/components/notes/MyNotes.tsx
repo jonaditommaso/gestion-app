@@ -3,14 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { Palette, Plus } from "lucide-react";
 import Note from './Note';
 import { useState } from "react";
-import ColorNoteSelector from "./ColorNoteSelector";
 import { useGetNotes } from "../../api/use-get-notes";
 import FadeLoader from "react-spinners/FadeLoader";
 import { useCreateNote } from "../../api/use-create-note";
 import { useTranslations } from "next-intl";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import dynamic from "next/dynamic";
+
+const ColorNoteSelector = dynamic(() => import('./ColorNoteSelector'))
 
 const INITIAL_STATE_NOTE = {
     title: '',
@@ -20,8 +23,9 @@ const INITIAL_STATE_NOTE = {
 
 const MyNotes = () => {
     const { data, isPending } = useGetNotes();
-    const { mutate: createNote, isPending: isCreatingNote } = useCreateNote()
+    const { mutate: createNote, isPending: isCreatingNote } = useCreateNote();
     const [newNote, setNewNote] = useState(INITIAL_STATE_NOTE);
+    const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const t = useTranslations('home')
 
     const onChange = (value: string, field: 'title' | 'content' | 'bgColor') => {
@@ -30,7 +34,8 @@ const MyNotes = () => {
                 ...prev,
                 [field]: value
             }
-        })
+        });
+        setPopoverIsOpen(prev => !prev)
     }
 
     const handleCreateNote = () => {
@@ -67,8 +72,13 @@ const MyNotes = () => {
                                     {newNote.content.length}/256
                                 </div>
                             </div>
-                            <div className="flex justify-between">
-                                <ColorNoteSelector onChange={onChange} />
+                            <div className="flex justify-between items-center">
+                                <Popover open={popoverIsOpen} onOpenChange={() => setPopoverIsOpen(prev => !prev)} >
+                                    <PopoverTrigger asChild>
+                                        <Palette className="text-muted-foreground ml-1 cursor-pointer hover:bg-sidebar transition-all duration-100 p-2 w-10 h-10 rounded-full" size={24}/>
+                                    </PopoverTrigger>
+                                    <ColorNoteSelector onChange={onChange} />
+                                </Popover>
                                 <Button onClick={handleCreateNote} disabled={isCreatingNote || (!newNote.content && !newNote.title)}>
                                     <Plus /> {t('add-note')}
                                 </Button>

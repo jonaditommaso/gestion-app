@@ -1,6 +1,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { Check, DropletOff } from "lucide-react";
+import { PopoverContent } from "@/components/ui/popover";
 
 const colors = [
   { name: "none", label: "Sin color" },
@@ -20,7 +21,7 @@ export default function ColorNoteSelector({ onChange }: { onChange: (value: stri
   }
 
   return (
-    <div className="flex gap-3 px-2">
+    <PopoverContent className="flex gap-3 px-2" side="top">
       {colors.map((color) => {
         const isSelected = selected === color.name;
         const isNone = color.name === "none";
@@ -63,6 +64,6 @@ export default function ColorNoteSelector({ onChange }: { onChange: (value: stri
           </button>
         );
       })}
-    </div>
+    </PopoverContent>
   );
 }
