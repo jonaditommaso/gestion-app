@@ -6,7 +6,7 @@ import { MessagesContainer } from "./messages/MessagesContainer";
 import ShortcutButton from "./shortcut/ShortcutButton";
 import NoTeamWarning from "./NoTeamWarning";
 import { getCurrent } from "@/features/auth/queries";
-import CreateMeetButton from "./CreateMeetButton";
+import CreateMeetButton from "./meets/CreateMeetButton";
 import CalendarEvents from "./CalendarEvents";
 
 
