@@ -3,7 +3,7 @@ import MyNotes from "./notes/MyNotes";
 import ToDoTasksWidget from "./ToDoTasksWidget";
 import SendMessageButton from "./messages/SendMessageButton";
 import { MessagesContainer } from "./messages/MessagesContainer";
-import ShortcutButton from "./ShortcutButton";
+import ShortcutButton from "./shortcut/ShortcutButton";
 import NoTeamWarning from "./NoTeamWarning";
 import { getCurrent } from "@/features/auth/queries";
 import CreateMeetButton from "./CreateMeetButton";
