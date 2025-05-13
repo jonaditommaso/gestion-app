@@ -189,13 +189,16 @@ const app = new Hono()
 
             try {
                 const fileMetadata = await storage.getFile(IMAGES_BUCKET_ID, id);
+
                 const mimeType = fileMetadata.mimeType;
+                const fileName = fileMetadata.name || '';
 
                 const fileBuffer = await storage.getFileView(IMAGES_BUCKET_ID, id);
 
                 return new Response(fileBuffer, {
                     headers: {
                         'Content-Type': mimeType,
+                        'Content-Disposition': fileName,
                         'Access-Control-Allow-Origin': '*',
                     },
                 });

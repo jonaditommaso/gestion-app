@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { useUploadFile } from "./api/use-upload-file";
 import { useFilePreviewsFromIds } from "./api/use-file-preview";
 import Image from "next/image";
+import PDFFile from "./components/PDFFile";
 
 const RecordView = () => {
     const { data: record, isPending } = useGetRecord();
@@ -70,7 +71,7 @@ const RecordView = () => {
             </div>
             <div className="mx-5 flex gap-2">
                 <Form {...form}>
-                    <form encType='multipart/form-data'>
+                    <form encType='multipart/form-data' className="flex gap-2">
                         <div className={`border-2 border-dashed rounded-lg text-center flex flex-col justify-evenly items-center focus:outline-none cursor-pointer border-blue-300 h-32 w-32`} onClick={() => inputRef.current?.click()}>
                             <input
                                 className='hidden'
@@ -84,19 +85,13 @@ const RecordView = () => {
                             <p className="text-[10px] text-muted-foreground">{t('supported-record-files')}</p>
                         </div>
 
-                        {previews?.map(({ id, url, type }) => (
+                        {previews?.map(({ id, url, type, name }) => (
                             <div key={id}>
                                 {type.startsWith('image/') && (
                                     <Image src={url} alt={`Archivo ${id}`} width={128} height={128} />
                                 )}
                                 {type === 'application/pdf' && (
-                                    <iframe
-                                        src={url}
-                                        title={`PDF ${id}`}
-                                        style={{
-                                            transform: 'scale(0.5)',
-                                        }}
-                                    />
+                                    <PDFFile url={url} title={name} />
                                 )}
                             </div>
                         ))}

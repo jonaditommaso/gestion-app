@@ -5,12 +5,13 @@ type FilePreview = {
     id: string;
     url: string;
     type: string;
+    name: string
 };
 
 export const useFilePreviewsFromIds = () => {
     const { data } = useGetFiles();
     const bucketIds = useMemo(() => data?.documents?.map(doc => doc.bucketFileId) ?? [], [data]);
-    console.log('IDS', bucketIds)
+
     const [previews, setPreviews] = useState<FilePreview[] | undefined>(undefined);
     const [isPending, setIsPending] = useState(false);
 
@@ -27,11 +28,12 @@ export const useFilePreviewsFromIds = () => {
                         if (!response.ok) throw new Error(`Error al obtener archivo ${id}`);
 
                         const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+                        const fileName = response.headers.get('Content-Disposition') || ''
                         const arrayBuffer = await response.arrayBuffer();
                         const blob = new Blob([arrayBuffer], { type: contentType });
                         const url = URL.createObjectURL(blob);
 
-                        return { id, url, type: blob.type };
+                        return { id, url, type: blob.type, name: fileName };
                     })
                 );
 
