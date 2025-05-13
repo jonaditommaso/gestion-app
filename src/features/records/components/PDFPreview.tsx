@@ -1,27 +1,21 @@
 'use client'
 import { Download, Eye } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
 
 interface PDFPreviewProps {
     url: string,
     title: string,
-    setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const PDFPreview = ({ url, setIsOpen, title }: PDFPreviewProps) => {
+const PDFPreview = ({ url, title }: PDFPreviewProps) => {
 
     return (
         <>
             <div className='relative group border-2 border-neutral-500 rounded-sm hover:shadow-lg max-w-[131px]'>
-                <div
-                    onClick={() => setIsOpen(true)}
-                    className="cursor-pointer transition-shadow duration-200 w-32 h-32 overflow-hidden border-b-[1px] border-black rounded"
-                >
+                <div className="cursor-pointer transition-shadow duration-200 w-32 h-32 overflow-hidden border-b-[1px] border-black rounded">
                     <iframe
                         src={url}
                         className='h-[200px] w-full pointer-events-none'
                     />
-
                 </div>
 
                 {/* Overlay */}
@@ -36,6 +30,7 @@ const PDFPreview = ({ url, setIsOpen, title }: PDFPreviewProps) => {
                     </div>
                 </div>
             </div>
+
             <span className='text-muted-foreground text-xs text-ellipsis max-w-32 overflow-hidden whitespace-nowrap inline-block'>{title}</span>
         </>
 

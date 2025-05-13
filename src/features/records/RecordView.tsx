@@ -13,14 +13,13 @@ import { useTranslations } from "next-intl";
 import { useUploadFile } from "./api/use-upload-file";
 import { useFilePreviewsFromIds } from "./api/use-file-preview";
 import Image from "next/image";
-import PDFFile from "./components/PDFFile";
+import PDFPreview from "./components/PDFPreview";
 
 const RecordView = () => {
     const { data: record, isPending } = useGetRecord();
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadFile } = useUploadFile();
     const t = useTranslations('records');
-
 
     const { previews } = useFilePreviewsFromIds();
 
@@ -91,7 +90,7 @@ const RecordView = () => {
                                     <Image src={url} alt={`Archivo ${id}`} width={128} height={128} />
                                 )}
                                 {type === 'application/pdf' && (
-                                    <PDFFile url={url} title={name} />
+                                    <PDFPreview url={url} title={name} />
                                 )}
                             </div>
                         ))}
