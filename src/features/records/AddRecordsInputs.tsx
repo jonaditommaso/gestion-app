@@ -17,10 +17,11 @@ type RecordData = {
 interface AddRecordsInputsProps {
     setRecordData: Dispatch<SetStateAction<RecordData[]>>,
     index: number,
-    data: RecordData
+    data: RecordData,
+    headersUsed: string[]
 }
 
-const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps) => {
+const AddRecordsInputs = ({ data, setRecordData, index, headersUsed }: AddRecordsInputsProps) => {
     const { data: dataRecords } = useGetContextRecords();
     const headers = dataRecords?.documents[0]?.headers;
 
@@ -63,7 +64,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {headers?.map((header: string) => (
-                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')}>
+                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')} disabled={headersUsed.includes(header)}>
                                     {capitalize(header)}
                                 </DropdownMenuItem>
                             ))}

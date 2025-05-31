@@ -138,6 +138,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                                 setRecordData={setRecordData}
                                 index={index}
                                 data={data}
+                                headersUsed={recordData.map(data => data.field)}
                             />
                         ))}
                     </div>
