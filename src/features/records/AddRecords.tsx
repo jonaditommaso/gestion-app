@@ -132,16 +132,18 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
 
                         <Separator className="mt-2" />
 
-                        {recordData.map((data, index) => (
-                            <AddRecordsInputs
-                                key={index}
-                                setRecordData={setRecordData}
-                                index={index}
-                                data={data}
-                                headersUsed={recordData.map(data => data.field)}
-                                isLastItem={recordData.length - 1 === index}
-                            />
-                        ))}
+                        <div className="overflow-auto h-[600px] pr-2">
+                            {recordData.map((data, index) => (
+                                <AddRecordsInputs
+                                    key={index}
+                                    setRecordData={setRecordData}
+                                    index={index}
+                                    data={data}
+                                    headersUsed={recordData.map(data => data.field)}
+                                    isLastItem={recordData.length - 1 === index}
+                                />
+                            ))}
+                        </div>
                     </div>
 
                     <SheetFooter className="">
