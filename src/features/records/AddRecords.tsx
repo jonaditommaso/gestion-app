@@ -139,6 +139,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                                 index={index}
                                 data={data}
                                 headersUsed={recordData.map(data => data.field)}
+                                isLastItem={recordData.length - 1 === index}
                             />
                         ))}
                     </div>

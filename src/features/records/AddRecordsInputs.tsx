@@ -18,10 +18,11 @@ interface AddRecordsInputsProps {
     setRecordData: Dispatch<SetStateAction<RecordData[]>>,
     index: number,
     data: RecordData,
-    headersUsed: string[]
+    headersUsed: string[],
+    isLastItem: boolean
 }
 
-const AddRecordsInputs = ({ data, setRecordData, index, headersUsed }: AddRecordsInputsProps) => {
+const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem }: AddRecordsInputsProps) => {
     const { data: dataRecords } = useGetContextRecords();
     const headers = dataRecords?.documents[0]?.headers;
 
@@ -89,8 +90,12 @@ const AddRecordsInputs = ({ data, setRecordData, index, headersUsed }: AddRecord
 
             <div className="flex items-center gap-4">
                 <Separator className="flex-1" />
-                <span className="w-40px"><Plus className="border rounded-md p-0.5 cursor-pointer hover:opacity-70 text-primary" size={20} onClick={() => handleAddData()} /></span>
-                <Separator className="flex-1" />
+                {isLastItem && (
+                    <>
+                        <span className="w-40px"><Plus className="border rounded-md p-0.5 cursor-pointer hover:opacity-70 text-primary" size={20} onClick={() => handleAddData()} /></span>
+                        <Separator className="flex-1" />
+                    </>
+                )}
             </div>
         </div>
     );
