@@ -55,7 +55,7 @@
         "enter-valid-email": "Enter a valid email",
 
         "navbar-start": "Get started",
-        "navbar-gestate": "The web application that allows you to manage your business more efficiently. Everything you need, in one place.",
+        "navbar-gestionate": "The web application that allows you to manage your business more efficiently. Everything you need, in one place.",
         "navbar-intro": "Introduction",
         "navbar-intro-description": "What Gestionate is about and how it can help you in your work.",
         "navbar-how-it-works": "How it works",
@@ -518,6 +518,7 @@
         "billing": "Billing",
         "activities": "Activities",
         "team": "Team",
+        "roles": "Roles",
         "select-date": "Select date",
         "due-date": "Due date",
         "logout": "Logout",

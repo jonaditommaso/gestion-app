@@ -68,8 +68,8 @@
         "navbar-products-billing-description": "Gestion Bill ti permetterà di caricare i tuoi movimenti finanziari e generare un riassunto.",
         "navbar-products-records-title": "Registri",
         "navbar-products-records-description": "Carica tutti i registri di cui hai bisogno e organizza tutto in tabelle.",
-        "navbar-products-inventary-title": "Inventario",
-        "navbar-products-inventary-description": "Carica le entrate e le uscite e tieni un controllo efficiente del tuo stock.",
+        "navbar-products-inventory-title": "Inventario",
+        "navbar-products-inventory-description": "Carica le entrate e le uscite e tieni un controllo efficiente del tuo stock.",
         "navbar-pricing": "Prezzi",
 
         "footer-who-we-are": "Chi siamo",
@@ -518,6 +518,7 @@
         "records": "Registri",
         "activities": "Attività",
         "team": "Squadra",
+        "roles": "Ruoli",
         "select-date": "Seleziona data",
         "due-date": "Data di scadenza",
         "logout": "Disconnetti",

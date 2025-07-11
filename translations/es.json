@@ -70,8 +70,8 @@
         "navbar-products-billing-description": "Gestion Bill te permitirá cargar tus movimientos financieros y generar un resumen",
         "navbar-products-records-title": "Registros",
         "navbar-products-records-description": "Carga todos los registros que necesites, y organizalas en tablas",
-        "navbar-products-inventary-title": "Inventario",
-        "navbar-products-inventary-description": "Carga las entradas y salidas, y lleva un control eficiente de tu stock",
+        "navbar-products-inventory-title": "Inventario",
+        "navbar-products-inventory-description": "Carga las entradas y salidas, y lleva un control eficiente de tu stock",
         "navbar-pricing": "Precios",
 
         "footer-who-we-are": "Quiénes somos",
@@ -520,6 +520,7 @@
         "records": "Registros",
         "activities": "Actividades",
         "team": "Equipo",
+        "roles": "Roles",
         "select-date": "Seleccionar fecha",
         "due-date": "Fecha límite",
         "logout": "Cerrar sesión",
