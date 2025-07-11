@@ -1,21 +1,18 @@
-import { Button } from "@/components/ui/button";
 import { getCurrent } from "@/features/auth/queries";
 import Image from "next/image";
-import CustomWave from "@/features/landing/components/CustomWave";
 import ServicesCard from "@/features/landing/components/ServicesCard";
 import { services } from "@/features/landing/services";
-import { quickPlans } from "@/features/landing/quickPlans";
-import QuickPlansCard from "@/features/landing/components/QuickPlansCard";
-import { takeALook } from "@/features/landing/takeALook";
-import TakeALookCard from "@/features/landing/components/TakeALookCard";
 import ScrollToTop from "@/features/landing/components/ScrollToTop";
 import LandingFooter from "@/features/landing/components/LandingFooter";
-import Link from "next/link";
-import LandingSignUp from "@/features/landing/components/LandingSignUp";
 import { getTranslations } from "next-intl/server";
 import HomeView from "@/features/home/components/HomeView";
-import DemoButton from "@/features/landing/components/DemoButton";
 import { Separator } from "@/components/ui/separator";
+import { FcAddDatabase, FcBullish, FcParallelTasks } from "react-icons/fc";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { faq } from "@/features/landing/faq";
+import FadeInUp from "@/animations/FadeInUp";
+import HeroSection from "@/features/landing/components/HeroSection";
+import DiscoverButton from "@/features/landing/components/DiscoverButton";
 
 export default async function Home() {
   const user = await getCurrent();
@@ -29,103 +26,129 @@ export default async function Home() {
         ? <HomeView />
         : (
 
-        <div className="flex flex-col items-center bg-[#7886C7] " style={{ backgroundImage: 'linear-gradient(10deg, red 40%, #0061a9  90%)' }}>
+        <div className="flex flex-col items-center">
           <ScrollToTop />
-          <div className="flex flex-col items-center text-white">
-            <div className="flex flex-col justify-center mt-36 max-sm:mt-24">
-              <p className="text-6xl font-bold text-balance text-center whitespace-pre-line tracking-tighter max-sm:text-[28px]">{t('title')}</p>
-              <p className="font-semibold mt-5 text-center max-sm:text-xs">{t('subtitle')}</p>
-            </div>
 
-            <div className="flex gap-20 w-[75%] justify-start m-auto max-sm:pb-1 max-sm:flex-col max-sm:gap-10">
-              <div className="flex w-full max-w-sm items-center space-x-2">
-                <div className="flex flex-col items-center gap-2 w-[450px]">
-                  <LandingSignUp />
-                  <Separator />
-                  <DemoButton text={t('button-get-demo-1')} />
-                </div>
-              </div>
+          <HeroSection />
 
-              <Image width={450} height={450} alt='work image' src={'/home-1.svg'} className="ml-[200px] max-sm:ml-0" />
-            </div>
-          </div>
-
-          <CustomWave />
-
-          <div className="w-full p-10 bg-[#FFF2F2] mt-[-2px]">
+          <div className="w-full py-10 bg-[#FFF2F2] mt-[-2px]">
             <div className="flex flex-col items-center gap-4 mb-10 max-sm:gap-2">
               <p className="font-bold text-4xl max-sm:text-2xl">{t('we-do')}</p>
               <p className="font-normal text-3xl max-sm:text-base max-sm:text-center">{t('services')}</p>
             </div>
 
-            <div className="w-[75%] m-auto grid gap-4 gap-y-10 grid-cols-[repeat(auto-fill,minmax(400px,1fr))] md:grid-cols-3 justify-items-center max-sm:justify-center max-sm:gap-y-6">
-              {services.map((service, index) => (
-                <ServicesCard
-                  key={index}
-                  serviceTitle={service.title}
-                  serviceDescription={service.description}
-                  serviceIcon={service.icon}
-                  serviceIconColor={service.iconColor}
-                  serviceCircleColor={service.circleColor}
-                  circlePosition={service.circlePosition}
-                />
-              ))}
-            </div>
-          </div>
+            <div className="relative w-full overflow-hidden">
+              {/* Fades laterales */}
+              <div className="pointer-events-none absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-white to-transparent z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent z-10" />
 
-          <CustomWave rotated rectColor='#a11c55' isBottom />
-          <div className="w-full mt-[-1px]" style={{ backgroundImage: 'linear-gradient(180deg, #a11c55  30%, #0061a9 80%)' }}>
-
-            <div className="flex flex-col items-center gap-4 mb-10 p-10 text-white max-sm:mb-2">
-              <p className="font-bold text-4xl max-sm:text-center max-sm:text-2xl">{t('join-gestionate')}</p>
-              <p className="font-normal text-3xl w-[800px] max-sm:w-[300px] text-balance text-center max-sm:text-sm">{t('join-gestionate-description')}</p>
-                <Link href='/pricing'>
-                  <Button type="button" className="my-5">
-                    {t('button-see-prices')}
-                  </Button>
-                </Link>
-              <div className="flex w-full justify-around max-sm:flex-col">
-                <div className="flex flex-col gap-2 max-sm:items-center">
-                  {quickPlans.map(plan => (
-                    <QuickPlansCard
-                      key={plan.planTitle}
-                      planTitle={plan.planTitle}
-                      planDescription={plan.planDescription}
-                    />
+              {/* Carrusel animado */}
+              <div className="group relative overflow-hidden">
+                <div className="flex gap-6 w-max animate-scroll group-hover:[animation-play-state:paused]">
+                  {services.concat(services).map((service, index) => (
+                    <div key={index} className="min-w-[300px] flex-shrink-0">
+                      <ServicesCard key={index}
+                        serviceTitle={service.title}
+                        serviceDescription={service.description}
+                        serviceIcon={service.icon}
+                        serviceIconColor={service.iconColor}
+                        serviceCircleColor={service.circleColor}
+                        circlePosition={service.circlePosition} />
+                    </div>
                   ))}
                 </div>
-                <Image width={500} height={500} alt='office image' src={'/home-2.svg'} className="mt-5" />
+              </div>
+            </div>
+
+            <div className="flex my-20 mx-10 justify-evenly items-center gap-10">
+              <DiscoverButton />
+
+              <div className="flex flex-wrap max-w-[600px]">
+                <div className="h-[350px] w-[300px] border border-r-0 border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
+                <div className="h-[350px] w-[300px] border border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
+                <div className="h-[350px] w-[300px] border border-t-0 border-r-0 border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
+                <div className="h-[350px] w-[300px] border border-t-0 border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
               </div>
             </div>
           </div>
 
-          <CustomWave rectColor="#0061a9" isBottom />
+          <div className="flex flex-col items-center text-white w-full py-20 text-center gap-10" style={{ backgroundImage: 'linear-gradient(0deg, #171321 40%, #11314a  90%)' }}>
+            <FadeInUp>
+              <div className="flex flex-col items-center gap-4 mb-14">
+                <FcParallelTasks className="w-14 h-14 mb-3" />
+                <p className="text-4xl font-semibold text-balance tracking-tighter max-w-80 m-auto">Trabajar en equipo nunca fue tan facil</p>
+                <p className="text-lg font-semibold max-w-[650px]">Administra todas las tareas del equipo de forma sencilla y eficiente. Concentramos todos los recursos en un solo lugar.</p>
+                <div className="grid grid-cols-2 gap-20 items-center">
+                  <Accordion type="single" collapsible className="m-auto mt-5 flex flex-col gap-4 mb-5 max-sm:px-2">
+                    {faq.map((item, index) => (
+                    <AccordionItem key={index} value={`item-${index}`} className='px-2 w-[600px]'>
+                        <AccordionTrigger className="hover:no-underline text-white text-lg [&>svg]:text-[#4d6dbb] [&>svg]:w-6 [&>svg]:h-6 max-sm:text-sm">
+                            {t(item.question)}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            {t(item.answer)}
+                        </AccordionContent>
+                    </AccordionItem>
+                    ))}
+                </Accordion>
+                <Image width={700} height={700} alt={'home'} src={'/present-workspaces.png'} className="border rounded-md" />
+                </div>
+              </div>
+              <Separator className="bg-[#eee]/15" />
+            </FadeInUp>
 
-          <div className="w-full flex flex-col items-center gap-4 bg-[#FFF2F2] mt-[-2px] max-sm:gap-2">
-            <p className="font-bold text-4xl max-sm:text-2xl">{t('take-a-look')}</p>
-            <p className="font-normal text-3xl max-sm:text-base max-sm:text-center">{t('tal-1')} <span className="font-semibold">{t('tal-2')}</span> {t('tal-3')}</p>
-          </div>
+            <FadeInUp>
+              <div className="flex flex-col items-center gap-4 mb-14">
+                <FcAddDatabase className="w-14 h-14 mb-3" />
+                <p className="text-4xl font-semibold text-balance tracking-tighter max-w-96 m-auto">Guarda tus archivos en la nube</p>
+                <p className="text-lg font-semibold max-w-[650px]">Carga tus registros, documentos y archivos importantes de forma segura y accede a ellos desde cualquier lugar.</p>
+                <div className="grid grid-cols-2 gap-20 items-center">
+                  <Accordion type="single" collapsible className="m-auto mt-5 flex flex-col gap-4 mb-5 max-sm:px-2 order-2">
+                    {faq.map((item, index) => (
+                    <AccordionItem key={index} value={`item-${index}`} className='px-2 w-[600px]'>
+                        <AccordionTrigger className="hover:no-underline text-white text-lg [&>svg]:text-[#4d6dbb] [&>svg]:w-6 [&>svg]:h-6 max-sm:text-sm">
+                            {t(item.question)}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            {t(item.answer)}
+                        </AccordionContent>
+                    </AccordionItem>
+                    ))}
+                </Accordion>
+                <Image width={700} height={700} alt={'home'} src={'/present-workspaces.png'} className="border rounded-md order-1" />
+                </div>
+              </div>
+              <Separator className="bg-[#eee]/15" />
+            </FadeInUp>
 
-          <div className="w-full flex justify-center gap-4 p-10 bg-[#FFF2F2] mt-[-1px] max-sm:flex-col max-sm:pb-5 max-sm:items-center">
-            {takeALook.map(element => (
-              <TakeALookCard
-                key={element.altImage}
-                image={element.image}
-                altImage={element.altImage}
-                title={t(element.title)}
-              />
-            ))}
 
-          </div>
-
-          <div className="flex items-center justify-center w-full bg-[#FFF2F2] max-sm:m-[-2px]">
-            <DemoButton text={t('button-get-demo-2')} fit />
+            <FadeInUp>
+              <div className="flex flex-col items-center gap-4 mb-14">
+                <FcBullish className="w-14 h-14 mb-3" />
+                <p className="text-4xl font-semibold text-balance tracking-tighter max-w-80 m-auto">Tu portal operativo tambien aqui.</p>
+                <p className="text-lg font-semibold max-w-[650px]">Carga tus ingresos y egresos, y accede a reportes financieros en tiempo real. Gestiona la presencialidad, la nomina y mucho mas.</p>
+                <div className="grid grid-cols-2 gap-20 items-center">
+                  <Accordion type="single" collapsible className="m-auto mt-5 flex flex-col gap-4 mb-5 max-sm:px-2 ">
+                    {faq.map((item, index) => (
+                    <AccordionItem key={index} value={`item-${index}`} className='px-2 w-[600px]'>
+                        <AccordionTrigger className="hover:no-underline text-white text-lg [&>svg]:text-[#4d6dbb] [&>svg]:w-6 [&>svg]:h-6 max-sm:text-sm">
+                            {t(item.question)}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            {t(item.answer)}
+                        </AccordionContent>
+                    </AccordionItem>
+                    ))}
+                </Accordion>
+                <Image width={700} height={700} alt={'home'} src={'/present-workspaces.png'} className="border rounded-md" />
+                </div>
+              </div>
+            </FadeInUp>
           </div>
 
           <LandingFooter />
         </div>
       )}
     </div>
-
   );
 }

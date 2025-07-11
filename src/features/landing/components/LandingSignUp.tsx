@@ -35,7 +35,7 @@ const LandingSignUp = () => {
             <form className="flex items-center space-x-2 w-full" onSubmit={handleSubmit} noValidate>
                 <Input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Enter your email"
                     className="focus-visible:ring-0 focus:outline-none bg-white text-black h-10 flex-1 max-sm:h-8 max-sm:text-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
