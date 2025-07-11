@@ -72,7 +72,7 @@ const MyNotes = () => {
                                     {newNote.content.length}/256
                                 </div>
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-end items-center gap-2">
                                 <Popover open={popoverIsOpen} onOpenChange={() => setPopoverIsOpen(prev => !prev)} >
                                     <PopoverTrigger asChild>
                                         <Palette className="text-muted-foreground ml-1 cursor-pointer hover:bg-sidebar transition-all duration-100 p-2 w-10 h-10 rounded-full" size={24}/>
