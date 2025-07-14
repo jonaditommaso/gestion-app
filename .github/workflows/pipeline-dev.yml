@@ -6,8 +6,28 @@ on:
       - develop
 
 jobs:
-  deploy:
+  lint-commits:
     runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Fetch all history for all branches
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install --force --no-audit --no-fund
+
+      - name: Lint commit messages
+        run: npx commitlint --from=origin/develop --to=HEAD
+
+  build:
+    runs-on: ubuntu-22.04
+    needs: lint-commits
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
