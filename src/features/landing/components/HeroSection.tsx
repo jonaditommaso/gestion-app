@@ -70,7 +70,10 @@ function HeroSection() {
                         {presentationItems.map((item) => (
                             <TabsTrigger
                                 value={item.value}
-                                className="text-lg data-[state=active]:bg-white data-[state=active]:text-[#11314a] data-[state=inactive]:bg-transparent data-[state=inactive]text-muted-foreground transition-colors"
+                                className="text-lg transition-colors duration-200
+                                    data-[state=active]:bg-white data-[state=active]:text-[#11314a]
+                                    data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground
+                                    data-[state=inactive]:hover:bg-white/10 data-[state=inactive]:hover:text-white"
                                 key={item.value}
                             >
                                 {item.label}
