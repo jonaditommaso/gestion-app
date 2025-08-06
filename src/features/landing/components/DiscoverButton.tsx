@@ -5,8 +5,8 @@ import { useRef } from 'react';
 
 const DiscoverButton = () => {
 
-    const words1 = "Un texto que diga algo por aca".split(" ");
-    const words2 = "Lo que deberia acompanar a ese texto que todavia no se bien que va a decir pero tendria que ser algo llamativo".split(" ");
+    const words1 = "Todas las integraciones que necesitas".split(" ");
+    const words2 = "Trabaja comodo con lo que ya conoces, integra lo que necesitas, explora todas las oportunidades que tenemos para ti".split(" ");
 
     const ref = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: true, margin: '-50px' });

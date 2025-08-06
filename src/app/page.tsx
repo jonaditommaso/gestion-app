@@ -13,6 +13,7 @@ import { faq } from "@/features/landing/faq";
 import FadeInUp from "@/animations/FadeInUp";
 import HeroSection from "@/features/landing/components/HeroSection";
 import DiscoverButton from "@/features/landing/components/DiscoverButton";
+import Integrations from "@/features/landing/components/Integrations";
 
 export default async function Home() {
   const user = await getCurrent();
@@ -63,12 +64,7 @@ export default async function Home() {
             <div className="flex my-20 mx-10 justify-evenly items-center gap-10">
               <DiscoverButton />
 
-              <div className="flex flex-wrap max-w-[600px]">
-                <div className="h-[350px] w-[300px] border border-r-0 border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
-                <div className="h-[350px] w-[300px] border border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
-                <div className="h-[350px] w-[300px] border border-t-0 border-r-0 border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
-                <div className="h-[350px] w-[300px] border border-t-0 border-neutral-400 hover:bg-black/10 transition-all duration-150 cursor-pointer"></div>
-              </div>
+              <Integrations />
             </div>
           </div>
 
