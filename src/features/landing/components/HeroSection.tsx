@@ -67,17 +67,30 @@ function HeroSection() {
             <Tabs defaultValue="all-in-one" className="mt-10 z-20 w-[60%] m-auto">
                 <div className="flex flex-col items-center w-full">
                     <TabsList className="border rounded-md p-6 px-4 border-[#eee]/15 inline-flex w-auto min-w-[220px] max-w-full m-auto">
-                        {presentationItems.map((item) => (
-                            <TabsTrigger
-                                value={item.value}
-                                className="text-lg transition-colors duration-200
-                                    data-[state=active]:bg-white data-[state=active]:text-[#11314a]
-                                    data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground
-                                    data-[state=inactive]:hover:bg-white/10 data-[state=inactive]:hover:text-white"
+                        {presentationItems.map((item, index) => (
+                            <motion.div
                                 key={item.value}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.8 + (index * 0.1) }}
                             >
-                                {item.label}
-                            </TabsTrigger>
+                                <TabsTrigger
+                                    value={item.value}
+                                    className="text-lg transition-all duration-300 transform
+                                        data-[state=active]:bg-white data-[state=active]:text-[#11314a] data-[state=active]:scale-105
+                                        data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground
+                                        data-[state=inactive]:hover:bg-white/10 data-[state=inactive]:hover:text-white
+                                        data-[state=inactive]:hover:scale-105 data-[state=inactive]:hover:shadow-lg
+                                        relative overflow-hidden"
+                                >
+                                    <span className="relative z-10">{item.label}</span>
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0"
+                                        whileHover={{ opacity: 1 }}
+                                        transition={{ duration: 0.2 }}
+                                    />
+                                </TabsTrigger>
+                            </motion.div>
                         ))}
                     </TabsList>
                     <div className="w-full flex justify-center">
@@ -87,7 +100,13 @@ function HeroSection() {
                                 value={content.value}
                                 key={content.value}
                             >
-                                {content.description}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    {content.description}
+                                </motion.div>
                             </TabsContent>
                         ))}
                     </div>
