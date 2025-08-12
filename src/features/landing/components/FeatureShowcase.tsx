@@ -213,7 +213,7 @@ const FeatureShowcase = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-12 gap-8 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 items-start h-[80vh]">
           {/* Features Navigation - Smaller */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
