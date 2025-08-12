@@ -1,8 +1,12 @@
 {
     "landing": {
         "gestionate": "Gestionate",
-        "title": "Manage and organize all\n your work in one place",
-        "subtitle": "Ease of use for your team, results for your business",
+        "title-1": "Manage",
+        "title-2": "and organize all\n your work in one place",
+        "subtitle-1": "Ease of use",
+        "subtitle-2": "for your team",
+        "subtitle-3": "results",
+        "subtitle-4": "for your business",
         "we-do": "All you need",
         "services": "We offer all these services",
         "service-1": "Control your invoicing",

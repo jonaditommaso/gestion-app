@@ -34,10 +34,10 @@ function HeroSection() {
                 className="flex flex-col justify-center mt-36 max-sm:mt-24 gap-4"
                 >
                 <p className="text-6xl font-bold text-balance text-center whitespace-pre-line tracking-tighter max-sm:text-[28px]">
-                    {t("title")}
+                    <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{t("title-1")}</span> {t("title-2")}
                 </p>
-                <p className="font-semibold mt-5 text-center max-sm:text-xs text-xl">
-                    {t("subtitle")}
+                <p className="font-medium mt-5 text-center max-sm:text-sm text-lg text-blue-100/80">
+                    <span className="underline decoration-cyan-400 decoration-2 underline-offset-4">{t("subtitle-1")}</span> {t("subtitle-2")}, <span className="underline decoration-purple-400 decoration-2 underline-offset-4">{t("subtitle-3")}</span> {t("subtitle-4")}
                 </p>
                 </motion.div>
 

@@ -1,8 +1,12 @@
 {
     "landing": {
         "gestionate": "Gestionate",
-        "title": "Gestiona y organiza todo\n tu trabajo en un solo lugar",
-        "subtitle": "Facilidad para tu equipo, resultados para tu negocio",
+        "title-1": "Gestiona",
+        "title-2": "y organiza todo\n tu trabajo en un solo lugar",
+        "subtitle-1": "Facilidad",
+        "subtitle-2": "para tu equipo",
+        "subtitle-3": "resultados",
+        "subtitle-4": "para tu negocio",
         "we-do": "Todo lo que necesitas",
         "services": "Contamos con todos estos servicios",
         "service-1": "Controla tu facturación",
