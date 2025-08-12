@@ -37,6 +37,23 @@
         "records": "Registros",
         "activities": "Actividades",
 
+        "hero": {
+            "tabs-title": {
+                "all-in-one": "Todo en uno",
+                "space": "Tu espacio",
+                "customization": "Personalización",
+                "team": "Equipo",
+                "security": "Seguridad"
+            },
+            "tabs-description": {
+                "all-in-one": "Con Gestionate podrás optimizar tu trabajo al administrar todas las plataformas secundarias que necesitas en tu día a día laboral, en un solo sitio.",
+                "space": "Con Gestionate, si bien participarás de un espacio de trabajo compartido, podrás personalizar tu experiencia. Puedes cambiar fuentes, colores y añadir widgets a tu página de inicio. Crea notas personales, atajos, integra tu cuenta de Spotify y más.",
+                "customization": "No importa el tipo de organización para la que trabajes, Gestionate se adapta a tus necesidades. La creación de tablas, registros, categorías de gastos/ingresos y más, se puede personalizar para que se ajuste a tu organización y preferencias.",
+                "team": "Trabaja en un ambiente colaborativo con tu equipo. Puedes invitar a otros usuarios a unirse a tu organización y asignarles roles y permisos específicos. Chatea con ellos, crea reuniones, deja notas, comparte archivos y mucho más.",
+                "security": "La capa de seguridad de Gestionate está diseñada para proteger tanto tus datos como tu trabajo y garantizar que solo las personas autorizadas tengan acceso a ellos."
+            }
+        },
+
         "button-get-demo-1": "Obtener demo gratis sin registro",
         "button-get-demo-2": "Obtener Demo sin registro",
         "cancel": "Cancelar",

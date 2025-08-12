@@ -37,6 +37,23 @@
         "records": "Records",
         "activities": "Activities",
 
+        "hero": {
+            "tabs-title": {
+                "all-in-one": "All-in-one",
+                "space": "Your space",
+                "customization": "Customization",
+                "team": "Team",
+                "security": "Security"
+            },
+            "tabs-description": {
+                "all-in-one": "With Gestionate you can optimize your work by managing all the secondary platforms you need in your daily work life, in one place.",
+                "space": "With Gestionate, while you'll participate in a shared workspace, you can personalize your experience. You can change fonts, colors and add widgets to your homepage. Create personal notes, shortcuts, integrate your Spotify account and much more.",
+                "customization": "No matter what type of organization you work for, Gestionate adapts to your needs. Creating tables, records, expense/income categories and more can be customized to fit your organization and preferences.",
+                "team": "Work in a collaborative environment with your team. You can invite other users to join your organization and assign them specific roles and permissions. Chat with them, create meetings, leave notes, share files and much more.",
+                "security": "Gestionate's security layer is designed to protect both your data and your work and ensure that only authorized people have access to them."
+            }
+        },
+
         "button-get-demo-1": "Get a free demo without registration",
         "button-get-demo-2": "Get a demo without registration",
         "cancel": "Cancel",

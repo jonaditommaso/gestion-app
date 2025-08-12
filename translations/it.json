@@ -37,6 +37,23 @@
         "records": "Registri",
         "activities": "Attività",
 
+        "hero": {
+            "tabs-title": {
+                "all-in-one": "Tutto in uno",
+                "space": "Il tuo spazio",
+                "customization": "Personalizzazione",
+                "team": "Team",
+                "security": "Sicurezza"
+            },
+            "tabs-description": {
+                "all-in-one": "Con Gestionate puoi ottimizzare il tuo lavoro gestendo tutte le piattaforme secondarie di cui hai bisogno nella tua vita lavorativa quotidiana, in un unico posto.",
+                "space": "Con Gestionate, anche se parteciperai a uno spazio di lavoro condiviso, potrai personalizzare la tua esperienza. Puoi cambiare font, colori e aggiungere widget alla tua homepage. Crea note personali, scorciatoie, integra il tuo account Spotify e altro.",
+                "customization": "Non importa per che tipo di organizzazione lavori, Gestionate si adatta alle tue esigenze. La creazione di tabelle, registri, categorie di spese/entrate e altro può essere personalizzata per adattarsi alla tua organizzazione e alle tue preferenze.",
+                "team": "Lavora in un ambiente collaborativo con il tuo team. Puoi invitare altri utenti a unirsi alla tua organizzazione e assegnare loro ruoli e permessi specifici. Chatta con loro, crea riunioni, lascia note, condividi file e molto altro.",
+                "security": "Il livello di sicurezza di Gestionate è progettato per proteggere sia i tuoi dati che il tuo lavoro e garantire che solo le persone autorizzate vi abbiano accesso."
+            }
+        },
+
         "button-get-demo-1": "Ottieni demo gratuita senza registrazione",
         "button-get-demo-2": "Ottieni Demo senza registrazione",
         "cancel": "Annulla",

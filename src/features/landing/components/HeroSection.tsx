@@ -8,7 +8,7 @@ import LandingSignUp from "./LandingSignUp";
 import { Separator } from "@/components/ui/separator";
 import DemoButton from "./DemoButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { presentationContentDescription, presentationItems } from "../presentationItems";
+import { presentationItems } from "../presentationItems";
 
 function HeroSection() {
     const t = useTranslations('landing');
@@ -69,13 +69,13 @@ function HeroSection() {
                     <TabsList className="border rounded-md p-6 px-4 border-[#eee]/15 inline-flex w-auto min-w-[220px] max-w-full m-auto">
                         {presentationItems.map((item, index) => (
                             <motion.div
-                                key={item.value}
+                                key={item}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.8 + (index * 0.1) }}
                             >
                                 <TabsTrigger
-                                    value={item.value}
+                                    value={item}
                                     className="text-lg transition-all duration-300 transform
                                         data-[state=active]:bg-white data-[state=active]:text-[#11314a] data-[state=active]:scale-105
                                         data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground
@@ -83,7 +83,7 @@ function HeroSection() {
                                         data-[state=inactive]:hover:scale-105 data-[state=inactive]:hover:shadow-lg
                                         relative overflow-hidden"
                                 >
-                                    <span className="relative z-10">{item.label}</span>
+                                    <span className="relative z-10">{t(`hero.tabs-title.${item}`)}</span>
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0"
                                         whileHover={{ opacity: 1 }}
@@ -94,18 +94,18 @@ function HeroSection() {
                         ))}
                     </TabsList>
                     <div className="w-full flex justify-center">
-                        {presentationContentDescription.map((content) => (
+                        {presentationItems.map((item) => (
                             <TabsContent
-                                className="w-full max-w-[min(100%,_var(--tablist-width,600px))] text-balance text-center px-2"
-                                value={content.value}
-                                key={content.value}
+                                className="w-full max-w-[min(100%,_var(--tablist-width,700px))] text-balance text-center px-2"
+                                value={item}
+                                key={item}
                             >
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5 }}
                                 >
-                                    {content.description}
+                                    {t(`hero.tabs-description.${item}`)}
                                 </motion.div>
                             </TabsContent>
                         ))}
