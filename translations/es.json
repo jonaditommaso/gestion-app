@@ -141,7 +141,8 @@
         "who-we-are-4": "Te daremos todas las comodidades posibles, para facilitar tu jornada de trabajo. No vamos a dejar de trabajar por ti.",
 
         "message-created": "Mensaje creado con éxito",
-        "failed-create-message": "Lo sentimos, hubo un error creando el mensaje"
+        "failed-create-message": "Lo sentimos, hubo un error creando el mensaje",
+        "see-more": "Ver más"
     },
     "pricing": {
         "pricing-title": "Elige el plan perfecto para tu equipo",

@@ -140,7 +140,8 @@
         "who-we-are-4": "We'll provide you with every possible comfort to make your workday easier. We won’t stop working for you.",
 
         "message-created": "Message successfully created",
-        "failed-create-message": "Sorry, there was an error creating the message"
+        "failed-create-message": "Sorry, there was an error creating the message",
+        "see-more": "See more"
     },
     "pricing": {
         "pricing-title": "Choose the perfect plan for your team",

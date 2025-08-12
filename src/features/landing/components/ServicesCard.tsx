@@ -39,7 +39,7 @@ const ServicesCard = async ({
 
             <div className="opacity-0 translate-y-4 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-500 ease-out delay-75">
                 <Link href="/" className="inline-flex items-center gap-1 text-[#11314a] font-medium relative overflow-hidden before:absolute before:bottom-0 before:left-0 before:w-0 before:h-[0.5px] before:bg-[#11314a] before:transition-all before:duration-300 group-hover/card:before:w-full w-fit">
-                    Ver más →
+                    {t('see-more')} →
                 </Link>
             </div>
             </CardContent>
