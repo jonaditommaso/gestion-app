@@ -30,7 +30,10 @@ function HeroSection() {
         >
             <div className="sticky top-16">
                 <motion.div
-                style={{ opacity }}
+                style={{
+                    opacity,
+                    filter: `blur(${(1 - opacity.get()) * 8}px)`
+                }}
                 className="flex flex-col justify-center mt-36 max-sm:mt-24 gap-4"
                 >
                 <p className="text-6xl font-bold text-balance text-center whitespace-pre-line tracking-tighter max-sm:text-[28px]">
