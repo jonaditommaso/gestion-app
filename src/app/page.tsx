@@ -50,7 +50,8 @@ export default async function Home() {
                         serviceIcon={service.icon}
                         serviceIconColor={service.iconColor}
                         serviceCircleColor={service.circleColor}
-                        circlePosition={service.circlePosition} />
+                        circlePosition={service.circlePosition}
+                      />
                     </div>
                   ))}
                 </div>
