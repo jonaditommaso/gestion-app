@@ -162,7 +162,9 @@
         "see-more": "See more"
     },
     "pricing": {
-        "pricing-title": "Choose the perfect plan for your team",
+        "pricing-title-1": "Choose the",
+        "pricing-title-2": "perfect plan",
+        "pricing-title-3": "for your team",
         "pricing-annual": "annual",
         "pricing-monthly": "monthly",
         "pricing-most-popular": "Most popular",

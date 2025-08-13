@@ -161,7 +161,9 @@
         "see-more": "Scopri di più"
     },
     "pricing": {
-        "pricing-title": "Scegli il piano perfetto per il tuo team",
+        "pricing-title-1": "Scegli il",
+        "pricing-title-2": "piano perfetto",
+        "pricing-title-3": "per il tuo team",
         "pricing-annual": "annuale",
         "pricing-monthly": "mensile",
         "pricing-most-popular": "Il più popolare",

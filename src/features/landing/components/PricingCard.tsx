@@ -59,7 +59,7 @@ const PricingCard = ({ type, description, textButton, price, featured }: Pricing
                         </span>
                     )}
                 </CardTitle>
-                <p className="text-zinc-500">{t(description)}</p>
+                <p className="text-zinc-500 h-14">{t(description)}</p>
                 <div className="flex items-center py-5">
                     <span className="text-2xl">us$</span>
                     <div className="flex gap-2 items-center">

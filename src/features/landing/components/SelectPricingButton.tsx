@@ -84,7 +84,7 @@ const SelectPricingButton = ({ textButton, type, isProChecked }: SelectPricingBu
                     </div>
                 </form>
             </DialogContainer>
-            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold" onClick={handleClick} disabled={isPending}>{textButton}</Button>
+            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" onClick={handleClick} disabled={isPending}>{textButton}</Button>
         </>
     );
 }
