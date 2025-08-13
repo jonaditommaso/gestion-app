@@ -58,7 +58,7 @@ export function LandingNavbar() {
 
       {!isMobile && (
         <NavigationMenuList className="flex gap-1">
-        <Image src={isScrolled ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
+        <Image src={isScrolled || pathname === '/pricing' ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
 
         <NavigationMenuItem>
           <NavigationMenuTrigger
@@ -151,7 +151,7 @@ export function LandingNavbar() {
           <Button variant='outline'>{t('button-signin')}</Button>
         </Link>
         {!isMobile && <Link href={'/pricing'}>
-          <Button variant={isScrolled ? 'default' : 'link'} className={`text-white ${!isScrolled ? 'outline outline-1 outline-white decoration-transparent hover:bg-neutral-900' : ''}`}>{t('get-started')}</Button>
+          <Button variant={isScrolled ? 'default' : 'link'} className={`text-white ${!isScrolled ? 'outline outline-1 outline-white decoration-transparent hover:bg-neutral-800 bg-black transition-all duration-150' : ''}`}>{t('get-started')}</Button>
         </Link>}
         {isMobile && (
            <AlignJustify onClick={() => setIsMobileMenuOpen(true)} />
