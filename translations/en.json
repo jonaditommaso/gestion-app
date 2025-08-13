@@ -55,6 +55,23 @@
             }
         },
 
+        "integrations": "Integrations",
+        "integration-categories": "Categories",
+        "integrated-apps-badge": "Integrated apps",
+        "integrated-apps-title-1": "Integrations that",
+        "integrated-apps-title-2": "boost your flow",
+        "integrated-apps-description": "Connect the tools you'll use to automate processes and maximize your team's productivity.",
+        "available-integrations-title": "Available integrations",
+        "available-integrations-description": "Log in once and enjoy the convenience of having everything you need in one place.",
+        "explore-integrations": "Explore integrations",
+        "featured-integrations": "Featured integrations",
+        "many-more-integrations": "Many more available",
+        "integration-1": "Create meetings easily with your team members",
+        "integration-2": "View your created events and meetings",
+        "integration-3": "Listen to your music with Spotify in the background",
+        "integration-4": "Manage your GitHub repositories from the platform",
+
+
         "button-get-demo-1": "Get a free demo without registration",
         "button-get-demo-2": "Get a demo without registration",
         "cancel": "Cancel",

@@ -2,30 +2,31 @@
 import Image from "next/image";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 
 const integrations = [
     {
         name: 'Google Meet',
         logo: '/logos/g-meet-logo.png',
-        description: 'Reuniones integradas automáticamente en tu workspace',
+        description: 'integration-1',
         status: 'Activo'
     },
     {
         name: 'Google Calendar',
         logo: '/logos/g-calendar-logo.png',
-        description: 'Sincronización de eventos y recordatorios',
+        description: 'integration-2',
         status: 'Activo'
     },
     {
         name: 'Spotify',
         logo: '/logos/spotify-logo.png',
-        description: 'Control de música para ambientes de trabajo',
+        description: 'integration-3',
         status: 'Próximamente'
     },
     {
         name: 'GitHub',
         logo: '/logos/github-logo.png',
-        description: 'Gestión de repositorios y commits',
+        description: 'integration-4',
         status: 'Beta'
     }
 ]
@@ -33,6 +34,7 @@ const integrations = [
 const Integrations = () => {
     const ref = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: true, margin: '-50px' });
+    const t = useTranslations('landing')
 
     return (
         <div ref={ref} className="flex flex-col max-w-[550px]">
@@ -43,8 +45,8 @@ const Integrations = () => {
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="mb-6 text-center"
             >
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">Aplicaciones integradas</h4>
-                <p className="text-sm text-gray-600">Inicia sesión una vez y gestiona todo desde un lugar</p>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">{t('available-integrations-title')}</h4>
+                <p className="text-sm text-gray-600 max-w-[400px] text-center text-balance m-auto">{t('available-integrations-description')}</p>
             </motion.div>
 
             {/* Integration Grid */}
@@ -96,8 +98,8 @@ const Integrations = () => {
                       </h3>
 
                       {/* Description - aparece en hover */}
-                      <p className="text-xs font-medium text-gray-500 opacity-0 group-hover:opacity-100 group-hover:text-white transition-all duration-200">
-                        {integration.description}
+                      <p className="text-xs font-medium text-balance text-gray-500 opacity-0 group-hover:opacity-100 group-hover:text-white transition-all duration-200 mt-5">
+                        {t(integration.description)}
                       </p>
                     </div>
                 </div>
@@ -112,8 +114,8 @@ const Integrations = () => {
                 className="mt-4 text-center"
             >
                 <p className="text-sm text-gray-600">
-                    <span className="font-medium">4</span> aplicaciones integradas •
-                    <span className="font-medium text-blue-600 ml-1">Muchas más disponibles</span>
+                    {t('featured-integrations')} •
+                    <span className="font-medium text-blue-600 ml-1">{t('many-more-integrations')}</span>
                 </p>
             </motion.div>
         </div>
