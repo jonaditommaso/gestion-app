@@ -30,8 +30,11 @@ export default async function Home() {
 
           <div className="w-full py-10 bg-[#FFF2F2] mt-[-2px]">
             <div className="flex flex-col items-center gap-4 mb-10 max-sm:gap-2">
-              <p className="font-bold text-4xl max-sm:text-2xl">{t('we-do')}</p>
-              <p className="font-normal text-3xl max-sm:text-base max-sm:text-center">{t('services')}</p>
+              <h2 className="font-bold tracking-tight text-4xl max-sm:text-2xl flex flex-wrap justify-center">
+                <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent pr-2 font-extrabold">{t('transform-gestion-title-1')}</span>
+                <span className="relative text-neutral-800">{t('transform-gestion-title-2')}</span>
+              </h2>
+              <p className="font-normal text-2xl text-balance max-sm:text-base max-sm:text-center max-w-[600px] text-center">{t('transform-gestion-description')}</p>
             </div>
 
             <div className="relative w-full overflow-hidden">
