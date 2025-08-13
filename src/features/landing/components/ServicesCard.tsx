@@ -25,20 +25,26 @@ const ServicesCard = async ({
 
     return (
         <Card className="group/card w-[350px] h-[250px] max-sm:h-[250px] flex flex-col items-center justify-center shadow-md hover:shadow-xl services-card my-10 cursor-pointer hover:scale-[1.02] transform transition-all duration-300 ease-in-out will-change-transform border-0 bg-white/80 backdrop-blur-sm relative overflow-hidden">
-            <CardContent className="flex flex-col items-center justify-center h-full pt-6 px-4 relative z-10">
+            <CardContent className="flex flex-col items-center justify-start h-full pt-6 px-4 relative z-10">
                 <div className="flex flex-col items-center gap-y-5">
-                    <ColoredIcon
-                        Icon={serviceIcon}
-                        iconColor={serviceIconColor}
-                        circleColor={serviceCircleColor}
-                        circlePosition={circlePosition}
-                    />
-                    <h3 className="text-center font-semibold text-lg bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent leading-tight group-hover/card:from-slate-900 group-hover/card:via-slate-800 group-hover/card:to-slate-700 transition-all duration-300">
-                        {t(serviceTitle)}
-                    </h3>
-                    <p className="text-center text-balance text-sm text-slate-600 leading-relaxed max-w-[280px] group-hover/card:text-slate-700 transition-colors duration-300">
-                        {t(serviceDescription)}
-                    </p>
+                    <div className="flex items-center justify-center">
+                        <ColoredIcon
+                            Icon={serviceIcon}
+                            iconColor={serviceIconColor}
+                            circleColor={serviceCircleColor}
+                            circlePosition={circlePosition}
+                        />
+                    </div>
+                    <div className="flex items-center justify-center">
+                        <h3 className="text-center font-semibold text-lg bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent leading-tight group-hover/card:from-slate-900 group-hover/card:via-slate-800 group-hover/card:to-slate-700 transition-all duration-300">
+                            {t(serviceTitle)}
+                        </h3>
+                    </div>
+                    <div className="flex items-center justify-center">
+                        <p className="text-center text-balance text-sm text-slate-600 leading-relaxed max-w-[280px] group-hover/card:text-slate-700 transition-colors duration-300">
+                            {t(serviceDescription)}
+                        </p>
+                    </div>
                 </div>
             </CardContent>
 
