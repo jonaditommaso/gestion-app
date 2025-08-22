@@ -2,168 +2,17 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
 import Image from 'next/image';
-import { FcParallelTasks, FcAddDatabase, FcBullish } from 'react-icons/fc';
 import { ChevronRight, ChevronDown, Users, Shield, BarChart3, Cloud } from 'lucide-react';
-
-interface Feature {
-  id: string;
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-  image: string;
-  categories: {
-    name: string;
-    items: string[];
-  }[];
-  gradient: string;
-}
-
-const features: Feature[] = [
-  {
-    id: 'teamwork',
-    icon: FcParallelTasks,
-    title: 'Gestión de equipos y proyectos',
-    description: 'Administra todas las tareas del equipo de forma sencilla y eficiente. Concentramos todos los recursos en un solo lugar.',
-    image: '/present-workspaces.png',
-    categories: [
-      {
-        name: 'Dashboard y Métricas',
-        items: [
-          'Dashboard centralizado con métricas en tiempo real',
-          'Análisis de productividad por miembro del equipo',
-          'Reportes de progreso automatizados',
-          'KPIs personalizables por proyecto'
-        ]
-      },
-      {
-        name: 'Gestión de Tareas',
-        items: [
-          'Asignación automática basada en carga de trabajo',
-          'Sistema de prioridades inteligente',
-          'Timeline interactivo con dependencias',
-          'Estimación de tiempo automática'
-        ]
-      },
-      {
-        name: 'Colaboración',
-        items: [
-          'Chat integrado por proyecto',
-          'Comentarios en tiempo real',
-          'Notificaciones personalizables',
-          'Videollamadas nativas'
-        ]
-      },
-      {
-        name: 'Automatización',
-        items: [
-          'Flujos de trabajo personalizables',
-          'Plantillas reutilizables',
-          'Integración con herramientas externas',
-          'Webhooks para eventos automáticos'
-        ]
-      }
-    ],
-    gradient: 'from-blue-500/10 to-purple-500/10'
-  },
-  {
-    id: 'cloud-storage',
-    icon: FcAddDatabase,
-    title: 'Almacenamiento y gestión documental',
-    description: 'Carga tus registros, documentos y archivos importantes de forma segura y accede a ellos desde cualquier lugar.',
-    image: '/present-records.png',
-    categories: [
-      {
-        name: 'Seguridad',
-        items: [
-          'Encriptación AES-256 de extremo a extremo',
-          'Gestión de claves HSM',
-          'Autenticación de dos factores',
-          'Auditoría completa de accesos'
-        ]
-      },
-      {
-        name: 'Versionado y Backup',
-        items: [
-          'Historial completo de versiones',
-          'Restauración point-in-time',
-          'Backup automático multi-región',
-          'Recuperación ante desastres'
-        ]
-      },
-      {
-        name: 'Búsqueda Inteligente',
-        items: [
-          'OCR para documentos escaneados',
-          'Búsqueda semántica con IA',
-          'Indexación automática de contenido',
-          'Filtros avanzados por metadatos'
-        ]
-      },
-      {
-        name: 'Integración',
-        items: [
-          'Google Drive, OneDrive, Dropbox',
-          'Office 365 y Google Workspace',
-          'APIs RESTful documentadas',
-          'Sincronización en tiempo real'
-        ]
-      }
-    ],
-    gradient: 'from-emerald-500/10 to-blue-500/10'
-  },
-  {
-    id: 'operations',
-    icon: FcBullish,
-    title: 'Portal operativo y financiero',
-    description: 'Carga tus ingresos y egresos, y accede a reportes financieros en tiempo real. Gestiona la presencialidad, la nómina y mucho más.',
-    image: '/present-billing.png',
-    categories: [
-      {
-        name: 'Finanzas',
-        items: [
-          'Reportes financieros automatizados',
-          'Análisis predictivo de tendencias',
-          'Conciliación bancaria automática',
-          'Dashboard de KPIs financieros'
-        ]
-      },
-      {
-        name: 'Recursos Humanos',
-        items: [
-          'Gestión de nómina integrada',
-          'Cálculo automático de impuestos',
-          'Control de asistencia biométrico',
-          'Evaluaciones de desempeño'
-        ]
-      },
-      {
-        name: 'Facturación',
-        items: [
-          'Facturación electrónica automática',
-          'Integración con AFIP/SAT/SII',
-          'Gestión de inventario',
-          'Cotizaciones y presupuestos'
-        ]
-      },
-      {
-        name: 'Business Intelligence',
-        items: [
-          'Predicción de flujo de caja',
-          'Dashboard ejecutivo personalizable',
-          'Alertas proactivas inteligentes',
-          'Análisis de rentabilidad'
-        ]
-      }
-    ],
-    gradient: 'from-orange-500/10 to-red-500/10'
-  }
-];
+import { useTranslations } from 'next-intl';
+import { features } from '../features';
 
 const FeatureShowcase = () => {
   const [activeFeature, setActiveFeature] = useState<number>(0); // Siempre hay una activa
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true, margin: '-50px' });
+
+  const t = useTranslations('landing.products')
 
   const toggleCategory = (featureIndex: number, categoryName: string) => {
     const key = `${featureIndex}-${categoryName}`;
@@ -199,17 +48,17 @@ const FeatureShowcase = () => {
         >
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-blue-400"></div>
-            <span className="text-sm font-medium text-blue-400 uppercase tracking-wider">Funcionalidades principales</span>
+            <span className="text-sm font-medium text-blue-400 uppercase tracking-wider">{t('main-features-title')}</span>
             <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-blue-400"></div>
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-            Todo lo que necesitas en{' '}
+            {t('main-features-description-1')}{' '}
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-300 bg-clip-text text-transparent">
-              una plataforma
+              {t('main-features-description-2')}
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Gestiona proyectos, archivos y operaciones desde un solo lugar con herramientas diseñadas para equipos modernos.
+            {t('main-features-description-3')}
           </p>
         </motion.div>
 
@@ -252,12 +101,12 @@ const FeatureShowcase = () => {
                       <h3 className={`text-base font-semibold transition-colors duration-300 ${
                         activeFeature === index ? 'text-white' : 'text-gray-300'
                       }`}>
-                        {feature.title}
+                        {t(feature.title)}
                       </h3>
                       <p className={`mt-1 text-sm transition-colors duration-300 ${
                         activeFeature === index ? 'text-gray-200' : 'text-gray-400'
                       }`}>
-                        {feature.description}
+                        {t(feature.description)}
                       </p>
                     </div>
 
@@ -293,7 +142,7 @@ const FeatureShowcase = () => {
                               className="w-full px-3 py-2 flex items-center justify-between text-left hover:bg-white/10 transition-colors"
                             >
                               <span className="text-xs font-medium text-gray-200">
-                                {category.name}
+                                {t(category.name)}
                               </span>
                               {isExpanded ? (
                                 <ChevronDown className="w-3 h-3 text-gray-400" />
@@ -322,7 +171,7 @@ const FeatureShowcase = () => {
                                       >
                                         <div className="w-1 h-1 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
                                         <span className="text-xs text-gray-300 leading-relaxed">
-                                          {item}
+                                          {t(item)}
                                         </span>
                                       </motion.div>
                                     ))}
@@ -377,7 +226,7 @@ const FeatureShowcase = () => {
         </div>
 
         {/* Bottom stats - POSITIONED TO AVOID OVERLAP */}
-        <div className="mt-24">
+        <div className="mt-36">
           <motion.div
             ref={statsRef}
             initial={{ opacity: 0, y: 20 }}

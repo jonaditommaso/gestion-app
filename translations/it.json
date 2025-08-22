@@ -55,6 +55,93 @@
             }
         },
 
+        "products": {
+            "main-features-title": "Funzionalità principali",
+            "main-features-description-1": "Tutto ciò di cui hai bisogno in",
+            "main-features-description-2": "un'unica piattaforma",
+            "main-features-description-3": "Gestisci progetti, file e operazioni da un'unica posizione con strumenti progettati per team moderni.",
+
+            "feature-title-1": "Gestione di attività e progetti",
+            "feature-description-1": "Gestisci tutte le attività del team in tempo reale in modo semplice ed efficiente, con vista ordinata in lista, calendario o bacheca Kanban.",
+            "feature-1-item-name-1": "Dashboard del workspace",
+            "feature-1-item-1-subitem-1": "Bacheca Kanban, calendario e lista delle attività",
+            "feature-1-item-1-subitem-2": "Stato, scadenza, priorità e responsabili per attività",
+            "feature-1-item-1-subitem-3": "Download di report delle attività in PDF ed Excel",
+            "feature-1-item-1-subitem-4": "Dashboard di produttività in tempo reale",
+
+            "feature-1-item-name-2": "Gestione attività con Chat IA",
+            "feature-1-item-2-subitem-1": "Creazione di attività con un prompt",
+            "feature-1-item-2-subitem-2": "Assegnazione di priorità intelligente",
+            "feature-1-item-2-subitem-3": "Notifiche personalizzabili",
+            "feature-1-item-2-subitem-4": "Stima automatica del tempo",
+
+            "feature-1-item-name-3": "Collaborazione",
+            "feature-1-item-3-subitem-1": "Assegnazione di attività ai membri del team",
+            "feature-1-item-3-subitem-2": "Commenti in tempo reale",
+            "feature-1-item-3-subitem-3": "Classificazione automatica basata sul carico di lavoro",
+            "feature-1-item-3-subitem-4": "Opzione sola lettura secondo i permessi",
+
+            "feature-1-item-name-4": "Praticità e velocità",
+            "feature-1-item-4-subitem-1": "Widget attività da fare nella Home",
+            "feature-1-item-4-subitem-2": "Tag per attività nelle Note personali",
+            "feature-1-item-4-subitem-3": "Azioni rapide sulle attività",
+            "feature-1-item-4-subitem-4": "Filtri rapidi per stato, priorità, scadenza, responsabile",
+
+
+            "feature-title-2": "Archiviazione e gestione documenti",
+            "feature-description-2": "Carica i tuoi registri, documenti e file importanti in modo sicuro e accedi ad essi da qualsiasi luogo.",
+            "feature-2-item-name-1": "Tabelle di registri",
+            "feature-2-item-1-subitem-1": "Crea tabelle indipendenti dove potrai elencare i tuoi registri e salvare informazioni in ciascuno",
+            "feature-2-item-1-subitem-2": "Puoi caricare registri manualmente o caricare un file Excel direttamente",
+            "feature-2-item-1-subitem-3": "Tutte le tabelle sono personalizzabili, ovvero si costruiscono in base al tuo inserimento dati",
+            "feature-2-item-1-subitem-4": "Ogni registro è unico e puoi caricare immagini, documenti PDF o Excel, e altro",
+
+            "feature-2-item-name-2": "Sicurezza",
+            "feature-2-item-2-subitem-1": "Condividi i file di cui hai bisogno con crittografia end-to-end",
+            "feature-2-item-2-subitem-2": "Accesso ai dettagli dei registri con password solo per utenti autorizzati",
+            "feature-2-item-2-subitem-3": "Registro di attività e audit per sapere chi accede e/o modifica ogni registro o dato",
+            "feature-2-item-2-subitem-4": "Con la gestione dei permessi puoi controllare chi accede a ogni tabella, e persino permettere solo lettura",
+
+            "feature-2-item-name-3": "Gestione registri con Chat IA",
+            "feature-2-item-3-subitem-1": "Creazione di registri con un prompt",
+            "feature-2-item-3-subitem-2": "Ricerca semantica ed esecuzione di azioni con IA",
+            "feature-2-item-3-subitem-3": "Generazione automatica di report",
+            "feature-2-item-3-subitem-4": "Filtri avanzati per metadati",
+
+            "feature-2-item-name-4": "Più sull'ambito delle operazioni",
+            "feature-2-item-4-subitem-1": "Integrazione con Google Drive, OneDrive e Dropbox",
+            "feature-2-item-4-subitem-2": "Dashboard interattiva per visualizzare ed eseguire azioni sui tuoi registri",
+            "feature-2-item-4-subitem-3": "Avvisi personalizzati in base ai criteri selezionati",
+            "feature-2-item-4-subitem-4": "Download file di recupero dati, backup automatici e informazioni sulla cronologia versioni",
+
+
+            "feature-title-3": "Portale operativo e finanziario",
+            "feature-description-3": "Carica le tue entrate e uscite, e accedi a report finanziari in tempo reale. Gestisci presenza, buste paga, permessi e molto altro.",
+            "feature-3-item-name-1": "Finanze",
+            "feature-3-item-1-subitem-1": "Vista operazioni in calendario, dashboard generale e personalizzato con grafici e tendenze su entrate e uscite",
+            "feature-3-item-1-subitem-2": "Gestione budget e categorie di spese, incluse buste paga con informazioni dettagliate come ore lavorate, detrazioni e benefici",
+            "feature-3-item-1-subitem-3": "Report finanziari automatizzati e suggerimenti di ottimizzazione con piani d'azione",
+            "feature-3-item-1-subitem-4": "Gestisci diversi conti indipendenti, valute e categorie",
+
+            "feature-3-item-name-2": "Risorse Umane",
+            "feature-3-item-2-subitem-1": "Gestione buste paga integrata con inserimento presenza e ore lavorate",
+            "feature-3-item-2-subitem-2": "Assegnazione ruoli e permessi per tutte le aree",
+            "feature-3-item-2-subitem-3": "Attività privata in aree personali e registro attività in tempo reale per aree di collaborazione",
+            "feature-3-item-2-subitem-4": "Valutazioni delle prestazioni, monitoraggio obiettivi e gestione talenti",
+
+            "feature-3-item-name-3": "Vendite",
+            "feature-3-item-3-subitem-1": "Gestione integrale di lead e clienti potenziali, dalla prospezione alla chiusura",
+            "feature-3-item-3-subitem-2": "Funnel di vendita visuale con fasi personalizzabili e monitoraggio conversioni",
+            "feature-3-item-3-subitem-3": "Integrazione con email e CRM per centralizzare interazioni clienti",
+            "feature-3-item-3-subitem-4": "Report performance commerciali con metriche conversione, forecast e analisi opportunità",
+
+            "feature-3-item-name-4": "Gestione organizzativa",
+            "feature-3-item-4-subitem-1": "Controllo inventario, logistica, consegne e resi con avvisi stock e tracciabilità risorse",
+            "feature-3-item-4-subitem-2": "Blog interno ed esterno per notifiche, aggiornamenti e comunicazione tra team",
+            "feature-3-item-4-subitem-3": "Integrazione continua di strumenti terzi per migliorare collaborazione, produttività e comfort",
+            "feature-3-item-4-subitem-4": "Automazione flussi di lavoro con promemoria, approvazioni e monitoraggio processi"
+        },
+
         "integrations": "Integrazioni",
         "integration-categories": "Categorie",
         "integrated-apps-badge": "Applicazioni integrate",

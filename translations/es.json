@@ -55,6 +55,94 @@
             }
         },
 
+        "products": {
+
+            "main-features-title": "Funcionalidades principales",
+            "main-features-description-1": "Todo lo que necesitas en",
+            "main-features-description-2": "una plataforma",
+            "main-features-description-3": "Gestiona proyectos, archivos y operaciones desde un solo lugar con herramientas diseñadas para equipos modernos.",
+
+            "feature-title-1": "Gestión de tareas y proyectos",
+            "feature-description-1": "Administra en tiempo real todas las tareas del equipo de forma sencilla y eficiente, ya sea con vista ordenada en lista, calendario o tablero Kanban.",
+            "feature-1-item-name-1": "Workspace dashboard",
+            "feature-1-item-1-subitem-1": "Tablero Kanban, calendario y lista de tareas",
+            "feature-1-item-1-subitem-2": "Estado, vencimiento, prioridad y responsables por tarea",
+            "feature-1-item-1-subitem-3": "Descargas de informes de tareas en PDF y Excel",
+            "feature-1-item-1-subitem-4": "Dashboard de productividad en tiempo real",
+
+            "feature-1-item-name-2": "Gestión de tareas con Chat IA",
+            "feature-1-item-2-subitem-1": "Creación de tareas con un prompt",
+            "feature-1-item-2-subitem-2": "Asignación de prioridad inteligente",
+            "feature-1-item-2-subitem-3": "Notificaciones personalizables",
+            "feature-1-item-2-subitem-4": "Estimación de tiempo automática",
+
+            "feature-1-item-name-3": "Colaboración",
+            "feature-1-item-3-subitem-1": "Asignación de tareas a miembros del equipo",
+            "feature-1-item-3-subitem-2": "Comentarios en tiempo real",
+            "feature-1-item-3-subitem-3": "Clasificación automática basada en carga de trabajo",
+            "feature-1-item-3-subitem-4": "Opción solo lectura según permisos",
+
+            "feature-1-item-name-4": "Practicidad y velocidad",
+            "feature-1-item-4-subitem-1": "Widget de tareas por hacer en Inicio",
+            "feature-1-item-4-subitem-2": "Tags por tarea en Notas personales",
+            "feature-1-item-4-subitem-3": "Acciones rápidas sobre las tareas",
+            "feature-1-item-4-subitem-4": "Filtros rápidos por estado, prioridad, vencimiento, responsable",
+
+
+            "feature-title-2": "Almacenamiento y gestión de documentos",
+            "feature-description-2": "Carga tus registros, documentos y archivos importantes de forma segura y accede a ellos desde cualquier lugar.",
+            "feature-2-item-name-1": "Tablas de registros",
+            "feature-2-item-1-subitem-1": "Crea tablas independientes donde podrás listar tus registros y guardar información en cada uno",
+            "feature-2-item-1-subitem-2": "Puedes cargar registros de manera manual o cargar un archivo Excel directamente",
+            "feature-2-item-1-subitem-3": "Todas las tablas son personalizables, es decir, que se arman dependiendo de tu entrada de datos",
+            "feature-2-item-1-subitem-4": "Cada registro es único y puedes cargar en ellos imágenes, documentos PDF o Excel, y más",
+
+            "feature-2-item-name-2": "Seguridad",
+            "feature-2-item-2-subitem-1": "Comparte los archivos que necesites con encriptación de extremo a extremo",
+            "feature-2-item-2-subitem-2": "Acceso a detalles de registros con contraseña solo para usuarios autorizados",
+            "feature-2-item-2-subitem-3": "Registro de actividad y auditoría para saber quién accede y/o modifica cada registro o dato",
+            "feature-2-item-2-subitem-4": "Con la gestión de permisos puedes controlar quién accede a cada tabla, e incluso permitir solo lectura",
+
+            "feature-2-item-name-3": "Gestión de registros con Chat IA",
+            "feature-2-item-3-subitem-1": "Creación de registros con un prompt",
+            "feature-2-item-3-subitem-2": "Buscar semánticamente y ejecutar acciones con IA",
+            "feature-2-item-3-subitem-3": "Generación de informes automáticos",
+            "feature-2-item-3-subitem-4": "Filtros avanzados por metadatos",
+
+            "feature-2-item-name-4": "Más sobre el alcance de las operaciones",
+            "feature-2-item-4-subitem-1": "Integración con Google Drive, OneDrive y Dropbox",
+            "feature-2-item-4-subitem-2": "Dashboard interactivo para visualizar y ejecutar acciones sobre tus registros",
+            "feature-2-item-4-subitem-3": "Alertas personalizadas dependiendo de criterios seleccionados",
+            "feature-2-item-4-subitem-4": "Descarga de archivo de recuperación de datos, Backup automáticos e información sobre el historial de versiones",
+
+
+            "feature-title-3": "Portal operativo y financiero",
+            "feature-description-3": "Carga tus ingresos y egresos, y accede a reportes financieros en tiempo real. Gestiona la presencialidad, la nómina, los permisos y mucho más.",
+            "feature-3-item-name-1": "Finanzas",
+            "feature-3-item-1-subitem-1": "Vista de operaciones en calendario, dashboard general y personalizado con gráficos y tendencias sobre tus ingresos y egresos",
+            "feature-3-item-1-subitem-2": "Gestión de presupuestos y categorías de gastos, incluyendo la nómina con información detallada como horas trabajadas, deducciones y beneficios",
+            "feature-3-item-1-subitem-3": "Reportes financieros automatizados y sugerencias de optimización con planes de acción",
+            "feature-3-item-1-subitem-4": "Gestiona distintas cuentas independientes, monedas y categorías",
+
+            "feature-3-item-name-2": "Recursos Humanos",
+            "feature-3-item-2-subitem-1": "Gestión de nómina integrada con inserción de presencialidad y horas trabajadas",
+            "feature-3-item-2-subitem-2": "Asignación de roles y permisos para todas las áreas",
+            "feature-3-item-2-subitem-3": "Actividad privada en áreas personales y registro de actividad en tiempo real para las áreas de colaboración",
+            "feature-3-item-2-subitem-4": "Evaluaciones de desempeño, seguimiento de objetivos y gestión del talento",
+
+            "feature-3-item-name-3": "Ventas",
+            "feature-3-item-3-subitem-1": "Gestión integral de leads y clientes potenciales, desde la prospección hasta el cierre",
+            "feature-3-item-3-subitem-2": "Embudo de ventas visual con etapas personalizables y seguimiento de conversiones",
+            "feature-3-item-3-subitem-3": "Integración con correo y CRM para centralizar interacciones con clientes",
+            "feature-3-item-3-subitem-4": "Reportes de rendimiento comercial con métricas de conversión, forecast y análisis de oportunidades",
+
+            "feature-3-item-name-4": "Gestión organizacional",
+            "feature-3-item-4-subitem-1": "Control de inventario, logística, entregas y devoluciones con alertas de stock y trazabilidad de recursos",
+            "feature-3-item-4-subitem-2": "Blog interno y externo para notificaciones, actualizaciones y comunicación entre equipos",
+            "feature-3-item-4-subitem-3": "Integración continua de herramientas de terceros para mejorar la colaboración, la productividad y el confort",
+            "feature-3-item-4-subitem-4": "Automatización de flujos de trabajo con recordatorios, aprobaciones y seguimiento de procesos"
+        },
+
         "integrations": "Integraciones",
         "integration-categories": "Categorías",
         "integrated-apps-badge": "Aplicaciones integradas",

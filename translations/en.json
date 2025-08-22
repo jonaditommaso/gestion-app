@@ -55,6 +55,93 @@
             }
         },
 
+        "products": {
+            "main-features-title": "Main features",
+            "main-features-description-1": "Everything you need in",
+            "main-features-description-2": "one platform",
+            "main-features-description-3": "Manage projects, files, and operations from one place with tools designed for modern teams.",
+
+            "feature-title-1": "Task and project management",
+            "feature-description-1": "Manage all team tasks in real time in a simple and efficient way, whether with ordered view in list, calendar or Kanban board.",
+            "feature-1-item-name-1": "Workspace dashboard",
+            "feature-1-item-1-subitem-1": "Kanban board, calendar and task list",
+            "feature-1-item-1-subitem-2": "Status, due date, priority and assignees per task",
+            "feature-1-item-1-subitem-3": "Task report downloads in PDF and Excel",
+            "feature-1-item-1-subitem-4": "Real-time productivity dashboard",
+
+            "feature-1-item-name-2": "Task management with AI Chat",
+            "feature-1-item-2-subitem-1": "Task creation with a prompt",
+            "feature-1-item-2-subitem-2": "Smart priority assignment",
+            "feature-1-item-2-subitem-3": "Customizable notifications",
+            "feature-1-item-2-subitem-4": "Automatic time estimation",
+
+            "feature-1-item-name-3": "Collaboration",
+            "feature-1-item-3-subitem-1": "Task assignment to team members",
+            "feature-1-item-3-subitem-2": "Real-time comments",
+            "feature-1-item-3-subitem-3": "Automatic classification based on workload",
+            "feature-1-item-3-subitem-4": "Read-only option according to permissions",
+
+            "feature-1-item-name-4": "Practicality and speed",
+            "feature-1-item-4-subitem-1": "To-do tasks widget on Home",
+            "feature-1-item-4-subitem-2": "Tags per task in personal Notes",
+            "feature-1-item-4-subitem-3": "Quick actions on tasks",
+            "feature-1-item-4-subitem-4": "Quick filters by status, priority, due date, assignee",
+
+
+            "feature-title-2": "Storage and document management",
+            "feature-description-2": "Upload your records, documents and important files securely and access them from anywhere.",
+            "feature-2-item-name-1": "Record tables",
+            "feature-2-item-1-subitem-1": "Create independent tables where you can list your records and save information in each one",
+            "feature-2-item-1-subitem-2": "You can load records manually or upload an Excel file directly",
+            "feature-2-item-1-subitem-3": "All tables are customizable, meaning they are built depending on your data entry",
+            "feature-2-item-1-subitem-4": "Each record is unique and you can upload images, PDF or Excel documents, and more",
+
+            "feature-2-item-name-2": "Security",
+            "feature-2-item-2-subitem-1": "Share the files you need with end-to-end encryption",
+            "feature-2-item-2-subitem-2": "Access to record details with password only for authorized users",
+            "feature-2-item-2-subitem-3": "Activity log and audit to know who accesses and/or modifies each record or data",
+            "feature-2-item-2-subitem-4": "With permission management you can control who accesses each table, and even allow read-only access",
+
+            "feature-2-item-name-3": "Record management with AI Chat",
+            "feature-2-item-3-subitem-1": "Record creation with a prompt",
+            "feature-2-item-3-subitem-2": "Search semantically and execute actions with AI",
+            "feature-2-item-3-subitem-3": "Automatic report generation",
+            "feature-2-item-3-subitem-4": "Advanced filters by metadata",
+
+            "feature-2-item-name-4": "More about the scope of operations",
+            "feature-2-item-4-subitem-1": "Integration with Google Drive, OneDrive and Dropbox",
+            "feature-2-item-4-subitem-2": "Interactive dashboard to visualize and execute actions on your records",
+            "feature-2-item-4-subitem-3": "Custom alerts depending on selected criteria",
+            "feature-2-item-4-subitem-4": "Data recovery file download, automatic backups and version history information",
+
+
+            "feature-title-3": "Operational and financial portal",
+            "feature-description-3": "Upload your income and expenses, and access real-time financial reports. Manage attendance, payroll, permissions and much more.",
+            "feature-3-item-name-1": "Finance",
+            "feature-3-item-1-subitem-1": "Operations view in calendar, general and custom dashboard with charts and trends on your income and expenses",
+            "feature-3-item-1-subitem-2": "Budget and expense category management, including payroll with detailed information such as hours worked, deductions and benefits",
+            "feature-3-item-1-subitem-3": "Automated financial reports and optimization suggestions with action plans",
+            "feature-3-item-1-subitem-4": "Manage different independent accounts, currencies and categories",
+
+            "feature-3-item-name-2": "Human Resources",
+            "feature-3-item-2-subitem-1": "Integrated payroll management with attendance insertion and hours worked",
+            "feature-3-item-2-subitem-2": "Role and permission assignment for all areas",
+            "feature-3-item-2-subitem-3": "Private activity in personal areas and real-time activity log for collaboration areas",
+            "feature-3-item-2-subitem-4": "Performance evaluations, goal tracking and talent management",
+
+            "feature-3-item-name-3": "Sales",
+            "feature-3-item-3-subitem-1": "Comprehensive lead and prospect management, from prospecting to closing",
+            "feature-3-item-3-subitem-2": "Visual sales funnel with customizable stages and conversion tracking",
+            "feature-3-item-3-subitem-3": "Email and CRM integration to centralize customer interactions",
+            "feature-3-item-3-subitem-4": "Commercial performance reports with conversion metrics, forecast and opportunity analysis",
+
+            "feature-3-item-name-4": "Organizational management",
+            "feature-3-item-4-subitem-1": "Inventory control, logistics, deliveries and returns with stock alerts and resource traceability",
+            "feature-3-item-4-subitem-2": "Internal and external blog for notifications, updates and communication between teams",
+            "feature-3-item-4-subitem-3": "Continuous integration of third-party tools to improve collaboration, productivity and comfort",
+            "feature-3-item-4-subitem-4": "Workflow automation with reminders, approvals and process tracking"
+        },
+
         "integrations": "Integrations",
         "integration-categories": "Categories",
         "integrated-apps-badge": "Integrated apps",
