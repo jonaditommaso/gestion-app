@@ -13,143 +13,47 @@ interface Feature {
   gradient: string;
 }
 
-export const features: Feature[] = [
+// Helper function to generate items for a category
+const generateItems = (featureNum: number, categoryNum: number, itemCount: number = 4): string[] => {
+  return Array.from({ length: itemCount }, (_, i) =>
+    `feature-${featureNum}-item-${categoryNum}-subitem-${i + 1}`
+  );
+};
+
+// Helper function to generate categories for a feature
+const generateCategories = (featureNum: number, categoryCount: number = 4) => {
+  return Array.from({ length: categoryCount }, (_, i) => ({
+    name: `feature-${featureNum}-item-name-${i + 1}`,
+    items: generateItems(featureNum, i + 1)
+  }));
+};
+
+// Base feature configuration
+const featureConfigs = [
   {
     id: 'workspace',
     icon: FcParallelTasks,
-    title: 'feature-title-1',
-    description: 'feature-description-1',
     image: '/present-workspaces.png',
-    categories: [
-      {
-        name: 'feature-1-item-name-1',
-        items: [
-          'feature-1-item-1-subitem-1',
-          'feature-1-item-1-subitem-2',
-          'feature-1-item-1-subitem-3',
-          'feature-1-item-1-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-1-item-name-2',
-        items: [
-          'feature-1-item-2-subitem-1',
-          'feature-1-item-2-subitem-2',
-          'feature-1-item-2-subitem-3',
-          'feature-1-item-2-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-1-item-name-3',
-        items: [
-          'feature-1-item-3-subitem-1',
-          'feature-1-item-3-subitem-2',
-          'feature-1-item-3-subitem-3',
-          'feature-1-item-3-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-1-item-name-4',
-        items: [
-          'feature-1-item-4-subitem-1',
-          'feature-1-item-4-subitem-2',
-          'feature-1-item-4-subitem-3',
-          'feature-1-item-4-subitem-4',
-        ]
-      }
-    ],
     gradient: 'from-blue-500/10 to-purple-500/10'
   },
   {
     id: 'cloud-storage',
     icon: FcAddDatabase,
-    title: 'feature-title-2',
-    description: 'feature-description-2',
     image: '/present-records.png',
-    categories: [
-      {
-        name: 'feature-2-item-name-1',
-        items: [
-          'feature-2-item-1-subitem-1',
-          'feature-2-item-1-subitem-2',
-          'feature-2-item-1-subitem-3',
-          'feature-2-item-1-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-2-item-name-2',
-        items: [
-          'feature-2-item-2-subitem-1',
-          'feature-2-item-2-subitem-2',
-          'feature-2-item-2-subitem-3',
-          'feature-2-item-2-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-2-item-name-3',
-        items: [
-          'feature-2-item-3-subitem-1',
-          'feature-2-item-3-subitem-2',
-          'feature-2-item-3-subitem-3',
-          'feature-2-item-3-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-2-item-name-4',
-        items: [
-          'feature-2-item-4-subitem-1',
-          'feature-2-item-4-subitem-2',
-          'feature-2-item-4-subitem-3',
-          'feature-2-item-4-subitem-4'
-        ]
-      }
-    ],
     gradient: 'from-emerald-500/10 to-blue-500/10'
   },
   {
     id: 'operations',
     icon: FcBullish,
-    title: 'feature-title-3',
-    description: 'feature-description-3',
     image: '/present-billing.png',
-    categories: [
-      {
-        name: 'feature-3-item-name-1',
-        items: [
-          'feature-3-item-1-subitem-1',
-          'feature-3-item-1-subitem-2',
-          'feature-3-item-1-subitem-3',
-          'feature-3-item-1-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-3-item-name-2',
-        items: [
-          'feature-3-item-2-subitem-1',
-          'feature-3-item-2-subitem-2',
-          'feature-3-item-2-subitem-3',
-          'feature-3-item-2-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-3-item-name-3',
-        items: [
-          'feature-3-item-3-subitem-1',
-          'feature-3-item-3-subitem-2',
-          'feature-3-item-3-subitem-3',
-          'feature-3-item-3-subitem-4'
-        ]
-      },
-      {
-        name: 'feature-3-item-name-4',
-        items: [
-          'feature-3-item-4-subitem-1',
-          'feature-3-item-4-subitem-2',
-          'feature-3-item-4-subitem-3',
-          'feature-3-item-4-subitem-4'
-        ]
-      }
-    ],
     gradient: 'from-orange-500/10 to-red-500/10'
   }
 ];
+
+// Generate features dynamically
+export const features: Feature[] = featureConfigs.map((config, index) => ({
+  ...config,
+  title: `feature-title-${index + 1}`,
+  description: `feature-description-${index + 1}`,
+  categories: generateCategories(index + 1)
+}));
