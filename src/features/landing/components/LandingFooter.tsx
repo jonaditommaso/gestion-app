@@ -1,25 +1,16 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
-import DemoButton from "./DemoButton";
-import { Button } from "@/components/ui/button";
+import CTAFooter from "./CTAFooter";
+
 
 const LandingFooter = async () => {
     const t = await getTranslations('landing')
 
-    return (//#0d1117 descubre que tan lejos puedes llegar. Ya sea que estés escalando tu propio proyecto como si quieres aumentar la productividad de tu empresa y olvidarte de múltiples plataformas de sincronización laboral, tenemos la solución ideal para ti.
+    return (
         <div className="flex flex-col px-28 w-full bg-[#171321]">
 
-            <div className="text-white flex flex-col items-center my-20 m-auto w-full gap-4">
-                <p className="font-semibold text-3xl tracking-tight">Start working comfortably and productively</p>
-                <p className="text-muted-foreground w-[800px] text-center text-balance">{"Discover how far you can go. Whether you're scaling your own project or want to increase your company's productivity and forget about multiple work-syncing platforms, we have the ideal solution for you."}</p>
-                <div className="flex gap-4">
-                    <Link href={'/pricing'}>
-                        <Button variant='secondary' size='lg'>{t('get-started')}</Button>
-                    </Link>
-                    <DemoButton text={t('button-get-demo-2')} fit />
-                </div>
-            </div>
+            <CTAFooter />
 
             <hr className="h-1 w-full my-4 border-muted-foreground" />
 

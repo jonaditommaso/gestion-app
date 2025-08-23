@@ -1,6 +1,6 @@
 'use client'
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, ArrowRight, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const testimonials = [
@@ -199,30 +199,6 @@ const CustomerSuccess = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
-          className="text-center mt-12"
-        >
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center gap-2 group"
-            >
-              Únete a estas empresas
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
-
-            <span className="text-gray-400 text-sm">
-              Setup en 24 horas • Sin tarjeta de crédito • Soporte dedicado
-            </span>
           </div>
         </motion.div>
       </div>
