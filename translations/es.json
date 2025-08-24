@@ -143,6 +143,23 @@
             "feature-3-item-4-subitem-4": "Automatización de flujos de trabajo con recordatorios, aprobaciones y seguimiento de procesos"
         },
 
+        "customer-success": {
+            "title-1": "Empresas y organizaciones que",
+            "title-2": "confían en nosotros",
+            "subtitle": "Casos de éxito reales que demuestran el impacto de Gestionate\n en equipos como el tuyo.",
+            "quote-1": "Apostamos por Gestionate y ganamos en grande: al centralizar la comunicación interna del equipo, nuestra actividad diaria y contable en la plataforma, ya no necesitamos recurrir a múltiples herramientas y reducimos el tiempo organizacional en un 60%.",
+            "label-1": "Optimización interna",
+            "industry-1": "Tecnología",
+            "quote-2": "Gestionate transformó nuestro flujo de trabajo: ahora tenemos todos los registros de alumnos y personal docente cargados en la nube (y editarlos no puede ser más fácil).",
+            "label-2": "Mejora en gestión",
+            "industry-2": "Educación",
+            "quote-3": "Nunca pensé que la gestión de proyectos podría ser tan simple. En un mismo sitio puedo ver todo lo que necesito: el progreso de cada tarea, el estado de cada venta, la comunicación entre equipos y los movimientos contables. Somos más eficientes que nunca.",
+            "label-3": "Eficiencia lograda",
+            "industry-3": "Diseño",
+            "metric-description-1": "Resultado medido después de",
+            "metric-description-2": "meses de implementación"
+        },
+
         "integrations": "Integraciones",
         "integration-categories": "Categorías",
         "integrated-apps-badge": "Aplicaciones integradas",

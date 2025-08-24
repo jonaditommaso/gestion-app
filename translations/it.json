@@ -142,6 +142,23 @@
             "feature-3-item-4-subitem-4": "Automazione flussi di lavoro con promemoria, approvazioni e monitoraggio processi"
         },
 
+        "customer-success": {
+            "title-1": "Aziende e organizzazioni che",
+            "title-2": "si fidano di noi",
+            "subtitle": "Casi di successo reali che dimostrano l'impatto di Gestionate\n su team come il tuo.",
+            "quote-1": "Abbiamo scommesso su Gestionate e abbiamo vinto alla grande: centralizzando la comunicazione interna del team, la nostra attività quotidiana e contabile sulla piattaforma, non abbiamo più bisogno di ricorrere a più strumenti e abbiamo ridotto il tempo organizzativo del 60%.",
+            "label-1": "Ottimizzazione interna",
+            "industry-1": "Tecnologia",
+            "quote-2": "Gestionate ha trasformato il nostro flusso di lavoro: ora abbiamo tutti i registri degli studenti e del personale docente caricati nel cloud (e modificarli non potrebbe essere più facile).",
+            "label-2": "Miglioramento nella gestione",
+            "industry-2": "Educazione",
+            "quote-3": "Non avrei mai pensato che la gestione dei progetti potesse essere così semplice. In un unico posto posso vedere tutto ciò di cui ho bisogno: il progresso di ogni attività, lo stato di ogni vendita, la comunicazione tra i team e i movimenti contabili. Siamo più efficienti che mai.",
+            "label-3": "Efficienza raggiunta",
+            "industry-3": "Design",
+            "metric-description-1": "Risultato misurato dopo",
+            "metric-description-2": "mesi di implementazione"
+        },
+
         "integrations": "Integrazioni",
         "integration-categories": "Categorie",
         "integrated-apps-badge": "Applicazioni integrate",

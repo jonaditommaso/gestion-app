@@ -2,43 +2,13 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useState, useEffect } from 'react';
-
-const testimonials = [
-  {
-    name: "María González",
-    role: "CEO, TechStartup Inc.",
-    avatar: "M",
-    quote: "Gestionate transformó completamente nuestro flujo de trabajo. Reducimos el tiempo de gestión administrativa en un 60%.",
-    metric: { value: "60%", label: "Menos tiempo administrativo" },
-    company: "TechStartup Inc.",
-    industry: "Tecnología",
-    rating: 5
-  },
-  {
-    name: "Carlos Mendoza",
-    role: "Director de Operaciones, LogiCorp",
-    avatar: "C",
-    quote: "La integración con nuestras herramientas existentes fue perfecta. Ahora tenemos visibilidad total de nuestros procesos.",
-    metric: { value: "95%", label: "Mejora en visibilidad" },
-    company: "LogiCorp",
-    industry: "Logística",
-    rating: 5
-  },
-  {
-    name: "Ana Ruiz",
-    role: "Gerente de Proyecto, CreativeStudio",
-    avatar: "A",
-    quote: "Nunca pensé que la gestión de proyectos podría ser tan simple. Nuestros equipos están más coordinados que nunca.",
-    metric: { value: "40%", label: "Mejora en coordinación" },
-    company: "CreativeStudio",
-    industry: "Diseño",
-    rating: 5
-  }
-];
+import { testimonials } from './testimonials';
+import { useTranslations } from 'next-intl';
 
 const CustomerSuccess = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const t = useTranslations('landing.customer-success');
 
   // Auto-advance testimonials
   useEffect(() => {
@@ -87,13 +57,13 @@ const CustomerSuccess = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-3">
-            Empresas que{' '}
+            {t('title-1')}{' '}
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-300 bg-clip-text text-transparent">
-              confían en nosotros
+              {t('title-2')}
             </span>
           </h2>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            Casos de éxito reales que demuestran el impacto de Gestionate en equipos como el tuyo.
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto whitespace-pre-line">
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -129,7 +99,7 @@ const CustomerSuccess = () => {
                     </div>
 
                     <blockquote className="text-xl lg:text-2xl text-white mb-8 leading-relaxed font-medium">
-                      &ldquo;{testimonials[currentTestimonial].quote}&rdquo;
+                      &ldquo;{t(testimonials[currentTestimonial].quote)}&rdquo;
                     </blockquote>
 
                     <div className="flex items-center justify-between">
@@ -140,7 +110,7 @@ const CustomerSuccess = () => {
                         <div>
                           <div className="font-semibold text-white text-lg">{testimonials[currentTestimonial].name}</div>
                           <div className="text-sm text-gray-300">{testimonials[currentTestimonial].role}</div>
-                          <div className="text-xs text-gray-400">{testimonials[currentTestimonial].company} • {testimonials[currentTestimonial].industry}</div>
+                          <div className="text-xs text-gray-400">{testimonials[currentTestimonial].company} • {t(testimonials[currentTestimonial].industry)}</div>
                         </div>
                       </div>
                     </div>
@@ -153,10 +123,10 @@ const CustomerSuccess = () => {
                         {testimonials[currentTestimonial].metric.value}
                       </div>
                       <div className="text-sm text-gray-300">
-                        {testimonials[currentTestimonial].metric.label}
+                        {t(testimonials[currentTestimonial].metric.label)}
                       </div>
                       <div className="mt-4 text-xs text-gray-400 border-t border-white/10 pt-4">
-                        Resultado medido después de 6 meses de implementación
+                        {t('metric-description-1')} {testimonials[currentTestimonial].months} {t('metric-description-2')}
                       </div>
                     </div>
                   </div>

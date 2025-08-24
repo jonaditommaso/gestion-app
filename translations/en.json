@@ -142,6 +142,23 @@
             "feature-3-item-4-subitem-4": "Workflow automation with reminders, approvals and process tracking"
         },
 
+        "customer-success": {
+            "title-1": "Companies and organizations that",
+            "title-2": "trust us",
+            "subtitle": "Real success stories that demonstrate the impact of Gestionate\n on teams like yours.",
+            "quote-1": "We bet on Gestionate and won big: by centralizing the internal communication of the team, our daily and accounting activity on the platform, we no longer need to resort to multiple tools and we reduced organizational time by 60%.",
+            "label-1": "Internal optimization",
+            "industry-1": "Technology",
+            "quote-2": "Gestionate transformed our workflow: now we have all student and teacher records uploaded to the cloud (and editing them couldn't be easier).",
+            "label-2": "Management improvement",
+            "industry-2": "Education",
+            "quote-3": "I never thought project management could be so simple. In one place I can see everything I need: the progress of each task, the status of each sale, communication between teams and accounting movements. We are more efficient than ever.",
+            "label-3": "Achieved efficiency",
+            "industry-3": "Design",
+            "metric-description-1": "Result measured after",
+            "metric-description-2": "months of implementation"
+        },
+
         "integrations": "Integrations",
         "integration-categories": "Categories",
         "integrated-apps-badge": "Integrated apps",
