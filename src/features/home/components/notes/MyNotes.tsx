@@ -35,7 +35,7 @@ const MyNotes = () => {
                 [field]: value
             }
         });
-        setPopoverIsOpen(prev => !prev)
+        if (field === 'bgColor') setPopoverIsOpen(prev => !prev)
     }
 
     const handleCreateNote = () => {
