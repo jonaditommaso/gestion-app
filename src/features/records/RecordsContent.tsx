@@ -33,7 +33,8 @@ const RecordsContent = () => {
     }, [dataRecords.documents, currentTab])
 
 
-    if(isPending || isGettingRecords || (dataRecords?.total && !currentTab)) return <FadeLoader color="#999" width={3} className="mt-5" />
+
+    if(isPending || (isGettingRecords && currentTab) || (dataRecords?.total && !currentTab)) return <FadeLoader color="#999" width={3} className="mt-5" />
 
     const onCreateTable = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();

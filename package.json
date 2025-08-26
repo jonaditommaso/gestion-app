@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@github/relative-time-element": "^4.4.5",
@@ -40,6 +41,7 @@
     "googleapis": "^148.0.0",
     "hono": "^4.6.10",
     "lucide-react": "^0.465.0",
+    "motion": "^12.23.0",
     "next": "15.0.3",
     "next-intl": "^4.0.2",
     "next-themes": "^0.4.3",
@@ -65,12 +67,15 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-big-calendar": "^1.8.11",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
+    "husky": "^8.0.0",
     "otplib": "^12.0.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",

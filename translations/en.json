@@ -1,10 +1,15 @@
 {
     "landing": {
         "gestionate": "Gestionate",
-        "title": "Manage and organize all\n your work in one place",
-        "subtitle": "Ease of use for your team, results for your business",
-        "we-do": "What do we do?",
-        "services": "We offer all these services",
+        "title-1": "Manage",
+        "title-2": "and organize all\n your work in one place",
+        "subtitle-1": "Ease of use",
+        "subtitle-2": "for your team",
+        "subtitle-3": "results",
+        "subtitle-4": "for your business",
+        "transform-gestion-title-1": "Transform",
+        "transform-gestion-title-2": "your way of working",
+        "transform-gestion-description": "Discover how Gestionate can help you be more productive and efficient in your daily work",
         "service-1": "Control your invoicing",
         "service-2": "Manage your inventory",
         "service-3": "Keep track of your project",
@@ -33,6 +38,144 @@
         "records": "Records",
         "activities": "Activities",
 
+        "hero": {
+            "tabs-title": {
+                "all-in-one": "All-in-one",
+                "space": "Your space",
+                "customization": "Customization",
+                "team": "Team",
+                "security": "Security"
+            },
+            "tabs-description": {
+                "all-in-one": "With Gestionate you can optimize your work by managing all the secondary platforms you need in your daily work life, in one place.",
+                "space": "With Gestionate, while you'll participate in a shared workspace, you can personalize your experience. You can change fonts, colors and add widgets to your homepage. Create personal notes, shortcuts, integrate your Spotify account and much more.",
+                "customization": "No matter what type of organization you work for, Gestionate adapts to your needs. Creating tables, records, expense/income categories and more can be customized to fit your organization and preferences.",
+                "team": "Work in a collaborative environment with your team. You can invite other users to join your organization and assign them specific roles and permissions. Chat with them, create meetings, leave notes, share files and much more.",
+                "security": "Gestionate's security layer is designed to protect both your data and your work and ensure that only authorized people have access to them."
+            }
+        },
+
+        "products": {
+            "main-features-title": "Main features",
+            "main-features-description-1": "Everything you need in",
+            "main-features-description-2": "one platform",
+            "main-features-description-3": "Manage projects, files, and operations from one place with tools designed for modern teams.",
+
+            "feature-title-1": "Task and project management",
+            "feature-description-1": "Manage all team tasks in real time in a simple and efficient way, whether with ordered view in list, calendar or Kanban board.",
+            "feature-1-item-name-1": "Workspace dashboard",
+            "feature-1-item-1-subitem-1": "Kanban board, calendar and task list",
+            "feature-1-item-1-subitem-2": "Status, due date, priority and assignees per task",
+            "feature-1-item-1-subitem-3": "Task report downloads in PDF and Excel",
+            "feature-1-item-1-subitem-4": "Real-time productivity dashboard",
+
+            "feature-1-item-name-2": "Task management with AI Chat",
+            "feature-1-item-2-subitem-1": "Task creation with a prompt",
+            "feature-1-item-2-subitem-2": "Smart priority assignment",
+            "feature-1-item-2-subitem-3": "Customizable notifications",
+            "feature-1-item-2-subitem-4": "Automatic time estimation",
+
+            "feature-1-item-name-3": "Collaboration",
+            "feature-1-item-3-subitem-1": "Task assignment to team members",
+            "feature-1-item-3-subitem-2": "Real-time comments",
+            "feature-1-item-3-subitem-3": "Automatic classification based on workload",
+            "feature-1-item-3-subitem-4": "Read-only option according to permissions",
+
+            "feature-1-item-name-4": "Practicality and speed",
+            "feature-1-item-4-subitem-1": "To-do tasks widget on Home",
+            "feature-1-item-4-subitem-2": "Tags per task in personal Notes",
+            "feature-1-item-4-subitem-3": "Quick actions on tasks",
+            "feature-1-item-4-subitem-4": "Quick filters by status, priority, due date, assignee",
+
+
+            "feature-title-2": "Storage and document management",
+            "feature-description-2": "Upload your records, documents and important files securely and access them from anywhere.",
+            "feature-2-item-name-1": "Record tables",
+            "feature-2-item-1-subitem-1": "Create independent tables where you can list your records and save information in each one",
+            "feature-2-item-1-subitem-2": "You can load records manually or upload an Excel file directly",
+            "feature-2-item-1-subitem-3": "All tables are customizable, meaning they are built depending on your data entry",
+            "feature-2-item-1-subitem-4": "Each record is unique and you can upload images, PDF or Excel documents, and more",
+
+            "feature-2-item-name-2": "Security",
+            "feature-2-item-2-subitem-1": "Share the files you need with end-to-end encryption",
+            "feature-2-item-2-subitem-2": "Access to record details with password only for authorized users",
+            "feature-2-item-2-subitem-3": "Activity log and audit to know who accesses and/or modifies each record or data",
+            "feature-2-item-2-subitem-4": "With permission management you can control who accesses each table, and even allow read-only access",
+
+            "feature-2-item-name-3": "Record management with AI Chat",
+            "feature-2-item-3-subitem-1": "Record creation with a prompt",
+            "feature-2-item-3-subitem-2": "Search semantically and execute actions with AI",
+            "feature-2-item-3-subitem-3": "Automatic report generation",
+            "feature-2-item-3-subitem-4": "Advanced filters by metadata",
+
+            "feature-2-item-name-4": "More about the scope of operations",
+            "feature-2-item-4-subitem-1": "Integration with Google Drive, OneDrive and Dropbox",
+            "feature-2-item-4-subitem-2": "Interactive dashboard to visualize and execute actions on your records",
+            "feature-2-item-4-subitem-3": "Custom alerts depending on selected criteria",
+            "feature-2-item-4-subitem-4": "Data recovery file download, automatic backups and version history information",
+
+
+            "feature-title-3": "Operational and financial portal",
+            "feature-description-3": "Upload your income and expenses, and access real-time financial reports. Manage attendance, payroll, permissions and much more.",
+            "feature-3-item-name-1": "Finance",
+            "feature-3-item-1-subitem-1": "Operations view in calendar, general and custom dashboard with charts and trends on your income and expenses",
+            "feature-3-item-1-subitem-2": "Budget and expense category management, including payroll with detailed information such as hours worked, deductions and benefits",
+            "feature-3-item-1-subitem-3": "Automated financial reports and optimization suggestions with action plans",
+            "feature-3-item-1-subitem-4": "Manage different independent accounts, currencies and categories",
+
+            "feature-3-item-name-2": "Human Resources",
+            "feature-3-item-2-subitem-1": "Integrated payroll management with attendance insertion and hours worked",
+            "feature-3-item-2-subitem-2": "Role and permission assignment for all areas",
+            "feature-3-item-2-subitem-3": "Private activity in personal areas and real-time activity log for collaboration areas",
+            "feature-3-item-2-subitem-4": "Performance evaluations, goal tracking and talent management",
+
+            "feature-3-item-name-3": "Sales",
+            "feature-3-item-3-subitem-1": "Comprehensive lead and prospect management, from prospecting to closing",
+            "feature-3-item-3-subitem-2": "Visual sales funnel with customizable stages and conversion tracking",
+            "feature-3-item-3-subitem-3": "Email and CRM integration to centralize customer interactions",
+            "feature-3-item-3-subitem-4": "Commercial performance reports with conversion metrics, forecast and opportunity analysis",
+
+            "feature-3-item-name-4": "Organizational management",
+            "feature-3-item-4-subitem-1": "Inventory control, logistics, deliveries and returns with stock alerts and resource traceability",
+            "feature-3-item-4-subitem-2": "Internal and external blog for notifications, updates and communication between teams",
+            "feature-3-item-4-subitem-3": "Continuous integration of third-party tools to improve collaboration, productivity and comfort",
+            "feature-3-item-4-subitem-4": "Workflow automation with reminders, approvals and process tracking"
+        },
+
+        "customer-success": {
+            "title-1": "Companies and organizations that",
+            "title-2": "trust us",
+            "subtitle": "Real success stories that demonstrate the impact of Gestionate\n on teams like yours.",
+            "quote-1": "We bet on Gestionate and won big: by centralizing the internal communication of the team, our daily and accounting activity on the platform, we no longer need to resort to multiple tools and we reduced organizational time by 60%.",
+            "label-1": "Internal optimization",
+            "industry-1": "Technology",
+            "quote-2": "Gestionate transformed our workflow: now we have all student and teacher records uploaded to the cloud (and editing them couldn't be easier).",
+            "label-2": "Management improvement",
+            "industry-2": "Education",
+            "quote-3": "I never thought project management could be so simple. In one place I can see everything I need: the progress of each task, the status of each sale, communication between teams and accounting movements. We are more efficient than ever.",
+            "label-3": "Achieved efficiency",
+            "industry-3": "Design",
+            "metric-description-1": "Result measured after",
+            "metric-description-2": "months of implementation"
+        },
+
+        "integrations": "Integrations",
+        "integration-categories": "Categories",
+        "integrated-apps-badge": "Integrated apps",
+        "integrated-apps-title-1": "Integrations that",
+        "integrated-apps-title-2": "boost your flow",
+        "integrated-apps-description": "Connect the tools you'll use to automate processes and maximize your team's productivity.",
+        "available-integrations-title": "Available integrations",
+        "available-integrations-description": "Log in once and enjoy the convenience of having everything you need in one place.",
+        "explore-integrations": "Explore integrations",
+        "featured-integrations": "Featured integrations",
+        "many-more-integrations": "Many more available",
+        "integration-1": "Create meetings easily with your team members",
+        "integration-2": "View your created events and meetings",
+        "integration-3": "Listen to your music with Spotify in the background",
+        "integration-4": "Manage your GitHub repositories from the platform",
+
+
         "button-get-demo-1": "Get a free demo without registration",
         "button-get-demo-2": "Get a demo without registration",
         "cancel": "Cancel",
@@ -55,7 +198,7 @@
         "enter-valid-email": "Enter a valid email",
 
         "navbar-start": "Get started",
-        "navbar-gestate": "The web application that allows you to manage your business more efficiently. Everything you need, in one place.",
+        "navbar-gestionate": "The web application that allows you to manage your business more efficiently. Everything you need, in one place.",
         "navbar-intro": "Introduction",
         "navbar-intro-description": "What Gestionate is about and how it can help you in your work.",
         "navbar-how-it-works": "How it works",
@@ -72,6 +215,9 @@
         "navbar-products-inventory-title": "Inventory",
         "navbar-products-inventory-description": "Upload inflows and outflows and efficiently control your stock",
         "navbar-pricing": "Prices",
+
+        "footer-cta-title": "Start working comfortably and productively",
+        "footer-cta-description": "Discover how far you can go. Whether you're scaling your own project or want to increase your company's productivity and forget about multiple work-syncing platforms, we have the ideal solution for you.",
 
         "footer-who-we-are": "Who we are",
         "footer-faq": "FAQ",
@@ -119,10 +265,13 @@
         "who-we-are-4": "We'll provide you with every possible comfort to make your workday easier. We won’t stop working for you.",
 
         "message-created": "Message successfully created",
-        "failed-create-message": "Sorry, there was an error creating the message"
+        "failed-create-message": "Sorry, there was an error creating the message",
+        "see-more": "See more"
     },
     "pricing": {
-        "pricing-title": "Choose the perfect plan for your team",
+        "pricing-title-1": "Choose the",
+        "pricing-title-2": "perfect plan",
+        "pricing-title-3": "for your team",
         "pricing-annual": "annual",
         "pricing-monthly": "monthly",
         "pricing-most-popular": "Most popular",
@@ -517,7 +666,9 @@
         "home": "Home",
         "billing": "Billing",
         "activities": "Activities",
+        "records": "Records",
         "team": "Team",
+        "roles": "Roles",
         "select-date": "Select date",
         "due-date": "Due date",
         "logout": "Logout",

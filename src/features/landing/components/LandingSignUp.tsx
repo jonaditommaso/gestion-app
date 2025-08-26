@@ -35,14 +35,14 @@ const LandingSignUp = () => {
             <form className="flex items-center space-x-2 w-full" onSubmit={handleSubmit} noValidate>
                 <Input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Enter your email"
                     className="focus-visible:ring-0 focus:outline-none bg-white text-black h-10 flex-1 max-sm:h-8 max-sm:text-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
                 />
-                <Button size={isMobile ? 'sm' : 'lg'} type="submit">{t('get-started')}</Button>
+                <Button size={isMobile ? 'sm' : 'lg'} type="submit" className="outline outline-1 outline-white decoration-transparent hover:bg-neutral-800 transition-all duration-150">{t('get-started')}</Button>
             </form>
         </>
     );

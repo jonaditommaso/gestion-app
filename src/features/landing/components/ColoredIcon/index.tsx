@@ -18,7 +18,7 @@ const ColoredIcon: FC<ColoredIconProps> = ({
 }) => {
   return (
     <div className="relative inline-block">
-      <Icon className={iconColor} size={50} />
+      <Icon className={iconColor} size={50} strokeWidth={1.5} />
 
       <div
         className={cn(

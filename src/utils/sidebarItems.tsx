@@ -1,4 +1,4 @@
-import {  Home, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Handshake, Target, KeyRound, MessagesSquare,
+import {  Home, KeyRound, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Handshake, Target, KeyRound, MessagesSquare,
 
 export const initialItem = [
   {
@@ -61,10 +61,10 @@ export const sidebarBottomItems = [
   //   icon: MessagesSquare,
   //   key: 'chat'
   // },
-  // {
-  //   title: "Permisos",
-  //   url: "/permissions",
-  //   icon: KeyRound,
-  //   key: 'permission'
-  // },
+  {
+    title: "roles",
+    url: "/roles",
+    icon: KeyRound,
+    key: 'roles'
+  },
 ]

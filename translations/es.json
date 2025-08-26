@@ -1,10 +1,15 @@
 {
     "landing": {
         "gestionate": "Gestionate",
-        "title": "Gestiona y organiza todo\n tu trabajo en un solo lugar",
-        "subtitle": "Facilidad para tu equipo, resultados para tu negocio",
-        "we-do": "¿Qué hacemos?",
-        "services": "Contamos con todos estos servicios",
+        "title-1": "Gestiona",
+        "title-2": "y organiza todo\n tu trabajo en un solo lugar",
+        "subtitle-1": "Facilidad",
+        "subtitle-2": "para tu equipo",
+        "subtitle-3": "resultados",
+        "subtitle-4": "para tu negocio",
+        "transform-gestion-title-1": "Transforma",
+        "transform-gestion-title-2": "tu manera de trabajar",
+        "transform-gestion-description": "Descubre cómo Gestionate puede ayudarte a ser más productivo y eficiente en tu trabajo diario",
         "service-1": "Controla tu facturación",
         "service-2": "Gestiona tu inventario",
         "service-3": "Sigue de cerca tu proyecto",
@@ -32,6 +37,144 @@
         "facturation": "Facturación",
         "records": "Registros",
         "activities": "Actividades",
+
+        "hero": {
+            "tabs-title": {
+                "all-in-one": "Todo en uno",
+                "space": "Tu espacio",
+                "customization": "Personalización",
+                "team": "Equipo",
+                "security": "Seguridad"
+            },
+            "tabs-description": {
+                "all-in-one": "Con Gestionate podrás optimizar tu trabajo al administrar todas las plataformas secundarias que necesitas en tu día a día laboral, en un solo sitio.",
+                "space": "Con Gestionate, si bien participarás de un espacio de trabajo compartido, podrás personalizar tu experiencia. Puedes cambiar fuentes, colores y añadir widgets a tu página de inicio. Crea notas personales, atajos, integra tu cuenta de Spotify y más.",
+                "customization": "No importa el tipo de organización para la que trabajes, Gestionate se adapta a tus necesidades. La creación de tablas, registros, categorías de gastos/ingresos y más, se puede personalizar para que se ajuste a tu organización y preferencias.",
+                "team": "Trabaja en un ambiente colaborativo con tu equipo. Puedes invitar a otros usuarios a unirse a tu organización y asignarles roles y permisos específicos. Chatea con ellos, crea reuniones, deja notas, comparte archivos y mucho más.",
+                "security": "La capa de seguridad de Gestionate está diseñada para proteger tanto tus datos como tu trabajo y garantizar que solo las personas autorizadas tengan acceso a ellos."
+            }
+        },
+
+        "products": {
+
+            "main-features-title": "Funcionalidades principales",
+            "main-features-description-1": "Todo lo que necesitas en",
+            "main-features-description-2": "una plataforma",
+            "main-features-description-3": "Gestiona proyectos, archivos y operaciones desde un solo lugar con herramientas diseñadas para equipos modernos.",
+
+            "feature-title-1": "Gestión de tareas y proyectos",
+            "feature-description-1": "Administra en tiempo real todas las tareas del equipo de forma sencilla y eficiente, ya sea con vista ordenada en lista, calendario o tablero Kanban.",
+            "feature-1-item-name-1": "Workspace dashboard",
+            "feature-1-item-1-subitem-1": "Tablero Kanban, calendario y lista de tareas",
+            "feature-1-item-1-subitem-2": "Estado, vencimiento, prioridad y responsables por tarea",
+            "feature-1-item-1-subitem-3": "Descargas de informes de tareas en PDF y Excel",
+            "feature-1-item-1-subitem-4": "Dashboard de productividad en tiempo real",
+
+            "feature-1-item-name-2": "Gestión de tareas con Chat IA",
+            "feature-1-item-2-subitem-1": "Creación de tareas con un prompt",
+            "feature-1-item-2-subitem-2": "Asignación de prioridad inteligente",
+            "feature-1-item-2-subitem-3": "Notificaciones personalizables",
+            "feature-1-item-2-subitem-4": "Estimación de tiempo automática",
+
+            "feature-1-item-name-3": "Colaboración",
+            "feature-1-item-3-subitem-1": "Asignación de tareas a miembros del equipo",
+            "feature-1-item-3-subitem-2": "Comentarios en tiempo real",
+            "feature-1-item-3-subitem-3": "Clasificación automática basada en carga de trabajo",
+            "feature-1-item-3-subitem-4": "Opción solo lectura según permisos",
+
+            "feature-1-item-name-4": "Practicidad y velocidad",
+            "feature-1-item-4-subitem-1": "Widget de tareas por hacer en Inicio",
+            "feature-1-item-4-subitem-2": "Tags por tarea en Notas personales",
+            "feature-1-item-4-subitem-3": "Acciones rápidas sobre las tareas",
+            "feature-1-item-4-subitem-4": "Filtros rápidos por estado, prioridad, vencimiento, responsable",
+
+
+            "feature-title-2": "Almacenamiento y gestión de documentos",
+            "feature-description-2": "Carga tus registros, documentos y archivos importantes de forma segura y accede a ellos desde cualquier lugar.",
+            "feature-2-item-name-1": "Tablas de registros",
+            "feature-2-item-1-subitem-1": "Crea tablas independientes donde podrás listar tus registros y guardar información en cada uno",
+            "feature-2-item-1-subitem-2": "Puedes cargar registros de manera manual o cargar un archivo Excel directamente",
+            "feature-2-item-1-subitem-3": "Todas las tablas son personalizables, es decir, que se arman dependiendo de tu entrada de datos",
+            "feature-2-item-1-subitem-4": "Cada registro es único y puedes cargar en ellos imágenes, documentos PDF o Excel, y más",
+
+            "feature-2-item-name-2": "Seguridad",
+            "feature-2-item-2-subitem-1": "Comparte los archivos que necesites con encriptación de extremo a extremo",
+            "feature-2-item-2-subitem-2": "Acceso a detalles de registros con contraseña solo para usuarios autorizados",
+            "feature-2-item-2-subitem-3": "Registro de actividad y auditoría para saber quién accede y/o modifica cada registro o dato",
+            "feature-2-item-2-subitem-4": "Con la gestión de permisos puedes controlar quién accede a cada tabla, e incluso permitir solo lectura",
+
+            "feature-2-item-name-3": "Gestión de registros con Chat IA",
+            "feature-2-item-3-subitem-1": "Creación de registros con un prompt",
+            "feature-2-item-3-subitem-2": "Buscar semánticamente y ejecutar acciones con IA",
+            "feature-2-item-3-subitem-3": "Generación de informes automáticos",
+            "feature-2-item-3-subitem-4": "Filtros avanzados por metadatos",
+
+            "feature-2-item-name-4": "Más sobre el alcance de las operaciones",
+            "feature-2-item-4-subitem-1": "Integración con Google Drive, OneDrive y Dropbox",
+            "feature-2-item-4-subitem-2": "Dashboard interactivo para visualizar y ejecutar acciones sobre tus registros",
+            "feature-2-item-4-subitem-3": "Alertas personalizadas dependiendo de criterios seleccionados",
+            "feature-2-item-4-subitem-4": "Descarga de archivo de recuperación de datos, Backup automáticos e información sobre el historial de versiones",
+
+
+            "feature-title-3": "Portal operativo y financiero",
+            "feature-description-3": "Carga tus ingresos y egresos, y accede a reportes financieros en tiempo real. Gestiona la presencialidad, la nómina, los permisos y mucho más.",
+            "feature-3-item-name-1": "Finanzas",
+            "feature-3-item-1-subitem-1": "Vista de operaciones en calendario, dashboard general y personalizado con gráficos y tendencias sobre tus ingresos y egresos",
+            "feature-3-item-1-subitem-2": "Gestión de presupuestos y categorías de gastos, incluyendo la nómina con información detallada como horas trabajadas, deducciones y beneficios",
+            "feature-3-item-1-subitem-3": "Reportes financieros automatizados y sugerencias de optimización con planes de acción",
+            "feature-3-item-1-subitem-4": "Gestiona distintas cuentas independientes, monedas y categorías",
+
+            "feature-3-item-name-2": "Recursos Humanos",
+            "feature-3-item-2-subitem-1": "Gestión de nómina integrada con inserción de presencialidad y horas trabajadas",
+            "feature-3-item-2-subitem-2": "Asignación de roles y permisos para todas las áreas",
+            "feature-3-item-2-subitem-3": "Actividad privada en áreas personales y registro de actividad en tiempo real para las áreas de colaboración",
+            "feature-3-item-2-subitem-4": "Evaluaciones de desempeño, seguimiento de objetivos y gestión del talento",
+
+            "feature-3-item-name-3": "Ventas",
+            "feature-3-item-3-subitem-1": "Gestión integral de leads y clientes potenciales, desde la prospección hasta el cierre",
+            "feature-3-item-3-subitem-2": "Embudo de ventas visual con etapas personalizables y seguimiento de conversiones",
+            "feature-3-item-3-subitem-3": "Integración con correo y CRM para centralizar interacciones con clientes",
+            "feature-3-item-3-subitem-4": "Reportes de rendimiento comercial con métricas de conversión, forecast y análisis de oportunidades",
+
+            "feature-3-item-name-4": "Gestión organizacional",
+            "feature-3-item-4-subitem-1": "Control de inventario, logística, entregas y devoluciones con alertas de stock y trazabilidad de recursos",
+            "feature-3-item-4-subitem-2": "Blog interno y externo para notificaciones, actualizaciones y comunicación entre equipos",
+            "feature-3-item-4-subitem-3": "Integración continua de herramientas de terceros para mejorar la colaboración, la productividad y el confort",
+            "feature-3-item-4-subitem-4": "Automatización de flujos de trabajo con recordatorios, aprobaciones y seguimiento de procesos"
+        },
+
+        "customer-success": {
+            "title-1": "Empresas y organizaciones que",
+            "title-2": "confían en nosotros",
+            "subtitle": "Casos de éxito reales que demuestran el impacto de Gestionate\n en equipos como el tuyo.",
+            "quote-1": "Apostamos por Gestionate y ganamos en grande: al centralizar la comunicación interna del equipo, nuestra actividad diaria y contable en la plataforma, ya no necesitamos recurrir a múltiples herramientas y reducimos el tiempo organizacional en un 60%.",
+            "label-1": "Optimización interna",
+            "industry-1": "Tecnología",
+            "quote-2": "Gestionate transformó nuestro flujo de trabajo: ahora tenemos todos los registros de alumnos y personal docente cargados en la nube (y editarlos no puede ser más fácil).",
+            "label-2": "Mejora en gestión",
+            "industry-2": "Educación",
+            "quote-3": "Nunca pensé que la gestión de proyectos podría ser tan simple. En un mismo sitio puedo ver todo lo que necesito: el progreso de cada tarea, el estado de cada venta, la comunicación entre equipos y los movimientos contables. Somos más eficientes que nunca.",
+            "label-3": "Eficiencia lograda",
+            "industry-3": "Diseño",
+            "metric-description-1": "Resultado medido después de",
+            "metric-description-2": "meses de implementación"
+        },
+
+        "integrations": "Integraciones",
+        "integration-categories": "Categorías",
+        "integrated-apps-badge": "Aplicaciones integradas",
+        "integrated-apps-title-1": "Integraciones que",
+        "integrated-apps-title-2": "potencian tu flujo",
+        "integrated-apps-description": "Conecta las herramientas que utilizarás para automatizar procesos y maximizar la productividad de tu equipo.",
+        "available-integrations-title": "Integraciones disponibles",
+        "available-integrations-description": "Inicia sesión una vez y disfruta la comodidad de tener todo lo que necesitas en un solo lugar",
+        "explore-integrations": "Explorar integraciones",
+        "featured-integrations": "Integraciones destacadas",
+        "many-more-integrations": "Muchas más disponibles",
+        "integration-1": "Crea reuniones fácilmente con miembros de tu equipo",
+        "integration-2": "Visualiza tus eventos y reuniones creadas",
+        "integration-3": "Escucha tu música con Spotify en segundo plano",
+        "integration-4": "Gestiona tus repositorios de GitHub desde la plataforma",
 
         "button-get-demo-1": "Obtener demo gratis sin registro",
         "button-get-demo-2": "Obtener Demo sin registro",
@@ -70,9 +213,12 @@
         "navbar-products-billing-description": "Gestion Bill te permitirá cargar tus movimientos financieros y generar un resumen",
         "navbar-products-records-title": "Registros",
         "navbar-products-records-description": "Carga todos los registros que necesites, y organizalas en tablas",
-        "navbar-products-inventary-title": "Inventario",
-        "navbar-products-inventary-description": "Carga las entradas y salidas, y lleva un control eficiente de tu stock",
+        "navbar-products-inventory-title": "Inventario",
+        "navbar-products-inventory-description": "Carga las entradas y salidas, y lleva un control eficiente de tu stock",
         "navbar-pricing": "Precios",
+
+        "footer-cta-title": "Comienza a trabajar de manera cómoda y productiva",
+        "footer-cta-description": "Descubre que tan lejos puedes llegar. Ya sea que estés escalando tu propio proyecto como si quieres aumentar la productividad de tu empresa y olvidarte de múltiples plataformas de sincronización laboral, tenemos la solución ideal para ti.",
 
         "footer-who-we-are": "Quiénes somos",
         "footer-faq": "Preguntas frecuentes",
@@ -120,10 +266,13 @@
         "who-we-are-4": "Te daremos todas las comodidades posibles, para facilitar tu jornada de trabajo. No vamos a dejar de trabajar por ti.",
 
         "message-created": "Mensaje creado con éxito",
-        "failed-create-message": "Lo sentimos, hubo un error creando el mensaje"
+        "failed-create-message": "Lo sentimos, hubo un error creando el mensaje",
+        "see-more": "Ver más"
     },
     "pricing": {
-        "pricing-title": "Elige el plan perfecto para tu equipo",
+        "pricing-title-1": "Elige el plan perfecto para tu equipo",
+        "pricing-title-2": "plan perfecto",
+        "pricing-title-3": "para tu equipo",
         "pricing-annual": "anual",
         "pricing-monthly": "mensual",
         "pricing-most-popular": "El más popular",
@@ -520,6 +669,7 @@
         "records": "Registros",
         "activities": "Actividades",
         "team": "Equipo",
+        "roles": "Roles",
         "select-date": "Seleccionar fecha",
         "due-date": "Fecha límite",
         "logout": "Cerrar sesión",

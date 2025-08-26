@@ -17,10 +17,12 @@ type RecordData = {
 interface AddRecordsInputsProps {
     setRecordData: Dispatch<SetStateAction<RecordData[]>>,
     index: number,
-    data: RecordData
+    data: RecordData,
+    headersUsed: string[],
+    isLastItem: boolean
 }
 
-const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps) => {
+const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem }: AddRecordsInputsProps) => {
     const { data: dataRecords } = useGetContextRecords();
     const headers = dataRecords?.documents[0]?.headers;
 
@@ -63,7 +65,7 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {headers?.map((header: string) => (
-                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')}>
+                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')} disabled={headersUsed.includes(header)}>
                                     {capitalize(header)}
                                 </DropdownMenuItem>
                             ))}
@@ -88,8 +90,12 @@ const AddRecordsInputs = ({ data, setRecordData, index }: AddRecordsInputsProps)
 
             <div className="flex items-center gap-4">
                 <Separator className="flex-1" />
-                <span className="w-40px"><Plus className="border rounded-md p-0.5 cursor-pointer hover:opacity-70 text-primary" size={20} onClick={() => handleAddData()} /></span>
-                <Separator className="flex-1" />
+                {isLastItem && (
+                    <>
+                        <span className="w-40px"><Plus className="border rounded-md p-0.5 cursor-pointer hover:opacity-70 text-primary" size={20} onClick={() => handleAddData()} /></span>
+                        <Separator className="flex-1" />
+                    </>
+                )}
             </div>
         </div>
     );

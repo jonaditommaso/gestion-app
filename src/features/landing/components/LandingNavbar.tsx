@@ -18,7 +18,7 @@ import { useParams, usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
 import { useTranslations } from "next-intl"
-import { AlignJustify, Languages, X } from "lucide-react"
+import { AlignJustify, BookOpen, Bolt, Languages, Telescope, X } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LanguagesSelection } from "@/components/LanguagesSelection"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -53,15 +53,23 @@ export function LandingNavbar() {
   }
 
   return (
-    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-10 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
-      {isMobile && <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
+    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
+      {isMobile && <Image src={isScrolled ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
 
       {!isMobile && (
         <NavigationMenuList className="flex gap-1">
-        <Image src='/gestionate-logo.svg' height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
+        <Image src={isScrolled || pathname === '/pricing' ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger className={cn(!isScrolled && 'bg-transparent hover:bg-transparent text-white', pathname === '/pricing' && 'text-black')}>{t('navbar-start')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger
+            className={cn(
+              !isScrolled && 'bg-transparent hover:!bg-white text-white focus:!bg-white data-[state=open]:!bg-white',
+              pathname === '/pricing' && 'text-black',
+              'data-[state=open]:bg-white data-[state=open]:text-black'
+            )}
+          >
+            {t('navbar-start')}
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -70,6 +78,7 @@ export function LandingNavbar() {
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                     href="/docs"
                   >
+                    <Image src='/gestionate-logo.svg' height={70} width={70} alt="gestionate-navbar-logo" />
                     <div className="mb-2 mt-4 text-lg font-medium">
                       Gestionate
                     </div>
@@ -79,20 +88,28 @@ export function LandingNavbar() {
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs#introduction" title={t('navbar-intro')}>
+              <ListItem href="/docs#introduction" title={t('navbar-intro')} icon={<BookOpen className="h-5 w-5" />}>
                 {t('navbar-intro-description')}
               </ListItem>
-              <ListItem href="/docs#how-it-works" title={t('navbar-how-it-works')}>
+              <ListItem href="/docs#how-it-works" title={t('navbar-how-it-works')} icon={<Bolt className="h-5 w-5" />}>
                 {t('navbar-how-it-works-description')}
               </ListItem>
-              <ListItem href="/docs#customize" title={t('navbar-now-what')}>
+              <ListItem href="/docs#customize" title={t('navbar-now-what')} icon={<Telescope className="h-5 w-5" />}>
                 {t('navbar-now-what-description')}
               </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className={cn(!isScrolled && 'bg-transparent hover:bg-transparent text-white', pathname === '/pricing' && 'text-black')}>{t('navbar-products')}</NavigationMenuTrigger>
+          <NavigationMenuTrigger
+            className={cn(
+              !isScrolled && 'bg-transparent hover:!bg-white text-white focus:!bg-white data-[state=open]:!bg-white',
+              pathname === '/pricing' && 'text-black',
+              'data-[state=open]:bg-white data-[state=open]:text-black'
+            )}
+          >
+            {t('navbar-products')}
+          </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {products.map((product) => (
@@ -100,6 +117,7 @@ export function LandingNavbar() {
                   key={product.title}
                   title={t(product.title)}
                   href={product.href}
+                  icon={product.icon}
                 >
                   {t(product.description)}
                 </ListItem>
@@ -107,23 +125,6 @@ export function LandingNavbar() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-
-        {/* <NavigationMenuItem>
-          <NavigationMenuTrigger>Soluciones</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {solutions.map((solution) => (
-                <ListItem
-                  key={solution.title}
-                  title={solution.title}
-                  href={solution.href}
-                >
-                  {solution.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem> */}
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
@@ -150,7 +151,7 @@ export function LandingNavbar() {
           <Button variant='outline'>{t('button-signin')}</Button>
         </Link>
         {!isMobile && <Link href={'/pricing'}>
-          <Button>{t('get-started')}</Button>
+          <Button variant={isScrolled ? 'default' : 'link'} className={`text-white ${!isScrolled ? 'outline outline-1 outline-white decoration-transparent hover:bg-neutral-800 bg-black transition-all duration-150' : ''}`}>{t('get-started')}</Button>
         </Link>}
         {isMobile && (
            <AlignJustify onClick={() => setIsMobileMenuOpen(true)} />
@@ -176,8 +177,8 @@ export function LandingNavbar() {
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<"a"> & { icon?: React.ReactNode; title: React.ReactNode }
+>(({ className, title, icon, children, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
@@ -189,7 +190,9 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
+          <div className="text-sm font-medium leading-none flex items-center gap-3">
+            {icon && <span>{icon}</span>}
+            <span>{title}</span></div>
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>

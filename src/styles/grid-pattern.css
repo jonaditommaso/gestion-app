@@ -1,0 +1,8 @@
+/* Grid pattern for background */
+.bg-grid-white\/\[0\.02\] {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.bg-\[size\:50px_50px\] {
+  background-size: 50px 50px;
+}
