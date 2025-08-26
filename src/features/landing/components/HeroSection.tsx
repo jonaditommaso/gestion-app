@@ -1,6 +1,5 @@
 'use client'
 
-import Image from "next/image";
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
@@ -9,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import DemoButton from "./DemoButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { presentationItems } from "../presentationItems";
+import VideoPlayer from "@/components/VideoPlayer";
 
 function HeroSection() {
     const t = useTranslations('landing');
@@ -59,12 +59,12 @@ function HeroSection() {
                 className="mt-48 p-8 border rounded-lg z-10"
                 style={{ backgroundImage: "linear-gradient(10deg, #11314a 40%, #22314a  90%)" }}
             >
-                <Image
-                    width={1000}
-                    height={1000}
-                    alt={"home"}
-                    src={"/present-workspaces.png"}
-                    className="border rounded-md"
+                <VideoPlayer
+                    src="/gestionate-hero.mov"
+                    className="border rounded-md w-full max-w-[1000px] mx-auto"
+                    autoPlay={true}
+                    muted={true}
+                    loop={true}
                 />
             </div>
             <Tabs defaultValue="all-in-one" className="mt-10 z-20 w-[60%] m-auto">
