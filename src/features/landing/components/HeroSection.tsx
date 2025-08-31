@@ -61,7 +61,7 @@ function HeroSection() {
             >
                 <VideoPlayer
                     src="/gestionate-hero.mov"
-                    className="border rounded-md w-full max-w-[1000px] mx-auto"
+                    className="border rounded-md w-full max-w-[1000px] mx-auto bg-black/90"
                     autoPlay={true}
                     muted={true}
                     loop={true}
