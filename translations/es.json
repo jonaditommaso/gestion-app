@@ -176,6 +176,9 @@
         "integration-3": "Escucha tu música con Spotify en segundo plano",
         "integration-4": "Gestiona tus repositorios de GitHub desde la plataforma",
 
+        "our-integrations": "Las integraciones que harán tu trabajo más productivo y fácil",
+        "our-integrations-description": "Conecta las más de 10 aplicaciones que tenemos disponibles\n para optimizar tu jornada laboral.",
+
         "button-get-demo-1": "Obtener demo gratis sin registro",
         "button-get-demo-2": "Obtener Demo sin registro",
         "cancel": "Cancelar",
@@ -223,6 +226,7 @@
         "footer-who-we-are": "Quiénes somos",
         "footer-faq": "Preguntas frecuentes",
         "footer-terms": "Términos",
+        "footer-privacy": "Privacidad",
         "footer-contact-us": "Contactanos",
 
         "docs-intro-title": "Introducción",
@@ -240,8 +244,61 @@
         "products-billing-description": "G-Billing te permite cargar tus ingresos y egresos, para visualizar de manera clara y directa el resumen de tus cuentas. Añade los gráficos que mejor se adecuen a tu sistema de gestión.",
         "products-records-title": "Registros",
         "products-records-description": "Carga tus registros de clientes, potenciales clientes, proveedores, afiliados, o el listado que tu quieras y necesites. Podrás subir tu archivo excel para varios registros y también podrás cargarlos manualmente. Tienes diferentes tablas a tu total disposición.",
-        "products-innventory-title": "Inventario",
-        "products-innventory-description": "Con G-Inventory llevarás un control eficiente de tu inventario. Carga fácilmente las entradas, salidas y gestiona tu stock. Te proveemos múltiples herramientas de fácil usabilidad. Verás que llevar un control de inventario nunca fue tan sencillo.",
+        "products-inventory-title": "Inventario",
+        "products-inventory-description": "Con G-Inventory llevarás un control eficiente de tu inventario. Carga fácilmente las entradas, salidas y gestiona tu stock. Te proveemos múltiples herramientas de fácil usabilidad. Verás que llevar un control de inventario nunca fue tan sencillo.",
+
+        "products-badge": "Soluciones profesionales",
+        "products-title-1": "Productos que",
+        "products-title-2": "impulsarán",
+        "products-title-3": "\ntu organización",
+        "products-description": "Descubre nuestro conjunto de herramientas diseñadas para potenciar la productividad,\n optimizar procesos y hacer crecer tu organización.",
+        "products-cta-1": "Explorar productos",
+
+        "product-workspace-item-1": "Tableros Kanban y vista de calendario",
+        "product-workspace-item-2": "Gestión de tareas con Chat IA",
+        "product-workspace-item-3": "Descargas de informes en PDF y Excel",
+        "product-workspace-item-4": "Ejecución de tareas automáticas",
+
+        "product-records-item-1": "Tablas dinámicas organizadas",
+        "product-records-item-2": "Carga desde Excel/CSV",
+        "product-records-item-3": "Búsqueda y filtros avanzados",
+        "product-records-item-4": "Historial de cambios",
+
+        "product-billing-item-1": "Portal operativo completo",
+        "product-billing-item-2": "Gráficos y reportes visuales",
+        "product-billing-item-3": "Control de ingresos y egresos",
+        "product-billing-item-4": "Resúmenes financieros automáticos",
+
+        "product-inventory-item-1": "Control de entradas y salidas",
+        "product-inventory-item-2": "Seguimiento de stock actual",
+        "product-inventory-item-3": "Alertas de stock mínimo",
+        "product-inventory-item-4": "Reportes de movimientos",
+        "products-cta-2": "Ver documentación",
+        "products-badge-tech": "Excelencia tecnológica",
+        "products-overview-title": "Las soluciones que tiene Gestionate para ti en estos productos",
+        "products-overview-description": "Herramientas integradas que cubren todas las necesidades de tu organización,\n desde la gestión de proyectos hasta el análisis financiero.",
+
+        "products-tech-title-1": "Características que nos",
+        "products-tech-title-2": "diferencian",
+        "products-tech-description": "Gestionate garantiza seguridad, rendimiento, y escalabilidad con funcionalidades avanzadas diseñadas para organizaciones que buscan excelencia operacional y crecimiento sostenible.",
+
+        "products-diff-title-1": "Interfaz intuitiva, experiencia única",
+        "products-diff-title-2": "Inteligencia artificial integrada",
+        "products-diff-title-3": "Seguridad empresarial",
+
+        "products-diff-description-1": "Acciones intuitivas, navegación fluida e interfaz amigable y personalizable que facilita la adopción por parte de cualquier usuario.",
+        "products-diff-description-2": "Machine learning integrado para predicciones, automatización de tareas y recomendaciones personalizadas.",
+        "products-diff-description-3": "Encriptación AES-256 y autenticación multi-factor. Tus datos están protegidos con los más altos estándares de la industria.",
+
+        "items-feature-diff-1-1": "Interfaz intuitiva y fácil de usar",
+        "items-feature-diff-1-2": "Integración con herramientas populares",
+        "items-feature-diff-1-3": "Accesos rápidos y personalizados",
+        "items-feature-diff-2-1": "Análisis predictivo avanzado",
+        "items-feature-diff-2-2": "Automatización inteligente",
+        "items-feature-diff-2-3": "Insights personalizados",
+        "items-feature-diff-3-1": "Backup automático y recuperación de datos",
+        "items-feature-diff-3-2": "Auditoría completa de accesos",
+        "items-feature-diff-3-3": "Cumplimiento GDPR y CCPA",
 
         "faq-title": "Las preguntas más frecuentes",
         "faq-description":"¿Tienes aún mas curiosidad sobre como funciona Gestionate? Posiblemente la respuesta la encuentres aquí",

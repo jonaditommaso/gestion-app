@@ -221,6 +221,7 @@
         "footer-who-we-are": "Chi siamo",
         "footer-faq": "Domande frequenti",
         "footer-terms": "Termini",
+        "footer-privacy": "Privacy",
         "footer-contact-us": "Contattaci",
 
         "docs-intro-title": "Introduzione",
@@ -238,8 +239,8 @@
         "products-billing-description": "G-Billing ti consente di caricare le tue entrate e uscite, per visualizzare in modo chiaro e diretto il riepilogo dei tuoi conti. Aggiungi i grafici che meglio si adattano al tuo sistema di gestione.",
         "products-records-title": "Registri",
         "products-records-description": "Carica i tuoi registri di clienti, potenziali clienti, fornitori, affiliati, o l'elenco che desideri e ti serve. Potrai caricare il tuo file excel per più registri e anche caricarli manualmente. Hai diverse tabelle a tua completa disposizione.",
-        "products-innventory-title": "Inventario",
-        "products-innventory-description": "Con G-Inventory avrai un controllo efficiente del tuo inventario. Carica facilmente le entrate, le uscite e gestisci il tuo stock. Ti forniamo strumenti facili da usare. Vedrai che gestire l'inventario non è mai stato così semplice.",
+        "products-inventory-title": "Inventario",
+        "products-inventory-description": "Con G-Inventory avrai un controllo efficiente del tuo inventario. Carica facilmente le entrate, le uscite e gestisci il tuo stock. Ti forniamo strumenti facili da usare. Vedrai che gestire l'inventario non è mai stato così semplice.",
 
         "faq-title": "Le domande più frequenti",
         "faq-description": "Hai ancora più curiosità su come funziona Gestionate? Forse troverai la risposta qui",
@@ -265,7 +266,49 @@
 
         "message-created": "Messaggio creato con successo",
         "failed-create-message": "Ci scusiamo, si è verificato un errore durante la creazione del messaggio",
-        "see-more": "Scopri di più"
+        "see-more": "Scopri di più",
+
+        "product-workspace-item-1": "Kanban, calendario e lista delle attività",
+        "product-workspace-item-2": "Gestione di attività con Chat IA",
+        "product-workspace-item-3": "Download di report in PDF e Excel",
+        "product-workspace-item-4": "Esecuzione di attività automatiche",
+
+        "product-records-item-1": "Tabelle dinamiche organizzate",
+        "product-records-item-2": "Caricamento da Excel/CSV",
+        "product-records-item-3": "Ricerca e filtri avanzati",
+        "product-records-item-4": "Cronologia delle modifiche",
+
+        "product-billing-item-1": "Portale operativo completo",
+        "product-billing-item-2": "Grafici e report visivi",
+        "product-billing-item-3": "Controllo entrate e uscite",
+        "product-billing-item-4": "Riepiloghi finanziari automatici",
+
+        "product-inventory-item-1": "Controllo entrate e uscite",
+        "product-inventory-item-2": "Monitoraggio stock attuale",
+        "product-inventory-item-3": "Avvisi stock minimo",
+        "product-inventory-item-4": "Report dei movimenti",
+
+        "products-tech-title-1": "Caratteristiche che",
+        "products-tech-title-2": "ci differenziano",
+        "products-tech-description": "Gestionate garantisce sicurezza, prestazioni, e scalabilità con funzionalità avanzate progettate per organizzazioni che cercano l'eccellenza operativa e una crescita sostenibile.",
+
+        "products-diff-title-1": "Interfaccia intuitiva, esperienza unica",
+        "products-diff-title-2": "Intelligenza artificiale integrata",
+        "products-diff-title-3": "Sicurezza di livello enterprise",
+
+        "products-diff-description-1": "Azioni intuitive, navigazione fluida e un'interfaccia amichevole e personalizzabile che facilita l'adozione da parte di qualsiasi utente.",
+        "products-diff-description-2": "Machine learning integrato per previsioni, automazione dei compiti e raccomandazioni personalizzate.",
+        "products-diff-description-3": "Crittografia AES-256 e autenticazione a più fattori. I tuoi dati sono protetti con i più alti standard del settore.",
+
+        "items-feature-diff-1-1": "Interfaccia intuitiva e facile da usare",
+        "items-feature-diff-1-2": "Integrazione con strumenti popolari",
+        "items-feature-diff-1-3": "Accesso rapido e personalizzato",
+        "items-feature-diff-2-1": "Analisi predittiva avanzata",
+        "items-feature-diff-2-2": "Automazione intelligente",
+        "items-feature-diff-2-3": "Insights personalizzati",
+        "items-feature-diff-3-1": "Backup automatico e recupero dati",
+        "items-feature-diff-3-2": "Audit completo degli accessi",
+        "items-feature-diff-3-3": "Conformità GDPR e CCPA"
     },
     "pricing": {
         "pricing-title-1": "Scegli il",

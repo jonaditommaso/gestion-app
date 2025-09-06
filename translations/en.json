@@ -175,6 +175,8 @@
         "integration-3": "Listen to your music with Spotify in the background",
         "integration-4": "Manage your GitHub repositories from the platform",
 
+        "our-integrations": "The integrations that will make your work more productive and easier",
+        "our-integrations-description": "Connect the more than 10 applications we have available\n to optimize your workday.",
 
         "button-get-demo-1": "Get a free demo without registration",
         "button-get-demo-2": "Get a demo without registration",
@@ -222,6 +224,7 @@
         "footer-who-we-are": "Who we are",
         "footer-faq": "FAQ",
         "footer-terms": "Terms",
+        "footer-privacy": "Privacy",
         "footer-contact-us": "Contact us",
 
         "docs-intro-title": "Introduction",
@@ -241,6 +244,59 @@
         "products-records-description": "Upload your records of clients, potential clients, suppliers, affiliates, or any list you want and need. You can upload your Excel file for multiple records and you can also upload them manually. Different tables are available to you.",
         "products-inventory-title": "Inventory",
         "products-inventory-description": "With G-Inventory, you'll efficiently control your inventory. Easily enter inputs and outputs, and manage your stock. We provide you with multiple easy-to-use tools. You'll see that keeping track of inventory has never been so simple.",
+
+        "products-badge": "Professional Solutions",
+        "products-title-1": "Products that",
+        "products-title-2": "will boost",
+        "products-title-3": "\nyour organization",
+        "products-description": "Discover our suite of tools designed to boost productivity,\n optimize processes, and help your organization grow.",
+        "products-cta-1": "Explore products",
+        "products-cta-2": "View documentation",
+
+        "product-workspace-item-1": "Kanban board, calendar and task list",
+        "product-workspace-item-2": "Task management with AI Chat",
+        "product-workspace-item-3": "Download reports in PDF and Excel",
+        "product-workspace-item-4": "Execution of automatic tasks",
+
+        "product-records-item-1": "Organized dynamic tables",
+        "product-records-item-2": "Excel/CSV file upload",
+        "product-records-item-3": "Advanced search and filters",
+        "product-records-item-4": "Change history tracking",
+
+        "product-billing-item-1": "Complete operational portal",
+        "product-billing-item-2": "Visual charts and reports",
+        "product-billing-item-3": "Income and expense control",
+        "product-billing-item-4": "Automatic financial summaries",
+
+        "product-inventory-item-1": "Inbound and outbound control",
+        "product-inventory-item-2": "Current stock tracking",
+        "product-inventory-item-3": "Minimum stock alerts",
+        "product-inventory-item-4": "Movement reports",
+        "products-badge-tech": "Technological Excellence",
+        "products-overview-title": "The solutions Gestionate has for you in these products",
+        "products-overview-description": "Integrated tools that cover all the needs of your organization,\n from project management to financial analysis.",
+
+        "products-tech-title-1": "Features that",
+        "products-tech-title-2": "set us apart",
+        "products-tech-description": "Gestionate guarantees security, performance, and scalability with advanced features designed for organizations seeking operational excellence and sustainable growth.",
+
+        "products-diff-title-1": "Intuitive UI, unique experience",
+        "products-diff-title-2": "Integrated AI",
+        "products-diff-title-3": "Enterprise-grade security",
+
+        "products-diff-description-1": "Intuitive actions, smooth navigation, and a friendly, customizable interface that makes adoption easy for any user.",
+        "products-diff-description-2": "Integrated machine learning for predictions, task automation, and personalized recommendations.",
+        "products-diff-description-3": "AES-256 encryption and multi-factor authentication. Your data is protected with the highest industry standards.",
+
+        "items-feature-diff-1-1": "Intuitive and easy-to-use interface",
+        "items-feature-diff-1-2": "Integration with popular tools",
+        "items-feature-diff-1-3": "Quick and personalized access",
+        "items-feature-diff-2-1": "Advanced predictive analytics",
+        "items-feature-diff-2-2": "Smart automation",
+        "items-feature-diff-2-3": "Personalized insights",
+        "items-feature-diff-3-1": "Automatic backup and data recovery",
+        "items-feature-diff-3-2": "Comprehensive access auditing",
+        "items-feature-diff-3-3": "GDPR and CCPA compliance",
 
         "faq-title": "Frequently Asked Questions",
         "faq-description": "Even more curious about how Gestionate works? You might find the answer here",
