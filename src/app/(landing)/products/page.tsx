@@ -4,9 +4,9 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Building, CheckCircle, BookOpenText, LayoutDashboard, Rocket } from 'lucide-react';
-import { productsIntegrations } from './products-integrations';
 import { productsData } from './productsData';
 import { featuresDifference } from './featuresDifference';
+import IntegrationsSection from './IntegrationsSection';
 
 const ProductsView = async () => {
     const user = await getCurrent();
@@ -156,28 +156,7 @@ const ProductsView = async () => {
             </div>
 
             {/* Integrations Section */}
-            <div className="bg-white py-20 sm:py-24" id='integrations'>
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                            {t('our-integrations')}
-                        </h2>
-                        <p className="mt-4 text-lg leading-8 text-gray-600 whitespace-pre-line ">
-                            {t('our-integrations-description')}
-                        </p>
-                    </div>
-
-                    <div className="mt-16 grid grid-cols-2 gap-8 lg:grid-cols-6">
-                        {productsIntegrations.map((integration) => (
-                            <div key={integration} className="col-span-2 lg:col-span-1 cursor-default">
-                                <div className="flex h-16 items-center justify-center rounded-lg bg-gray-50 border border-gray-200 hover:border-blue-300 transition-colors">
-                                    <div className="text-sm font-semibold text-gray-600">{integration}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <IntegrationsSection />
 
             <LandingFooter />
         </div>
