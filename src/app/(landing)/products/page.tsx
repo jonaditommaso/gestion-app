@@ -128,7 +128,7 @@ const ProductsView = async () => {
                     <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                         {featuresDifference.map(feature=> (
                             <div className="group relative" key={feature.id}>
-                                <div className={`relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200 hover:shadow-lg ${feature.hoverRingColor} transition-all duration-300 cursor-default`}>
+                                <div className={`relative overflow-hidden rounded-2xl bg-white p-[1.8rem] shadow-sm ring-1 ring-gray-200 hover:shadow-lg ${feature.hoverRingColor} transition-all duration-300 cursor-default h-[370px]`}>
                                     <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feature.bubbleColor} to-transparent rounded-bl-full`} />
                                     <div className="relative">
                                         <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${feature.color} group-hover:scale-110 transition-transform duration-300`}>
