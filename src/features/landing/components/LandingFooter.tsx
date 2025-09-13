@@ -21,14 +21,14 @@ const LandingFooter = async () => {
                 <div className="w-full flex justify-center gap-24 text-white">
                     <div className="flex flex-col gap-2">
                         <p className="font-semibold text-xl">Solutions</p>
-                        <Link href='/' className="hover:underline">Workspace</Link>
-                        <Link href='/' className="hover:underline">Billing</Link>
-                        <Link href='/' className="hover:underline">Inventory</Link>
-                        <Link href='/' className="hover:underline">Records</Link>
-                        <Link href='/' className="hover:underline">Internal chat</Link>
-                        <Link href='/' className="hover:underline">Permissions</Link>
-                        <Link href='/' className="hover:underline">All-in-one</Link>
-                        <Link href='/' className="hover:underline">Team</Link>
+                        <Link href='/products#workspaces' className="hover:underline">Workspace</Link>
+                        <Link href='/products#billing' className="hover:underline">Billing</Link>
+                        <Link href='/products#inventory' className="hover:underline">Inventory</Link>
+                        <Link href='/products#records' className="hover:underline">Records</Link>
+                        <Link href='/products#workspaces' className="hover:underline">Internal chat</Link>
+                        <Link href='/products#workspaces' className="hover:underline">Permissions</Link>
+                        <Link href='/products#workspaces' className="hover:underline">All-in-one</Link>
+                        <Link href='/products#workspaces' className="hover:underline">Team</Link>
                     </div>
                     <div className="flex flex-col gap-2">
                         <p className="font-semibold text-xl">Resources</p>
