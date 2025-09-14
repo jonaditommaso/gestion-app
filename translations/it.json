@@ -290,6 +290,53 @@
             "questions-info": "Tipicamente rispondiamo alle richieste legali entro 48 ore."
         },
 
+        "contact": {
+            "badge": "Mettiti in Contatto",
+            "title": "Contattaci",
+            "description": "Hai domande? Hai bisogno di supporto? Vuoi sapere di più su Gestionate? Ci piacerebbe sentirti.",
+
+            "email-card-title": "Inviaci un'Email",
+            "email-general": "Richieste generali",
+            "email-general-address": "hello@gestionate.com",
+            "email-support": "Supporto",
+            "email-support-address": "support@gestionate.com",
+
+            "response-card-title": "Tempo di Risposta",
+            "response-email": "Email:",
+            "response-email-time": "24 ore",
+            "response-support": "Supporto:",
+            "response-support-time": "4 ore",
+
+            "form-title": "Inviaci un Messaggio",
+            "form-name-label": "Nome",
+            "form-name-placeholder": "Nome del responsabile",
+            "form-email-label": "Email",
+            "form-email-placeholder": "serveaiuto@org.com",
+            "form-organization-label": "Organizzazione",
+            "form-organization-placeholder": "La Tua Organizzazione",
+            "form-subject-label": "Oggetto",
+            "form-subject-placeholder": "Come possiamo aiutarti?",
+            "form-message-label": "Messaggio",
+            "form-message-placeholder": "Raccontaci di più sulla tua richiesta...",
+            "form-submit": "Invia Messaggio",
+            "form-response-info": "Tipicamente rispondiamo entro 24 ore durante i giorni lavorativi.",
+
+            "faq-title": "Cerchi risposte rapide?",
+            "faq-description": "Consulta la nostra sezione FAQ per risposte immediate alle domande più comuni.",
+            "faq-button": "Visita FAQ",
+
+            "form-name-required": "Il nome è obbligatorio",
+            "form-email-required": "L'email è obbligatoria",
+            "form-email-invalid": "Inserisci un indirizzo email valido",
+            "form-organization-required": "L'organizzazione è obbligatoria",
+            "form-subject-required": "L'oggetto è obbligatorio",
+            "form-message-required": "Il messaggio è obbligatorio",
+
+            "success-title": "Messaggio Inviato con Successo!",
+            "success-description": "Grazie per averci contattato. Abbiamo ricevuto il tuo messaggio e ti risponderemo entro 24 ore.",
+            "success-button": "Capito"
+        },
+
         "integrations": "Integrazioni",
         "integration-categories": "Categorie",
         "integrated-apps-badge": "Applicazioni integrate",

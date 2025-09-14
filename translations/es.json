@@ -291,6 +291,53 @@
             "questions-info": "Típicamente respondemos a consultas legales dentro de 48 horas."
         },
 
+        "contact": {
+            "badge": "Ponte en Contacto",
+            "title": "Contáctanos",
+            "description": "¿Tienes preguntas? ¿Necesitas soporte? ¿Quieres saber más sobre Gestionate? Nos encantaría escucharte.",
+
+            "email-card-title": "Envíanos un Email",
+            "email-general": "Consultas generales",
+            "email-general-address": "hello@gestionate.com",
+            "email-support": "Soporte",
+            "email-support-address": "support@gestionate.com",
+
+            "response-card-title": "Tiempo de Respuesta",
+            "response-email": "Email:",
+            "response-email-time": "24 horas",
+            "response-support": "Soporte:",
+            "response-support-time": "4 horas",
+
+            "form-title": "Envíanos un Mensaje",
+            "form-name-label": "Nombre",
+            "form-name-placeholder": "Nombre del responsable",
+            "form-email-label": "Email",
+            "form-email-placeholder": "necesitaayuda@org.com",
+            "form-organization-label": "Organización",
+            "form-organization-placeholder": "Tu Organización",
+            "form-subject-label": "Asunto",
+            "form-subject-placeholder": "¿Cómo podemos ayudarte?",
+            "form-message-label": "Mensaje",
+            "form-message-placeholder": "Cuéntanos más sobre tu consulta...",
+            "form-submit": "Enviar Mensaje",
+            "form-response-info": "Típicamente respondemos dentro de 24 horas en días laborales.",
+
+            "faq-title": "¿Buscas respuestas rápidas?",
+            "faq-description": "Consulta nuestra sección de preguntas frecuentes para respuestas instantáneas a preguntas comunes.",
+            "faq-button": "Visitar FAQ",
+
+            "form-name-required": "El nombre es obligatorio",
+            "form-email-required": "El email es obligatorio",
+            "form-email-invalid": "Por favor ingresa una dirección de email válida",
+            "form-organization-required": "La organización es obligatoria",
+            "form-subject-required": "El asunto es obligatorio",
+            "form-message-required": "El mensaje es obligatorio",
+
+            "success-title": "¡Mensaje Enviado Exitosamente!",
+            "success-description": "Gracias por contactarnos. Hemos recibido tu mensaje y te responderemos dentro de 24 horas.",
+            "success-button": "Entendido"
+        },
+
         "integrations": "Integraciones",
         "integration-categories": "Categorías",
         "integrated-apps-badge": "Aplicaciones integradas",

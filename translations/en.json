@@ -290,6 +290,53 @@
             "questions-info": "We typically respond to legal inquiries within 48 hours."
         },
 
+        "contact": {
+            "badge": "Get in Touch",
+            "title": "Contact Us",
+            "description": "Have questions? Need support? Want to learn more about Gestionate? We would love to hear from you.",
+
+            "email-card-title": "Email Us",
+            "email-general": "General inquiries",
+            "email-general-address": "hello@gestionate.com",
+            "email-support": "Support",
+            "email-support-address": "support@gestionate.com",
+
+            "response-card-title": "Response Time",
+            "response-email": "Email:",
+            "response-email-time": "24 hours",
+            "response-support": "Support:",
+            "response-support-time": "4 hours",
+
+            "form-title": "Send us a Message",
+            "form-name-label": "Name",
+            "form-name-placeholder": "Responsible name",
+            "form-email-label": "Email",
+            "form-email-placeholder": "needhelp@org.com",
+            "form-organization-label": "Organization",
+            "form-organization-placeholder": "Your Organization",
+            "form-subject-label": "Subject",
+            "form-subject-placeholder": "How can we help you?",
+            "form-message-label": "Message",
+            "form-message-placeholder": "Tell us more about your inquiry...",
+            "form-submit": "Send Message",
+            "form-response-info": "We typically respond within 24 hours during business days.",
+
+            "faq-title": "Looking for quick answers?",
+            "faq-description": "Check out our FAQ section for instant answers to common questions.",
+            "faq-button": "Visit FAQ",
+
+            "form-name-required": "Name is required",
+            "form-email-required": "Email is required",
+            "form-email-invalid": "Please enter a valid email address",
+            "form-organization-required": "Organization is required",
+            "form-subject-required": "Subject is required",
+            "form-message-required": "Message is required",
+
+            "success-title": "Message Sent Successfully!",
+            "success-description": "Thank you for contacting us. We've received your message and will get back to you within 24 hours.",
+            "success-button": "Got it"
+        },
+
         "integrations": "Integrations",
         "integration-categories": "Categories",
         "integrated-apps-badge": "Integrated apps",
