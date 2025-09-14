@@ -1,19 +1,16 @@
 import { getCurrent } from '@/features/auth/queries';
 import LandingFooter from '@/features/landing/components/LandingFooter';
-// import { getTranslations } from 'next-intl/server';
-// import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Mail,  Clock, MessageSquare, Headphones } from 'lucide-react';
+import { Mail, Clock, MessageSquare } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import ContactForm from './ContactForm';
+import Link from 'next/link';
 
 const ContactView = async () => {
     const user = await getCurrent();
-    //const t = await getTranslations('landing');
+    const t = await getTranslations('landing.contact');
 
     if(user) redirect('/');
 
@@ -26,13 +23,19 @@ const ContactView = async () => {
             >
                 <div className="flex gap-14 w-[90%] justify-center items-center mt-20 p-2 max-sm:flex-col max-sm:gap-8">
                     <div className="flex flex-col items-center gap-6 text-center max-w-3xl">
-                        <Badge variant="secondary" className="mb-4">Get in Touch</Badge>
+                        <div className="mb-8 flex justify-center">
+                            <div className="flex items-center gap-x-3 rounded-full bg-blue-500/10 px-4 py-2 ring-1 ring-blue-500/20">
+                                <Mail className="h-4 w-4 text-blue-400" />
+                                <div className="text-sm font-medium text-blue-300">
+                                    {t('badge')}
+                                </div>
+                            </div>
+                        </div>
                         <h1 className='text-6xl font-bold text-balance bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent max-sm:text-4xl'>
-                            Contact Us
+                            {t('title')}
                         </h1>
                         <p className='text-xl font-normal text-balance opacity-90 max-sm:text-lg max-w-2xl'>
-                            Have questions? Need support? Want to learn more about Gestionate?
-                            We would love to hear from you.
+                            {t('description')}
                         </p>
                     </div>
                 </div>
@@ -49,31 +52,14 @@ const ContactView = async () => {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-slate-800">
                                         <Mail className="w-5 h-5 text-blue-600" />
-                                        Email Us
+                                        {t('email-card-title')}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-slate-600 mb-2">General inquiries</p>
-                                    <p className="font-semibold text-blue-600">hello@gestionate.com</p>
-                                    <p className="text-slate-600 mb-2 mt-4">Support</p>
-                                    <p className="font-semibold text-blue-600">support@gestionate.com</p>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-slate-800">
-                                        <Headphones className="w-5 h-5 text-green-600" />
-                                        Live Support
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-slate-600 mb-4">
-                                        Get instant help from our support team
-                                    </p>
-                                    <Button className="w-full">
-                                        Start Live Chat
-                                    </Button>
+                                    <p className="text-slate-600 mb-2">{t('email-general')}</p>
+                                    <p className="font-semibold text-blue-600">{t('email-general-address')}</p>
+                                    <p className="text-slate-600 mb-2 mt-4">{t('email-support')}</p>
+                                    <p className="font-semibold text-blue-600">{t('email-support-address')}</p>
                                 </CardContent>
                             </Card>
 
@@ -81,22 +67,18 @@ const ContactView = async () => {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-slate-800">
                                         <Clock className="w-5 h-5 text-purple-600" />
-                                        Response Time
+                                        {t('response-card-title')}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
-                                            <span className="text-slate-600">Live Chat:</span>
-                                            <span className="font-semibold">Instant</span>
+                                            <span className="text-slate-600">{t('response-email')}</span>
+                                            <span className="font-semibold">{t('response-email-time')}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-slate-600">Email:</span>
-                                            <span className="font-semibold">24 hours</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-600">Support:</span>
-                                            <span className="font-semibold">4 hours</span>
+                                            <span className="text-slate-600">{t('response-support')}</span>
+                                            <span className="font-semibold">{t('response-support-time')}</span>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -109,68 +91,31 @@ const ContactView = async () => {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-slate-800">
                                         <MessageSquare className="w-5 h-5 text-blue-600" />
-                                        Send us a Message
+                                        {t('form-title')}
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="firstName">First Name</Label>
-                                            <Input id="firstName" placeholder="John" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="lastName">Last Name</Label>
-                                            <Input id="lastName" placeholder="Doe" />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
-                                        <Input id="email" type="email" placeholder="john@company.com" />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="company">Company (Optional)</Label>
-                                        <Input id="company" placeholder="Your Company" />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="subject">Subject</Label>
-                                        <Input id="subject" placeholder="How can we help you?" />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="message">Message</Label>
-                                        <Textarea
-                                            id="message"
-                                            placeholder="Tell us more about your inquiry..."
-                                            className="min-h-[120px]"
-                                        />
-                                    </div>
-
-                                    <Button className="w-full" size="lg">
-                                        Send Message
-                                    </Button>
-
-                                    <p className="text-sm text-slate-500 text-center">
-                                        We typically respond within 24 hours during business days.
-                                    </p>
+                                <CardContent>
+                                    <ContactForm />
                                 </CardContent>
                             </Card>
                         </div>
                     </div>
 
+                    <Separator className='my-8' />
+
                     {/* FAQ Quick Links */}
-                    <div className="mt-16 text-center">
+                    <div className="mt-8 text-center">
                         <h2 className="text-2xl font-bold text-slate-800 mb-4">
-                            Looking for quick answers?
+                            {t('faq-title')}
                         </h2>
                         <p className="text-slate-600 mb-6">
-                            Check out our FAQ section for instant answers to common questions.
+                            {t('faq-description')}
                         </p>
-                        <Button variant="outline" size="lg">
-                            Visit FAQ
-                        </Button>
+                        <Link href="/faq">
+                            <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8">
+                                {t('faq-button')}
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
