@@ -236,6 +236,60 @@
             "questions-info": "We typically respond to privacy inquiries within 48 hours."
         },
 
+        "terms": {
+            "badge": "Legal",
+            "title-1": "Terms of",
+            "title-2": "Service",
+            "description": "Please read these terms carefully before using our service",
+            "updated": "Last updated: January 2025",
+
+            "card-1-title": "Welcome to Gestionate",
+            "card-1-description-1": "These Terms of Service (\"Terms\") govern your use of Gestionate's services, including our website, applications, and any related services (collectively, the \"Service\") operated by Gestionate (\"us\", \"we\", or \"our\").",
+            "card-1-description-2": "By accessing or using our Service, you agree to be bound by these Terms. If you disagree with any part of these terms, then you may not access the Service.",
+
+            "card-2-title": "Account Terms",
+            "card-2-list-1": "Account Creation: You must provide accurate and complete information when creating an account. You are responsible for maintaining the security of your account.",
+            "card-2-list-2": "Eligibility: You must be at least 18 years old to use our Service. By using our Service, you represent that you meet this age requirement.",
+            "card-2-list-3": "Account Responsibility: You are responsible for all activities that occur under your account and for maintaining the confidentiality of your password.",
+
+            "card-3-title": "Acceptable Use Policy",
+            "card-3-description": "You may not use our Service:",
+            "card-3-list-1": "For any unlawful purpose or to solicit others to perform unlawful acts",
+            "card-3-list-2": "To violate any international, federal, provincial, or state regulations, rules, laws, or local ordinances",
+            "card-3-list-3": "To infringe upon or violate our intellectual property rights or the intellectual property rights of others",
+            "card-3-list-4": "To harass, abuse, insult, harm, defame, slander, disparage, intimidate, or discriminate",
+            "card-3-list-5": "To submit false or misleading information",
+            "card-3-list-6": "To upload or transmit viruses or any other type of malicious code",
+
+            "card-4-title": "Service Availability",
+            "card-4-list-1": "Uptime: We strive to maintain 99.9% uptime for our Service, but we cannot guarantee uninterrupted access.",
+            "card-4-list-2": "Maintenance: We may temporarily suspend the Service for maintenance, updates, or improvements. We will provide advance notice when possible.",
+            "card-4-list-3": "Data Backup: While we maintain backups of your data, you are responsible for maintaining your own backups of important information.",
+
+            "card-5-title": "Payment and Billing",
+            "card-5-list-1": "Subscription Fees: Paid plans are billed in advance on a monthly or annual basis and are non-refundable except as required by law.",
+            "card-5-list-2": "Free Trial: We may offer a free trial period. At the end of the trial, you will be charged the applicable subscription fee unless you cancel.",
+            "card-5-list-3": "Price Changes: We reserve the right to modify our pricing with 30 days advance notice to existing subscribers.",
+
+            "card-6-title": "Privacy and Data Protection",
+            "card-6-list-1": "Your privacy is important to us. Our Privacy Policy explains how we collect, use, and protect your information when you use our Service.",
+            "card-6-list-2": "Data Ownership: You retain all rights to your data. We do not claim ownership of any content you upload or create using our Service.",
+            "card-6-list-3": "Data Security: We implement industry-standard security measures to protect your data, including encryption and secure data centers.",
+
+            "card-7-title": "Termination",
+            "card-7-list-1": "By You: You may terminate your account at any time by contacting our support team or using the account cancellation feature.",
+            "card-7-list-2": "By Us: We may terminate or suspend your account if you violate these Terms or engage in conduct that we deem harmful to our Service or other users.",
+            "card-7-list-3": "Effect of Termination: Upon termination, your right to use the Service will cease immediately. Your data will be deleted within 30 days unless required to be retained by law.",
+
+            "card-8-title": "Limitation of Liability",
+            "card-8-description": "To the maximum extent permitted by law, Gestionate shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.",
+
+            "questions-title": "Questions about these Terms?",
+            "questions-description": "If you have any questions about these Terms of Service, please contact us.",
+            "questions-contact": "Email: legal@gestionate.com",
+            "questions-info": "We typically respond to legal inquiries within 48 hours."
+        },
+
         "integrations": "Integrations",
         "integration-categories": "Categories",
         "integrated-apps-badge": "Integrated apps",
