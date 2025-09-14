@@ -237,6 +237,60 @@
             "questions-info": "Típicamente respondemos a consultas de privacidad dentro de 48 horas."
         },
 
+        "terms": {
+            "badge": "Legal",
+            "title-1": "Términos de",
+            "title-2": "Servicio",
+            "description": "Por favor lee estos términos cuidadosamente antes de usar nuestro servicio",
+            "updated": "Última actualización: Enero 2025",
+
+            "card-1-title": "Bienvenido a Gestionate",
+            "card-1-description-1": "Estos Términos de Servicio (\"Términos\") rigen el uso de los servicios de Gestionate, incluyendo nuestro sitio web, aplicaciones y servicios relacionados (colectivamente, el \"Servicio\") operados por Gestionate (\"nosotros\", \"nos\" o \"nuestro\").",
+            "card-1-description-2": "Al acceder o usar nuestro Servicio, aceptas estar sujeto a estos Términos. Si no estás de acuerdo con alguna parte de estos términos, no podrás acceder al Servicio.",
+
+            "card-2-title": "Términos de Cuenta",
+            "card-2-list-1": "Creación de Cuenta: Debes proporcionar información precisa y completa al crear una cuenta. Eres responsable de mantener la seguridad de tu cuenta.",
+            "card-2-list-2": "Elegibilidad: Debes tener al menos 18 años para usar nuestro Servicio. Al usar nuestro Servicio, declaras que cumples con este requisito de edad.",
+            "card-2-list-3": "Responsabilidad de la Cuenta: Eres responsable de todas las actividades que ocurran bajo tu cuenta y de mantener la confidencialidad de tu contraseña.",
+
+            "card-3-title": "Política de Uso Aceptable",
+            "card-3-description": "No puedes usar nuestro Servicio:",
+            "card-3-list-1": "Para propósitos ilegales o para solicitar a otros que realicen actos ilegales",
+            "card-3-list-2": "Para violar regulaciones, reglas, leyes u ordenanzas internacionales, federales, provinciales o estatales",
+            "card-3-list-3": "Para infringir o violar nuestros derechos de propiedad intelectual o los de otros",
+            "card-3-list-4": "Para acosar, abusar, insultar, dañar, difamar, calumniar, menospreciar, intimidar o discriminar",
+            "card-3-list-5": "Para enviar información falsa o engañosa",
+            "card-3-list-6": "Para cargar o transmitir virus o cualquier otro tipo de código malicioso",
+
+            "card-4-title": "Disponibilidad del Servicio",
+            "card-4-list-1": "Tiempo de actividad: Nos esforzamos por mantener 99.9% de tiempo de actividad para nuestro Servicio, pero no podemos garantizar acceso ininterrumpido.",
+            "card-4-list-2": "Mantenimiento: Podemos suspender temporalmente el Servicio para mantenimiento, actualizaciones o mejoras. Proporcionaremos aviso anticipado cuando sea posible.",
+            "card-4-list-3": "Respaldo de datos: Aunque mantenemos respaldos de tus datos, eres responsable de mantener tus propios respaldos de información importante.",
+
+            "card-5-title": "Pagos y Facturación",
+            "card-5-list-1": "Tarifas de suscripción: Los planes pagos se facturan por adelantado mensual o anualmente y no son reembolsables excepto cuando lo requiera la ley.",
+            "card-5-list-2": "Prueba gratuita: Podemos ofrecer un período de prueba gratuita. Al final de la prueba, se te cobrará la tarifa de suscripción aplicable a menos que canceles.",
+            "card-5-list-3": "Cambios de precio: Nos reservamos el derecho de modificar nuestros precios con 30 días de aviso anticipado a los suscriptores existentes.",
+
+            "card-6-title": "Privacidad y Protección de Datos",
+            "card-6-list-1": "Tu privacidad es importante para nosotros. Nuestra Política de Privacidad explica cómo recopilamos, usamos y protegemos tu información cuando usas nuestro Servicio.",
+            "card-6-list-2": "Propiedad de datos: Mantienes todos los derechos sobre tus datos. No reclamamos propiedad sobre ningún contenido que cargues o crees usando nuestro Servicio.",
+            "card-6-list-3": "Seguridad de datos: Implementamos medidas de seguridad estándar de la industria para proteger tus datos, incluyendo encriptación y centros de datos seguros.",
+
+            "card-7-title": "Terminación",
+            "card-7-list-1": "Por tu parte: Puedes terminar tu cuenta en cualquier momento contactando a nuestro equipo de soporte o usando la función de cancelación de cuenta.",
+            "card-7-list-2": "Por nuestra parte: Podemos terminar o suspender tu cuenta si violas estos Términos o te involucras en conductas que consideremos dañinas para nuestro Servicio u otros usuarios.",
+            "card-7-list-3": "Efecto de la terminación: Al momento de la terminación, tu derecho a usar el Servicio cesará inmediatamente. Tus datos serán eliminados dentro de 30 días a menos que sea requerido mantenerlos por ley.",
+
+            "card-8-title": "Limitación de Responsabilidad",
+            "card-8-description": "En la máxima medida permitida por la ley, Gestionate no será responsable por daños indirectos, incidentales, especiales, consecuenciales o punitivos, incluyendo sin limitación, pérdida de ganancias, datos, uso, buena voluntad u otras pérdidas intangibles.",
+
+            "questions-title": "¿Preguntas sobre estos Términos?",
+            "questions-description": "Si tienes alguna pregunta sobre estos Términos de Servicio, por favor contáctanos.",
+            "questions-contact": "Email: legal@gestionate.com",
+            "questions-info": "Típicamente respondemos a consultas legales dentro de 48 horas."
+        },
+
         "integrations": "Integraciones",
         "integration-categories": "Categorías",
         "integrated-apps-badge": "Aplicaciones integradas",

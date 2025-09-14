@@ -236,6 +236,60 @@
             "questions-info": "Tipicamente rispondiamo alle richieste sulla privacy entro 48 ore."
         },
 
+        "terms": {
+            "badge": "Legale",
+            "title-1": "Termini di",
+            "title-2": "Servizio",
+            "description": "Ti preghiamo di leggere attentamente questi termini prima di utilizzare il nostro servizio",
+            "updated": "Ultimo aggiornamento: Gennaio 2025",
+
+            "card-1-title": "Benvenuto in Gestionate",
+            "card-1-description-1": "Questi Termini di Servizio (\"Termini\") regolano l'utilizzo dei servizi di Gestionate, inclusi il nostro sito web, applicazioni e tutti i servizi correlati (collettivamente, il \"Servizio\") gestiti da Gestionate (\"noi\", \"ci\" o \"nostro\").",
+            "card-1-description-2": "Accedendo o utilizzando il nostro Servizio, accetti di essere vincolato da questi Termini. Se non sei d'accordo con qualsiasi parte di questi termini, non potrai accedere al Servizio.",
+
+            "card-2-title": "Termini dell'Account",
+            "card-2-list-1": "Creazione dell'Account: Devi fornire informazioni accurate e complete quando crei un account. Sei responsabile del mantenimento della sicurezza del tuo account.",
+            "card-2-list-2": "Idoneità: Devi avere almeno 18 anni per utilizzare il nostro Servizio. Utilizzando il nostro Servizio, dichiari di soddisfare questo requisito di età.",
+            "card-2-list-3": "Responsabilità dell'Account: Sei responsabile di tutte le attività che si verificano sotto il tuo account e del mantenimento della riservatezza della tua password.",
+
+            "card-3-title": "Politica di Uso Accettabile",
+            "card-3-description": "Non puoi utilizzare il nostro Servizio:",
+            "card-3-list-1": "Per scopi illegali o per sollecitare altri a compiere atti illegali",
+            "card-3-list-2": "Per violare regolamenti, regole, leggi o ordinanze internazionali, federali, provinciali o statali",
+            "card-3-list-3": "Per violare o infrangere i nostri diritti di proprietà intellettuale o quelli di altri",
+            "card-3-list-4": "Per molestare, abusare, insultare, danneggiare, diffamare, calunniare, denigrare, intimidire o discriminare",
+            "card-3-list-5": "Per inviare informazioni false o fuorvianti",
+            "card-3-list-6": "Per caricare o trasmettere virus o qualsiasi altro tipo di codice dannoso",
+
+            "card-4-title": "Disponibilità del Servizio",
+            "card-4-list-1": "Tempo di attività: Ci impegniamo a mantenere il 99,9% di uptime per il nostro Servizio, ma non possiamo garantire accesso ininterrotto.",
+            "card-4-list-2": "Manutenzione: Potremmo sospendere temporaneamente il Servizio per manutenzione, aggiornamenti o miglioramenti. Forniremo preavviso quando possibile.",
+            "card-4-list-3": "Backup dei dati: Mentre manteniamo backup dei tuoi dati, sei responsabile del mantenimento dei tuoi backup delle informazioni importanti.",
+
+            "card-5-title": "Pagamenti e Fatturazione",
+            "card-5-list-1": "Tariffe di abbonamento: I piani a pagamento vengono fatturati in anticipo su base mensile o annuale e non sono rimborsabili tranne quando richiesto dalla legge.",
+            "card-5-list-2": "Prova gratuita: Potremmo offrire un periodo di prova gratuita. Alla fine della prova, ti verrà addebitata la tariffa di abbonamento applicabile a meno che non annulli.",
+            "card-5-list-3": "Cambi di prezzo: Ci riserviamo il diritto di modificare i nostri prezzi con 30 giorni di preavviso agli abbonati esistenti.",
+
+            "card-6-title": "Privacy e Protezione dei Dati",
+            "card-6-list-1": "La tua privacy è importante per noi. La nostra Informativa sulla Privacy spiega come raccogliamo, utilizziamo e proteggiamo le tue informazioni quando utilizzi il nostro Servizio.",
+            "card-6-list-2": "Proprietà dei dati: Mantieni tutti i diritti sui tuoi dati. Non rivendichiamo la proprietà di alcun contenuto che carichi o crei utilizzando il nostro Servizio.",
+            "card-6-list-3": "Sicurezza dei dati: Implementiamo misure di sicurezza standard del settore per proteggere i tuoi dati, inclusa la crittografia e centri dati sicuri.",
+
+            "card-7-title": "Risoluzione",
+            "card-7-list-1": "Da parte tua: Puoi terminare il tuo account in qualsiasi momento contattando il nostro team di supporto o utilizzando la funzione di cancellazione dell'account.",
+            "card-7-list-2": "Da parte nostra: Potremmo terminare o sospendere il tuo account se violi questi Termini o ti impegni in condotte che riteniamo dannose per il nostro Servizio o altri utenti.",
+            "card-7-list-3": "Effetto della risoluzione: Al momento della risoluzione, il tuo diritto di utilizzare il Servizio cesserà immediatamente. I tuoi dati verranno eliminati entro 30 giorni a meno che non sia richiesto di mantenerli per legge.",
+
+            "card-8-title": "Limitazione di Responsabilità",
+            "card-8-description": "Nella misura massima consentita dalla legge, Gestionate non sarà responsabile per danni indiretti, incidentali, speciali, consequenziali o punitivi, inclusi senza limitazione, perdita di profitti, dati, uso, avviamento o altre perdite intangibili.",
+
+            "questions-title": "Domande su questi Termini?",
+            "questions-description": "Se hai domande su questi Termini di Servizio, ti preghiamo di contattarci.",
+            "questions-contact": "Email: legal@gestionate.com",
+            "questions-info": "Tipicamente rispondiamo alle richieste legali entro 48 ore."
+        },
+
         "integrations": "Integrazioni",
         "integration-categories": "Categorie",
         "integrated-apps-badge": "Applicazioni integrate",
