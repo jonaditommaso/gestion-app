@@ -97,7 +97,14 @@ const ProductDocsView = async () => {
                 style={{ backgroundImage: "linear-gradient(10deg, #11314a 40%, black 90%)" }}
             >
                 <div className="flex flex-col items-center gap-6 text-center max-w-4xl mt-20 px-6">
-                    <Badge variant="secondary" className="mb-4">Documentation</Badge>
+                    <div className="mb-8 flex justify-center">
+                        <div className="flex items-center gap-x-3 rounded-full bg-blue-500/10 px-4 py-2 ring-1 ring-blue-500/20">
+                            <BookOpen className="h-4 w-4 text-blue-400" />
+                            <div className="text-sm font-medium text-blue-300">
+                                Documentation
+                            </div>
+                        </div>
+                    </div>
                     <h1 className='text-6xl font-bold text-balance bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent max-sm:text-4xl'>
                         Product Documentation
                     </h1>

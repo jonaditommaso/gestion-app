@@ -3,7 +3,7 @@ import LandingFooter from '@/features/landing/components/LandingFooter';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Shield } from 'lucide-react';
 import { termsData } from './termsData';
 import TermsCard from './TermsCard';
 import TermsListCard from './TermsListCard';
@@ -22,7 +22,14 @@ const TermsView = async () => {
                 style={{ backgroundImage: "linear-gradient(10deg, #11314a 40%, black 90%)" }}
             >
                 <div className="flex flex-col items-center gap-6 text-center max-w-3xl mt-20 px-6">
-                    <Badge variant="secondary" className="mb-4">{t('badge')}</Badge>
+                    <div className="mb-8 flex justify-center">
+                        <div className="flex items-center gap-x-3 rounded-full bg-blue-500/10 px-4 py-2 ring-1 ring-blue-500/20">
+                            <Shield className="h-4 w-4 text-blue-400" />
+                            <div className="text-sm font-medium text-blue-300">
+                                {t('badge')}
+                            </div>
+                        </div>
+                    </div>
                     <h1 className='text-6xl font-bold text-balance bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent max-sm:text-4xl'>
                         {t('title-1')} {' '}
                         <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-300 bg-clip-text text-transparent">
