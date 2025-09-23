@@ -41,7 +41,7 @@ const LandingFooter = async () => {
                         <p className="font-semibold text-xl">Company</p>
                         <Link href='/about' className="hover:underline">About us</Link>
                         {/* <Link href='/' className="hover:underline">Leadership</Link> */}
-                        <Link href='/blog' className="hover:underline">Blog</Link>
+                        {/* <Link href='/blog' className="hover:underline">Blog</Link> */}
                         <Link href='/contact' className="hover:underline">{t('footer-contact-us')}</Link>
                         <Link href='/terms' className="hover:underline">{t('footer-terms')}</Link>
                         <Link href='/privacy' className="hover:underline">{t('footer-privacy')}</Link>
