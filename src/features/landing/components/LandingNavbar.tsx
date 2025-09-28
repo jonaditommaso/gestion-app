@@ -52,19 +52,21 @@ export function LandingNavbar() {
     router.push(route);
   }
 
+  const isWhiteBg = pathname === '/pricing' || pathname === '/docs';
+
   return (
-    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
+    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-50 transition-all duration-300 ${isScrolled || pathname === '/docs' ? "bg-white shadow-md" : "bg-transparent"}`}>
       {isMobile && <Image src={isScrolled ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
 
       {!isMobile && (
         <NavigationMenuList className="flex gap-1">
-        <Image src={isScrolled || pathname === '/pricing' ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
+        <Image src={isScrolled || isWhiteBg ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
 
         <NavigationMenuItem>
           <NavigationMenuTrigger
             className={cn(
               !isScrolled && 'bg-transparent hover:!bg-white text-white focus:!bg-white data-[state=open]:!bg-white',
-              pathname === '/pricing' && 'text-black',
+              isWhiteBg && 'text-black',
               'data-[state=open]:bg-white data-[state=open]:text-black'
             )}
           >
@@ -76,7 +78,7 @@ export function LandingNavbar() {
                 <NavigationMenuLink asChild>
                   <Link
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                    href="/docs"
+                    href="/getting-started"
                   >
                     <Image src='/gestionate-logo.svg' height={70} width={70} alt="gestionate-navbar-logo" />
                     <div className="mb-2 mt-4 text-lg font-medium">
@@ -88,13 +90,13 @@ export function LandingNavbar() {
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs#introduction" title={t('navbar-intro')} icon={<BookOpen className="h-5 w-5" />}>
+              <ListItem href="/getting-started#first-steps" title={t('navbar-intro')} icon={<BookOpen className="h-5 w-5" />}>
                 {t('navbar-intro-description')}
               </ListItem>
-              <ListItem href="/docs#how-it-works" title={t('navbar-how-it-works')} icon={<Bolt className="h-5 w-5" />}>
+              <ListItem href="/getting-started#features" title={t('navbar-how-it-works')} icon={<Bolt className="h-5 w-5" />}>
                 {t('navbar-how-it-works-description')}
               </ListItem>
-              <ListItem href="/docs#customize" title={t('navbar-now-what')} icon={<Telescope className="h-5 w-5" />}>
+              <ListItem href="/docs" title={t('navbar-now-what')} icon={<Telescope className="h-5 w-5" />}>
                 {t('navbar-now-what-description')}
               </ListItem>
             </ul>
@@ -104,7 +106,7 @@ export function LandingNavbar() {
           <NavigationMenuTrigger
             className={cn(
               !isScrolled && 'bg-transparent hover:!bg-white text-white focus:!bg-white data-[state=open]:!bg-white',
-              pathname === '/pricing' && 'text-black',
+              isWhiteBg && 'text-black',
               'data-[state=open]:bg-white data-[state=open]:text-black'
             )}
           >
@@ -128,7 +130,7 @@ export function LandingNavbar() {
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
-            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), !isScrolled && 'bg-transparent hover:bg-white text-white', pathname === '/pricing' && 'text-black')}>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), !isScrolled && 'bg-transparent hover:bg-white text-white', isWhiteBg && 'text-black')}>
               {t('navbar-pricing')}
             </NavigationMenuLink>
           </Link>

@@ -11,7 +11,7 @@ const CTAFooter = () => {
     const pathname = usePathname();
     const t = useTranslations('landing');
 
-    if(pathname === '/pricing') return null;
+    if(pathname === '/pricing' || pathname === '/docs') return null;
 
     return (
         <>
