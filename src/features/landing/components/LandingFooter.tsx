@@ -32,9 +32,8 @@ const LandingFooter = async () => {
                     </div>
                     <div className="flex flex-col gap-2">
                         <p className="font-semibold text-xl">Resources</p>
-                        <Link href='/quick-start' className="hover:underline">Quick start guides</Link>
-                        <Link href='/product-docs' className="hover:underline">Product Documentation</Link>
-                        {/* <Link href='/docs' className="hover:underline">Learn more</Link> */}
+                        <Link href='/getting-started' className="hover:underline">Getting started guide</Link>
+                        <Link href='/docs' className="hover:underline">Documentation center</Link>
                         <Link href='/faq' className="hover:underline">{t('footer-faq')}</Link>
                     </div>
                     <div className="flex flex-col gap-2">
