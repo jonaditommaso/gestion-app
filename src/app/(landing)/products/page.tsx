@@ -51,7 +51,7 @@ const ProductsView = async () => {
                                 <LayoutDashboard className="h-5 w-5" />
                             </a>
                             <Link
-                                href="/docs"
+                                href="/getting-started"
                                 className="rounded-lg border border-white/20 px-8 py-3 text-base font-semibold text-white hover:bg-white/5 transition-all duration-200 inline-flex items-center justify-center gap-x-4"
                             >
                                 {t('products-cta-2')}
