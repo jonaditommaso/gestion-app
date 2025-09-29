@@ -18,11 +18,12 @@ import { useParams, usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
 import { useTranslations } from "next-intl"
-import { AlignJustify, BookOpen, Bolt, Languages, Telescope, X } from "lucide-react"
+import { AlignJustify, BookOpen, Bolt, Languages, Telescope, X, LayoutDashboard } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LanguagesSelection } from "@/components/LanguagesSelection"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useScrolling } from "@/hooks/useScrolling"
+import { Separator } from "@/components/ui/separator"
 
 export function LandingNavbar() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export function LandingNavbar() {
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-              <li className="row-span-3">
+              <li className="row-span-3 border-r">
                 <NavigationMenuLink asChild>
                   <Link
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
@@ -113,6 +114,17 @@ export function LandingNavbar() {
             {t('navbar-products')}
           </NavigationMenuTrigger>
           <NavigationMenuContent>
+              <div className="w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] list-none">
+                <ListItem
+                    key='explore-all-products'
+                    title={t('navbar-products-all')}
+                    href='/products'
+                    icon={<LayoutDashboard className="h-5 w-5" />}
+                  >
+                    {t('navbar-products-all-description')}
+                  </ListItem>
+                  <Separator />
+              </div>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {products.map((product) => (
                 <ListItem

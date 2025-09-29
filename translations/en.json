@@ -798,6 +798,8 @@
         "navbar-now-what": "Now what?",
         "navbar-now-what-description": "Gestionate is customizable. See everything you can do.",
         "navbar-products": "Products",
+        "navbar-products-all": "Explore all products",
+        "navbar-products-all-description": "Get a comprehensive overview of all our available products.",
         "navbar-products-workspaces-title": "Workspaces",
         "navbar-products-workspaces-description": "We offer Workspace Gestion to manage your team's tasks",
         "navbar-products-billing-title": "Billing",

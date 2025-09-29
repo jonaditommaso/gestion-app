@@ -804,6 +804,8 @@
         "navbar-now-what": "¿Y ahora qué?",
         "navbar-now-what-description": "Gestionate es personalizable, mira todo lo que puedes hacer",
         "navbar-products": "Productos",
+        "navbar-products-all": "Explora todos los productos",
+        "navbar-products-all-description": "Obtén una vista general completa de todos nuestros productos disponibles.",
         "navbar-products-workspaces-title": "Workspaces",
         "navbar-products-workspaces-description": "Te ofrecemos Workspace Gestion para administrar las tareas de tu equipo",
         "navbar-products-billing-title": "Facturación",
