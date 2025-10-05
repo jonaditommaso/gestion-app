@@ -60,17 +60,49 @@ const StepItem = ({ icon, iconColor, text }: Omit<StepItemProps, 'id'>) => {
 const StepCard = async ({ step, title, description, items, mainColor }: StepCardProps) => {
     const t = await getTranslations('landing.getting-started');
 
-    const roundedBgColor = `from-${mainColor}-500/10`;
-    const stepBgColor = `bg-${mainColor}-100 group-hover:bg-${mainColor}-200`;
-    const stepTextColor = `text-${mainColor}-600`;
+    // Mapeo completo de colores para evitar problemas con el purging de Tailwind
+    const colorMap: Record<string, { roundedBg: string; stepBg: string; stepText: string }> = {
+        blue: {
+            roundedBg: 'from-blue-500/10',
+            stepBg: 'bg-blue-100 group-hover:bg-blue-200',
+            stepText: 'text-blue-600'
+        },
+        purple: {
+            roundedBg: 'from-purple-500/10',
+            stepBg: 'bg-purple-100 group-hover:bg-purple-200',
+            stepText: 'text-purple-600'
+        },
+        green: {
+            roundedBg: 'from-green-500/10',
+            stepBg: 'bg-green-100 group-hover:bg-green-200',
+            stepText: 'text-green-600'
+        },
+        orange: {
+            roundedBg: 'from-orange-500/10',
+            stepBg: 'bg-orange-100 group-hover:bg-orange-200',
+            stepText: 'text-orange-600'
+        },
+        red: {
+            roundedBg: 'from-red-500/10',
+            stepBg: 'bg-red-100 group-hover:bg-red-200',
+            stepText: 'text-red-600'
+        },
+        indigo: {
+            roundedBg: 'from-indigo-500/10',
+            stepBg: 'bg-indigo-100 group-hover:bg-indigo-200',
+            stepText: 'text-indigo-600'
+        }
+    };
+
+    const colorClasses = colorMap[mainColor] || colorMap.blue;
 
     return (
         <div className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200 hover:shadow-lg transition-all duration-300">
-            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${roundedBgColor} to-transparent rounded-bl-full`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${colorClasses.roundedBg} to-transparent rounded-bl-full`} />
             <div className="relative">
                 <div className="flex items-center gap-x-4 mb-6">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stepBgColor} transition-colors`}>
-                        <span className={`text-xl font-bold ${stepTextColor}`}>{step}</span>
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${colorClasses.stepBg} transition-colors`}>
+                        <span className={`text-xl font-bold ${colorClasses.stepText}`}>{step}</span>
                     </div>
                     <div>
                         <h3 className="text-xl font-semibold text-gray-900">{t(title)}</h3>
