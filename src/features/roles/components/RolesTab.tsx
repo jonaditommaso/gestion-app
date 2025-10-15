@@ -1,54 +1,66 @@
 "use client"
 
-import { RoleCard } from "./role-card"
-import { RoleEditDialog } from "./role-edit-dialog"
-import { useState } from "react"
-import type { Role, Permission } from "../types"
+import { RoleCard } from "./RoleCard"
+import RoleEditModal from "./RoleEditModal"
+import { useMemo, useState } from "react"
+import type { RoleType, Permission } from "../constants"
+import {
+  ROLE_METADATA,
+  ROLES,
+  DEFAULT_ROLE_PERMISSIONS
+} from "../constants"
+import { useGetRolesPermissions } from "../api/use-get-role-permissions"
 
-interface RolesTabProps {
-  roles: Role[]
-  permissions: Permission[]
-  getPermissionBadgeColor: (permission: string) => string
-}
+// 3 roles hardcoded with their default permissions
+const rolePermissions = Object.keys(ROLES).map(roleKey => ({
+  role: ROLES[roleKey as keyof typeof ROLES],
+  permissions: DEFAULT_ROLE_PERMISSIONS[ROLES[roleKey as keyof typeof ROLES]],
+}))
 
-export function RolesTab({ roles, permissions, getPermissionBadgeColor }: RolesTabProps) {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null)
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false)
+export function RolesTab() {
+  const [selectedRole, setSelectedRole] = useState<{ role: RoleType; permissions: Permission[], $id?: string } | null>(null)
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const { data: customRolePermissions } = useGetRolesPermissions();
 
-  const handleEdit = (role: Role) => {
-    setSelectedRole(role)
+  const finalRolePermissions = useMemo(() => rolePermissions.map(defaultRole => {
+    const customConfig = customRolePermissions?.documents?.find(custom => custom.role === defaultRole.role);
+
+    if (customConfig) {
+      return {
+        role: customConfig.role as RoleType,
+        permissions: customConfig.permissions as Permission[],
+        $id: customConfig.$id
+      };
+    }
+    return defaultRole;
+  }), [customRolePermissions]);
+
+  const handleEdit = (roleData: { role: RoleType; permissions: Permission[], $id?: string }) => {
+    setSelectedRole(roleData)
     setIsRoleDialogOpen(true)
-  }
-
-  const handleDelete = (role: Role) => {
-    console.log("Delete role:", role)
-  }
-
-  const handleViewUsers = (role: Role) => {
-    console.log("View users for role:", role)
   }
 
   return (
     <div className="space-y-6">
+      {isRoleDialogOpen && <RoleEditModal
+        onOpenChange={setIsRoleDialogOpen}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+      />}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roles.map((role) => (
+        {finalRolePermissions.map((roleData) => (
           <RoleCard
-            key={role.id}
-            role={role}
-            getPermissionBadgeColor={getPermissionBadgeColor}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onViewUsers={handleViewUsers}
+            key={roleData.role}
+            role={roleData.role}
+            permissions={roleData.permissions}
+            name={ROLE_METADATA[roleData.role].name}
+            description={ROLE_METADATA[roleData.role].description}
+            color={ROLE_METADATA[roleData.role].color}
+            onEdit={() => handleEdit(roleData)}
           />
         ))}
       </div>
-
-      <RoleEditDialog
-        isOpen={isRoleDialogOpen}
-        onOpenChange={setIsRoleDialogOpen}
-        role={selectedRole}
-        permissions={permissions}
-      />
     </div>
   )
 }
