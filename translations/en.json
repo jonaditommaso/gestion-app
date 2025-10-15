@@ -1137,7 +1137,7 @@
         "failed-create-table": "Sorry, there was an error creating the table",
         "table-deleted": "Table successfully deleted",
         "failed-delete-table": "There was an error deleting the table",
-        "table-name-updated": "Name of the updated table",
+        "table-name-updated": "Name of the table updated",
         "failed-update-table-name": "There was an error updating the table name"
     },
     "workspaces": {
@@ -1323,5 +1323,27 @@
         "logout": "Logout",
         "settings": "Settings",
         "user": "User"
+    },
+    "roles": {
+        "admin": "Admin",
+        "admin-description": "Full access to the system",
+        "creator": "Creator",
+        "creator-description": "Can create and edit content",
+        "viewer": "Viewer",
+        "viewer-description": "Read-only access",
+        "permissions": "Permissions",
+        "users-tab": "Users",
+        "roles-tab": "Roles",
+        "new-permission": "New permission",
+        "new-role": "New role",
+        "failed-update-roles-permissions": "There was an error updating the role permissions",
+        "failed-create-roles-permissions": "There was an error creating the role permissions",
+        "role-updated": "Role updated successfully",
+        "role-created": "Role created successfully",
+        "edit-role": "Edit Role",
+        "edit-role-description": "Modify the permissions for this role",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
     }
 }

@@ -1329,5 +1329,27 @@
         "logout": "Cerrar sesión",
         "settings": "Configuración",
         "user": "Usuario"
+    },
+    "roles": {
+        "admin": "Admin",
+        "admin-description": "Acceso completo al sistema",
+        "creator": "Creador",
+        "creator-description": "Puede crear y editar contenido",
+        "viewer": "Visualizador",
+        "viewer-description": "Solo lectura",
+        "permissions": "Permisos",
+        "users-tab": "Usuarios",
+        "roles-tab": "Roles",
+        "new-permission": "Nuevo permiso",
+        "new-role": "Nuevo rol",
+        "failed-update-roles-permissions": "Hubo un error actualizando los permisos del rol",
+        "failed-create-roles-permissions": "Hubo un error creando los permisos del rol",
+        "role-updated": "Rol actualizado con éxito",
+        "role-created": "Rol creado con éxito",
+        "edit-role": "Editar Rol",
+        "edit-role-description": "Modifica los permisos de este rol",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "saving": "Guardando..."
     }
 }

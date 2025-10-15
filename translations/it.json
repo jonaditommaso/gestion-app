@@ -1309,5 +1309,27 @@
         "logout": "Disconnetti",
         "settings": "Impostazioni",
         "user": "Utente"
+    },
+    "roles": {
+        "admin": "Admin",
+        "admin-description": "Accesso completo al sistema",
+        "creator": "Creatore",
+        "creator-description": "Può creare e modificare contenuti",
+        "viewer": "Visualizzatore",
+        "viewer-description": "Solo lettura",
+        "permissions": "Permessi",
+        "users-tab": "Utenti",
+        "roles-tab": "Ruoli",
+        "new-permission": "Nuovo permesso",
+        "new-role": "Nuovo ruolo",
+        "failed-update-roles-permissions": "Si è verificato un errore durante l'aggiornamento dei permessi del ruolo",
+        "failed-create-roles-permissions": "Si è verificato un errore durante la creazione dei permessi del ruolo",
+        "role-updated": "Ruolo aggiornato con successo",
+        "role-created": "Ruolo creato con successo",
+        "edit-role": "Modifica Ruolo",
+        "edit-role-description": "Modifica i permessi di questo ruolo",
+        "cancel": "Annulla",
+        "save": "Salva",
+        "saving": "Salvando..."
     }
 }
