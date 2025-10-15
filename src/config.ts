@@ -18,6 +18,7 @@ export const FILES_ID = process.env.NEXT_PUBLIC_APPWRITE_FILES_ID!
 export const MEETS_ID = process.env.NEXT_PUBLIC_APPWRITE_MEETS_ID!
 
 export const PRICING_ID = process.env.NEXT_PUBLIC_APPWRITE_PRICING_ID!;
+export const ROLES_PERMISSIONS_ID = process.env.NEXT_PUBLIC_APPWRITE_ROLES_PERMISSIONS_ID!;
 
 export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!
 
