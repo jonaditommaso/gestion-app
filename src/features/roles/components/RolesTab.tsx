@@ -6,16 +6,9 @@ import { useMemo, useState } from "react"
 import type { RoleType, Permission } from "../constants"
 import {
   ROLE_METADATA,
-  ROLES,
-  DEFAULT_ROLE_PERMISSIONS
+  rolePermissions
 } from "../constants"
 import { useGetRolesPermissions } from "../api/use-get-role-permissions"
-
-// 3 roles hardcoded with their default permissions
-const rolePermissions = Object.keys(ROLES).map(roleKey => ({
-  role: ROLES[roleKey as keyof typeof ROLES],
-  permissions: DEFAULT_ROLE_PERMISSIONS[ROLES[roleKey as keyof typeof ROLES]],
-}))
 
 export function RolesTab() {
   const [selectedRole, setSelectedRole] = useState<{ role: RoleType; permissions: Permission[], $id?: string } | null>(null)

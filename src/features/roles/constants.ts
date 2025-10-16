@@ -79,3 +79,9 @@ export function getPermissionBadgeColor(permission: string): string {
 export function getRoleColor(roleName: RoleType): string {
     return ROLE_METADATA[roleName]?.color || "bg-gray-100 text-gray-800"
 }
+
+// 3 roles hardcoded with their default permissions
+export const rolePermissions = Object.keys(ROLES).map(roleKey => ({
+    role: ROLES[roleKey as keyof typeof ROLES],
+    permissions: DEFAULT_ROLE_PERMISSIONS[ROLES[roleKey as keyof typeof ROLES]],
+}))
