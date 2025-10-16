@@ -41,9 +41,9 @@ export function UserCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-semibold truncate">{user.name}</h3>
-                <Badge variant={user.status === "active" ? "default" : "secondary"}>
+                {/* <Badge variant={user.status === "active" ? "default" : "secondary"}>
                   {user.status === "active" ? "Activo" : "Inactivo"}
-                </Badge>
+                </Badge> */}
               </div>
               <p className="text-sm text-muted-foreground truncate">{user.email}</p>
               <div className="flex items-center gap-2 mt-2">
@@ -68,10 +68,10 @@ export function UserCard({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
+            {/* <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
               <Eye className="w-4 h-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => onEdit(user)}>
+            </Button> */}
+            <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
               <Edit className="w-4 h-4" />
             </Button>
             <Button

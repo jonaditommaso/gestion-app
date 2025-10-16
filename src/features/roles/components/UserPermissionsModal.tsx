@@ -14,7 +14,7 @@ interface UserPermissionsDialogProps {
   permissions: Permission[]
 }
 
-export function UserPermissionsDialog({ isOpen, onOpenChange, user, roles, permissions }: UserPermissionsDialogProps) {
+export function UserPermissionsModal({ isOpen, onOpenChange, user, roles, permissions }: UserPermissionsDialogProps) {
   if (!user) return null
 
   return (

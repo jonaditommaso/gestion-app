@@ -9,7 +9,7 @@ interface SearchAndFiltersProps {
   onSearchChange: (value: string) => void
 }
 
-export function SearchAndFilters({ searchTerm, onSearchChange }: SearchAndFiltersProps) {
+export function FilterUser({ searchTerm, onSearchChange }: SearchAndFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="relative flex-1">

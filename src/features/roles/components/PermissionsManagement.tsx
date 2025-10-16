@@ -2,7 +2,7 @@
 // import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Shield, Users } from "lucide-react"
-import { UsersTab } from "./users-tab"
+import { UsersTab } from "./UsersTab"
 import { RolesTab } from "./RolesTab"
 import { useTranslations } from "next-intl"
 
@@ -45,13 +45,13 @@ export default function PermissionsManagement() {
 
         <TabsContent value="users">
           <UsersTab
-            users={[]}
-            roles={[]}
-            permissions={[]}
-            searchTerm=""
-            onSearchChange={() => {}}
-            getRoleColor={() => ""}
-            getPermissionBadgeColor={() => ""}
+            // users={[]}
+            // roles={[]}
+            // permissions={[]}
+            // searchTerm=""
+            // onSearchChange={() => {}}
+            // getRoleColor={() => ""}
+            // getPermissionBadgeColor={() => ""}
           />
         </TabsContent>
 

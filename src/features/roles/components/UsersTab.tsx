@@ -1,32 +1,34 @@
 "use client"
 
-import { SearchAndFilters } from "./search-and-filters"
-import { UserCard } from "./user-card"
-import { UserPermissionsDialog } from "./user-permissions-dialog"
+import { FilterUser } from "./FilterUser"
+import { UserCard } from "./UserCard"
+import { UserPermissionsModal } from "./UserPermissionsModal"
 import { useState } from "react"
 import type { User, Role, Permission } from "../types"
+import { useGetMembers } from "@/features/team/api/use-get-members"
 
 interface UsersTabProps {
-  users: User[]
-  roles: Role[]
-  permissions: Permission[]
-  searchTerm: string
-  onSearchChange: (value: string) => void
-  getRoleColor: (roleName: string) => string
-  getPermissionBadgeColor: (permission: string) => string
+  // users: User[]
+  // roles: Role[]
+  // permissions: Permission[]
+  // searchTerm: string
+  // onSearchChange: (value: string) => void
+  // getRoleColor: (roleName: string) => string
+  // getPermissionBadgeColor: (permission: string) => string
 }
 
 export function UsersTab({
-  users,
-  roles,
-  permissions,
-  searchTerm,
-  onSearchChange,
-  getRoleColor,
-  getPermissionBadgeColor,
+  // users,
+  // roles,
+  // permissions,
+  // searchTerm,
+  // onSearchChange,
+  // getRoleColor,
+  // getPermissionBadgeColor,
 }: UsersTabProps) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { data: team, isLoading} = useGetMembers();
 
   const handleViewPermissions = (user: User) => {
     setSelectedUser(user)
@@ -43,7 +45,7 @@ export function UsersTab({
 
   return (
     <div className="space-y-6">
-      <SearchAndFilters searchTerm={searchTerm} onSearchChange={onSearchChange} />
+      <FilterUser searchTerm={searchTerm} onSearchChange={onSearchChange} />
 
       <div className="grid gap-4">
         {users.map((user) => (
@@ -59,7 +61,7 @@ export function UsersTab({
         ))}
       </div>
 
-      <UserPermissionsDialog
+      <UserPermissionsModal
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         user={selectedUser}
