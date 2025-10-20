@@ -10,3 +10,7 @@ export const rolePermissionsSchema = zod.object({
 export const rolePermissionsUpdateSchema = zod.object({
     permissions: zod.array(zod.string()),
 });
+
+export const roleUser = zod.strictObject({
+    role: zod.string()
+});

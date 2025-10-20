@@ -4,16 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Edit, Trash2, Eye } from "lucide-react"
-import type { User } from "../types"
+import { Edit } from "lucide-react"
+import type { RoleUser } from "../types"
 
 interface UserCardProps {
-  user: User
+  user: RoleUser
   getRoleColor: (roleName: string) => string
   getPermissionBadgeColor: (permission: string) => string
-  onViewPermissions: (user: User) => void
-  onEdit: (user: User) => void
-  onDelete: (user: User) => void
+  onViewPermissions: (user: RoleUser) => void
 }
 
 export function UserCard({
@@ -21,16 +19,15 @@ export function UserCard({
   getRoleColor,
   getPermissionBadgeColor,
   onViewPermissions,
-  onEdit,
-  onDelete,
 }: UserCardProps) {
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+              <AvatarImage src="/placeholder.svg" alt={user.name} />
               <AvatarFallback>
                 {user.name
                   .split(" ")
@@ -74,14 +71,14 @@ export function UserCard({
             <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
               <Edit className="w-4 h-4" />
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               className="text-red-600 hover:text-red-700 bg-transparent"
               onClick={() => onDelete(user)}
             >
               <Trash2 className="w-4 h-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardContent>

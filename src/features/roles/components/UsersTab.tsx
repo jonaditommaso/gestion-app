@@ -3,71 +3,87 @@
 import { FilterUser } from "./FilterUser"
 import { UserCard } from "./UserCard"
 import { UserPermissionsModal } from "./UserPermissionsModal"
-import { useState } from "react"
-import type { User, Role, Permission } from "../types"
+import { useMemo, useState } from "react"
 import { useGetMembers } from "@/features/team/api/use-get-members"
+import { getRoleColor, getPermissionBadgeColor, type RoleType } from "../constants"
+import { useGetFinalRolesPermissions } from "../hooks/useGetFinalRolesPermissions"
+import FadeLoader from "react-spinners/FadeLoader"
+import { MemberUser, RoleUser } from "../types"
 
-interface UsersTabProps {
-  // users: User[]
-  // roles: Role[]
-  // permissions: Permission[]
-  // searchTerm: string
-  // onSearchChange: (value: string) => void
-  // getRoleColor: (roleName: string) => string
-  // getPermissionBadgeColor: (permission: string) => string
-}
+export function UsersTab() {
+  const [selectedUser, setSelectedUser] = useState<RoleUser | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const { data: team, isLoading } = useGetMembers()
+  const finalRolePermissions = useGetFinalRolesPermissions();
 
-export function UsersTab({
-  // users,
-  // roles,
-  // permissions,
-  // searchTerm,
-  // onSearchChange,
-  // getRoleColor,
-  // getPermissionBadgeColor,
-}: UsersTabProps) {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const { data: team, isLoading} = useGetMembers();
+  // TODO: update automatically users list when a user's role is changed. Check useUpdateUserRole
 
-  const handleViewPermissions = (user: User) => {
+  // Filtrar usuarios por término de búsqueda
+  const filteredUsers = useMemo(() => {
+    if (!team) return []
+
+    if (!searchTerm) return team
+
+    const search = searchTerm.toLowerCase()
+    return team.filter((member) =>
+      member.userName.toLowerCase().includes(search) ||
+      member.userEmail.toLowerCase().includes(search) ||
+      (member.prefs?.role as string)?.toLowerCase().includes(search)
+    )
+  }, [team, searchTerm])
+
+  const handleViewPermissions = (user: RoleUser) => {
     setSelectedUser(user)
     setIsEditDialogOpen(true)
   }
 
-  const handleEdit = (user: User) => {
-    console.log("Edit user:", user)
-  }
-
-  const handleDelete = (user: User) => {
-    console.log("Delete user:", user)
-  }
+  if(isLoading) return <FadeLoader color="#999" width={3} className="mt-5" />
 
   return (
     <div className="space-y-6">
-      <FilterUser searchTerm={searchTerm} onSearchChange={onSearchChange} />
+      <FilterUser searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       <div className="grid gap-4">
-        {users.map((user) => (
-          <UserCard
-            key={user.id}
-            user={user}
-            getRoleColor={getRoleColor}
-            getPermissionBadgeColor={getPermissionBadgeColor}
-            onViewPermissions={handleViewPermissions}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
+        {filteredUsers.map((user: MemberUser) => {
+
+          const role = (user.prefs?.role as RoleType) || 'VIEWER'
+          const roleConfig = finalRolePermissions.find(r => r.role === role)
+          const permissions = roleConfig?.permissions || []
+
+          const roleUser = {
+            id: user.userId,
+            name: user.name,
+            email: user.email,
+            role: role,
+            permissions: permissions,
+            status: user.status ? "active" : "inactive",
+          } as const
+
+          return (
+            <UserCard
+              key={user.$id}
+              user={roleUser}
+              getRoleColor={(roleName: string) => getRoleColor(roleName as RoleType)}
+              getPermissionBadgeColor={getPermissionBadgeColor}
+              onViewPermissions={() => handleViewPermissions(roleUser)}
+            />
+          )
+        })}
       </div>
 
-      <UserPermissionsModal
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        user={selectedUser}
-        roles={roles}
-        permissions={permissions}
-      />
+      {!filteredUsers.length && (
+        <div className="text-center text-muted-foreground py-8">
+          No se encontraron usuarios
+        </div>
+      )}
+
+      {selectedUser && isEditDialogOpen && (
+        <UserPermissionsModal
+          onOpenChange={setIsEditDialogOpen}
+          user={selectedUser}
+        />
+      )}
     </div>
   )
 }

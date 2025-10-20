@@ -1,9 +1,10 @@
 import { Hono } from "hono";
-import { rolePermissionsSchema, rolePermissionsUpdateSchema } from "./schemas";
+import { rolePermissionsSchema, rolePermissionsUpdateSchema, roleUser } from "./schemas";
 import { zValidator } from "@hono/zod-validator";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, ROLES_PERMISSIONS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 
 const app = new Hono()
 
@@ -85,6 +86,28 @@ const app = new Hono()
             );
 
             return ctx.json({ data: rolePermissions })
+        }
+    )
+
+    .patch(
+        '/user/:id',
+        zValidator('json', roleUser),
+        sessionMiddleware,
+        async (ctx) => {
+            const { users } = await createAdminClient();
+
+            const { role } = ctx.req.valid('json');
+            const { id } = ctx.req.param();
+
+            const prefs = await users.getPrefs(id);
+
+            await users.updatePrefs(id, {
+                ...(prefs ?? {}),
+                role: role,
+            });
+
+            return ctx.json({ success: true })
+
         }
     )
 
