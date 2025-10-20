@@ -9,8 +9,10 @@ import { getRoleColor, getPermissionBadgeColor, type RoleType } from "../constan
 import { useGetFinalRolesPermissions } from "../hooks/useGetFinalRolesPermissions"
 import FadeLoader from "react-spinners/FadeLoader"
 import { MemberUser, RoleUser } from "../types"
+import { useTranslations } from "next-intl"
 
 export function UsersTab() {
+  const t = useTranslations('roles')
   const [selectedUser, setSelectedUser] = useState<RoleUser | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -74,7 +76,7 @@ export function UsersTab() {
 
       {!filteredUsers.length && (
         <div className="text-center text-muted-foreground py-8">
-          No se encontraron usuarios
+          {t('no-users-found')}
         </div>
       )}
 

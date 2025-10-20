@@ -1344,6 +1344,12 @@
         "edit-role-description": "Modify the permissions for this role",
         "cancel": "Cancel",
         "save": "Save",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "no-users-found": "No users found",
+        "permissions-of": "Permissions for",
+        "manage-permissions-role-description": "Manage user permissions and role",
+        "role": "Role",
+        "individual-permissions": "Individual Permissions",
+        "save-changes": "Save Changes"
     }
 }

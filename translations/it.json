@@ -1330,6 +1330,12 @@
         "edit-role-description": "Modifica i permessi di questo ruolo",
         "cancel": "Annulla",
         "save": "Salva",
-        "saving": "Salvando..."
+        "saving": "Salvando...",
+        "no-users-found": "Nessun utente trovato",
+        "permissions-of": "Permessi di",
+        "manage-permissions-role-description": "Gestisci i permessi e il ruolo dell'utente",
+        "role": "Ruolo",
+        "individual-permissions": "Permessi Individuali",
+        "save-changes": "Salva Modifiche"
     }
 }

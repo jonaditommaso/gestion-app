@@ -1350,6 +1350,12 @@
         "edit-role-description": "Modifica los permisos de este rol",
         "cancel": "Cancelar",
         "save": "Guardar",
-        "saving": "Guardando..."
+        "saving": "Guardando...",
+        "no-users-found": "No se encontraron usuarios",
+        "permissions-of": "Permisos de",
+        "manage-permissions-role-description": "Gestiona los permisos y rol del usuario",
+        "role": "Rol",
+        "individual-permissions": "Permisos Individuales",
+        "save-changes": "Guardar Cambios"
     }
 }
