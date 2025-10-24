@@ -1337,5 +1337,22 @@
         "role": "Ruolo",
         "individual-permissions": "Permessi Individuali",
         "save-changes": "Salva Modifiche"
+    },
+    "chatbot": {
+        "title": "Gestionate IA",
+        "new-chat": "Nuova chat",
+        "history": "Cronologia conversazioni",
+        "close": "Chiudi",
+        "history-title": "Cronologia conversazioni",
+        "empty-conversation": "Conversazione vuota",
+        "messages": "messaggi",
+        "message": "messaggio",
+        "welcome-title": "Gestionate IA Chat",
+        "welcome-description": "Fai domande o richiedi azioni. Gli errori sono possibili, verifica le informazioni importanti.",
+        "placeholder": "Scrivi il tuo messaggio...",
+        "send": "Invia",
+        "input-hint": "Premi Invio per inviare, Shift+Invio per una nuova riga",
+        "model-name": "Ollama",
+        "bot-response": "Questa è una risposta di esempio. Collega il tuo backend qui."
     }
 }

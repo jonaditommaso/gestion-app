@@ -1357,5 +1357,22 @@
         "role": "Rol",
         "individual-permissions": "Permisos Individuales",
         "save-changes": "Guardar Cambios"
+    },
+    "chatbot": {
+        "title": "Gestionate IA",
+        "new-chat": "Nuevo chat",
+        "history": "Historial de conversaciones",
+        "close": "Cerrar",
+        "history-title": "Historial de conversaciones",
+        "empty-conversation": "Conversación vacía",
+        "messages": "mensajes",
+        "message": "mensaje",
+        "welcome-title": "Gestionate IA Chat",
+        "welcome-description": "Realiza preguntas o solicita acciones. Los errores son posibles, verifica la información importante.",
+        "placeholder": "Escribe tu mensaje...",
+        "send": "Enviar",
+        "input-hint": "Presiona Enter para enviar, Shift+Enter para nueva línea",
+        "model-name": "Ollama",
+        "bot-response": "Esta es una respuesta de ejemplo. Conecta tu backend aquí."
     }
 }

@@ -1351,5 +1351,22 @@
         "role": "Role",
         "individual-permissions": "Individual Permissions",
         "save-changes": "Save Changes"
+    },
+    "chatbot": {
+        "title": "Gestionate AI",
+        "new-chat": "New chat",
+        "history": "Conversation history",
+        "close": "Close",
+        "history-title": "Conversation history",
+        "empty-conversation": "Empty conversation",
+        "messages": "messages",
+        "message": "message",
+        "welcome-title": "Gestionate AI Chat",
+        "welcome-description": "Ask questions or request actions. Errors are possible, please verify important information.",
+        "placeholder": "Type your message...",
+        "send": "Send",
+        "input-hint": "Press Enter to send, Shift+Enter for new line",
+        "model-name": "Ollama",
+        "bot-response": "This is an example response. Connect your backend here."
     }
 }
