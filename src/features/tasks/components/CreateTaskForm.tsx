@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TaskStatus } from "../types";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
+import { TASK_STATUS_OPTIONS } from "../constants";
+import RichTextArea from "@/components/RichTextArea";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -77,15 +78,17 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                             />
                             <FormField
                                 control={form.control}
-                                name='dueDate'
+                                name='description'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            {t('due-date')}
+                                            {t('description')}
                                         </FormLabel>
                                         <FormControl>
-                                            <CustomDatePicker
+                                            <RichTextArea
                                                 {...field}
+                                                placeholder={t('add-description')}
+                                                memberOptions={memberOptions}
                                                 className="!mt-0"
                                             />
                                         </FormControl>
@@ -128,46 +131,55 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name='status'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t('status')}
-                                        </FormLabel>
-                                        <Select
-                                            defaultValue={field.value}
-                                            onValueChange={field.onChange}
-                                        >
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <FormField
+                                    control={form.control}
+                                    name='status'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('status')}
+                                            </FormLabel>
+                                            <Select
+                                                defaultValue={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-status')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <FormMessage />
+                                                <SelectContent>
+                                                    {TASK_STATUS_OPTIONS.map((status) => (
+                                                        <SelectItem key={status.value} value={status.value}>
+                                                            {t(status.translationKey)}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name='dueDate'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('due-date')}
+                                            </FormLabel>
                                             <FormControl>
-                                                <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder={t('select-status')} />
-                                                </SelectTrigger>
+                                                <CustomDatePicker
+                                                    {...field}
+                                                    className="!mt-0"
+                                                />
                                             </FormControl>
                                             <FormMessage />
-                                            {/* //! REFACTOR THIS! */}
-                                            <SelectContent>
-                                                <SelectItem value={TaskStatus.BACKLOG}>
-                                                    Backlog
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.TODO}>
-                                                    {t('todo')}
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.IN_PROGRESS}>
-                                                    {t('in-progress')}
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.IN_REVIEW}>
-                                                    {t('in-review')}
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.DONE}>
-                                                    {t('done')}
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )}
-                            />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
                         <Separator />

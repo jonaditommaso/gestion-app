@@ -33,7 +33,7 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-da
             <PopoverTrigger asChild>
                 <Button
                     variant='outline'
-                    size='lg'
+                    size='default' // lg
                     className={cn(
                         'w-full justify-start text-left font-normal px-3',
                         !value && 'text-muted-foreground',
