@@ -4,6 +4,7 @@ import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { statusColorMap } from "../constants/status";
 
 interface EventCardProps {
     title: string,
@@ -12,14 +13,6 @@ interface EventCardProps {
     assignee: any, // type
     status: TaskStatus,
     id: string
-}
-
-const statusColorMap: Record<TaskStatus, string> = {
-    [TaskStatus.BACKLOG]: 'border-l-pink-500',
-    [TaskStatus.TODO]: 'border-l-red-500',
-    [TaskStatus.IN_PROGRESS]: 'border-l-yellow-500',
-    [TaskStatus.IN_REVIEW]: 'border-l-blue-500',
-    [TaskStatus.DONE]: 'border-l-emerald-500',
 }
 
 const EventCard = ({ title, assignee, status, id }: EventCardProps) => {
