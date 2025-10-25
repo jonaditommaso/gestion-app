@@ -295,14 +295,14 @@ const RichTextArea = ({
         }, 0)
     }
 
-    const handleImage = () => {
-        const url = window.prompt('URL de la imagen:')
-        if (url) {
-            applyFormat('insertImage', url)
-        } else {
-            editorRef.current?.focus()
-        }
-    }
+    // const handleImage = () => {
+    //     const url = window.prompt('URL de la imagen:')
+    //     if (url) {
+    //         applyFormat('insertImage', url)
+    //     } else {
+    //         editorRef.current?.focus()
+    //     }
+    // }
 
     // const handleMention = () => {
     //     if (memberOptions.length === 0) {
@@ -361,7 +361,7 @@ const RichTextArea = ({
 
                 <MediaActions
                     linkComponent={<LinkDialog onInsertLink={handleLink} />}
-                    onImage={handleImage}
+                    // onImage={handleImage}
                     onDivider={handleDivider}
                     // onMention={handleMention}
                 />
