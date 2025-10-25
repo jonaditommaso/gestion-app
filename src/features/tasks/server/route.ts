@@ -29,7 +29,7 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -104,7 +104,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, workspaceId, dueDate, assigneeId } = ctx.req.valid('json');
+            const { name, status, workspaceId, dueDate, assigneeId, priority, description } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -112,7 +112,7 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -141,6 +141,8 @@ const app = new Hono()
                     workspaceId,
                     dueDate,
                     assigneeId,
+                    priority,
+                    description,
                     position: newPosition,
                     userId: user.$id,
                 }
@@ -171,7 +173,7 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -193,7 +195,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, description, dueDate, assigneeId } = ctx.req.valid('json');
+            const { name, status, description, dueDate, assigneeId, priority } = ctx.req.valid('json');
 
             const { taskId } = ctx.req.param()
 
@@ -209,7 +211,7 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -222,6 +224,7 @@ const app = new Hono()
                     status,
                     dueDate,
                     assigneeId,
+                    priority,
                     description
                 }
             )
@@ -252,7 +255,7 @@ const app = new Hono()
                 userId: currentUser.$id
             });
 
-            if(!currentMember) {
+            if (!currentMember) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -319,7 +322,7 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -330,7 +333,7 @@ const app = new Hono()
                     DATABASE_ID,
                     TASKS_ID,
                     $id,
-                    {status, position}
+                    { status, position }
                 )
             }))
 

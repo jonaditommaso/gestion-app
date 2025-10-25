@@ -15,7 +15,8 @@ import CustomDatePicker from "@/components/CustomDatePicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
-import { TASK_STATUS_OPTIONS } from "../constants";
+import { TASK_STATUS_OPTIONS } from "../constants/status";
+import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import RichTextArea from "@/components/RichTextArea";
 
 interface CreateTaskFormProps {
@@ -31,13 +32,21 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
         defaultValues: {
-            workspaceId
+            workspaceId,
+            priority: 3 // default
         }
     })
 
     const onSubmit = (values: zod.infer<typeof createTaskSchema>) => {
+        const { description, ...rest } = values
 
-        mutate({ json: {...values, workspaceId} }, {
+        const payload = {
+            ...rest,
+            workspaceId,
+            ...(description && { description })
+        }
+
+        mutate({ json: payload }, {
             onSuccess: () => {
                 form.reset();
                 onCancel?.()
@@ -96,41 +105,81 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name='assigneeId'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t('assignee')}
-                                        </FormLabel>
-                                        <Select
-                                            defaultValue={field.value}
-                                            onValueChange={field.onChange}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder={t('select-assignee')} />
-                                                </SelectTrigger>
-                                            </FormControl >
-                                            <FormMessage />
-                                            <SelectContent >
-                                                {memberOptions?.map(member => (
-                                                    <SelectItem key={member.id} value={member.id}>
-                                                        <div className="flex items-center gap-x-2">
-                                                            <MemberAvatar
-                                                                className='size-6'
-                                                                name={member.name}
-                                                            />
-                                                            {member.name}
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <FormField
+                                    control={form.control}
+                                    name='assigneeId'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('assignee')}
+                                            </FormLabel>
+                                            <Select
+                                                defaultValue={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-assignee')} />
+                                                    </SelectTrigger>
+                                                </FormControl >
+                                                <FormMessage />
+                                                <SelectContent >
+                                                    {memberOptions?.map(member => (
+                                                        <SelectItem key={member.id} value={member.id}>
+                                                            <div className="flex items-center gap-x-2">
+                                                                <MemberAvatar
+                                                                    className='size-6'
+                                                                    name={member.name}
+                                                                />
+                                                                {member.name}
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name='priority'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('priority')}
+                                            </FormLabel>
+                                            <Select
+                                                defaultValue={String(field.value)}
+                                                onValueChange={(value) => field.onChange(Number(value))}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-priority')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <FormMessage />
+                                                <SelectContent>
+                                                    {TASK_PRIORITY_OPTIONS.map((priority) => {
+                                                        const Icon = priority.icon
+                                                        return (
+                                                            <SelectItem key={priority.value} value={String(priority.value)}>
+                                                                <div className="flex items-center gap-x-2">
+                                                                    <Icon
+                                                                        className="size-4"
+                                                                        style={{ color: priority.color }}
+                                                                    />
+                                                                    {t(priority.translationKey)}
+                                                                </div>
+                                                            </SelectItem>
+                                                        )
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <div className="grid grid-cols-2 gap-x-4">
                                 <FormField
                                     control={form.control}
@@ -153,7 +202,10 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                                 <SelectContent>
                                                     {TASK_STATUS_OPTIONS.map((status) => (
                                                         <SelectItem key={status.value} value={status.value}>
-                                                            {t(status.translationKey)}
+                                                            <div className="flex items-center gap-x-2">
+                                                                <div className={cn("size-3 rounded-full", status.color)} />
+                                                                {t(status.translationKey)}
+                                                            </div>
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
