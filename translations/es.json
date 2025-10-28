@@ -1214,6 +1214,7 @@
         "priority-very-high": "Muy alta",
         "all-statuses": "Todos los estados",
         "all-assignees": "Todos asignados",
+        "all-priorities": "Todas las prioridades",
         "no-results": "No se encontraron resultados.",
         "prev": "Anterior",
         "next": "Siguiente",

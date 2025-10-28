@@ -1208,6 +1208,7 @@
         "priority-very-high": "Very high",
         "all-statuses": "All statuses",
         "all-assignees": "All assignees",
+        "all-priorities": "All priorities",
         "no-results": "No results found.",
         "prev": "Previous",
         "next": "Next",

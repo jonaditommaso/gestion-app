@@ -27,10 +27,11 @@ const TaskSwitcher = () => {
     const [{
         status,
         assigneeId,
-        dueDate
+        dueDate,
+        priority
     }] = useTaskFilters();
 
-    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate });
+    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate, priority });
 
     const { mutate: bulkUpdate  } = useBulkUpdateTasks()
 

@@ -21,7 +21,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, workspaceId, dueDate, assigneeId } = ctx.req.valid('query');
+            const { search, status, workspaceId, dueDate, assigneeId, priority } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -52,6 +52,10 @@ const app = new Hono()
 
             if (search) {
                 query.push(Query.equal('name', search))
+            }
+
+            if (priority) {
+                query.push(Query.equal('priority', priority))
             }
 
             const tasks = await databases.listDocuments<Task>(

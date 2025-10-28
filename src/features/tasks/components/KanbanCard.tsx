@@ -1,22 +1,38 @@
-import { MoreHorizontalIcon } from "lucide-react";
+import { MoreHorizontalIcon, TextIcon } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
 import { Separator } from "@/components/ui/separator";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import TaskDate from "./TaskDate";
+import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 
 interface KanbanCardProps {
     task: Task
 }
 
 const KanbanCard = ({ task }: KanbanCardProps) => {
+    const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
+    const PriorityIcon = priorityOption.icon
+
     return (
         <div className="bg-card p-2.5 mb-1.5 rounded shadow-md space-y-3">
-            <div className="flex items-start justify-between gap-x-2">
-                <p className="text-sm line-clamp-2">{task.name}</p>
-                <TaskActions id={task.$id}>
-                    <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
-                </TaskActions>
+            <div>
+                <div className="flex items-start justify-between gap-x-2">
+                    <p className="text-sm line-clamp-2">{task.name}</p>
+                    <TaskActions id={task.$id}>
+                        <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
+                    </TaskActions>
+                </div>
+                <div className="flex items-start justify-between gap-x-2">
+                    <div>
+                        {task.description && <TextIcon className="size-4 text-neutral-500" />}
+                    </div>
+                    <PriorityIcon
+                        className="size-4"
+                        style={{ color: priorityOption.color }}
+                    />
+                </div>
+
             </div>
             <Separator />
             <div className="flex items-center gap-x-1.5">

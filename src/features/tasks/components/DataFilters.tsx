@@ -2,12 +2,13 @@
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ListChecksIcon, UserIcon } from "lucide-react";
+import { ListChecksIcon, UserIcon, SignalIcon } from "lucide-react";
 import { TaskStatus } from "../types";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
+import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 
 const DataFilters = () => {
     const workspaceId = useWorkspaceId();
@@ -22,7 +23,8 @@ const DataFilters = () => {
     const [{
         status,
         assigneeId,
-        dueDate
+        dueDate,
+        priority
     }, setFilters] = useTaskFilters();
 
     const onStatusChange = (value: string) => {
@@ -35,6 +37,10 @@ const DataFilters = () => {
 
     const onAssigneeChange = (value: string) => {
         setFilters({ assigneeId: value === 'all' ? null : value as string })
+    }
+
+    const onPriorityChange = (value: string) => {
+        setFilters({ priority: value === 'all' ? null : parseInt(value) })
     }
 
     if (isLoading) return null;
@@ -95,6 +101,35 @@ const DataFilters = () => {
                             </div>
                         </SelectItem>
                     ))}
+                </SelectContent>
+            </Select>
+            <Select
+                defaultValue={priority?.toString() ?? undefined}
+                onValueChange={(value) => onPriorityChange(value)}
+            >
+                <SelectTrigger className="w-full lg:w-auto h-8">
+                    <div className="flex items-center pr-2">
+                        <SignalIcon className="size-4 mr-2" />
+                        <SelectValue placeholder={t('all-priorities')} />
+                    </div>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{t('all-priorities')}</SelectItem>
+                    <SelectSeparator />
+                    {TASK_PRIORITY_OPTIONS.map(priorityOption => {
+                        const PriorityIcon = priorityOption.icon;
+                        return (
+                            <SelectItem key={priorityOption.value} value={priorityOption.value.toString()}>
+                                <div className="flex items-center gap-x-2">
+                                    <PriorityIcon
+                                        className="size-4"
+                                        style={{ color: priorityOption.color }}
+                                    />
+                                    {t(priorityOption.translationKey)}
+                                </div>
+                            </SelectItem>
+                        );
+                    })}
                 </SelectContent>
             </Select>
             <CustomDatePicker

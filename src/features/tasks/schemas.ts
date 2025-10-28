@@ -16,5 +16,6 @@ export const getTaskSchema = zod.object({
     assigneeId: zod.string().nullish(),
     status: zod.nativeEnum(TaskStatus).nullish(),
     search: zod.string().nullish(),
-    dueDate: zod.string().nullish()
+    dueDate: zod.string().nullish(),
+    priority: zod.coerce.number().int().min(1).max(5).nullish()
 })
