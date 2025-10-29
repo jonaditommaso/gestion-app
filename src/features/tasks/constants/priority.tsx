@@ -1,4 +1,4 @@
-import { ChevronsUp, ChevronUp, Minus, ChevronDown, ChevronsDown } from 'lucide-react'
+import { ChevronsUp, ChevronUp, Equal, ChevronDown, ChevronsDown } from 'lucide-react'
 
 export const TASK_PRIORITY_OPTIONS = [
     {
@@ -16,7 +16,7 @@ export const TASK_PRIORITY_OPTIONS = [
     {
         value: 3,
         translationKey: 'priority-medium',
-        icon: Minus,
+        icon: Equal,
         color: '#eab308',
     },
     {
