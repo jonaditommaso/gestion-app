@@ -56,7 +56,7 @@ const TaskSwitcher = () => {
                 defaultValue={currentTab}
                 onValueChange={setCurrentTab}
             >
-                <div className="h-full flex flex-col p-4">
+                <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'}`}>
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
                             <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
@@ -92,7 +92,7 @@ const TaskSwitcher = () => {
                             <TabsContent value="table" className="mt-0 overflow-auto">
                                 <DataTable columns={columns} data={tasks?.documents ?? []} />
                             </TabsContent>
-                            <TabsContent value="kanban" className="mt-0">
+                            <TabsContent value="kanban" className="mt-0 h-full">
                                 <DataKanban
                                     data={tasks?.documents ?? []}
                                     addTask={handleNewTask}

@@ -144,10 +144,10 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex overflow-x-auto">
+            <div className="flex overflow-x-auto h-full">
                 {boards.map(board => {
                     return (
-                        <div key={board} className="flex-1 mx-2 bg-muted p-1.5 rounded-md min-w-[200px]">
+                        <div key={board} className="flex-1 mx-2 bg-muted p-1.5 rounded-md min-w-[200px] flex flex-col h-full">
                             <KanbanColumnHeader
                                 board={board}
                                 taskCount={tasks[board].length}
@@ -158,7 +158,7 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
                                     <div
                                         {...provided.droppableProps}
                                         ref={provided.innerRef}
-                                        className="min-h-[200px] py-1.5"
+                                        className="flex-1 py-1.5 overflow-y-auto"
                                     >
                                         {tasks[board].map((task, index) => (
                                             <Draggable key={task.$id} draggableId={task.$id} index={index}>
