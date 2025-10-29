@@ -199,7 +199,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, description, dueDate, assigneeId, priority } = ctx.req.valid('json');
+            const updates = ctx.req.valid('json');
 
             const { taskId } = ctx.req.param()
 
@@ -223,14 +223,7 @@ const app = new Hono()
                 DATABASE_ID,
                 TASKS_ID,
                 taskId,
-                {
-                    name,
-                    status,
-                    dueDate,
-                    assigneeId,
-                    priority,
-                    description
-                }
+                updates
             )
 
             return ctx.json({ data: task })
