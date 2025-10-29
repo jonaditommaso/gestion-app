@@ -25,14 +25,16 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                 onClose={() => setIsModalOpen(false)}
             />
             <div
-                className="bg-card p-2.5 mb-1.5 rounded shadow-md space-y-3 cursor-pointer hover:shadow-lg transition"
+                className={`p-2.5 mb-1.5 rounded shadow-md space-y-3 cursor-pointer hover:shadow-lg transition ${
+                    task.featured ? 'bg-yellow-50/80 dark:bg-yellow-950/20' : 'bg-card'
+                }`}
                 onClick={() => setIsModalOpen(true)}
             >
             <div>
                 <div className="flex items-start justify-between gap-x-2">
                     <p className="text-sm line-clamp-2">{task.name}</p>
                     <div onClick={(e) => e.stopPropagation()}>
-                        <TaskActions id={task.$id}>
+                        <TaskActions id={task.$id} isFeatured={task.featured}>
                             <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
                         </TaskActions>
                     </div>

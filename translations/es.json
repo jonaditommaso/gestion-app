@@ -1196,6 +1196,8 @@
         "action-cannot-be-undone": "Esta acción no puede ser deshecha",
         "task-details": "Detalles de tarea",
         "edit-task": "Editar tarea",
+        "feature-task": "Destacar tarea",
+        "unfeature-task": "Quitar destacado",
         "tasks-updated": "Tareas actualizadas",
         "failed-update-tasks": "Hubo un error actualizando las tareas",
         "task-created": "Tarea creada",

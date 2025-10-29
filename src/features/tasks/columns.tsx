@@ -104,9 +104,10 @@ export const columns: ColumnDef<Task>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const id = row.original.$id;
+      const isFeatured = row.original.featured;
 
       return (
-        <TaskActions id={id}>
+        <TaskActions id={id} isFeatured={isFeatured}>
           <Button variant='ghost' className="size-8 p-0">
             <MoreVertical className="size-4" />
           </Button>

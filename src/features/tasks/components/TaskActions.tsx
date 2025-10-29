@@ -1,17 +1,19 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ExternalLinkIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { ExternalLinkIcon, FlagIcon, FlagOffIcon, TrashIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
+import { useUpdateTask } from "../api/use-update-task";
 import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
 
 interface TaskActionsProps {
     id: string,
-    children: React.ReactNode
+    children: React.ReactNode,
+    isFeatured?: boolean
 }
 
-const TaskActions = ({ id, children }: TaskActionsProps) => {
+const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => {
     const t = useTranslations('workspaces')
     const [ConfirmDialog, confirm] = useConfirm(
         t('delete-task'),
@@ -22,17 +24,25 @@ const TaskActions = ({ id, children }: TaskActionsProps) => {
     const workspaceId = useWorkspaceId()
     const router = useRouter();
 
+    const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
+    const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
+
     const onOpenTask = () => {
         router.push(`/workspaces/${workspaceId}/tasks/${id}`)
     }
-
-    const { mutate, isPending } = useDeleteTask();
 
     const onDelete = async () => {
         const ok = await confirm()
         if (!ok) return;
 
-        mutate({ param: { taskId: id }})
+        deleteTask({ param: { taskId: id }})
+    }
+
+    const onToggleFeatured = () => {
+        updateTask({
+            json: { featured: !isFeatured },
+            param: { taskId: id }
+        })
     }
 
     return (
@@ -51,15 +61,24 @@ const TaskActions = ({ id, children }: TaskActionsProps) => {
                         {t('task-details')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        onClick={() => {}}
+                        onClick={onToggleFeatured}
                         className="font-medium p-[10px]"
                     >
-                        <PencilIcon className="size-4 mr-2 stroke-2" />
-                        {t('edit-task')}
+                        {isFeatured ? (
+                            <>
+                                <FlagOffIcon className="size-4 mr-2 stroke-2" />
+                                {t('unfeature-task')}
+                            </>
+                        ) : (
+                            <>
+                                <FlagIcon className="size-4 mr-2 stroke-2" />
+                                {t('feature-task')}
+                            </>
+                        )}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={onDelete}
-                        disabled={isPending}
+                        disabled={isDeletingTask || isUpdatingTask}
                         className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
                     >
                         <TrashIcon className="size-4 mr-2 stroke-2" />

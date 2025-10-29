@@ -34,7 +34,8 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
         title: task.name,
         assignee: task.assignee,
         status: task.status,
-        id: task.$id
+        id: task.$id,
+        featured: task.featured,
     }))
 
     const handleNavigate = (action: 'PREV' | 'NEXT' | 'TODAY') => {
@@ -68,6 +69,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
                         assignee={event.assignee}
                         status={event.status}
                         id={event.id}
+                        featured={event.featured}
                     />
                 ),
                 toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} />

@@ -1176,6 +1176,8 @@
         "action-cannot-be-undone": "Questa azione non può essere annullata",
         "task-details": "Dettagli dell'attività",
         "edit-task": "Modifica attività",
+        "feature-task": "Metti in evidenza attività",
+        "unfeature-task": "Rimuovi evidenza",
         "tasks-updated": "Attività aggiornate",
         "failed-update-tasks": "Si è verificato un errore durante l'aggiornamento delle attività",
         "task-created": "Attività creata",

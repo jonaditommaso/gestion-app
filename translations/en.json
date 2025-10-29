@@ -1190,6 +1190,8 @@
         "action-cannot-be-undone": "This action cannot be undone",
         "task-details": "Task details",
         "edit-task": "Edit task",
+        "feature-task": "Feature task",
+        "unfeature-task": "Unfeature task",
         "tasks-updated": "Tasks updated",
         "failed-update-tasks": "There was an error updating tasks",
         "task-created": "Task created",
