@@ -196,12 +196,16 @@ const TaskDetailsContent = ({ task }: TaskDetailsContentProps) => {
                         </div>
                     ) : (
                         <div
-                            className="min-h-[60px] p-4 rounded-lg border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-all"
+                            className={`min-h-[60px] p-4 rounded-lg cursor-pointer transition-all ${
+                                task.description
+                                    ? 'hover:bg-muted/30'
+                                    : 'border bg-muted/30 hover:bg-muted/50'
+                            }`}
                             onClick={() => setIsEditingDescription(true)}
                         >
                             {task.description ? (
                                 <div
-                                    className="prose prose-sm max-w-none dark:prose-invert"
+                                    className="prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6"
                                     dangerouslySetInnerHTML={{ __html: task.description }}
                                 />
                             ) : (
