@@ -3,7 +3,6 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { ExternalLinkIcon, FlagIcon, FlagOffIcon, TrashIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useUpdateTask } from "../api/use-update-task";
-import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
 
@@ -22,13 +21,12 @@ const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => 
     );
 
     const workspaceId = useWorkspaceId()
-    const router = useRouter();
 
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
     const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
 
     const onOpenTask = () => {
-        router.push(`/workspaces/${workspaceId}/tasks/${id}`)
+        window.open(`/workspaces/${workspaceId}/tasks/${id}`, '_blank')
     }
 
     const onDelete = async () => {
@@ -38,6 +36,7 @@ const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => 
         deleteTask({ param: { taskId: id }})
     }
 
+    // todo: check how to implement optimistic update here with useOptimistic
     const onToggleFeatured = () => {
         updateTask({
             json: { featured: !isFeatured },
