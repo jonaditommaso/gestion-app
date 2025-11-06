@@ -19,13 +19,15 @@ import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import RichTextArea from "@/components/RichTextArea";
+import { TaskStatus } from "../types";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
-    onCancel: () => void
+    onCancel: () => void,
+    initialStatus?: TaskStatus
 }
 
-const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
+const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
     const workspaceId = useWorkspaceId();
     const t = useTranslations('workspaces');
@@ -36,6 +38,7 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
             workspaceId,
             priority: 3, // default
             type: 'task', // default
+            status: initialStatus,
         }
     })
 

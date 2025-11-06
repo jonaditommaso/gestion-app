@@ -11,7 +11,7 @@ import KanbanCard from "./KanbanCard";
 
 interface DataKanbanProps {
     data: Task[],
-    addTask: () => void,
+    addTask: (status: TaskStatus) => void,
     onChangeTasks: (tasks: { $id: string, status: TaskStatus, position: number }[]) => void;
 }
 
@@ -151,7 +151,7 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
                             <KanbanColumnHeader
                                 board={board}
                                 taskCount={tasks[board].length}
-                                addTask={addTask}
+                                addTask={() => addTask(board)}
                             />
                             <Droppable droppableId={board}>
                                 {(provided) => (

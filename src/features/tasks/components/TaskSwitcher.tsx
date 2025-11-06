@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 const TaskSwitcher = () => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
+    const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
     const [currentTab, setCurrentTab] = useState('table') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
     const t = useTranslations('workspaces');
 
@@ -36,8 +37,9 @@ const TaskSwitcher = () => {
     const { mutate: bulkUpdate  } = useBulkUpdateTasks()
 
 
-    const handleNewTask = () => {
-        setModalOpen(true)
+    const handleNewTask = (status?: TaskStatus) => {
+        setInitialStatus(status);
+        setModalOpen(true);
     }
 
     const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, position: number }[]) => {
@@ -49,7 +51,7 @@ const TaskSwitcher = () => {
     return (
        <div className="mt-2">
             <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
-                <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} />
+                <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} initialStatus={initialStatus} />
             </DialogContainer>
             <Tabs
                 className="flex-1 w-full border rounded-lg"
@@ -72,7 +74,7 @@ const TaskSwitcher = () => {
                         <Button
                             size='sm'
                             className="w-full lg:w-auto"
-                            onClick={handleNewTask}
+                            onClick={() => handleNewTask()}
                         >
                             <PlusIcon className="size-4 mr-2" />
                             {t('new')}
