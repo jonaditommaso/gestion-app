@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
+import { TASK_TYPE_OPTIONS } from "../constants/type";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
@@ -11,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import RichTextArea from "@/components/RichTextArea";
 import { useUpdateTask } from "../api/use-update-task";
 import CustomDatePicker from "@/components/CustomDatePicker";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 interface TaskDetailsSharedProps {
     task: Task;
@@ -19,15 +22,22 @@ interface TaskDetailsSharedProps {
 export const TaskTitleEditor = ({
     taskId,
     initialTitle,
+    initialType,
     size = 'modal'
 }: {
     taskId: string;
     initialTitle: string;
+    initialType?: string;
     size?: 'modal' | 'page';
 }) => {
+    const t = useTranslations('workspaces');
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(initialTitle);
     const { mutate: updateTask, isPending } = useUpdateTask();
+
+    const currentType = initialType || 'task';
+    const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === currentType)!;
+    const TypeIcon = typeOption.icon;
 
     const handleSave = () => {
         if (title.trim() && title !== initialTitle) {
@@ -45,6 +55,13 @@ export const TaskTitleEditor = ({
         }
     };
 
+    const handleTypeChange = (type: string) => {
+        updateTask({
+            json: { type },
+            param: { taskId }
+        });
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -56,29 +73,50 @@ export const TaskTitleEditor = ({
     };
 
     const textSize = size === 'page' ? 'text-3xl' : 'text-2xl';
+    const iconSize = size === 'page' ? 'size-8' : 'size-6';
     const TitleTag = size === 'page' ? 'h1' : 'h2';
 
     return (
-        <div className="flex-1">
-            {isEditing ? (
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onBlur={handleSave}
-                    onKeyDown={handleKeyDown}
-                    disabled={isPending}
-                    className={`w-full ${textSize} font-bold bg-transparent border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-ring`}
-                    autoFocus
-                />
-            ) : (
-                <TitleTag
-                    className={`w-full ${textSize} font-bold cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition border border-transparent`}
-                    onClick={() => setIsEditing(true)}
-                >
-                    {title}
-                </TitleTag>
-            )}
+        <div className="flex-1 flex items-center gap-x-3">
+            <Select value={currentType} onValueChange={handleTypeChange} disabled={isPending}>
+                <SelectTrigger className="w-fit h-fit border-0 shadow-none bg-transparent hover:bg-muted rounded p-1 focus:ring-0 focus:ring-offset-0 [&>svg:nth-child(2)]:hidden">
+                    <TypeIcon className={cn(iconSize, typeOption.textColor)} />
+                </SelectTrigger>
+                <SelectContent>
+                    {TASK_TYPE_OPTIONS.map(type => {
+                        const Icon = type.icon;
+                        return (
+                            <SelectItem key={type.value} value={type.value}>
+                                <div className="flex items-center gap-x-2">
+                                    <Icon className={cn("size-4", type.textColor)} />
+                                    {t(type.translationKey)}
+                                </div>
+                            </SelectItem>
+                        );
+                    })}
+                </SelectContent>
+            </Select>
+            <div className="flex-1">
+                {isEditing ? (
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={handleSave}
+                        onKeyDown={handleKeyDown}
+                        disabled={isPending}
+                        className={`w-full ${textSize} font-bold bg-transparent border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-ring`}
+                        autoFocus
+                    />
+                ) : (
+                    <TitleTag
+                        className={`w-full ${textSize} font-bold cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition border border-transparent`}
+                        onClick={() => setIsEditing(true)}
+                    >
+                        {title}
+                    </TitleTag>
+                )}
+            </div>
         </div>
     );
 };
@@ -89,6 +127,8 @@ const TaskDetailsShared = ({ task }: TaskDetailsSharedProps) => {
     const [description, setDescription] = useState(task.description || '');
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
+    const [isEditingLabel, setIsEditingLabel] = useState(false);
+    const [label, setLabel] = useState(task.label || '');
 
     const { mutate: updateTask, isPending } = useUpdateTask();
 
@@ -111,6 +151,31 @@ const TaskDetailsShared = ({ task }: TaskDetailsSharedProps) => {
             json: { dueDate: date },
             param: { taskId: task.$id }
         });
+    };
+
+    const handleLabelBlur = () => {
+        if (label !== task.label) {
+            updateTask({
+                json: { label: label || undefined },
+                param: { taskId: task.$id }
+            }, {
+                onSuccess: () => {
+                    setIsEditingLabel(false);
+                }
+            });
+        } else {
+            setIsEditingLabel(false);
+        }
+    };
+
+    const handleLabelKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleLabelBlur();
+        } else if (e.key === 'Escape') {
+            setLabel(task.label || '');
+            setIsEditingLabel(false);
+        }
     };
 
     const handleSaveDescription = () => {
@@ -267,6 +332,37 @@ const TaskDetailsShared = ({ task }: TaskDetailsSharedProps) => {
 
                 {/* Details Table */}
                 <div className="space-y-3">
+                    {/* Label */}
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-24">
+                            {t('label')}
+                        </span>
+                        {isEditingLabel ? (
+                            <Input
+                                value={label}
+                                onChange={(e) => setLabel(e.target.value)}
+                                onBlur={handleLabelBlur}
+                                onKeyDown={handleLabelKeyDown}
+                                maxLength={25}
+                                placeholder={t('enter-label')}
+                                disabled={isPending}
+                                className="h-7 text-sm border-0 shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5"
+                                autoFocus
+                            />
+                        ) : (
+                            <div
+                                onClick={() => setIsEditingLabel(true)}
+                                className="cursor-pointer hover:bg-muted rounded-sm px-1.5 py-1 transition-colors"
+                            >
+                                {task.label ? (
+                                    <span className="text-sm">{task.label}</span>
+                                ) : (
+                                    <span className="text-sm text-muted-foreground">{t('no-label')}</span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     {/* Priority */}
                     <div className="flex items-center py-1">
                         <span className="text-xs font-medium text-muted-foreground w-24">

@@ -75,7 +75,12 @@ const TaskIdClient = () => {
             <div className="max-w-7xl mx-auto w-full">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6">
-                    <TaskTitleEditor taskId={data.$id} initialTitle={data.name} size="page" />
+                    <TaskTitleEditor
+                        taskId={data.$id}
+                        initialTitle={data.name}
+                        initialType={data.type}
+                        size="page"
+                    />
                     <TaskPageActions taskId={data.$id} />
                 </div>
 

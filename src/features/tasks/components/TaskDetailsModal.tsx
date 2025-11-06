@@ -64,6 +64,7 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
                                 <TaskDetailsContent.TitleEditor
                                     taskId={task.$id}
                                     initialTitle={task.name}
+                                    initialType={task.type}
                                 />
                                 <TaskDetailsContent.Actions
                                     onOpenInNewPage={handleOpenInNewPage}

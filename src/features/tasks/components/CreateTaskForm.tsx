@@ -17,6 +17,7 @@ import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
 import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
+import { TASK_TYPE_OPTIONS } from "../constants/type";
 import RichTextArea from "@/components/RichTextArea";
 
 interface CreateTaskFormProps {
@@ -33,7 +34,8 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
         defaultValues: {
             workspaceId,
-            priority: 3 // default
+            priority: 3, // default
+            type: 'task', // default
         }
     })
 
@@ -176,6 +178,63 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                                     })}
                                                 </SelectContent>
                                             </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <FormField
+                                    control={form.control}
+                                    name='type'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('type')}
+                                            </FormLabel>
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-type')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <FormMessage />
+                                                <SelectContent>
+                                                    {TASK_TYPE_OPTIONS.map((type) => {
+                                                        const Icon = type.icon;
+                                                        return (
+                                                            <SelectItem key={type.value} value={type.value}>
+                                                                <div className="flex items-center gap-x-2">
+                                                                    <Icon className={cn("size-4", type.textColor)} />
+                                                                    {t(type.translationKey)}
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name='label'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('label')}
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    {...field}
+                                                    placeholder={t('enter-label')}
+                                                    maxLength={25}
+                                                    className="!mt-0"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />

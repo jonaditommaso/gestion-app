@@ -9,7 +9,9 @@ export const createTaskSchema = zod.object({
     assigneeId: zod.string().trim().min(1, 'Required'),
     priority: zod.number().int().min(1).max(5),
     description: zod.string().optional(),
-    featured: zod.boolean().optional()
+    featured: zod.boolean().optional(),
+    label: zod.string().max(25).optional(),
+    type: zod.string().optional(),
 })
 
 export const getTaskSchema = zod.object({
