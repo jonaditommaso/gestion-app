@@ -9,11 +9,12 @@ import MediaActions from './MediaActions'
 import LinkDialog from './LinkDialog'
 
 interface RichTextAreaProps {
-    value?: string
+    value?: string | null
     onChange: (value: string) => void
     placeholder?: string
     className?: string
     memberOptions?: { id: string, name: string }[]
+    onImageUpload?: (file: File) => Promise<string>
 }
 
 const RichTextArea = ({
@@ -21,9 +22,11 @@ const RichTextArea = ({
     onChange,
     placeholder = 'Add description...',
     className,
+    onImageUpload,
     // memberOptions = []
 }: RichTextAreaProps) => {
     const editorRef = useRef<HTMLDivElement>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const [activeFormats, setActiveFormats] = useState({
         bold: false,
         italic: false,
@@ -237,6 +240,91 @@ const RichTextArea = ({
         }, 0)
     }
 
+    const handleImage = () => {
+        if (!onImageUpload) {
+            console.warn('Image upload not configured');
+            return;
+        }
+        fileInputRef.current?.click();
+    }
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !onImageUpload) return;
+
+        // Validar que sea una imagen
+        if (!file.type.startsWith('image/')) {
+            console.error('Selected file is not an image');
+            return;
+        }
+
+        // Validar tamaño (por ejemplo, max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            console.error('Image is too large. Max size is 5MB');
+            return;
+        }
+
+        try {
+            // Guardar la selección actual
+            const selection = window.getSelection();
+            let savedRange: Range | null = null;
+            if (selection && selection.rangeCount > 0) {
+                savedRange = selection.getRangeAt(0).cloneRange();
+            }
+
+            // Subir la imagen
+            const imageUrl = await onImageUpload(file);
+
+            // Restaurar la selección y insertar la imagen
+            if (savedRange && selection) {
+                selection.removeAllRanges();
+                selection.addRange(savedRange);
+            }
+
+            editorRef.current?.focus();
+
+            setTimeout(() => {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = '8px';
+                img.style.margin = '8px 0';
+                img.style.display = 'block';
+
+                const range = savedRange || (selection?.rangeCount ? selection.getRangeAt(0) : null);
+                if (range) {
+                    range.insertNode(img);
+
+                    // Insertar un salto de línea después de la imagen
+                    const br = document.createElement('br');
+                    if (img.nextSibling) {
+                        img.parentNode?.insertBefore(br, img.nextSibling);
+                    } else {
+                        img.parentNode?.appendChild(br);
+                    }
+
+                    // Colocar el cursor después del salto de línea
+                    const newRange = document.createRange();
+                    newRange.setStartAfter(br);
+                    newRange.setEndAfter(br);
+                    selection?.removeAllRanges();
+                    selection?.addRange(newRange);
+                }
+
+                updateContent();
+            }, 0);
+        } catch (error) {
+            console.error('Error uploading image:', error);
+        } finally {
+            // Limpiar el input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    }
+
     const handleLink = (url: string, text?: string, savedRange?: Range) => {
         setTimeout(() => {
             const selection = window.getSelection()
@@ -295,15 +383,6 @@ const RichTextArea = ({
         }, 0)
     }
 
-    // const handleImage = () => {
-    //     const url = window.prompt('URL de la imagen:')
-    //     if (url) {
-    //         applyFormat('insertImage', url)
-    //     } else {
-    //         editorRef.current?.focus()
-    //     }
-    // }
-
     // const handleMention = () => {
     //     if (memberOptions.length === 0) {
     //         document.execCommand('insertText', false, '@')
@@ -339,6 +418,15 @@ const RichTextArea = ({
 
     return (
         <div className={cn('border rounded-md overflow-hidden', className)}>
+            {/* Hidden file input */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+            />
+
             {/* Toolbar */}
             <div className="bg-muted/50 border-b p-2 flex flex-wrap gap-1">
                 <TextFormatting
@@ -361,7 +449,7 @@ const RichTextArea = ({
 
                 <MediaActions
                     linkComponent={<LinkDialog onInsertLink={handleLink} />}
-                    // onImage={handleImage}
+                    onImage={handleImage}
                     onDivider={handleDivider}
                     // onMention={handleMention}
                 />

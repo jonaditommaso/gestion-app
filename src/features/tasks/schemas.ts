@@ -8,10 +8,11 @@ export const createTaskSchema = zod.object({
     dueDate: zod.coerce.date(),
     assigneeId: zod.string().trim().min(1, 'Required'),
     priority: zod.number().int().min(1).max(5),
-    description: zod.string().optional(),
+    description: zod.string().optional().nullish(),
     featured: zod.boolean().optional(),
     label: zod.string().max(25).optional(),
     type: zod.string().optional(),
+    metadata: zod.string().optional(), // JSON stringified
 })
 
 export const getTaskSchema = zod.object({

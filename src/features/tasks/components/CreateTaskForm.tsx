@@ -20,6 +20,11 @@ import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import RichTextArea from "@/components/RichTextArea";
 import { TaskStatus } from "../types";
+import { useUploadTaskImage } from "../api/use-upload-task-image";
+import { stringifyTaskMetadata } from "../utils/metadata-helpers";
+import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
+import { processDescriptionImages } from "../utils/processDescriptionImages";
+import { checkEmptyContent } from "@/utils/checkEmptyContent";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -31,6 +36,8 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
     const { mutate, isPending } = useCreateTask();
     const workspaceId = useWorkspaceId();
     const t = useTranslations('workspaces');
+    const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
+    const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
 
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
@@ -42,18 +49,32 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
         }
     })
 
-    const onSubmit = (values: zod.infer<typeof createTaskSchema>) => {
+    const onSubmit = async (values: zod.infer<typeof createTaskSchema>) => {
         const { description, ...rest } = values
+
+        // Procesar imágenes en la descripción si existen
+        let processedDescription = description;
+        const imageIds: string[] = [];
+
+        if (description && pendingImages.size > 0) {
+            const result = await processDescriptionImages(description, pendingImages, uploadTaskImage);
+            processedDescription = result.html;
+            imageIds.push(...result.imageIds);
+        }
 
         const payload = {
             ...rest,
             workspaceId,
-            ...(description && { description })
+            ...(processedDescription && { description: checkEmptyContent(processedDescription) ? null : processedDescription }),
+            ...(imageIds.length > 0 && {
+                metadata: stringifyTaskMetadata({ imageIds })
+            })
         }
 
         mutate({ json: payload }, {
             onSuccess: () => {
                 form.reset();
+                setPendingImages(new Map());
                 onCancel?.()
             }
         })
@@ -61,12 +82,6 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
 
     return (
         <Card className="w-full h-full border-none shadow-none">
-            {/* <CardHeader className="flex p-7">
-                <CardTitle className="text-xl font-bold">
-                    Create a new task
-                </CardTitle>
-            </CardHeader> */}
-            {/* <Separator /> */}
             <CardContent className="p-2 pt-0">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-y-4">
@@ -103,6 +118,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                                                 {...field}
                                                 placeholder={t('add-description')}
                                                 memberOptions={memberOptions}
+                                                onImageUpload={handleImageUpload}
                                                 className="!mt-0"
                                             />
                                         </FormControl>
