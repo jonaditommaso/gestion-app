@@ -12,7 +12,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
-import TaskDetailsShared, { TaskTitleEditor } from "@/features/tasks/components/TaskDetailsShared";
+import TaskDetails, { TaskTitleEditor } from "@/features/tasks/components/TaskDetails";
 
 const TaskPageActions = ({
     taskId
@@ -85,7 +85,7 @@ const TaskIdClient = () => {
                 </div>
 
                 {/* Content */}
-                <TaskDetailsShared task={data} />
+                <TaskDetails task={data} />
             </div>
         </div>
     );

@@ -5,7 +5,7 @@ import { addMonths, format, getDay, parse, startOfWeek, subMonths } from "date-f
 import { useState } from "react";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './date-calendar.css'
+import '../styles/date-calendar.css'
 import EventCard from "./EventCard";
 import CustomToolbar from "./CustomToolbar";
 

@@ -3,7 +3,7 @@ import { Task } from "../types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ExternalLinkIcon, MoreHorizontalIcon, TrashIcon, XIcon } from "lucide-react";
-import TaskDetailsShared, { TaskTitleEditor } from "./TaskDetailsShared";
+import TaskDetails, { TaskTitleEditor } from "./TaskDetails";
 
 interface TaskDetailsContentProps {
     task: Task;
@@ -47,7 +47,7 @@ const TaskDetailsActions = ({
 };
 
 const TaskDetailsContent = ({ task }: TaskDetailsContentProps) => {
-    return <TaskDetailsShared task={task} />;
+    return <TaskDetails task={task} />;
 };
 
 TaskDetailsContent.Actions = TaskDetailsActions;
