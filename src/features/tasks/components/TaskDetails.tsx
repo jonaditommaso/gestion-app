@@ -1,6 +1,6 @@
 'use client'
 import { Task } from "../types";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
@@ -19,6 +19,9 @@ import { getImageIds, stringifyTaskMetadata } from "../utils/metadata-helpers";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
 import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
 interface TaskDetailsProps {
     task: Task;
@@ -135,6 +138,52 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [isEditingLabel, setIsEditingLabel] = useState(false);
     const [label, setLabel] = useState(task.label || '');
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
+    const descriptionContainerRef = useRef<HTMLDivElement>(null);
+
+    const descriptionHasImage = useMemo(
+        () => Boolean(task.description && /<img\b/i.test(task.description)),
+        [task.description]
+    );
+    const [imagesLoaded, setImagesLoaded] = useState(!descriptionHasImage);
+    const [imagesLoadedCache, setImagesLoadedCache] = useState(!descriptionHasImage);
+
+    useEffect(() => {
+        if (!descriptionHasImage || isEditingDescription) {
+            setImagesLoaded(true);
+            return;
+        }
+
+        setImagesLoaded(false);
+
+        const container = descriptionContainerRef.current;
+        if (!container) return;
+
+        const images = Array.from(container.querySelectorAll('img'));
+        if (!images.length) {
+            setImagesLoaded(true);
+            return;
+        }
+
+        let loadedCount = 0;
+        const totalImages = images.length;
+
+        const checkAllLoaded = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+                setImagesLoaded(true);
+                setImagesLoadedCache(true);
+            }
+        };
+
+        images.forEach(img => {
+            if (img.complete) {
+                checkAllLoaded();
+            } else {
+                img.addEventListener('load', checkAllLoaded, { once: true });
+                img.addEventListener('error', checkAllLoaded, { once: true });
+            }
+        });
+    }, [descriptionHasImage, isEditingDescription, task.description]);
 
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
@@ -250,21 +299,38 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         </div>
                     ) : (
                         <div
-                            className={`min-h-[60px] p-4 rounded-lg cursor-pointer transition-all ${
+                            className={cn(
+                                "p-4 rounded-lg cursor-pointer transition-all",
                                 task.description
                                     ? 'hover:bg-muted/30'
-                                    : 'border bg-muted/30 hover:bg-muted/50'
-                            }`}
+                                    : 'border bg-muted/30 hover:bg-muted/50',
+                                descriptionHasImage ? "min-h-[400px]" : "min-h-[60px]"
+                            )}
                             onClick={() => setIsEditingDescription(true)}
                         >
-                            {task.description ? (
+                            {descriptionHasImage && !imagesLoaded && !imagesLoadedCache ? (
+                                <div className="space-y-4">
+                                    <Skeleton className="h-4 w-3/4" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-48 w-full" />
+                                    <Skeleton className="h-4 w-2/3" />
+                                </div>
+                            ) : task.description ? (
                                 <div
-                                    className="prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6"
+                                    ref={descriptionContainerRef}
+                                    className={DESCRIPTION_PROSE_CLASS}
                                     dangerouslySetInnerHTML={{ __html: task.description }}
                                 />
                             ) : (
                                 <p className="text-muted-foreground text-sm">Click to add a description...</p>
                             )}
+                        </div>
+                    )}
+
+                    {/* Hidden real content to measure and load images */}
+                    {descriptionHasImage && !imagesLoadedCache && task.description && (
+                        <div className="hidden">
+                            <div ref={descriptionContainerRef} dangerouslySetInnerHTML={{ __html: task.description }} />
                         </div>
                     )}
                 </div>
