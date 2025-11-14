@@ -1,18 +1,33 @@
 'use client'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
+import { useRouter } from "next/navigation";
 
 interface DropdownItemsProps {
     itemLogo: string,
     itemName: string,
     itemType: string,
+    currentWorkspaceId?: string,
 }
 
-const DropdownItems = ({ itemLogo, itemName, itemType }: DropdownItemsProps) => {
+const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: DropdownItemsProps) => {
     const { theme } = useTheme();
-    const t = useTranslations('general')
+    const t = useTranslations('general');
+    const { data: workspaces } = useGetWorkspaces();
+    const router = useRouter();
+
+    const handleSelectWorkspace = (workspaceId: string) => {
+        router.push(`/workspaces/${workspaceId}`);
+    }
+
+    const handleCreateNew = () => {
+        router.push('/workspaces/create');
+    }
+
+    const otherWorkspaces = workspaces?.documents.filter(ws => ws.$id !== currentWorkspaceId);
 
     return (
         <DropdownMenu>
@@ -21,10 +36,26 @@ const DropdownItems = ({ itemLogo, itemName, itemType }: DropdownItemsProps) => 
                 <p className={theme === 'dark' ? 'text-white' : 'text-zinc-700'}>{itemName}</p>
                 <ChevronsUpDown size={14} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" disabled>
-                    <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> {t('create-new')} {itemType}
-                    {/* podria anadir un drawer para una mobile implementation */}
+            <DropdownMenuContent align="start" className="min-w-60">
+                {otherWorkspaces?.map((workspace) => (
+                    <DropdownMenuItem
+                        key={workspace.$id}
+                        className="flex items-center gap-2 p-2 cursor-pointer"
+                        onClick={() => handleSelectWorkspace(workspace.$id)}
+                    >
+                        <div className="border border-zinc-300 w-7 h-7 rounded-md bg-zinc-200 text-white flex items-center justify-center">
+                            {workspace.name[0].toUpperCase()}
+                        </div>
+                        <span className="flex-1">{workspace.name}</span>
+                    </DropdownMenuItem>
+                ))}
+                {otherWorkspaces && otherWorkspaces.length > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuItem
+                    className="flex items-center gap-2 p-2 cursor-pointer"
+                    onClick={handleCreateNew}
+                >
+                    <Plus className="border rounded-md p-0.5" size={20} />
+                    <span>{t('create-new')} {itemType}</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

@@ -22,16 +22,19 @@ const WorkspaceView = () => {
         </div>
     )
 
+    const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+
     // usar DropdownMenuRadioGroup para cambiar de workspace
     return (
         <div className="w-[90%] ml-5">
             <div className="flex items-center gap-2">
-                {isLoading
+                {isLoading || !currentWorkspace
                 ? <Skeleton className="w-60 h-10" />
                 : <DropdownItems
-                    itemLogo={workspaces?.documents[0]?.name[0].toUpperCase()}
-                    itemName={workspaces?.documents[0]?.name}
+                    itemLogo={currentWorkspace.name[0].toUpperCase()}
+                    itemName={currentWorkspace.name}
                     itemType="workspace"
+                    currentWorkspaceId={workspaceId}
                   />}
                 {/* <Button
                     variant='outline'
