@@ -58,7 +58,7 @@ const WorkspaceSettings = () => { //todo, without translation
                         </div>
                         <Input type="color" className="max-w-14" />
                     </div>
-                    <div className="flex items-center justify-between mb-6">
+                    {/* <div className="flex items-center justify-between mb-6">
                         <div className="flex flex-col">
                             <label>Copiar estructura</label>
                             <span className="text-zinc-400 text-sm text-balance">Puedes crear un nuevo workspace
@@ -67,7 +67,7 @@ const WorkspaceSettings = () => { //todo, without translation
                         <Button variant='outline'>
                             <CopyIcon />
                         </Button>
-                    </div>
+                    </div> */}
                 </CardContent>
             </Card>
             <Card className="w-[400px] border-red-600 border-2">

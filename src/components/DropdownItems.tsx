@@ -31,7 +31,7 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger className="max-w-80 flex items-center gap-2 p-2 border rounded-sm focus:outline-none h-9">
+            <DropdownMenuTrigger className="max-w-80 flex items-center gap-2 p-2 border rounded-sm focus:outline-none h-9 bg-background">
                 <div className="border border-zinc-300 w-8 h-7 rounded-md bg-zinc-200 text-white text-xl">{itemLogo}</div>
                 <p className={theme === 'dark' ? 'text-white' : 'text-zinc-700'}>{itemName}</p>
                 <ChevronsUpDown size={14} />

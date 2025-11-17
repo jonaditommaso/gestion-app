@@ -56,7 +56,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                     defaultValue={status ?? undefined}
                     onValueChange={(value) => onStatusChange(value)}
                 >
-                    <SelectTrigger className="w-full lg:w-auto h-8">
+                    <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                         <div className="flex items-center pr-2">
                             <ListChecksIcon className="size-4 mr-2" />
                             <SelectValue placeholder={t('all-statuses')} />
@@ -87,7 +87,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 defaultValue={assigneeId ?? undefined}
                 onValueChange={(value) => onAssigneeChange(value)}
             >
-                <SelectTrigger className="w-full lg:w-auto h-8">
+                <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                     <div className="flex items-center pr-2">
                         <UserIcon className="size-4 mr-2" />
                         <SelectValue placeholder={t('all-assignees')} />
@@ -113,7 +113,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 defaultValue={priority?.toString() ?? undefined}
                 onValueChange={(value) => onPriorityChange(value)}
             >
-                <SelectTrigger className="w-full lg:w-auto h-8">
+                <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                     <div className="flex items-center pr-2">
                         <SignalIcon className="size-4 mr-2" />
                         <SelectValue placeholder={t('all-priorities')} />
