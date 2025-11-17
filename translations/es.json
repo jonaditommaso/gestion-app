@@ -1443,5 +1443,10 @@
         "input-hint": "Presiona Enter para enviar, Shift+Enter para nueva línea",
         "model-name": "Ollama",
         "bot-response": "Esta es una respuesta de ejemplo. Conecta tu backend aquí."
+    },
+    "not-found": {
+        "title": "Página no encontrada",
+        "description": "Lo sentimos, la página que estás buscando no existe o ha sido movida a otra ubicación.",
+        "button-home": "Volver al inicio"
     }
 }

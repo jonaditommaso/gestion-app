@@ -1437,5 +1437,10 @@
         "input-hint": "Press Enter to send, Shift+Enter for new line",
         "model-name": "Ollama",
         "bot-response": "This is an example response. Connect your backend here."
+    },
+    "not-found": {
+        "title": "Page not found",
+        "description": "Sorry, the page you are looking for does not exist or has been moved to another location.",
+        "button-home": "Back to home"
     }
 }
