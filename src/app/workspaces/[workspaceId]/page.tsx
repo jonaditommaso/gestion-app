@@ -27,7 +27,7 @@ const WorkspaceView = () => {
     const [showInfoModal, setShowInfoModal] = useState(false);
 
     if(workspaceId === 'create') return (
-        <div className="w-[40%]">
+        <div className="w-[40%] mt-10">
             <CreateWorkspaceForm />
         </div>
     )

@@ -44,6 +44,22 @@ const app = new Hono()
             return ctx.json({ data: workspaces })
         }
     )
+    .get(
+        '/count',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            const workspaces = await databases.listDocuments(
+                DATABASE_ID,
+                WORKSPACES_ID,
+                [Query.equal('teamId', user.prefs.teamId)]
+            );
+
+            return ctx.json({ data: { count: workspaces.total } })
+        }
+    )
     .post(
         '/', // nuestro base endpoint es /workspaces que definimos en [[...route]], asique ponemos el slash vacio
         zValidator('json', createWorkspaceSchema),

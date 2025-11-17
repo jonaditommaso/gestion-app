@@ -1145,6 +1145,7 @@
         "create": "Create",
         "cancel": "Cancel",
         "my-workspace": "My workspace...",
+        "field-required": "Field required",
         "table": "Table",
         "calendar": "Calendar",
         "new": "New",
