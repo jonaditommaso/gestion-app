@@ -104,7 +104,6 @@ const WorkspaceView = () => {
                 open={showAddMembersModal}
                 onOpenChange={setShowAddMembersModal}
                 workspaceId={workspaceId}
-                currentMembers={[]} // TODO: Obtener los miembros actuales del workspace
             />
 
             {currentWorkspace && (
@@ -112,7 +111,6 @@ const WorkspaceView = () => {
                     open={showInfoModal}
                     onOpenChange={setShowInfoModal}
                     workspace={currentWorkspace as WorkspaceType}
-                    members={[]} // TODO: Obtener los miembros actuales del workspace
                 />
             )}
         </div>

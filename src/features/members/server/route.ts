@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { Query } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { z as zod } from 'zod';
 
 
@@ -29,7 +29,7 @@ const app = new Hono()
                 userId: user.$id
             });
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -62,6 +62,67 @@ const app = new Hono()
         }
     )
 
+    .post(
+        '/',
+        sessionMiddleware,
+        zValidator('json', zod.object({
+            workspaceId: zod.string(),
+            userIds: zod.array(zod.string()).min(1)
+        })),
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            const { workspaceId, userIds } = ctx.req.valid('json');
+
+            const member = await getMember({
+                databases,
+                workspaceId,
+                userId: user.$id
+            });
+
+            if (!member || member.role !== MemberRole.ADMIN) {
+                return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            const createdMembers = await Promise.all(
+                userIds.map(async (userId) => {
+                    // Verificar si ya es miembro
+                    const existingMember = await databases.listDocuments(
+                        DATABASE_ID,
+                        MEMBERS_ID,
+                        [
+                            Query.equal('workspaceId', workspaceId),
+                            Query.equal('userId', userId)
+                        ]
+                    );
+
+                    if (existingMember.total > 0) {
+                        return null; // Ya es miembro, saltarlo
+                    }
+
+                    return await databases.createDocument(
+                        DATABASE_ID,
+                        MEMBERS_ID,
+                        ID.unique(),
+                        {
+                            userId,
+                            workspaceId,
+                            role: MemberRole.MEMBER
+                        }
+                    );
+                })
+            );
+
+            const validMembers = createdMembers.filter(m => m !== null);
+
+            return ctx.json({
+                data: validMembers,
+                added: validMembers.length
+            })
+        }
+    )
+
     .get(
         '/current',
         sessionMiddleware,
@@ -79,7 +140,7 @@ const app = new Hono()
 
             const member = members.documents[0];
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -118,15 +179,15 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            if(member.$id !== memberToDelete.$id && member.role !== MemberRole.ADMIN) {
+            if (member.$id !== memberToDelete.$id && member.role !== MemberRole.ADMIN) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            if(allMembersInWorkspace.total === 1) {
+            if (allMembersInWorkspace.total === 1) {
                 return ctx.json({ error: 'Cannot delete the only member' }, 400)
             }
 
@@ -171,15 +232,15 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            if(member.$id !== memberToUpdate.$id && member.role !== MemberRole.ADMIN) {
+            if (member.$id !== memberToUpdate.$id && member.role !== MemberRole.ADMIN) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            if(allMembersInWorkspace.total === 1) {
+            if (allMembersInWorkspace.total === 1) {
                 return ctx.json({ error: 'Cannot downgrade the only member' }, 400)
             }
 

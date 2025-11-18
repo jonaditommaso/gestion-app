@@ -2,14 +2,16 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import EditableText from "@/components/EditableText";
 import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
+import { useGetMembers } from "@/features/members/api/use-get-members";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Users } from "lucide-react";
 import { format } from "date-fns";
+import FadeLoader from "react-spinners/FadeLoader";
 
 interface WorkspaceInfoModalProps {
     open: boolean;
@@ -21,29 +23,21 @@ interface WorkspaceInfoModalProps {
         $createdAt: string;
         $updatedAt: string;
     };
-    members?: Array<{
-        $id: string;
-        userId: string;
-        name: string;
-        email: string;
-        prefs?: {
-            image?: string;
-            position?: string;
-        };
-    }>;
 }
 
 const WorkspaceInfoModal = ({
     open,
     onOpenChange,
-    workspace,
-    members = []
+    workspace
 }: WorkspaceInfoModalProps) => {
     const t = useTranslations('workspaces');
+    const { data: membersData, isLoading: isLoadingMembers } = useGetMembers({ workspaceId: workspace.$id });
     const [description, setDescription] = useState(workspace.description || '');
     const [isEditing, setIsEditing] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
+
+    const members = membersData?.documents || [];
 
     useEffect(() => {
         setDescription(workspace.description || '');
@@ -125,35 +119,35 @@ const WorkspaceInfoModal = ({
                         <div className="flex items-center gap-2 mb-3">
                             <Users className="size-4 text-muted-foreground" />
                             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                                {t('members')} ({members.length})
+                                {t('members')} ({isLoadingMembers ? '...' : members.length})
                             </h3>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {members.map(member => (
-                                <div
-                                    key={member.$id}
-                                    className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30"
-                                >
-                                    <Avatar className="h-10 w-10 flex-shrink-0">
-                                        <AvatarImage src={member.prefs?.image} />
-                                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                                            {getInitials(member.name)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-sm truncate">{member.name}</p>
-                                        <p className="text-xs text-muted-foreground truncate">
-                                            {member.email}
-                                        </p>
-                                        {member.prefs?.position && (
+                        {isLoadingMembers ? (
+                            <div className="w-full flex justify-center py-8">
+                                <FadeLoader color="#999" width={3} />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {members.map(member => (
+                                    <div
+                                        key={member.$id}
+                                        className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30"
+                                    >
+                                        <Avatar className="h-10 w-10 flex-shrink-0">
+                                            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                                                {getInitials(member.name)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-medium text-sm truncate">{member.name}</p>
                                             <p className="text-xs text-muted-foreground truncate">
-                                                {member.prefs.position}
+                                                {member.email}
                                             </p>
-                                        )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <Separator />

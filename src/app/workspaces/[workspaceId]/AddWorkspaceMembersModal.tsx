@@ -2,6 +2,8 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGetMembers } from "@/features/team/api/use-get-members";
+import { useGetMembers as useGetWorkspaceMembers } from "@/features/members/api/use-get-members";
+import { useAddMembers } from "@/features/members/api/use-add-members";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -10,22 +12,34 @@ import { useTranslations } from "next-intl";
 import FadeLoader from "react-spinners/FadeLoader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+type WorkspaceMember = {
+    userId: string;
+    workspaceId: string;
+    role: string;
+    $id: string;
+    name: string;
+    email: string;
+}
+
 interface AddWorkspaceMembersModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     workspaceId: string;
-    currentMembers?: string[]; // Array de userIds que ya son miembros
 }
 
 const AddWorkspaceMembersModal = ({
     open,
     onOpenChange,
-    workspaceId,
-    currentMembers = []
+    workspaceId
 }: AddWorkspaceMembersModalProps) => {
     const { data: teamMembers, isLoading } = useGetMembers();
+    const { data: workspaceMembers, isLoading: isLoadingWorkspaceMembers } = useGetWorkspaceMembers({ workspaceId });
+    const { mutate: addMembers, isPending } = useAddMembers();
     const t = useTranslations('workspaces');
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+
+    // Extraer los userIds de los miembros actuales del workspace
+    const currentMemberIds = (workspaceMembers?.documents as WorkspaceMember[] | undefined)?.map(m => m.userId) || [];
 
     const handleToggleUser = (userId: string) => {
         setSelectedUsers(prev =>
@@ -36,10 +50,20 @@ const AddWorkspaceMembersModal = ({
     };
 
     const handleAddMembers = () => {
-        // TODO: Implementar la lógica para agregar miembros al workspace
-        console.log('Adding members to workspace:', workspaceId, selectedUsers);
-        setSelectedUsers([]);
-        onOpenChange(false);
+        addMembers(
+            {
+                json: {
+                    workspaceId,
+                    userIds: selectedUsers
+                }
+            },
+            {
+                onSuccess: () => {
+                    setSelectedUsers([]);
+                    onOpenChange(false);
+                }
+            }
+        );
     };
 
     const getInitials = (name: string) => {
@@ -58,7 +82,7 @@ const AddWorkspaceMembersModal = ({
                     <DialogTitle>{t('add-members-to-workspace')}</DialogTitle>
                 </DialogHeader>
 
-                {isLoading ? (
+                {isLoading || isLoadingWorkspaceMembers ? (
                     <div className="w-full flex justify-center py-8">
                         <FadeLoader color="#999" width={3} />
                     </div>
@@ -67,7 +91,7 @@ const AddWorkspaceMembersModal = ({
                         <ScrollArea className="max-h-[400px] pr-4">
                             <div className="space-y-2">
                                 {teamMembers?.map(member => {
-                                    const isCurrentMember = currentMembers.includes(member.userId);
+                                    const isCurrentMember = currentMemberIds.includes(member.userId);
                                     const isSelected = selectedUsers.includes(member.userId);
 
                                     return (
@@ -123,12 +147,13 @@ const AddWorkspaceMembersModal = ({
                                     setSelectedUsers([]);
                                     onOpenChange(false);
                                 }}
+                                disabled={isPending}
                             >
                                 {t('cancel')}
                             </Button>
                             <Button
                                 onClick={handleAddMembers}
-                                disabled={selectedUsers.length === 0}
+                                disabled={selectedUsers.length === 0 || isPending}
                             >
                                 {t('add-members')} {selectedUsers.length > 0 && `(${selectedUsers.length})`}
                             </Button>
