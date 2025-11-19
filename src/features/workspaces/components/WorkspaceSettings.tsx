@@ -12,8 +12,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Info } from "lucide-react";
 import { WorkspaceType } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
+import { useDeleteWorkspace } from "../api/use-delete-workspace";
 import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useMemo, useState } from "react";
+import { useConfirm } from "@/hooks/use-confirm";
+import { useRouter } from "next/navigation";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -21,7 +24,52 @@ interface WorkspaceSettingsProps {
 
 const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const t = useTranslations('workspaces');
+    const router = useRouter();
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
+    const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
+
+    const [ArchiveDialog, confirmArchive] = useConfirm(
+        t('confirm-archive-title'),
+        t('confirm-archive-message'),
+        'default'
+    );
+
+    const [DeleteDialog, confirmDelete] = useConfirm(
+        t('confirm-delete-title'),
+        t('confirm-delete-message'),
+        'destructive'
+    );
+
+    const handleArchive = async () => {
+        const ok = await confirmArchive();
+        if (!ok) return;
+
+        updateWorkspace(
+            {
+                json: { archived: true },
+                param: { workspaceId: workspace.$id }
+            },
+            {
+                onSuccess: () => {
+                    router.push('/workspaces');
+                }
+            }
+        );
+    };
+
+    const handleDelete = async () => {
+        const ok = await confirmDelete();
+        if (!ok) return;
+
+        deleteWorkspace(
+            { param: { workspaceId: workspace.$id } },
+            {
+                onSuccess: () => {
+                    router.push('/workspaces');
+                }
+            }
+        );
+    };
 
     // Parse current config from metadata
     const currentConfig = useMemo(() => {
@@ -670,13 +718,19 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 {t('archive-workspace-description')}
                             </p>
                         </div>
-                        <Button variant="outline" className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Button
+                            variant="outline"
+                            className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            onClick={handleArchive}
+                            disabled={isPending}
+                        >
                             {t('archive')}
                         </Button>
                     </div>
 
                     <Separator />
 
+                    {/* //TODO: Add mfa to delete workspace */}
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
                             <Label className="text-destructive">{t('delete-workspace')}</Label>
@@ -684,12 +738,19 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 {t('delete-workspace-description')}
                             </p>
                         </div>
-                        <Button variant="destructive">
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                        >
                             {t('delete')}
                         </Button>
                     </div>
                 </CardContent>
             </Card>
+
+            <ArchiveDialog />
+            <DeleteDialog />
         </div>
     );
 }

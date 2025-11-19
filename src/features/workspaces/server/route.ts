@@ -106,7 +106,7 @@ const app = new Hono()
             const user = ctx.get('user');
 
             const { workspaceId } = ctx.req.param();
-            const { name, description, metadata } = ctx.req.valid('json');
+            const { name, description, metadata, archived } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -122,6 +122,7 @@ const app = new Hono()
             if (name !== undefined) updateData.name = name;
             if (description !== undefined) updateData.description = description;
             if (metadata !== undefined) updateData.metadata = metadata;
+            if (archived !== undefined) updateData.archived = archived;
 
             const workspace = await databases.updateDocument(
                 DATABASE_ID,
@@ -199,6 +200,22 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            // Delete all members of the workspace
+            const members = await databases.listDocuments(
+                DATABASE_ID,
+                MEMBERS_ID,
+                [Query.equal('workspaceId', workspaceId)]
+            );
+
+            for (const member of members.documents) {
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    member.$id
+                );
+            }
+
+            // Delete the workspace
             await databases.deleteDocument(
                 DATABASE_ID,
                 WORKSPACES_ID,

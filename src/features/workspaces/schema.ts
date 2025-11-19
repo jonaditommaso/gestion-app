@@ -7,5 +7,6 @@ export const createWorkspaceSchema = zod.object({
 export const updateWorkspaceSchema = zod.object({
     name: zod.string().trim().min(1, 'field-required').optional(),
     description: zod.string().max(2048).optional(),
-    metadata: zod.string().optional()
+    metadata: zod.string().optional(),
+    archived: zod.boolean().optional()
 })

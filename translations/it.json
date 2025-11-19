@@ -1231,6 +1231,12 @@
         "created": "Creato",
         "updated": "Aggiornato",
         "save-changes": "Salva modifiche",
+        "workspace-archived": "Workspace archiviato con successo",
+        "failed-archive-workspace": "Impossibile archiviare il workspace",
+        "confirm-archive-title": "Archiviare workspace?",
+        "confirm-archive-message": "Questa azione archivierà il workspace. I membri non potranno accedervi finché non lo ripristinerai.",
+        "confirm-delete-title": "Eliminare workspace?",
+        "confirm-delete-message": "Questa azione è irreversibile. Tutte le attività, i progetti e le configurazioni associate verranno eliminate.",
         "preview": "Anteprima",
         "workspace-name": "Nome workspace",
         "workspace-name-description": "Cambia il nome del tuo workspace per identificarlo facilmente",
@@ -1505,6 +1511,10 @@
         "input-hint": "Premi Invio per inviare, Shift+Invio per una nuova riga",
         "model-name": "Ollama",
         "bot-response": "Questa è una risposta di esempio. Collega il tuo backend qui."
+    },
+    "common": {
+        "cancel": "Annulla",
+        "confirm": "Conferma"
     },
     "not-found": {
         "title": "Pagina non trovata",
