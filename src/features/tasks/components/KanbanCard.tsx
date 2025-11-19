@@ -72,6 +72,9 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                     fallbackClassName="text-[10px]"
                 />
             </div>
+            {/* <div>
+                <p className="text-xs text-muted-foreground m-0">JON-672</p>
+            </div> */}
         </div>
         </>
     );

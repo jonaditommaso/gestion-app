@@ -10,9 +10,118 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { WorkspaceType } from "../types";
+import { useUpdateWorkspace } from "../api/use-update-workspace";
+import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
+import { useMemo, useState } from "react";
 
-const WorkspaceSettings = () => {
+interface WorkspaceSettingsProps {
+    workspace: WorkspaceType;
+}
+
+const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const t = useTranslations('workspaces');
+    const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
+
+    // Parse current config from metadata
+    const currentConfig = useMemo(() => {
+        try {
+            if (workspace.metadata) {
+                const metadata = typeof workspace.metadata === 'string'
+                    ? JSON.parse(workspace.metadata)
+                    : workspace.metadata;
+                return { ...DEFAULT_WORKSPACE_CONFIG, ...metadata };
+            }
+        } catch (error) {
+            console.error('Error parsing metadata:', error);
+        }
+        return DEFAULT_WORKSPACE_CONFIG;
+    }, [workspace.metadata]);
+
+    // Get only custom config (without defaults)
+    const getCustomConfig = () => {
+        try {
+            if (workspace.metadata) {
+                const metadata = typeof workspace.metadata === 'string'
+                    ? JSON.parse(workspace.metadata)
+                    : workspace.metadata;
+                return metadata || {};
+            }
+        } catch (error) {
+            console.error('Error parsing metadata:', error);
+        }
+        return {};
+    };
+
+    // Local state for column limits (type and max value)
+    const [columnLimits, setColumnLimits] = useState<Record<string, { type: ColumnLimitType; max: number }>>(() => {
+        const limits: Record<string, { type: ColumnLimitType; max: number }> = {};
+        TASK_STATUS_OPTIONS.forEach(status => {
+            const { type: typeKey, max: maxKey } = STATUS_TO_LIMIT_KEYS[status.value];
+            limits[status.value] = {
+                type: currentConfig[typeKey] as ColumnLimitType,
+                max: currentConfig[maxKey] || 0,
+            };
+        });
+        return limits;
+    });
+
+    // Track if column limits have unsaved changes
+    const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false);
+
+    // Helper to update config in metadata (only saves changed values)
+    const updateConfig = (key: WorkspaceConfigKey, value: string | number | boolean | null) => {
+        const customConfig = getCustomConfig();
+
+        // Only update if value is different from default
+        if (DEFAULT_WORKSPACE_CONFIG[key] === value) {
+            // If value equals default, remove it from metadata
+            delete customConfig[key];
+        } else {
+            // Otherwise, set the custom value
+            customConfig[key] = value;
+        }
+
+        const metadata = JSON.stringify(customConfig);
+
+        updateWorkspace({
+            json: { metadata },
+            param: { workspaceId: workspace.$id }
+        });
+    };
+
+    // Save column limits (only saves non-default values)
+    const saveColumnLimits = () => {
+        const customConfig = getCustomConfig();
+
+        TASK_STATUS_OPTIONS.forEach(status => {
+            const { type: typeKey, max: maxKey } = STATUS_TO_LIMIT_KEYS[status.value];
+            const limitData = columnLimits[status.value];
+
+            // Only save if different from default
+            if (limitData.type !== DEFAULT_WORKSPACE_CONFIG[typeKey]) {
+                customConfig[typeKey] = limitData.type;
+            } else {
+                delete customConfig[typeKey];
+            }
+
+            const maxValue = limitData.type === ColumnLimitType.NO ? null : limitData.max;
+            if (maxValue !== DEFAULT_WORKSPACE_CONFIG[maxKey]) {
+                customConfig[maxKey] = maxValue;
+            } else {
+                delete customConfig[maxKey];
+            }
+        });
+
+        const metadata = JSON.stringify(customConfig);
+
+        updateWorkspace({
+            json: { metadata },
+            param: { workspaceId: workspace.$id }
+        });
+
+        setHasUnsavedLimits(false);
+    };
 
     return (
         <div className="max-w-4xl mx-auto mt-8 space-y-6 pb-10">
@@ -33,7 +142,11 @@ const WorkspaceSettings = () => {
                                 {t('default-task-status-description')}
                             </p>
                         </div>
-                        <Select defaultValue="BACKLOG">
+                        <Select
+                            value={currentConfig[WorkspaceConfigKey.DEFAULT_TASK_STATUS]}
+                            onValueChange={(value) => updateConfig(WorkspaceConfigKey.DEFAULT_TASK_STATUS, value)}
+                            disabled={isPending}
+                        >
                             <SelectTrigger className="w-48">
                                 <SelectValue />
                             </SelectTrigger>
@@ -59,8 +172,38 @@ const WorkspaceSettings = () => {
                                 {t('auto-archive-completed-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.AUTO_ARCHIVE_COMPLETED]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_COMPLETED, checked)}
+                            disabled={isPending}
+                        />
                     </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('show-card-count')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('show-card-count-description')}
+                            </p>
+                        </div>
+                        <Select
+                            value={currentConfig[WorkspaceConfigKey.SHOW_CARD_COUNT]}
+                            onValueChange={(value) => updateConfig(WorkspaceConfigKey.SHOW_CARD_COUNT, value)}
+                            disabled={isPending}
+                        >
+                            <SelectTrigger className="w-48">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={ShowCardCountType.ALWAYS}>{t('show-card-count-always')}</SelectItem>
+                                <SelectItem value={ShowCardCountType.FILTERED}>{t('show-card-count-filtered')}</SelectItem>
+                                <SelectItem value={ShowCardCountType.NEVER}>{t('show-card-count-never')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    {/* TODO: Add custom threshold option - show count only when cards >= X */}
 
                     <Separator />
 
@@ -100,35 +243,77 @@ const WorkspaceSettings = () => {
                                 </div>
                             </div>
                             {/* Rows */}
-                            {TASK_STATUS_OPTIONS.map((status) => (
-                                <div key={status.value} className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2 flex-1">
-                                        <div className={cn("size-3 rounded-full flex-shrink-0", status.color)} />
-                                        <span className="text-sm font-medium">{t(status.translationKey)}</span>
+                            {TASK_STATUS_OPTIONS.map((status) => {
+                                const limitData = columnLimits[status.value];
+                                const isMaxDisabled = limitData.type === ColumnLimitType.NO;
+
+                                return (
+                                    <div key={status.value} className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 flex-1">
+                                            <div className={cn("size-3 rounded-full flex-shrink-0", status.color)} />
+                                            <span className="text-sm font-medium">{t(status.translationKey)}</span>
+                                        </div>
+                                        <div className="w-40">
+                                            <Select
+                                                value={limitData.type}
+                                                onValueChange={(value: ColumnLimitType) => {
+                                                    setColumnLimits(prev => ({
+                                                        ...prev,
+                                                        [status.value]: {
+                                                            type: value,
+                                                            max: value === ColumnLimitType.NO ? 0 : prev[status.value].max,
+                                                        }
+                                                    }));
+                                                    setHasUnsavedLimits(true);
+                                                }}
+                                                disabled={isPending}
+                                            >
+                                                <SelectTrigger className="h-9">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value={ColumnLimitType.NO}>{t('wip-no')}</SelectItem>
+                                                    <SelectItem value={ColumnLimitType.FLEXIBLE}>{t('wip-flexible')}</SelectItem>
+                                                    <SelectItem value={ColumnLimitType.RIGID}>{t('wip-rigid')}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="w-24">
+                                            <Input
+                                                type="number"
+                                                min="1"
+                                                disabled={isMaxDisabled || isPending}
+                                                className="h-9"
+                                                value={limitData.max || ''}
+                                                onChange={(e) => {
+                                                    const value = parseInt(e.target.value) || 0;
+                                                    setColumnLimits(prev => ({
+                                                        ...prev,
+                                                        [status.value]: {
+                                                            ...prev[status.value],
+                                                            max: value,
+                                                        }
+                                                    }));
+                                                    setHasUnsavedLimits(true);
+                                                }}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="w-40">
-                                        <Select defaultValue="no">
-                                            <SelectTrigger className="h-9">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="no">{t('wip-no')}</SelectItem>
-                                                <SelectItem value="flexible">{t('wip-flexible')}</SelectItem>
-                                                <SelectItem value="rigid">{t('wip-rigid')}</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="w-24">
-                                        <Input
-                                            type="number"
-                                            min="1"
-                                            disabled
-                                            className="h-9"
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
+                        {hasUnsavedLimits && (
+                            <div className="flex justify-end pt-2">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={saveColumnLimits}
+                                    disabled={isPending}
+                                >
+                                    {t('save-changes')}
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     <Separator />
@@ -143,15 +328,22 @@ const WorkspaceSettings = () => {
                             </div>
                         </div>
                         <div className="space-y-4 pl-4 border-l-2">
-                            {TASK_STATUS_OPTIONS.map((status) => (
-                                <div key={status.value} className="flex items-center justify-between pb-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className={cn("size-3 rounded-full", status.color)} />
-                                        <span className="text-sm font-medium">{t(status.translationKey)}</span>
+                            {TASK_STATUS_OPTIONS.map((status) => {
+                                const protectedKey = STATUS_TO_PROTECTED_KEY[status.value];
+                                return (
+                                    <div key={status.value} className="flex items-center justify-between pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className={cn("size-3 rounded-full", status.color)} />
+                                            <span className="text-sm font-medium">{t(status.translationKey)}</span>
+                                        </div>
+                                        <Switch
+                                            checked={currentConfig[protectedKey]}
+                                            onCheckedChange={(checked) => updateConfig(protectedKey, checked)}
+                                            disabled={isPending}
+                                        />
                                     </div>
-                                    <Switch />
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </CardContent>
@@ -179,15 +371,27 @@ const WorkspaceSettings = () => {
                         <div className="space-y-3 pl-4 border-l-2">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('assignee')}</span>
-                                <Switch />
+                                <Switch
+                                    checked={currentConfig[WorkspaceConfigKey.REQUIRED_ASSIGNEE]}
+                                    onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.REQUIRED_ASSIGNEE, checked)}
+                                    disabled={isPending}
+                                />
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('due-date')}</span>
-                                <Switch />
+                                <Switch
+                                    checked={currentConfig[WorkspaceConfigKey.REQUIRED_DUE_DATE]}
+                                    onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.REQUIRED_DUE_DATE, checked)}
+                                    disabled={isPending}
+                                />
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('description')}</span>
-                                <Switch />
+                                <Switch
+                                    checked={currentConfig[WorkspaceConfigKey.REQUIRED_DESCRIPTION]}
+                                    onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.REQUIRED_DESCRIPTION, checked)}
+                                    disabled={isPending}
+                                />
                             </div>
                             <p className="text-xs text-muted-foreground pt-2">
                                 {t('other-fields-always-required')}
@@ -204,7 +408,11 @@ const WorkspaceSettings = () => {
                                 {t('compact-cards-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.COMPACT_CARDS]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.COMPACT_CARDS, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -216,7 +424,11 @@ const WorkspaceSettings = () => {
                                 {t('auto-assign-on-create-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -228,7 +440,11 @@ const WorkspaceSettings = () => {
                                 {t('generate-task-code-description')}
                             </p>
                         </div>
-                        <Switch defaultChecked />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.GENERATE_TASK_CODE]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.GENERATE_TASK_CODE, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -240,7 +456,11 @@ const WorkspaceSettings = () => {
                                 {t('date-format-description')}
                             </p>
                         </div>
-                        <Select defaultValue="short">
+                        <Select
+                            value={currentConfig[WorkspaceConfigKey.DATE_FORMAT]}
+                            onValueChange={(value) => updateConfig(WorkspaceConfigKey.DATE_FORMAT, value)}
+                            disabled={isPending}
+                        >
                             <SelectTrigger className="w-40">
                                 <SelectValue />
                             </SelectTrigger>
@@ -270,7 +490,11 @@ const WorkspaceSettings = () => {
                                 {t('notify-task-assignment-description')}
                             </p>
                         </div>
-                        <Switch defaultChecked />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -282,7 +506,11 @@ const WorkspaceSettings = () => {
                                 {t('notify-due-date-reminder-description')}
                             </p>
                         </div>
-                        <Switch defaultChecked />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.NOTIFY_DUE_DATE_REMINDER]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_DUE_DATE_REMINDER, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -294,7 +522,11 @@ const WorkspaceSettings = () => {
                                 {t('notify-task-no-movement-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_NO_MOVEMENT]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_NO_MOVEMENT, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -306,7 +538,11 @@ const WorkspaceSettings = () => {
                                 {t('notify-member-no-tasks-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.NOTIFY_MEMBER_NO_TASKS]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_MEMBER_NO_TASKS, checked)}
+                            disabled={isPending}
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -328,7 +564,11 @@ const WorkspaceSettings = () => {
                                 {t('task-creation-permission-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -340,7 +580,11 @@ const WorkspaceSettings = () => {
                                 {t('delete-tasks-permission-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -352,7 +596,11 @@ const WorkspaceSettings = () => {
                                 {t('create-columns-permission-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -364,7 +612,11 @@ const WorkspaceSettings = () => {
                                 {t('edit-columns-permission-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -376,7 +628,11 @@ const WorkspaceSettings = () => {
                                 {t('edit-labels-permission-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY, checked)}
+                            disabled={isPending}
+                        />
                     </div>
 
                     <Separator />
@@ -388,7 +644,11 @@ const WorkspaceSettings = () => {
                                 {t('invite-members-permission-description')}
                             </p>
                         </div>
-                        <Switch />
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY, checked)}
+                            disabled={isPending}
+                        />
                     </div>
                 </CardContent>
             </Card>

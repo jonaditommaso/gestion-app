@@ -93,12 +93,13 @@ const WorkspaceView = () => {
                 </Button>
             </div>
 
-            {optionsView === 'general' && <WorkspaceSettings />}
+            {optionsView === 'general' && currentWorkspace && (
+                <WorkspaceSettings workspace={currentWorkspace as WorkspaceType} />
+            )}
             {optionsView === 'customize' && currentWorkspace && (
                 <WorkspaceCustomize workspace={currentWorkspace as WorkspaceType} />
             )}
             {!optionsView && workspaces && <TaskSwitcher />}
-            {/* {workspaces && <TaskSwitcher />} */}
 
             <AddWorkspaceMembersModal
                 open={showAddMembersModal}
