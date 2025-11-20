@@ -1319,6 +1319,7 @@
         "notify-member-no-tasks-description": "Enviar notificación cuando un miembro ya no tenga tareas asignadas",
         "permissions": "Permisos",
         "permissions-description": "Controla quién puede hacer qué en este workspace",
+        "admin-mode": "Modo Admin",
         "workspace-visibility": "Visibilidad del workspace",
         "workspace-visibility-description": "Quién puede ver este workspace",
         "private": "Privado",

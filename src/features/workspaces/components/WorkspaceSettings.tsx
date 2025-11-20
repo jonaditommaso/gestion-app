@@ -117,6 +117,16 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     // Track if column limits have unsaved changes
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false);
 
+    // Check if all permissions are set to admin-only (admin mode)
+    const isAdminMode = useMemo(() => {
+        return currentConfig[WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY] &&
+               currentConfig[WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY] &&
+               currentConfig[WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY] &&
+               currentConfig[WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY] &&
+               currentConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY] &&
+               currentConfig[WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY];
+    }, [currentConfig]);
+
     // Helper to update config in metadata (only saves changed values)
     const updateConfig = (key: WorkspaceConfigKey, value: string | number | boolean | null) => {
         const customConfig = getCustomConfig();
@@ -171,6 +181,45 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         setHasUnsavedLimits(false);
     };
 
+    // Toggle admin mode - sets all permissions at once
+    const toggleAdminMode = (enabled: boolean) => {
+        const customConfig = getCustomConfig();
+
+        const permissionKeys = [
+            WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY,
+            WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY,
+            WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY,
+            WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY,
+            WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY,
+            WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY,
+        ];
+
+        permissionKeys.forEach(key => {
+            if (enabled) {
+                // Set to true (admin-only)
+                if (DEFAULT_WORKSPACE_CONFIG[key] !== true) {
+                    customConfig[key] = true;
+                } else {
+                    delete customConfig[key];
+                }
+            } else {
+                // Set to false (open to all)
+                if (DEFAULT_WORKSPACE_CONFIG[key] !== false) {
+                    customConfig[key] = false;
+                } else {
+                    delete customConfig[key];
+                }
+            }
+        });
+
+        const metadata = JSON.stringify(customConfig);
+
+        updateWorkspace({
+            json: { metadata },
+            param: { workspaceId: workspace.$id }
+        });
+    };
+
     return (
         <div className="max-w-4xl mx-auto mt-8 space-y-6 pb-10">
             {/* Workflow Section */}
@@ -211,7 +260,8 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         </Select>
                     </div>
 
-                    <Separator />
+                    {/* //TODO: implement with a cloud function */}
+                    {/* <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -225,7 +275,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_COMPLETED, checked)}
                             disabled={isPending}
                         />
-                    </div>
+                    </div> */}
 
                     <Separator />
 
@@ -598,10 +648,25 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
             {/* Permissions Section */}
             <Card>
                 <CardHeader>
-                    <CardTitle>{t('permissions')}</CardTitle>
-                    <CardDescription>
-                        {t('permissions-description')}
-                    </CardDescription>
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1.5">
+                            <CardTitle>{t('permissions')}</CardTitle>
+                            <CardDescription>
+                                {t('permissions-description')}
+                            </CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Label htmlFor="admin-mode" className="text-sm font-medium cursor-pointer">
+                                {t('admin-mode')}
+                            </Label>
+                            <Switch
+                                id="admin-mode"
+                                checked={isAdminMode}
+                                onCheckedChange={toggleAdminMode}
+                                disabled={isPending}
+                            />
+                        </div>
+                    </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="space-y-6 pt-6">
@@ -615,7 +680,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY, checked)}
-                            disabled={isPending}
+                            disabled={isPending || isAdminMode}
                         />
                     </div>
 
@@ -631,7 +696,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY, checked)}
-                            disabled={isPending}
+                            disabled={isPending || isAdminMode}
                         />
                     </div>
 
@@ -647,7 +712,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY, checked)}
-                            disabled={isPending}
+                            disabled={isPending || isAdminMode}
                         />
                     </div>
 
@@ -663,7 +728,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY, checked)}
-                            disabled={isPending}
+                            disabled={isPending || isAdminMode}
                         />
                     </div>
 
@@ -679,7 +744,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY, checked)}
-                            disabled={isPending}
+                            disabled={isPending || isAdminMode}
                         />
                     </div>
 
@@ -695,7 +760,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY, checked)}
-                            disabled={isPending}
+                            disabled={isPending || isAdminMode}
                         />
                     </div>
                 </CardContent>

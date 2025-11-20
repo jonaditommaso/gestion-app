@@ -1313,6 +1313,7 @@
         "notify-member-no-tasks-description": "Send notification when a member has no assigned tasks",
         "permissions": "Permissions",
         "permissions-description": "Control who can do what in this workspace",
+        "admin-mode": "Admin Mode",
         "workspace-visibility": "Workspace visibility",
         "workspace-visibility-description": "Who can see this workspace",
         "private": "Private",
