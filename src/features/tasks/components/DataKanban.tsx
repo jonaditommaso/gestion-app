@@ -8,6 +8,10 @@ import {
 } from '@hello-pangea/dnd'
 import KanbanColumnHeader from "./KanbanColumnHeader";
 import KanbanCard from "./KanbanCard";
+import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { cn } from "@/lib/utils";
+import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
+import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 
 interface DataKanbanProps {
     data: Task[],
@@ -28,6 +32,25 @@ type TasksState = {
 }
 
 const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
+    const workspaceId = useWorkspaceId();
+    const { data: workspaces } = useGetWorkspaces();
+    const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+
+    // Parse workspace config
+    const config = (() => {
+        try {
+            if (currentWorkspace?.metadata) {
+                const metadata = typeof currentWorkspace.metadata === 'string'
+                    ? JSON.parse(currentWorkspace.metadata)
+                    : currentWorkspace.metadata;
+                return { ...DEFAULT_WORKSPACE_CONFIG, ...metadata };
+            }
+        } catch (error) {
+            console.error('Error parsing metadata:', error);
+        }
+        return DEFAULT_WORKSPACE_CONFIG;
+    })();
+
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
             [TaskStatus.BACKLOG]: [],
@@ -144,40 +167,60 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex overflow-x-auto h-full">
+            <div className="flex overflow-x-auto h-full p-[2px]">
                 {boards.map(board => {
-                    return (
-                        <div key={board} className="flex-1 mx-2 bg-muted p-1.5 rounded-md min-w-[200px] flex flex-col h-full">
-                            <KanbanColumnHeader
-                                board={board}
-                                taskCount={tasks[board].length}
-                                addTask={() => addTask(board)}
-                            />
-                            <Droppable droppableId={board}>
-                                {(provided) => (
-                                    <div
-                                        {...provided.droppableProps}
-                                        ref={provided.innerRef}
-                                        className="flex-1 py-1.5 overflow-y-auto"
-                                    >
-                                        {tasks[board].map((task, index) => (
-                                            <Draggable key={task.$id} draggableId={task.$id} index={index}>
-                                                {provided => (
-                                                    <div
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        ref={provided.innerRef}
-                                                    >
-                                                        <KanbanCard task={task} />
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
+                    const limitKeys = STATUS_TO_LIMIT_KEYS[board];
+                    const limitType = config[limitKeys.type] as ColumnLimitType;
+                    const limitMax = config[limitKeys.max] as number | null;
+                    const taskCount = tasks[board].length;
 
-                                        {provided.placeholder}
-                                    </div>
+                    // Determine if limit is exceeded (only when it goes OVER the limit)
+                    const isLimitExceeded = limitType !== ColumnLimitType.NO && limitMax !== null && taskCount > limitMax;
+                    const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
+
+                    return (
+                        <div
+                            key={board}
+                            className="flex-1 mx-2 min-w-[200px] flex flex-col h-full"
+                        >
+                            <div
+                                className={cn(
+                                    "bg-muted p-1.5 rounded-md flex flex-col h-full",
+                                    isFlexibleWarning && "ring-2 ring-red-500 bg-red-100/50 dark:bg-red-800/20"
                                 )}
-                            </Droppable>
+                            >
+                                <KanbanColumnHeader
+                                    board={board}
+                                    taskCount={taskCount}
+                                    addTask={() => addTask(board)}
+                                    showCount={config[WorkspaceConfigKey.SHOW_CARD_COUNT]}
+                                />
+                                <Droppable droppableId={board}>
+                                    {(provided) => (
+                                        <div
+                                            {...provided.droppableProps}
+                                            ref={provided.innerRef}
+                                            className="flex-1 py-1.5 overflow-y-auto"
+                                        >
+                                            {tasks[board].map((task, index) => (
+                                                <Draggable key={task.$id} draggableId={task.$id} index={index}>
+                                                    {provided => (
+                                                        <div
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            ref={provided.innerRef}
+                                                        >
+                                                            <KanbanCard task={task} />
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </div>
                         </div>
                     )
                 })}
