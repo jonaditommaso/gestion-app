@@ -1343,6 +1343,8 @@
         "delete": "Delete",
         "column-limit-reached": "Limit reached",
         "column-limit-reached-description": "You cannot move more tasks to this column. The maximum limit is {limit}. You can modify it in settings.",
+        "protected-column": "Protected column",
+        "protected-column-description": "Only administrators can move tasks to this column. You can modify it in settings.",
         "go-to-settings": "Go to Settings"
     },
     "team": {

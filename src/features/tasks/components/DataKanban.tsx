@@ -8,12 +8,13 @@ import {
 } from '@hello-pangea/dnd'
 import KanbanColumnHeader from "./KanbanColumnHeader";
 import KanbanCard from "./KanbanCard";
-import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType, STATUS_TO_PROTECTED_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 import { cn } from "@/lib/utils";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { useCurrent } from "@/features/auth/api/use-current";
 
 interface DataKanbanProps {
     data: Task[],
@@ -37,6 +38,10 @@ type TasksState = {
 const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanProps) => {
     const config = useWorkspaceConfig();
     const t = useTranslations('workspaces');
+    const { data: user } = useCurrent();
+
+    // Check if user is ADMIN at organization level
+    const isAdmin = user?.prefs?.role === 'ADMIN';
 
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
@@ -87,6 +92,35 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
 
         const sourceStatus = source.droppableId as TaskStatus;
         const destStatus = destination.droppableId as TaskStatus;
+
+        // Check if destination column is protected and user is not admin
+        if (sourceStatus !== destStatus && !isAdmin) {
+            const protectedKey = STATUS_TO_PROTECTED_KEY[destStatus];
+            const isProtected = config[protectedKey] as boolean;
+
+            if (isProtected) {
+                const toastId = toast.info(t('protected-column'), {
+                    description: (
+                        <div className="flex flex-col gap-2">
+                            <p>{t('protected-column-description')}</p>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => {
+                                    toast.dismiss(toastId);
+                                    openSettings();
+                                }}
+                                className="w-fit"
+                            >
+                                {t('go-to-settings')}
+                            </Button>
+                        </div>
+                    ),
+                    duration: 5000,
+                });
+                return; // Prevent the drag
+            }
+        }
 
         // Check if destination column has a rigid limit and would be exceeded
         if (sourceStatus !== destStatus) {
@@ -182,7 +216,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         })
 
         onChangeTasks(updatesPayload)
-    }, [onChangeTasks, config, t, tasks, openSettings])
+    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin])
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>

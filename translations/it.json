@@ -1329,6 +1329,8 @@
         "delete": "Elimina",
         "column-limit-reached": "Limite raggiunto",
         "column-limit-reached-description": "Non puoi spostare più attività in questa colonna. Il limite massimo è {limit}. Puoi modificarlo nelle impostazioni.",
+        "protected-column": "Colonna protetta",
+        "protected-column-description": "Solo gli amministratori possono spostare attività in questa colonna. Puoi modificarlo nelle impostazioni.",
         "go-to-settings": "Vai alle Impostazioni"
     },
     "team": {
