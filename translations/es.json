@@ -1346,7 +1346,10 @@
         "archive": "Archivar",
         "delete-workspace": "Eliminar workspace",
         "delete-workspace-description": "Eliminar permanentemente este workspace y todo su contenido",
-        "delete": "Eliminar"
+        "delete": "Eliminar",
+        "column-limit-reached": "Límite alcanzado",
+        "column-limit-reached-description": "No puedes mover más tareas a esta columna. El límite máximo es {limit}. Puedes modificarlo en la configuración.",
+        "go-to-settings": "Ir a Configuración"
     },
     "team": {
         "no-team-title": "No tienes un equipo",

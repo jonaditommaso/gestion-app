@@ -1340,7 +1340,10 @@
         "archive": "Archive",
         "delete-workspace": "Delete workspace",
         "delete-workspace-description": "Permanently delete this workspace and all its content",
-        "delete": "Delete"
+        "delete": "Delete",
+        "column-limit-reached": "Limit reached",
+        "column-limit-reached-description": "You cannot move more tasks to this column. The maximum limit is {limit}. You can modify it in settings.",
+        "go-to-settings": "Go to Settings"
     },
     "team": {
         "no-team-title": "You don't have a team",

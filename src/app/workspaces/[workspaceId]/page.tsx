@@ -26,6 +26,10 @@ const WorkspaceView = () => {
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
 
+    const openSettings = () => {
+        setOptionsView('general');
+    };
+
     if(workspaceId === 'create') return (
         <div className="w-[40%] mt-10">
             <CreateWorkspaceForm />
@@ -99,7 +103,7 @@ const WorkspaceView = () => {
             {optionsView === 'customize' && currentWorkspace && (
                 <WorkspaceCustomize workspace={currentWorkspace as WorkspaceType} />
             )}
-            {!optionsView && workspaces && <TaskSwitcher />}
+            {!optionsView && workspaces && <TaskSwitcher openSettings={openSettings} />}
 
             <AddWorkspaceMembersModal
                 open={showAddMembersModal}

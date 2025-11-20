@@ -11,11 +11,15 @@ import KanbanCard from "./KanbanCard";
 import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { cn } from "@/lib/utils";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 
 interface DataKanbanProps {
     data: Task[],
     addTask: (status: TaskStatus) => void,
     onChangeTasks: (tasks: { $id: string, status: TaskStatus, position: number }[]) => void;
+    openSettings: () => void;
 }
 
 const boards: TaskStatus[] = [
@@ -30,8 +34,9 @@ type TasksState = {
     [key in TaskStatus]: Task[]
 }
 
-const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
+const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanProps) => {
     const config = useWorkspaceConfig();
+    const t = useTranslations('workspaces');
 
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
@@ -82,6 +87,38 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
 
         const sourceStatus = source.droppableId as TaskStatus;
         const destStatus = destination.droppableId as TaskStatus;
+
+        // Check if destination column has a rigid limit and would be exceeded
+        if (sourceStatus !== destStatus) {
+            const limitKeys = STATUS_TO_LIMIT_KEYS[destStatus];
+            const limitType = config[limitKeys.type] as ColumnLimitType;
+            const limitMax = config[limitKeys.max] as number | null;
+            const currentTaskCount = tasks[destStatus].length;
+
+            if (limitType === ColumnLimitType.RIGID && limitMax !== null && currentTaskCount >= limitMax) {
+                // Show toast with custom layout (button below description)
+                const toastId = toast.info(t('column-limit-reached'), {
+                    description: (
+                        <div className="flex flex-col gap-2">
+                            <p>{t('column-limit-reached-description', { limit: limitMax })}</p>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => {
+                                    toast.dismiss(toastId);
+                                    openSettings();
+                                }}
+                                className="w-fit"
+                            >
+                                {t('go-to-settings')}
+                            </Button>
+                        </div>
+                    ),
+                    duration: 5000,
+                });
+                return; // Prevent the drag
+            }
+        }
 
         const updatesPayload: { $id: string, status: TaskStatus, position: number }[] = []
 
@@ -145,7 +182,7 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
         })
 
         onChangeTasks(updatesPayload)
-    }, [onChangeTasks])
+    }, [onChangeTasks, config, t, tasks, openSettings])
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>

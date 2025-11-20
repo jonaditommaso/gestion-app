@@ -1326,7 +1326,10 @@
         "archive": "Archivia",
         "delete-workspace": "Elimina workspace",
         "delete-workspace-description": "Elimina permanentemente questo workspace e tutto il suo contenuto",
-        "delete": "Elimina"
+        "delete": "Elimina",
+        "column-limit-reached": "Limite raggiunto",
+        "column-limit-reached-description": "Non puoi spostare più attività in questa colonna. Il limite massimo è {limit}. Puoi modificarlo nelle impostazioni.",
+        "go-to-settings": "Vai alle Impostazioni"
     },
     "team": {
         "no-team-title": "Non hai un team",

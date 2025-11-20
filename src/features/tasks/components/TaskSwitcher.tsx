@@ -18,7 +18,11 @@ import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import DataCalendar from "./DataCalendar";
 import { useTranslations } from "next-intl";
 
-const TaskSwitcher = () => {
+interface TaskSwitcherProps {
+    openSettings: () => void;
+}
+
+const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
     const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
@@ -99,6 +103,7 @@ const TaskSwitcher = () => {
                                     data={tasks?.documents ?? []}
                                     addTask={handleNewTask}
                                     onChangeTasks={onKanbanChange}
+                                    openSettings={openSettings}
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
