@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { createWorkspaceSchema, updateWorkspaceSchema } from '../schema';
 import { sessionMiddleware } from '@/lib/session-middleware';
-import { DATABASE_ID, MEMBERS_ID, WORKSPACES_ID } from '@/config';
+import { DATABASE_ID, MEMBERS_ID, TASKS_ID, WORKSPACES_ID } from '@/config';
 import { ID, Query } from 'node-appwrite';
 import { MemberRole } from '../members/types';
 import { generateInviteCode } from '@/lib/utils';
@@ -198,6 +198,21 @@ const app = new Hono()
 
             if (!member || member.role !== MemberRole.ADMIN) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            // Delete all tasks of the workspace
+            const tasks = await databases.listDocuments(
+                DATABASE_ID,
+                TASKS_ID,
+                [Query.equal('workspaceId', workspaceId)]
+            );
+
+            for (const task of tasks.documents) {
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    task.$id
+                );
             }
 
             // Delete all members of the workspace
