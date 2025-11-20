@@ -8,10 +8,9 @@ import {
 } from '@hello-pangea/dnd'
 import KanbanColumnHeader from "./KanbanColumnHeader";
 import KanbanCard from "./KanbanCard";
-import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { cn } from "@/lib/utils";
-import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
-import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 
 interface DataKanbanProps {
     data: Task[],
@@ -32,24 +31,7 @@ type TasksState = {
 }
 
 const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
-    const workspaceId = useWorkspaceId();
-    const { data: workspaces } = useGetWorkspaces();
-    const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
-
-    // Parse workspace config
-    const config = (() => {
-        try {
-            if (currentWorkspace?.metadata) {
-                const metadata = typeof currentWorkspace.metadata === 'string'
-                    ? JSON.parse(currentWorkspace.metadata)
-                    : currentWorkspace.metadata;
-                return { ...DEFAULT_WORKSPACE_CONFIG, ...metadata };
-            }
-        } catch (error) {
-            console.error('Error parsing metadata:', error);
-        }
-        return DEFAULT_WORKSPACE_CONFIG;
-    })();
+    const config = useWorkspaceConfig();
 
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {

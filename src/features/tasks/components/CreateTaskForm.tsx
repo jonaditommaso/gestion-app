@@ -25,6 +25,8 @@ import { stringifyTaskMetadata } from "../utils/metadata-helpers";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
 import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
+import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -39,13 +41,16 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
 
+    const config = useWorkspaceConfig();
+    const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
+
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
         defaultValues: {
             workspaceId,
             priority: 3, // default
             type: 'task', // default
-            status: initialStatus,
+            status: initialStatus || defaultTaskStatus,
         }
     })
 
