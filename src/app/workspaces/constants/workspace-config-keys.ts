@@ -125,7 +125,7 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.COMPACT_CARDS]: false,
     [WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE]: false,
     [WorkspaceConfigKey.GENERATE_TASK_CODE]: true, // enabled by default
-    [WorkspaceConfigKey.DATE_FORMAT]: DateFormatType.SHORT,
+    [WorkspaceConfigKey.DATE_FORMAT]: DateFormatType.LONG,
 
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,

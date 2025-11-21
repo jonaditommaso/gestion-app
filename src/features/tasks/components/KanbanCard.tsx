@@ -1,4 +1,4 @@
-import { MoreHorizontalIcon, TextIcon } from "lucide-react";
+import { MoreHorizontalIcon, TextIcon, Clock } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
 import { Separator } from "@/components/ui/separator";
@@ -10,7 +10,10 @@ import { useState } from "react";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { cn } from "@/lib/utils";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
-import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey, DateFormatType } from "@/app/workspaces/constants/workspace-config-keys";
+import { differenceInDays } from "date-fns";
+import { useLocale } from "next-intl";
+import '@github/relative-time-element';
 
 interface KanbanCardProps {
     task: Task
@@ -19,11 +22,32 @@ interface KanbanCardProps {
 const KanbanCard = ({ task }: KanbanCardProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const config = useWorkspaceConfig();
+    const locale = useLocale();
     const isCompact = config[WorkspaceConfigKey.COMPACT_CARDS];
+    const dateFormat = config[WorkspaceConfigKey.DATE_FORMAT];
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
     const PriorityIcon = priorityOption.icon
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === (task.type || 'task'))!
     const TypeIcon = typeOption.icon
+
+    // Calcular color del badge de fecha
+    const getDateBadgeColor = () => {
+        if (!task.dueDate) return null;
+        const today = new Date();
+        const endDate = new Date(task.dueDate);
+        const diffInDays = differenceInDays(endDate, today);
+
+        if (diffInDays < 0) {
+            return 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400';
+        } else if (diffInDays <= 3) {
+            return 'bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400';
+        } else if (diffInDays <= 7) {
+            return 'bg-orange-50 text-orange-600 dark:bg-orange-950/20 dark:text-orange-400';
+        } else if (diffInDays <= 14) {
+            return 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950/20 dark:text-yellow-400';
+        }
+        return 'bg-muted text-muted-foreground';
+    };
 
     return (
         <>
@@ -71,7 +95,20 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                         <div className="flex items-center gap-x-1.5">
                             <TypeIcon className={cn("size-4", typeOption.textColor)} />
                             <div className="size-1 rounded-full bg-neutral-300" />
-                            <TaskDate value={task.dueDate} className="text-xs" />
+                            {dateFormat === DateFormatType.LONG
+                                ? <TaskDate value={task.dueDate} className="text-xs" />
+                                : (
+                                    <div className="flex justify-end">
+                                        <div className={cn(
+                                            "px-2 py-0.5 text-xs font-medium rounded-md flex items-center gap-1",
+                                            getDateBadgeColor()
+                                        )}>
+                                            <Clock className="size-3" />
+                                            <relative-time lang={locale} datetime={task.dueDate} />
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </div>
                         <MemberAvatar
                             name={task.assignee.name}

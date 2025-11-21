@@ -4,11 +4,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { TASK_STATUS_OPTIONS } from "@/features/tasks/constants/status";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import '@github/relative-time-element';
 import { Info } from "lucide-react";
 import { WorkspaceType } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
@@ -24,9 +25,14 @@ interface WorkspaceSettingsProps {
 
 const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const t = useTranslations('workspaces');
+    const locale = useLocale();
     const router = useRouter();
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
     const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
+
+    // Fecha de ejemplo: 2 días en el futuro
+    const exampleDate = new Date();
+    exampleDate.setDate(exampleDate.getDate() + 2);
 
     const [ArchiveDialog, confirmArchive] = useConfirm(
         t('confirm-archive-title'),
@@ -564,11 +570,18 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onValueChange={(value) => updateConfig(WorkspaceConfigKey.DATE_FORMAT, value)}
                             disabled={isPending}
                         >
-                            <SelectTrigger className="w-40">
-                                <SelectValue />
+                            <SelectTrigger className="w-fit">
+                                <SelectValue placeholder={t('date-format-long')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="short">{t('date-format-short')}</SelectItem>
+                                <SelectItem value="short">
+                                    <div className="flex items-center gap-2">
+                                        <span>{t('date-format-short-label')}</span>
+                                        <span className="text-xs text-muted-foreground">
+                                            (ej: <relative-time lang={locale} datetime={exampleDate.toISOString()} />)
+                                        </span>
+                                    </div>
+                                </SelectItem>
                                 <SelectItem value="long">{t('date-format-long')}</SelectItem>
                             </SelectContent>
                         </Select>
