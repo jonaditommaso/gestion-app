@@ -533,9 +533,10 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    <Separator />
+                    {/* //TODO: implement code generation with cloud function */}
+                    {/* <Separator /> */}
 
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
                             <Label>{t('generate-task-code')}</Label>
                             <p className="text-sm text-muted-foreground">
@@ -547,7 +548,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.GENERATE_TASK_CODE, checked)}
                             disabled={isPending}
                         />
-                    </div>
+                    </div> */}
 
                     <Separator />
 

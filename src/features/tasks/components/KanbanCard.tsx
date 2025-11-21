@@ -9,6 +9,8 @@ import { TASK_TYPE_OPTIONS } from "../constants/type";
 import { useState } from "react";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { cn } from "@/lib/utils";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 
 interface KanbanCardProps {
     task: Task
@@ -16,6 +18,8 @@ interface KanbanCardProps {
 
 const KanbanCard = ({ task }: KanbanCardProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const config = useWorkspaceConfig();
+    const isCompact = config[WorkspaceConfigKey.COMPACT_CARDS];
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
     const PriorityIcon = priorityOption.icon
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === (task.type || 'task'))!
@@ -60,18 +64,22 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                     </div>
                 )}
             </div>
-            <Separator />
-            <div className="flex items-center justify-between gap-x-1.5">
-                <div className="flex items-center gap-x-1.5">
-                    <TypeIcon className={cn("size-4", typeOption.textColor)} />
-                    <div className="size-1 rounded-full bg-neutral-300" />
-                    <TaskDate value={task.dueDate} className="text-xs" />
-                </div>
-                <MemberAvatar
-                    name={task.assignee.name}
-                    fallbackClassName="text-[10px]"
-                />
-            </div>
+            {!isCompact && (
+                <>
+                    <Separator />
+                    <div className="flex items-center justify-between gap-x-1.5">
+                        <div className="flex items-center gap-x-1.5">
+                            <TypeIcon className={cn("size-4", typeOption.textColor)} />
+                            <div className="size-1 rounded-full bg-neutral-300" />
+                            <TaskDate value={task.dueDate} className="text-xs" />
+                        </div>
+                        <MemberAvatar
+                            name={task.assignee.name}
+                            fallbackClassName="text-[10px]"
+                            />
+                    </div>
+                </>
+            )}
             {/* <div>
                 <p className="text-xs text-muted-foreground m-0">JON-672</p>
             </div> */}
