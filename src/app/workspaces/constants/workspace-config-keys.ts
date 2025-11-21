@@ -27,6 +27,13 @@ export enum WorkspaceConfigKey {
     PROTECTED_IN_REVIEW = 'protectedInReview',
     PROTECTED_DONE = 'protectedDone',
 
+    // Column Labels - per status
+    LABEL_BACKLOG = 'labelBacklog',
+    LABEL_TODO = 'labelTodo',
+    LABEL_IN_PROGRESS = 'labelInProgress',
+    LABEL_IN_REVIEW = 'labelInReview',
+    LABEL_DONE = 'labelDone',
+
     // Task Preferences
     REQUIRED_ASSIGNEE = 'requiredAssignee',
     REQUIRED_DUE_DATE = 'requiredDueDate',
@@ -104,6 +111,13 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.PROTECTED_IN_REVIEW]: false,
     [WorkspaceConfigKey.PROTECTED_DONE]: false,
 
+    // Column labels - null by default (use translation)
+    [WorkspaceConfigKey.LABEL_BACKLOG]: null,
+    [WorkspaceConfigKey.LABEL_TODO]: null,
+    [WorkspaceConfigKey.LABEL_IN_PROGRESS]: null,
+    [WorkspaceConfigKey.LABEL_IN_REVIEW]: null,
+    [WorkspaceConfigKey.LABEL_DONE]: null,
+
     // Task preferences
     [WorkspaceConfigKey.REQUIRED_ASSIGNEE]: false,
     [WorkspaceConfigKey.REQUIRED_DUE_DATE]: false,
@@ -163,4 +177,15 @@ export const STATUS_TO_PROTECTED_KEY: Record<string, WorkspaceConfigKey> = {
     'IN_PROGRESS': WorkspaceConfigKey.PROTECTED_IN_PROGRESS,
     'IN_REVIEW': WorkspaceConfigKey.PROTECTED_IN_REVIEW,
     'DONE': WorkspaceConfigKey.PROTECTED_DONE,
+};
+
+/**
+ * Helper to map TASK_STATUS to column label config keys
+ */
+export const STATUS_TO_LABEL_KEY: Record<string, WorkspaceConfigKey> = {
+    'BACKLOG': WorkspaceConfigKey.LABEL_BACKLOG,
+    'TODO': WorkspaceConfigKey.LABEL_TODO,
+    'IN_PROGRESS': WorkspaceConfigKey.LABEL_IN_PROGRESS,
+    'IN_REVIEW': WorkspaceConfigKey.LABEL_IN_REVIEW,
+    'DONE': WorkspaceConfigKey.LABEL_DONE,
 };

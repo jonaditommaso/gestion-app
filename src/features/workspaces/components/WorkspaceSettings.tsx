@@ -13,7 +13,7 @@ import { Info } from "lucide-react";
 import { WorkspaceType } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
-import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useMemo, useState } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
@@ -344,12 +344,14 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             {TASK_STATUS_OPTIONS.map((status) => {
                                 const limitData = columnLimits[status.value];
                                 const isMaxDisabled = limitData.type === ColumnLimitType.NO;
+                                const labelKey = STATUS_TO_LABEL_KEY[status.value];
+                                const customLabel = currentConfig[labelKey];
 
                                 return (
                                     <div key={status.value} className="flex items-center gap-4">
                                         <div className="flex items-center gap-2 flex-1">
                                             <div className={cn("size-3 rounded-full flex-shrink-0", status.color)} />
-                                            <span className="text-sm font-medium">{t(status.translationKey)}</span>
+                                            <span className="text-sm font-medium">{customLabel || t(status.translationKey)}</span>
                                         </div>
                                         <div className="w-40">
                                             <Select
@@ -428,11 +430,13 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <div className="space-y-4 pl-4 border-l-2">
                             {TASK_STATUS_OPTIONS.map((status) => {
                                 const protectedKey = STATUS_TO_PROTECTED_KEY[status.value];
+                                const labelKey = STATUS_TO_LABEL_KEY[status.value];
+                                const customLabel = currentConfig[labelKey];
                                 return (
                                     <div key={status.value} className="flex items-center justify-between pb-2">
                                         <div className="flex items-center gap-2">
                                             <div className={cn("size-3 rounded-full", status.color)} />
-                                            <span className="text-sm font-medium">{t(status.translationKey)}</span>
+                                            <span className="text-sm font-medium">{customLabel || t(status.translationKey)}</span>
                                         </div>
                                         <Switch
                                             checked={currentConfig[protectedKey]}

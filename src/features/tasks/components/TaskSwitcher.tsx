@@ -86,7 +86,8 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                     </div>
 
                     <Separator className="my-4" />
-                        <DataFilters hideStatusFilter={currentTab === 'kanban'} />
+                        {/* <DataFilters hideStatusFilter={currentTab === 'kanban'} /> */}
+                        <DataFilters />
                     <Separator className="my-4" />
 
                     {isLoadingTasks ? (

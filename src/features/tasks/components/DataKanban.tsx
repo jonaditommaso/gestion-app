@@ -8,13 +8,16 @@ import {
 } from '@hello-pangea/dnd'
 import KanbanColumnHeader from "./KanbanColumnHeader";
 import KanbanCard from "./KanbanCard";
-import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType, STATUS_TO_PROTECTED_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 import { cn } from "@/lib/utils";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useCurrent } from "@/features/auth/api/use-current";
+import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
+import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
+import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 
 interface DataKanbanProps {
     data: Task[],
@@ -39,9 +42,35 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const config = useWorkspaceConfig();
     const t = useTranslations('workspaces');
     const { data: user } = useCurrent();
+    const workspaceId = useWorkspaceId();
+    const { mutate: updateWorkspace } = useUpdateWorkspace();
+    const { data: workspaces } = useGetWorkspaces();
 
     // Check if user is ADMIN at organization level
     const isAdmin = user?.prefs?.role === 'ADMIN';
+
+    const handleUpdateLabel = (status: TaskStatus, label: string) => {
+        const labelKey = STATUS_TO_LABEL_KEY[status];
+
+        // Get current workspace metadata (only user-modified values)
+        const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+        const existingMetadata = currentWorkspace?.metadata
+            ? (typeof currentWorkspace.metadata === 'string'
+                ? JSON.parse(currentWorkspace.metadata)
+                : currentWorkspace.metadata)
+            : {};
+
+        // Only update the specific label key
+        const newMetadata = {
+            ...existingMetadata,
+            [labelKey]: label || null, // null if empty to use default
+        };
+
+        updateWorkspace({
+            param: { workspaceId },
+            json: { metadata: JSON.stringify(newMetadata) }
+        });
+    };
 
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
@@ -247,6 +276,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                     taskCount={taskCount}
                                     addTask={() => addTask(board)}
                                     showCount={config[WorkspaceConfigKey.SHOW_CARD_COUNT]}
+                                    onUpdateLabel={handleUpdateLabel}
                                 />
                                 <Droppable droppableId={board}>
                                     {(provided) => (

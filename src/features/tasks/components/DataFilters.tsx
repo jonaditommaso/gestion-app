@@ -9,6 +9,9 @@ import CustomDatePicker from "@/components/CustomDatePicker";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { TASK_STATUS_OPTIONS } from "../constants/status";
 
 interface DataFiltersProps {
     hideStatusFilter?: boolean;
@@ -18,6 +21,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
     const workspaceId = useWorkspaceId();
     const { data: members, isLoading } = useGetMembers({ workspaceId });
     const t = useTranslations('workspaces');
+    const config = useWorkspaceConfig();
 
     const memberOptions = members?.documents.map(member => ({
         id: member.$id,
@@ -65,21 +69,15 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                     <SelectContent>
                         <SelectItem value="all">{t('all-statuses')}</SelectItem>
                         <SelectSeparator />
-                        <SelectItem value={TaskStatus.BACKLOG}>
-                            Backlog
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.TODO}>
-                            {t('todo')}
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.IN_PROGRESS}>
-                            {t('in-progress')}
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.IN_REVIEW}>
-                            {t('in-review')}
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.DONE}>
-                            {t('done')}
-                        </SelectItem>
+                        {TASK_STATUS_OPTIONS.map(status => {
+                            const labelKey = STATUS_TO_LABEL_KEY[status.value];
+                            const customLabel = config[labelKey];
+                            return (
+                                <SelectItem key={status.value} value={status.value}>
+                                    {customLabel || t(status.translationKey)}
+                                </SelectItem>
+                            );
+                        })}
                     </SelectContent>
                 </Select>
             )}

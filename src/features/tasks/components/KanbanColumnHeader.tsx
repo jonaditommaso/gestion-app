@@ -1,10 +1,12 @@
 import { snakeCaseToTitleCase } from "@/lib/utils";
 import { TaskStatus } from "../types";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotIcon, CircleIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
+import { ShowCardCountType, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 import { useTaskFilters } from "../hooks/use-task-filters";
+import EditableText from "@/components/EditableText";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 
 
 interface KanbanColumnHeaderProps {
@@ -12,6 +14,7 @@ interface KanbanColumnHeaderProps {
     taskCount: number,
     addTask: () => void,
     showCount?: string;
+    onUpdateLabel: (status: TaskStatus, label: string) => void;
 }
 
 const statusIconMap: Record<TaskStatus, React.ReactNode> = {
@@ -22,9 +25,10 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.DONE]: <CircleCheckIcon className="size-[18px] text-emerald-400" />,
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel }: KanbanColumnHeaderProps) => {
 
     const icon = statusIconMap[board]
+    const config = useWorkspaceConfig();
 
     const [{ assigneeId, search, dueDate, priority }] = useTaskFilters();
 
@@ -33,13 +37,42 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
 
     // Determine if we should show the count
     const shouldShowCount = showCount === ShowCardCountType.ALWAYS ||
-                            (showCount === ShowCardCountType.FILTERED && hasActiveFilters);    return (
+                            (showCount === ShowCardCountType.FILTERED && hasActiveFilters);
+
+    // Get custom label or use default translated name
+    const labelKey = STATUS_TO_LABEL_KEY[board];
+    const customLabel = config[labelKey] as string | null;
+    const defaultLabel = snakeCaseToTitleCase(board);
+
+    // Local state for optimistic update
+    const [localLabel, setLocalLabel] = useState(customLabel || defaultLabel);
+
+    // Sync local state when config changes
+    useEffect(() => {
+        setLocalLabel(customLabel || defaultLabel);
+    }, [customLabel, defaultLabel]);
+
+    const handleSaveLabel = (newLabel: string) => {
+        // Optimistic update
+        setLocalLabel(newLabel || defaultLabel);
+        // Call parent to persist
+        onUpdateLabel(board, newLabel);
+    };
+
+    return (
         <div className="px-2 py-1.5 flex items-center justify-between">
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-2 flex-1 min-w-0">
                 {icon}
-                <h2 className="text-sm font-medium">
-                    {snakeCaseToTitleCase(board)}
-                </h2>
+                <div className="w-[100px]">
+                    <EditableText
+                        value={localLabel}
+                        onSave={handleSaveLabel}
+                        size="sm"
+                        className="px-0 py-0 min-h-0 w-full"
+                        displayClassName="hover:bg-muted/80 text-sm font-medium truncate"
+                        inputClassName="text-sm font-medium w-full"
+                    />
+                </div>
                 {shouldShowCount && (
                     <div className="size-5 flex items-center justify-center rounded-md bg-neutral-200 text-neutral-700 font-medium">
                         {taskCount}

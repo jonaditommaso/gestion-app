@@ -21,6 +21,8 @@ import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -143,6 +145,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
 
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
+    const config = useWorkspaceConfig();
 
     const handleStatusChange = (status: string) => {
         updateTask({
@@ -366,11 +369,15 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            {TASK_STATUS_OPTIONS.map(status => (
-                                <SelectItem key={status.value} value={status.value}>
-                                    {t(status.translationKey)}
-                                </SelectItem>
-                            ))}
+                            {TASK_STATUS_OPTIONS.map(status => {
+                                const labelKey = STATUS_TO_LABEL_KEY[status.value];
+                                const customLabel = config[labelKey];
+                                return (
+                                    <SelectItem key={status.value} value={status.value}>
+                                        {customLabel || t(status.translationKey)}
+                                    </SelectItem>
+                                );
+                            })}
                         </SelectContent>
                     </Select>
                 </div>

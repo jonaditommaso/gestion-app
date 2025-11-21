@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowUpDown, MoreVertical } from "lucide-react"
 import MemberAvatar from "../members/components/MemberAvatar"
 import TaskDate from "./components/TaskDate"
-import { Badge } from "@/components/ui/badge"
-import { snakeCaseToTitleCase } from "@/lib/utils"
 import TaskActions from "./components/TaskActions"
+import { StatusCell } from "./components/StatusCell"
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -93,11 +92,7 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
 
-      return (
-        <Badge variant={status}>
-          {snakeCaseToTitleCase(status)}
-        </Badge>
-      )
+      return <StatusCell status={status} />
     }
   },
   {
