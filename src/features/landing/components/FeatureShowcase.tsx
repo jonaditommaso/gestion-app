@@ -1,16 +1,16 @@
 'use client'
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'motion/react';
+import { useState } from 'react'; //useRef
+import { motion, AnimatePresence } from 'motion/react'; //useInView
 import Image from 'next/image';
-import { ChevronRight, ChevronDown, Users, Shield, BarChart3, Cloud } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react'; //, Users, Shield, BarChart3, Cloud
 import { useTranslations } from 'next-intl';
 import { features } from '../features';
 
 const FeatureShowcase = () => {
   const [activeFeature, setActiveFeature] = useState<number>(0); // Siempre hay una activa
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const statsInView = useInView(statsRef, { once: true, margin: '-50px' });
+  // const statsRef = useRef<HTMLDivElement>(null);
+  // const statsInView = useInView(statsRef, { once: true, margin: '-50px' });
 
   const t = useTranslations('landing.products')
 
@@ -195,7 +195,7 @@ const FeatureShowcase = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
-            className="lg:col-span-7"
+            className="lg:col-span-7 mt-[20%]"
           >
             <div className="relative">
               {/* Background decoration */}
@@ -226,7 +226,7 @@ const FeatureShowcase = () => {
         </div>
 
         {/* Bottom stats - POSITIONED TO AVOID OVERLAP */}
-        <div className="mt-36">
+        {/* <div className="mt-36">
           <motion.div
             ref={statsRef}
             initial={{ opacity: 0, y: 20 }}
@@ -267,7 +267,7 @@ const FeatureShowcase = () => {
               </div>
             </div>
           </motion.div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

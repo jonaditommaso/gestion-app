@@ -8,6 +8,14 @@ export enum TaskStatus {
     DONE = 'DONE'
 };
 
+export type TaskMetadata = {
+    imageIds?: string[];
+    // Aquí podemos agregar más campos en el futuro:
+    // attachments?: string[];
+    // mentions?: string[];
+    // tags?: string[];
+}
+
 export type Task = Models.Document & {
     name: string,
     status: TaskStatus,
@@ -16,4 +24,8 @@ export type Task = Models.Document & {
     dueDate: string,
     workspaceId: string,
     description?: string,
+    featured?: boolean,
+    label?: string,
+    type?: string,
+    metadata?: string, // JSON stringified TaskMetadata
 }

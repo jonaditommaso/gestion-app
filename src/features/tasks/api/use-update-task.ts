@@ -17,14 +17,14 @@ export const useUpdateTask = () => {
         mutationFn: async ({ json, param }) => {
             const response = await client.api.tasks[':taskId']['$patch']({ json, param });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to update task')
             }
 
             return await response.json()
         },
         onSuccess: ({ data }) => {
-            toast.success(t('task-updated'))
+            // toast.success(t('task-updated'))
 
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tasks'] })

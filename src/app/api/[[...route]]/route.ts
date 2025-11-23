@@ -12,6 +12,7 @@ import home from '@/features/home/server/route'
 import landing from '@/features/landing/server/route'
 import pricing from '@/features/pricing/server/route'
 import oauth from '@/features/oauth/server/route'
+import roles from '@/features/roles/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -25,6 +26,7 @@ const routes = app
   .route('/billing', billing)
   .route('/settings', settings)
   .route('/team', team)
+  .route('/roles', roles)
   .route('/landing', landing)
   .route('/pricing', pricing)
   .route('/oauth', oauth)

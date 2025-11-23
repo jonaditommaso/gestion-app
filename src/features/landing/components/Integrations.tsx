@@ -3,6 +3,7 @@ import Image from "next/image";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 const integrations = [
     {
@@ -113,10 +114,12 @@ const Integrations = () => {
                 transition={{ delay: 0.4, duration: 0.3, ease: "easeOut" }}
                 className="mt-4 text-center"
             >
-                <p className="text-sm text-gray-600">
-                    {t('featured-integrations')} •
-                    <span className="font-medium text-blue-600 ml-1">{t('many-more-integrations')}</span>
-                </p>
+                <Link href="/products#integrations" className="inline-block px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
+                    <p className="text-sm text-gray-600">
+                        {t('featured-integrations')} •
+                        <span className="font-medium text-blue-600 ml-1">{t('many-more-integrations')}</span>
+                    </p>
+                </Link>
             </motion.div>
         </div>
     );

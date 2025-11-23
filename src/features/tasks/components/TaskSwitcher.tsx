@@ -18,25 +18,32 @@ import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import DataCalendar from "./DataCalendar";
 import { useTranslations } from "next-intl";
 
-const TaskSwitcher = () => {
+interface TaskSwitcherProps {
+    openSettings: () => void;
+}
+
+const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
+    const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
     const [currentTab, setCurrentTab] = useState('table') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
     const t = useTranslations('workspaces');
 
     const [{
         status,
         assigneeId,
-        dueDate
+        dueDate,
+        priority
     }] = useTaskFilters();
 
-    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate });
+    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate, priority });
 
     const { mutate: bulkUpdate  } = useBulkUpdateTasks()
 
 
-    const handleNewTask = () => {
-        setModalOpen(true)
+    const handleNewTask = (status?: TaskStatus) => {
+        setInitialStatus(status);
+        setModalOpen(true);
     }
 
     const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, position: number }[]) => {
@@ -48,14 +55,14 @@ const TaskSwitcher = () => {
     return (
        <div className="mt-2">
             <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
-                <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} />
+                <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} initialStatus={initialStatus} />
             </DialogContainer>
             <Tabs
                 className="flex-1 w-full border rounded-lg"
                 defaultValue={currentTab}
                 onValueChange={setCurrentTab}
             >
-                <div className="h-full flex flex-col p-4">
+                <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'}`}>
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
                             <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
@@ -71,7 +78,7 @@ const TaskSwitcher = () => {
                         <Button
                             size='sm'
                             className="w-full lg:w-auto"
-                            onClick={handleNewTask}
+                            onClick={() => handleNewTask()}
                         >
                             <PlusIcon className="size-4 mr-2" />
                             {t('new')}
@@ -79,6 +86,7 @@ const TaskSwitcher = () => {
                     </div>
 
                     <Separator className="my-4" />
+                        {/* <DataFilters hideStatusFilter={currentTab === 'kanban'} /> */}
                         <DataFilters />
                     <Separator className="my-4" />
 
@@ -91,11 +99,12 @@ const TaskSwitcher = () => {
                             <TabsContent value="table" className="mt-0 overflow-auto">
                                 <DataTable columns={columns} data={tasks?.documents ?? []} />
                             </TabsContent>
-                            <TabsContent value="kanban" className="mt-0">
+                            <TabsContent value="kanban" className="mt-0 h-full">
                                 <DataKanban
                                     data={tasks?.documents ?? []}
                                     addTask={handleNewTask}
                                     onChangeTasks={onKanbanChange}
+                                    openSettings={openSettings}
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">

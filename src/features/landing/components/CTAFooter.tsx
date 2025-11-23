@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const CTAFooter = () => {
+    const pathname = usePathname();
     const t = useTranslations('landing');
 
+    if(pathname === '/pricing' || pathname === '/docs') return null;
+
     return (
+        <>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -27,6 +32,9 @@ const CTAFooter = () => {
             </div>
         </div>
           </motion.div>
+            <hr className="h-1 w-full my-4 border-muted-foreground" />
+
+        </>
 
     );
 }

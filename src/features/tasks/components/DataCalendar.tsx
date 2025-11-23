@@ -5,7 +5,7 @@ import { addMonths, format, getDay, parse, startOfWeek, subMonths } from "date-f
 import { useState } from "react";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './date-calendar.css'
+import '../styles/date-calendar.css'
 import EventCard from "./EventCard";
 import CustomToolbar from "./CustomToolbar";
 
@@ -34,7 +34,8 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
         title: task.name,
         assignee: task.assignee,
         status: task.status,
-        id: task.$id
+        id: task.$id,
+        featured: task.featured,
     }))
 
     const handleNavigate = (action: 'PREV' | 'NEXT' | 'TODAY') => {
@@ -68,6 +69,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
                         assignee={event.assignee}
                         status={event.status}
                         id={event.id}
+                        featured={event.featured}
                     />
                 ),
                 toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} />

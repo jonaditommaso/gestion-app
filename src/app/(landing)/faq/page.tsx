@@ -4,6 +4,7 @@ import LandingFooter from '@/features/landing/components/LandingFooter';
 import { faq } from '@/features/landing/faq';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { MessageSquare } from 'lucide-react';
 
 export default async function FaqPage() {
     const user = await getCurrent();
@@ -19,11 +20,13 @@ export default async function FaqPage() {
                 style={{ backgroundImage: "linear-gradient(10deg, #11314a 40%, black 90%)" }}
             >
                 <div className="flex flex-col items-center gap-8 text-center max-w-4xl px-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                            <div className="w-4 h-4 rounded-full bg-blue-400"></div>
+                    <div className="mb-8 flex justify-center">
+                        <div className="flex items-center gap-x-3 rounded-full bg-blue-500/10 px-4 py-2 ring-1 ring-blue-500/20">
+                            <MessageSquare className="h-4 w-4 text-blue-400" />
+                            <div className="text-sm font-medium text-blue-300">
+                                FAQ
+                            </div>
                         </div>
-                        <span className="text-blue-300 font-medium">FAQ</span>
                     </div>
                     <h1 className='text-7xl font-bold text-balance bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent max-sm:text-5xl leading-tight'>
                         {t('faq-title')}

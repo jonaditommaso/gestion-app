@@ -3,12 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { Loader } from "lucide-react";
 import CreateTaskForm from "./CreateTaskForm";
+import { TaskStatus } from "../types";
 
 interface CreateTaskFormWrapperProps {
-    onCancel: () => void
+    onCancel: () => void;
+    initialStatus?: TaskStatus;
 }
 
-const CreateTaskFormWrapper = ({ onCancel }: CreateTaskFormWrapperProps) => {
+const CreateTaskFormWrapper = ({ onCancel, initialStatus }: CreateTaskFormWrapperProps) => {
     const workspaceId = useWorkspaceId()
 
     const { data: members, isLoading: isLoadingMembers } = useGetMembers({ workspaceId })
@@ -29,7 +31,7 @@ const CreateTaskFormWrapper = ({ onCancel }: CreateTaskFormWrapperProps) => {
     }
 
     return (
-        <CreateTaskForm memberOptions={memberOptions} onCancel={onCancel} />
+        <CreateTaskForm memberOptions={memberOptions} onCancel={onCancel} initialStatus={initialStatus} />
     );
 }
 

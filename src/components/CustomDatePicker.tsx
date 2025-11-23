@@ -15,10 +15,11 @@ interface CustomDatePickerProps {
     value: Date | undefined,
     onChange: (date: Date) => void,
     className?: string,
-    placeholder?: string
+    placeholder?: string,
+    hideIcon?: boolean
 }
 
-const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-date' }: CustomDatePickerProps) => {
+const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-date', hideIcon = false }: CustomDatePickerProps) => {
     const [pickerIsOpen, setPickerIsOpen] = useState(false);
     const t = useTranslations('general');
     const { theme } = useTheme();
@@ -33,14 +34,14 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-da
             <PopoverTrigger asChild>
                 <Button
                     variant='outline'
-                    size='lg'
+                    size='default' // lg
                     className={cn(
                         'w-full justify-start text-left font-normal px-3',
                         !value && 'text-muted-foreground',
                         className
                     )}
                 >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {!hideIcon && <CalendarIcon className="mr-2 h-4 w-4" />}
                     { value ? format(value, 'PPP') : <span>{t(placeholder)}</span> }
                 </Button>
             </PopoverTrigger>

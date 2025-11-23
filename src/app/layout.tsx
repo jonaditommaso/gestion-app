@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
+import { ChatBotProvider } from "@/context/ChatBotContext";
+import ChatBotPanel from "@/components/ChatBotPanel";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -40,9 +42,12 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <AppStructure />
-              <Toaster />
-              {children}
+              <ChatBotProvider>
+                <AppStructure />
+                <Toaster />
+                <ChatBotPanel />
+                {children}
+              </ChatBotProvider>
             </ThemeProvider>
           </TanstackQueryProvider>
         </NextIntlClientProvider>

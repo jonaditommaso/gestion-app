@@ -1,24 +1,12 @@
-export interface User {
-    id: number
+import { Models } from "node-appwrite"
+
+export type MemberUser = Models.User<Models.Preferences> & Models.Membership
+
+export type RoleUser = {
+    id: string
     name: string
     email: string
-    avatar: string
     role: string
     permissions: string[]
     status: "active" | "inactive"
-}
-
-export interface Role {
-    id: number
-    name: string
-    description: string
-    permissions: string[]
-    color: string
-    users: number
-}
-
-export interface Permission {
-    id: string
-    name: string
-    description: string
 }

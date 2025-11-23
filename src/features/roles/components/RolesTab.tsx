@@ -1,54 +1,44 @@
 "use client"
 
-import { RoleCard } from "./role-card"
-import { RoleEditDialog } from "./role-edit-dialog"
+import { RoleCard } from "./RoleCard"
+import RoleEditModal from "./RoleEditModal"
 import { useState } from "react"
-import type { Role, Permission } from "../types"
+import type { RoleType, Permission } from "../constants"
+import { ROLE_METADATA } from "../constants"
+import { useGetFinalRolesPermissions } from "../hooks/useGetFinalRolesPermissions"
 
-interface RolesTabProps {
-  roles: Role[]
-  permissions: Permission[]
-  getPermissionBadgeColor: (permission: string) => string
-}
+export function RolesTab() {
+  const [selectedRole, setSelectedRole] = useState<{ role: RoleType; permissions: Permission[], $id?: string } | null>(null)
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
 
-export function RolesTab({ roles, permissions, getPermissionBadgeColor }: RolesTabProps) {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null)
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false)
+  const finalRolePermissions = useGetFinalRolesPermissions();
 
-  const handleEdit = (role: Role) => {
-    setSelectedRole(role)
+  const handleEdit = (roleData: { role: RoleType; permissions: Permission[], $id?: string }) => {
+    setSelectedRole(roleData)
     setIsRoleDialogOpen(true)
-  }
-
-  const handleDelete = (role: Role) => {
-    console.log("Delete role:", role)
-  }
-
-  const handleViewUsers = (role: Role) => {
-    console.log("View users for role:", role)
   }
 
   return (
     <div className="space-y-6">
+      {isRoleDialogOpen && <RoleEditModal
+        onOpenChange={setIsRoleDialogOpen}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+      />}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roles.map((role) => (
+        {finalRolePermissions.map((roleData) => (
           <RoleCard
-            key={role.id}
-            role={role}
-            getPermissionBadgeColor={getPermissionBadgeColor}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onViewUsers={handleViewUsers}
+            key={roleData.role}
+            role={roleData.role}
+            permissions={roleData.permissions}
+            name={ROLE_METADATA[roleData.role].name}
+            description={ROLE_METADATA[roleData.role].description}
+            color={ROLE_METADATA[roleData.role].color}
+            onEdit={() => handleEdit(roleData)}
           />
         ))}
       </div>
-
-      <RoleEditDialog
-        isOpen={isRoleDialogOpen}
-        onOpenChange={setIsRoleDialogOpen}
-        role={selectedRole}
-        permissions={permissions}
-      />
     </div>
   )
 }

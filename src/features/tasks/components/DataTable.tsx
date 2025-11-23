@@ -24,12 +24,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { useTranslations } from "next-intl"
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Record<string, unknown>, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends Record<string, unknown>, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -77,18 +77,22 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
           {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-              <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-              >
-                  {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                  ))}
-              </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const isFeatured = row.original.featured as boolean | undefined;
+                return (
+                  <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      className={isFeatured ? 'bg-yellow-50/80 dark:bg-yellow-950/20 hover:bg-yellow-100/80 dark:hover:bg-yellow-950/30' : ''}
+                  >
+                      {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                      ))}
+                  </TableRow>
+                );
+              })
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">

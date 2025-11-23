@@ -21,6 +21,7 @@ function VideoPlayer({
 }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -47,13 +48,20 @@ function VideoPlayer({
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
+    const handleLoaded = () => setIsLoaded(true);
+
+    if (video.readyState >= 3) {
+      setIsLoaded(true);
+    }
 
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
+    video.addEventListener('canplay', handleLoaded);
 
     return () => {
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
+      video.removeEventListener('canplay', handleLoaded);
     };
   }, []);
 
@@ -74,8 +82,9 @@ function VideoPlayer({
       className={`relative group ${className}`}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
+      style={{ width: '1000px', height: '480px' }}
     >
-      <video
+      <motion.video
         ref={videoRef}
         src={src}
         muted={muted}
@@ -83,6 +92,9 @@ function VideoPlayer({
         playsInline
         className="w-full h-full object-contain rounded-md bg-black/5"
         style={{ borderRadius: 'inherit' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
       />
 
       {/* Control overlay */}

@@ -1,0 +1,54 @@
+/* Auto-growing textarea con field-sizing (CSS experimental) */
+.auto-resize-textarea {
+  field-sizing: content;
+  min-height: 40px;
+  max-height: 200px;
+  overflow-y: hidden; /* Sin scrollbar, el contenido siempre será visible */
+}
+
+/* Fallback para navegadores que no soportan field-sizing */
+@supports not (field-sizing: content) {
+  .auto-resize-textarea {
+    overflow-y: hidden;
+  }
+}
+
+/* Smooth resize transition */
+.chatbot-panel {
+  transition: width 0.05s ease-out;
+}
+
+/* Estado de resizing - prevenir selección de texto y mantener cursor */
+.chatbot-panel.resizing {
+  user-select: none;
+  cursor: col-resize !important;
+}
+
+.chatbot-panel.resizing * {
+  user-select: none !important;
+  cursor: col-resize !important;
+  pointer-events: none;
+}
+
+/* Asegurar que el resize handle siempre tenga el cursor correcto */
+.resize-handle {
+  cursor: col-resize !important;
+}
+
+/* Custom scrollbar for chat messages */
+.chat-scrollarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-scrollarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-scrollarea::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.chat-scrollarea::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border) / 0.8);
+}

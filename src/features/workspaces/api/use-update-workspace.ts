@@ -12,10 +12,10 @@ export const useUpdateWorkspace = () => {
     const t = useTranslations('workspaces');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({ form, param }) => {
-            const response = await client.api.workspaces[':workspaceId']['$patch']({ form, param });
+        mutationFn: async ({ json, param }) => {
+            const response = await client.api.workspaces[':workspaceId']['$patch']({ json, param });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to update workspace')
             }
 

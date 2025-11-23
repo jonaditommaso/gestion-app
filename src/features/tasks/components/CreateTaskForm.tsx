@@ -13,32 +13,73 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TaskStatus } from "../types";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
+import { TASK_STATUS_OPTIONS } from "../constants/status";
+import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
+import { TASK_TYPE_OPTIONS } from "../constants/type";
+import RichTextArea from "@/components/RichTextArea";
+import { TaskStatus } from "../types";
+import { useUploadTaskImage } from "../api/use-upload-task-image";
+import { stringifyTaskMetadata } from "../utils/metadata-helpers";
+import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
+import { processDescriptionImages } from "../utils/processDescriptionImages";
+import { checkEmptyContent } from "@/utils/checkEmptyContent";
+import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
-    onCancel: () => void
+    onCancel: () => void,
+    initialStatus?: TaskStatus
 }
 
-const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
+const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
     const workspaceId = useWorkspaceId();
     const t = useTranslations('workspaces');
+    const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
+    const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
+
+    const config = useWorkspaceConfig();
+    const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
 
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
         defaultValues: {
-            workspaceId
+            workspaceId,
+            priority: 3, // default
+            type: 'task', // default
+            status: initialStatus || defaultTaskStatus,
         }
     })
 
-    const onSubmit = (values: zod.infer<typeof createTaskSchema>) => {
+    const onSubmit = async (values: zod.infer<typeof createTaskSchema>) => {
+        const { description, ...rest } = values
 
-        mutate({ json: {...values, workspaceId} }, {
+        // Procesar imágenes en la descripción si existen
+        let processedDescription = description;
+        const imageIds: string[] = [];
+
+        if (description && pendingImages.size > 0) {
+            const result = await processDescriptionImages(description, pendingImages, uploadTaskImage);
+            processedDescription = result.html;
+            imageIds.push(...result.imageIds);
+        }
+
+        const payload = {
+            ...rest,
+            workspaceId,
+            ...(processedDescription && { description: checkEmptyContent(processedDescription) ? null : processedDescription }),
+            ...(imageIds.length > 0 && {
+                metadata: stringifyTaskMetadata({ imageIds })
+            })
+        }
+
+        mutate({ json: payload }, {
             onSuccess: () => {
                 form.reset();
+                setPendingImages(new Map());
                 onCancel?.()
             }
         })
@@ -46,12 +87,6 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
 
     return (
         <Card className="w-full h-full border-none shadow-none">
-            {/* <CardHeader className="flex p-7">
-                <CardTitle className="text-xl font-bold">
-                    Create a new task
-                </CardTitle>
-            </CardHeader> */}
-            {/* <Separator /> */}
             <CardContent className="p-2 pt-0">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-y-4">
@@ -77,15 +112,18 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                             />
                             <FormField
                                 control={form.control}
-                                name='dueDate'
+                                name='description'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            {t('due-date')}
+                                            {t('description')}
                                         </FormLabel>
                                         <FormControl>
-                                            <CustomDatePicker
+                                            <RichTextArea
                                                 {...field}
+                                                placeholder={t('add-description')}
+                                                memberOptions={memberOptions}
+                                                onImageUpload={handleImageUpload}
                                                 className="!mt-0"
                                             />
                                         </FormControl>
@@ -93,81 +131,190 @@ const CreateTaskForm = ({ onCancel, memberOptions }: CreateTaskFormProps) => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name='assigneeId'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t('assignee')}
-                                        </FormLabel>
-                                        <Select
-                                            defaultValue={field.value}
-                                            onValueChange={field.onChange}
-                                        >
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <FormField
+                                    control={form.control}
+                                    name='assigneeId'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('assignee')}
+                                            </FormLabel>
+                                            <Select
+                                                defaultValue={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-assignee')} />
+                                                    </SelectTrigger>
+                                                </FormControl >
+                                                <FormMessage />
+                                                <SelectContent >
+                                                    {memberOptions?.map(member => (
+                                                        <SelectItem key={member.id} value={member.id}>
+                                                            <div className="flex items-center gap-x-2">
+                                                                <MemberAvatar
+                                                                    className='size-6'
+                                                                    name={member.name}
+                                                                />
+                                                                {member.name}
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name='priority'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('priority')}
+                                            </FormLabel>
+                                            <Select
+                                                defaultValue={String(field.value)}
+                                                onValueChange={(value) => field.onChange(Number(value))}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-priority')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <FormMessage />
+                                                <SelectContent>
+                                                    {TASK_PRIORITY_OPTIONS.map((priority) => {
+                                                        const Icon = priority.icon
+                                                        return (
+                                                            <SelectItem key={priority.value} value={String(priority.value)}>
+                                                                <div className="flex items-center gap-x-2">
+                                                                    <Icon
+                                                                        className="size-4"
+                                                                        style={{ color: priority.color }}
+                                                                    />
+                                                                    {t(priority.translationKey)}
+                                                                </div>
+                                                            </SelectItem>
+                                                        )
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <FormField
+                                    control={form.control}
+                                    name='type'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('type')}
+                                            </FormLabel>
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-type')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <FormMessage />
+                                                <SelectContent>
+                                                    {TASK_TYPE_OPTIONS.map((type) => {
+                                                        const Icon = type.icon;
+                                                        return (
+                                                            <SelectItem key={type.value} value={type.value}>
+                                                                <div className="flex items-center gap-x-2">
+                                                                    <Icon className={cn("size-4", type.textColor)} />
+                                                                    {t(type.translationKey)}
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name='label'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('label')}
+                                            </FormLabel>
                                             <FormControl>
-                                                <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder={t('select-assignee')} />
-                                                </SelectTrigger>
-                                            </FormControl >
-                                            <FormMessage />
-                                            <SelectContent >
-                                                {memberOptions?.map(member => (
-                                                    <SelectItem key={member.id} value={member.id}>
-                                                        <div className="flex items-center gap-x-2">
-                                                            <MemberAvatar
-                                                                className='size-6'
-                                                                name={member.name}
-                                                            />
-                                                            {member.name}
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name='status'
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t('status')}
-                                        </FormLabel>
-                                        <Select
-                                            defaultValue={field.value}
-                                            onValueChange={field.onChange}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder={t('select-status')} />
-                                                </SelectTrigger>
+                                                <Input
+                                                    {...field}
+                                                    placeholder={t('enter-label')}
+                                                    maxLength={25}
+                                                    className="!mt-0"
+                                                />
                                             </FormControl>
                                             <FormMessage />
-                                            {/* //! REFACTOR THIS! */}
-                                            <SelectContent>
-                                                <SelectItem value={TaskStatus.BACKLOG}>
-                                                    Backlog
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.TODO}>
-                                                    {t('todo')}
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.IN_PROGRESS}>
-                                                    {t('in-progress')}
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.IN_REVIEW}>
-                                                    {t('in-review')}
-                                                </SelectItem>
-                                                <SelectItem value={TaskStatus.DONE}>
-                                                    {t('done')}
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )}
-                            />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <FormField
+                                    control={form.control}
+                                    name='status'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('status')}
+                                            </FormLabel>
+                                            <Select
+                                                defaultValue={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder={t('select-status')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <FormMessage />
+                                                <SelectContent>
+                                                    {TASK_STATUS_OPTIONS.map((status) => (
+                                                        <SelectItem key={status.value} value={status.value}>
+                                                            <div className="flex items-center gap-x-2">
+                                                                <div className={cn("size-3 rounded-full", status.color)} />
+                                                                {t(status.translationKey)}
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name='dueDate'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                {t('due-date')}
+                                            </FormLabel>
+                                            <FormControl>
+                                                <CustomDatePicker
+                                                    {...field}
+                                                    className="!mt-0"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
                         <Separator />

@@ -1,6 +1,7 @@
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 import { useState } from "react"
 
 export const useConfirm = (
@@ -9,6 +10,7 @@ export const useConfirm = (
     variant:ButtonProps['variant'] = 'default'
 ): [() => JSX.Element, () => Promise<unknown>] => {
     const [promise, setPromise] = useState<{ resolve: (value: boolean) => void } | null>(null);
+    const t = useTranslations('common');
 
     const confirm = () => {
         return new Promise(resolve => {
@@ -45,10 +47,10 @@ export const useConfirm = (
                         </CardHeader>
                         <div className="pt-4 w-full flex flex-col gap-y-2 lg:flex-row gap-x-2 items-center justify-end">
                             <Button onClick={handleCancel} variant='outline' className="w-full lg:w-auto">
-                                Cancelar
+                                {t('cancel')}
                             </Button>
                             <Button onClick={handleConfirm} variant={variant} className="w-full lg:w-auto">
-                                Confirmar
+                                {t('confirm')}
                             </Button>
                         </div>
                     </CardContent>

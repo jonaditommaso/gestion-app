@@ -1,13 +1,13 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import { createWorkspaceSchema } from '../schema';
+import { createWorkspaceSchema, updateWorkspaceSchema } from '../schema';
 import { sessionMiddleware } from '@/lib/session-middleware';
-import { DATABASE_ID, MEMBERS_ID, WORKSPACES_ID } from '@/config';
+import { DATABASE_ID, MEMBERS_ID, TASKS_ID, WORKSPACES_ID } from '@/config';
 import { ID, Query } from 'node-appwrite';
 import { MemberRole } from '../members/types';
 import { generateInviteCode } from '@/lib/utils';
 import { getMember } from '../members/utils';
-import { z as zod} from 'zod';
+import { z as zod } from 'zod';
 import { WorkspaceType } from '../types';
 
 const app = new Hono()
@@ -25,7 +25,7 @@ const app = new Hono()
                 [Query.equal('userId', user.$id)]
             );
 
-            if(members.total === 0) {
+            if (members.total === 0) {
                 return ctx.json({ data: { documents: [], total: 0 } })
             }
 
@@ -42,6 +42,22 @@ const app = new Hono()
             );
 
             return ctx.json({ data: workspaces })
+        }
+    )
+    .get(
+        '/count',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            const workspaces = await databases.listDocuments(
+                DATABASE_ID,
+                WORKSPACES_ID,
+                [Query.equal('teamId', user.prefs.teamId)]
+            );
+
+            return ctx.json({ data: { count: workspaces.total } })
         }
     )
     .post(
@@ -84,13 +100,13 @@ const app = new Hono()
     .patch(
         '/:workspaceId',
         sessionMiddleware,
-        zValidator('form', createWorkspaceSchema),
+        zValidator('json', updateWorkspaceSchema),
         async ctx => {
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
             const { workspaceId } = ctx.req.param();
-            const { name } = ctx.req.valid('form');
+            const { name, description, metadata, archived } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -98,15 +114,21 @@ const app = new Hono()
                 userId: user.$id
             });
 
-            if(!member || member.role !== MemberRole.ADMIN) {
+            if (!member || member.role !== MemberRole.ADMIN) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
+
+            const updateData: Partial<WorkspaceType> = {};
+            if (name !== undefined) updateData.name = name;
+            if (description !== undefined) updateData.description = description;
+            if (metadata !== undefined) updateData.metadata = metadata;
+            if (archived !== undefined) updateData.archived = archived;
 
             const workspace = await databases.updateDocument(
                 DATABASE_ID,
                 WORKSPACES_ID,
                 workspaceId,
-                { name }
+                updateData
             );
 
             return ctx.json({ data: workspace });
@@ -140,7 +162,7 @@ const app = new Hono()
                 workspaceId
             );
 
-            if(workspace.inviteCode !== code) {
+            if (workspace.inviteCode !== code) {
                 return ctx.json({ error: 'Invalid invite code' }, 400)
             }
 
@@ -174,10 +196,41 @@ const app = new Hono()
                 userId: user.$id
             });
 
-            if(!member || member.role !== MemberRole.ADMIN) {
+            if (!member || member.role !== MemberRole.ADMIN) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            // Delete all tasks of the workspace
+            const tasks = await databases.listDocuments(
+                DATABASE_ID,
+                TASKS_ID,
+                [Query.equal('workspaceId', workspaceId)]
+            );
+
+            for (const task of tasks.documents) {
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    task.$id
+                );
+            }
+
+            // Delete all members of the workspace
+            const members = await databases.listDocuments(
+                DATABASE_ID,
+                MEMBERS_ID,
+                [Query.equal('workspaceId', workspaceId)]
+            );
+
+            for (const member of members.documents) {
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    member.$id
+                );
+            }
+
+            // Delete the workspace
             await databases.deleteDocument(
                 DATABASE_ID,
                 WORKSPACES_ID,
@@ -202,7 +255,7 @@ const app = new Hono()
                 userId: user.$id
             });
 
-            if(!member || member.role !== MemberRole.ADMIN) {
+            if (!member || member.role !== MemberRole.ADMIN) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 

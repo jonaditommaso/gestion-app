@@ -8,11 +8,22 @@ import {
 } from '@hello-pangea/dnd'
 import KanbanColumnHeader from "./KanbanColumnHeader";
 import KanbanCard from "./KanbanCard";
+import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { cn } from "@/lib/utils";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { useCurrent } from "@/features/auth/api/use-current";
+import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
+import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
+import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 
 interface DataKanbanProps {
     data: Task[],
-    addTask: () => void,
+    addTask: (status: TaskStatus) => void,
     onChangeTasks: (tasks: { $id: string, status: TaskStatus, position: number }[]) => void;
+    openSettings: () => void;
 }
 
 const boards: TaskStatus[] = [
@@ -27,7 +38,40 @@ type TasksState = {
     [key in TaskStatus]: Task[]
 }
 
-const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
+const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanProps) => {
+    const config = useWorkspaceConfig();
+    const t = useTranslations('workspaces');
+    const { data: user } = useCurrent();
+    const workspaceId = useWorkspaceId();
+    const { mutate: updateWorkspace } = useUpdateWorkspace();
+    const { data: workspaces } = useGetWorkspaces();
+
+    // Check if user is ADMIN at organization level
+    const isAdmin = user?.prefs?.role === 'ADMIN';
+
+    const handleUpdateLabel = (status: TaskStatus, label: string) => {
+        const labelKey = STATUS_TO_LABEL_KEY[status];
+
+        // Get current workspace metadata (only user-modified values)
+        const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+        const existingMetadata = currentWorkspace?.metadata
+            ? (typeof currentWorkspace.metadata === 'string'
+                ? JSON.parse(currentWorkspace.metadata)
+                : currentWorkspace.metadata)
+            : {};
+
+        // Only update the specific label key
+        const newMetadata = {
+            ...existingMetadata,
+            [labelKey]: label || null, // null if empty to use default
+        };
+
+        updateWorkspace({
+            param: { workspaceId },
+            json: { metadata: JSON.stringify(newMetadata) }
+        });
+    };
+
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
             [TaskStatus.BACKLOG]: [],
@@ -77,6 +121,67 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
 
         const sourceStatus = source.droppableId as TaskStatus;
         const destStatus = destination.droppableId as TaskStatus;
+
+        // Check if destination column is protected and user is not admin
+        if (sourceStatus !== destStatus && !isAdmin) {
+            const protectedKey = STATUS_TO_PROTECTED_KEY[destStatus];
+            const isProtected = config[protectedKey] as boolean;
+
+            if (isProtected) {
+                const toastId = toast.info(t('protected-column'), {
+                    description: (
+                        <div className="flex flex-col gap-2">
+                            <p>{t('protected-column-description')}</p>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => {
+                                    toast.dismiss(toastId);
+                                    openSettings();
+                                }}
+                                className="w-fit"
+                            >
+                                {t('go-to-settings')}
+                            </Button>
+                        </div>
+                    ),
+                    duration: 5000,
+                });
+                return; // Prevent the drag
+            }
+        }
+
+        // Check if destination column has a rigid limit and would be exceeded
+        if (sourceStatus !== destStatus) {
+            const limitKeys = STATUS_TO_LIMIT_KEYS[destStatus];
+            const limitType = config[limitKeys.type] as ColumnLimitType;
+            const limitMax = config[limitKeys.max] as number | null;
+            const currentTaskCount = tasks[destStatus].length;
+
+            if (limitType === ColumnLimitType.RIGID && limitMax !== null && currentTaskCount >= limitMax) {
+                // Show toast with custom layout (button below description)
+                const toastId = toast.info(t('column-limit-reached'), {
+                    description: (
+                        <div className="flex flex-col gap-2">
+                            <p>{t('column-limit-reached-description', { limit: limitMax })}</p>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => {
+                                    toast.dismiss(toastId);
+                                    openSettings();
+                                }}
+                                className="w-fit"
+                            >
+                                {t('go-to-settings')}
+                            </Button>
+                        </div>
+                    ),
+                    duration: 5000,
+                });
+                return; // Prevent the drag
+            }
+        }
 
         const updatesPayload: { $id: string, status: TaskStatus, position: number }[] = []
 
@@ -140,44 +245,65 @@ const DataKanban = ({ data, addTask, onChangeTasks }: DataKanbanProps) => {
         })
 
         onChangeTasks(updatesPayload)
-    }, [onChangeTasks])
+    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin])
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex overflow-x-auto">
+            <div className="flex overflow-x-auto h-full p-[2px]">
                 {boards.map(board => {
-                    return (
-                        <div key={board} className="flex-1 mx-2 bg-muted p-1.5 rounded-md min-w-[200px]">
-                            <KanbanColumnHeader
-                                board={board}
-                                taskCount={tasks[board].length}
-                                addTask={addTask}
-                            />
-                            <Droppable droppableId={board}>
-                                {(provided) => (
-                                    <div
-                                        {...provided.droppableProps}
-                                        ref={provided.innerRef}
-                                        className="min-h-[200px] py-1.5"
-                                    >
-                                        {tasks[board].map((task, index) => (
-                                            <Draggable key={task.$id} draggableId={task.$id} index={index}>
-                                                {provided => (
-                                                    <div
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        ref={provided.innerRef}
-                                                    >
-                                                        <KanbanCard task={task} />
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
+                    const limitKeys = STATUS_TO_LIMIT_KEYS[board];
+                    const limitType = config[limitKeys.type] as ColumnLimitType;
+                    const limitMax = config[limitKeys.max] as number | null;
+                    const taskCount = tasks[board].length;
 
-                                        {provided.placeholder}
-                                    </div>
+                    // Determine if limit is exceeded (only when it goes OVER the limit)
+                    const isLimitExceeded = limitType !== ColumnLimitType.NO && limitMax !== null && taskCount > limitMax;
+                    const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
+
+                    return (
+                        <div
+                            key={board}
+                            className="flex-1 mx-2 min-w-[200px] flex flex-col h-full"
+                        >
+                            <div
+                                className={cn(
+                                    "bg-muted p-1.5 rounded-md flex flex-col h-full",
+                                    isFlexibleWarning && "ring-2 ring-red-500 bg-red-100/50 dark:bg-red-800/20"
                                 )}
-                            </Droppable>
+                            >
+                                <KanbanColumnHeader
+                                    board={board}
+                                    taskCount={taskCount}
+                                    addTask={() => addTask(board)}
+                                    showCount={config[WorkspaceConfigKey.SHOW_CARD_COUNT]}
+                                    onUpdateLabel={handleUpdateLabel}
+                                />
+                                <Droppable droppableId={board}>
+                                    {(provided) => (
+                                        <div
+                                            {...provided.droppableProps}
+                                            ref={provided.innerRef}
+                                            className="flex-1 py-1.5 overflow-y-auto"
+                                        >
+                                            {tasks[board].map((task, index) => (
+                                                <Draggable key={task.$id} draggableId={task.$id} index={index}>
+                                                    {provided => (
+                                                        <div
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            ref={provided.innerRef}
+                                                        >
+                                                            <KanbanCard task={task} />
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </div>
                         </div>
                     )
                 })}
