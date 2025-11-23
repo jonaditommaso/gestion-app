@@ -25,7 +25,7 @@ import { stringifyTaskMetadata } from "../utils/metadata-helpers";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
 import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
-import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { useMemo } from "react";
 
@@ -310,14 +310,20 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                                                 </FormControl>
                                                 <FormMessage />
                                                 <SelectContent>
-                                                    {TASK_STATUS_OPTIONS.map((status) => (
-                                                        <SelectItem key={status.value} value={status.value}>
-                                                            <div className="flex items-center gap-x-2">
-                                                                <div className={cn("size-3 rounded-full", status.color)} />
-                                                                {t(status.translationKey)}
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
+                                                    {TASK_STATUS_OPTIONS.map((status) => {
+                                                        const labelKey = STATUS_TO_LABEL_KEY[status.value];
+                                                        const customLabel = labelKey ? config[labelKey] as string | null : null;
+                                                        const displayLabel = customLabel || t(status.translationKey);
+
+                                                        return (
+                                                            <SelectItem key={status.value} value={status.value}>
+                                                                <div className="flex items-center gap-x-2">
+                                                                    <div className={cn("size-3 rounded-full", status.color)} />
+                                                                    {displayLabel}
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>
