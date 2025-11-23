@@ -14,6 +14,7 @@ import { Info } from "lucide-react";
 import { WorkspaceType } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
+import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useMemo, useState } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -29,6 +30,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const router = useRouter();
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
     const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
+    const { getStatusDisplayName } = useStatusDisplayName();
 
     // Fecha de ejemplo: 2 días en el futuro
     const exampleDate = new Date();
@@ -258,7 +260,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                     <SelectItem key={status.value} value={status.value}>
                                         <div className="flex items-center gap-x-2">
                                             <div className={cn("size-3 rounded-full", status.color)} />
-                                            {t(status.translationKey)}
+                                            {getStatusDisplayName(status.value)}
                                         </div>
                                     </SelectItem>
                                 ))}

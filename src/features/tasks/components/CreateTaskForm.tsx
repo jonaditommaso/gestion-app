@@ -25,8 +25,9 @@ import { stringifyTaskMetadata } from "../utils/metadata-helpers";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
 import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
-import { WorkspaceConfigKey, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { useMemo } from "react";
 
 interface CreateTaskFormProps {
@@ -44,6 +45,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
 
     const config = useWorkspaceConfig();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
+    const { getStatusDisplayName } = useStatusDisplayName();
 
     // Crear schema dinámico basado en la configuración del workspace
     const dynamicSchema = useMemo(() => {
@@ -310,20 +312,14 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                                                 </FormControl>
                                                 <FormMessage />
                                                 <SelectContent>
-                                                    {TASK_STATUS_OPTIONS.map((status) => {
-                                                        const labelKey = STATUS_TO_LABEL_KEY[status.value];
-                                                        const customLabel = labelKey ? config[labelKey] as string | null : null;
-                                                        const displayLabel = customLabel || t(status.translationKey);
-
-                                                        return (
-                                                            <SelectItem key={status.value} value={status.value}>
-                                                                <div className="flex items-center gap-x-2">
-                                                                    <div className={cn("size-3 rounded-full", status.color)} />
-                                                                    {displayLabel}
-                                                                </div>
-                                                            </SelectItem>
-                                                        );
-                                                    })}
+                                                    {TASK_STATUS_OPTIONS.map((status) => (
+                                                        <SelectItem key={status.value} value={status.value}>
+                                                            <div className="flex items-center gap-x-2">
+                                                                <div className={cn("size-3 rounded-full", status.color)} />
+                                                                {getStatusDisplayName(status.value)}
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>
