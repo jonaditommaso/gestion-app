@@ -1308,6 +1308,8 @@
         "date-format-short": "Corto",
         "date-format-short-label": "Corto",
         "date-format-long": "Largo (ej: 25 de noviembre, 2025)",
+        "due-date-required": "La fecha de vencimiento es obligatoria",
+        "description-required": "La descripción es obligatoria",
         "notifications": "Notificaciones",
         "notifications-description": "Configure cuándo y cómo se envían notificaciones automáticas a los miembros del workspace",
         "notify-task-assignment": "Avisar al asignar tarea",

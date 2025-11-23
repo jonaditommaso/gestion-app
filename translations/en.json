@@ -1302,6 +1302,8 @@
         "date-format-short": "Short",
         "date-format-short-label": "Short",
         "date-format-long": "Long (e.g: November 17th, 2025)",
+        "due-date-required": "Due date is required",
+        "description-required": "Description is required",
         "notifications": "Notifications",
         "notifications-description": "Configure when and how automatic notifications are sent to workspace members",
         "notify-task-assignment": "Notify on task assignment",

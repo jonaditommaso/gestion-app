@@ -1288,6 +1288,8 @@
         "date-format-short": "Breve",
         "date-format-short-label": "Breve",
         "date-format-long": "Lungo (es: 25 novembre, 2025)",
+        "due-date-required": "La data di scadenza è obbligatoria",
+        "description-required": "La descrizione è obbligatoria",
         "notifications": "Notifiche",
         "notifications-description": "Configura quando e come vengono inviate notifiche automatiche ai membri del workspace",
         "notify-task-assignment": "Notifica assegnazione attività",

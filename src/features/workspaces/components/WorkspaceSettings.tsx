@@ -477,14 +477,15 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </div>
                         </div>
                         <div className="space-y-3 pl-4 border-l-2">
-                            <div className="flex items-center justify-between">
+                            {/* //TODO: add when multi-assignee works */}
+                            {/* <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('assignee')}</span>
                                 <Switch
                                     checked={currentConfig[WorkspaceConfigKey.REQUIRED_ASSIGNEE]}
                                     onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.REQUIRED_ASSIGNEE, checked)}
                                     disabled={isPending}
                                 />
-                            </div>
+                            </div> */}
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('due-date')}</span>
                                 <Switch
@@ -523,7 +524,8 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    <Separator />
+                    {/* //TODO: implement multi-assignee */}
+                    {/* <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -537,7 +539,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE, checked)}
                             disabled={isPending}
                         />
-                    </div>
+                    </div> */}
 
                     {/* //TODO: implement code generation with cloud function */}
                     {/* <Separator /> */}
@@ -590,7 +592,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
             </Card>
 
             {/* Notifications Section */}
-            <Card>
+            {/* <Card>
                 <CardHeader>
                     <CardTitle>{t('notifications')}</CardTitle>
                     <CardDescription>
@@ -661,7 +663,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
                 </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Permissions Section */}
             <Card>

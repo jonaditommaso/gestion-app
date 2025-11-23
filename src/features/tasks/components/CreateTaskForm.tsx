@@ -27,6 +27,7 @@ import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
 import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { useMemo } from "react";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -44,8 +45,34 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
     const config = useWorkspaceConfig();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
 
+    // Crear schema dinámico basado en la configuración del workspace
+    const dynamicSchema = useMemo(() => {
+        const baseSchema = createTaskSchema.omit({ workspaceId: true });
+
+        // todo: remove any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const extensions: Record<string, any> = {};
+
+        // Si la fecha de vencimiento es requerida
+        if (config[WorkspaceConfigKey.REQUIRED_DUE_DATE]) {
+            extensions.dueDate = zod.coerce.date({ required_error: t('due-date-required') });
+        }
+
+        // Si la descripción es requerida
+        if (config[WorkspaceConfigKey.REQUIRED_DESCRIPTION]) {
+            extensions.description = zod.string().min(1, t('description-required'));
+        }
+
+        // Si hay extensiones, aplicarlas al schema
+        if (Object.keys(extensions).length > 0) {
+            return baseSchema.extend(extensions);
+        }
+
+        return baseSchema;
+    }, [config, t]);
+
     const form = useForm<zod.infer<typeof createTaskSchema>>({
-        resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
+        resolver: zodResolver(dynamicSchema),
         defaultValues: {
             workspaceId,
             priority: 3, // default
@@ -306,7 +333,8 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                                             </FormLabel>
                                             <FormControl>
                                                 <CustomDatePicker
-                                                    {...field}
+                                                    value={field.value ?? undefined}
+                                                    onChange={field.onChange}
                                                     className="!mt-0"
                                                 />
                                             </FormControl>
