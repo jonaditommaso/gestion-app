@@ -94,21 +94,25 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                     <div className="flex items-center justify-between gap-x-1.5">
                         <div className="flex items-center gap-x-1.5">
                             <TypeIcon className={cn("size-4", typeOption.textColor)} />
-                            <div className="size-1 rounded-full bg-neutral-300" />
-                            {dateFormat === DateFormatType.LONG
-                                ? <TaskDate value={task.dueDate} className="text-xs" />
-                                : (
-                                    <div className="flex justify-end">
-                                        <div className={cn(
-                                            "px-2 py-0.5 text-xs font-medium rounded-md flex items-center gap-1",
-                                            getDateBadgeColor()
-                                        )}>
-                                            <Clock className="size-3" />
-                                            <relative-time lang={locale} datetime={task.dueDate} />
-                                        </div>
-                                    </div>
-                                )
-                            }
+                            {task.dueDate && (
+                                <>
+                                    <div className="size-1 rounded-full bg-neutral-300" />
+                                    {dateFormat === DateFormatType.LONG
+                                        ? <TaskDate value={task.dueDate} className="text-xs" />
+                                        : (
+                                            <div className="flex justify-end">
+                                                <div className={cn(
+                                                    "px-2 py-0.5 text-xs font-medium rounded-md flex items-center gap-1",
+                                                    getDateBadgeColor()
+                                                )}>
+                                                    <Clock className="size-3" />
+                                                    <relative-time lang={locale} datetime={task.dueDate} />
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+                                </>
+                            )}
                         </div>
                         <MemberAvatar
                             name={task.assignee.name}
