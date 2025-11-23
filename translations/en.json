@@ -1304,6 +1304,11 @@
         "date-format-long": "Long (e.g: November 17th, 2025)",
         "due-date-required": "Due date is required",
         "description-required": "Description is required",
+        "activity": "Activity",
+        "write-comment": "Write a comment...",
+        "save": "Save",
+        "click-add-description": "Click to add a description...",
+        "open-in-new-page": "Open in new page",
         "notifications": "Notifications",
         "notifications-description": "Configure when and how automatic notifications are sent to workspace members",
         "notify-task-assignment": "Notify on task assignment",
@@ -1488,7 +1493,8 @@
         "due-date": "Due date",
         "logout": "Logout",
         "settings": "Settings",
-        "user": "User"
+        "user": "User",
+        "not-defined": "Undefined"
     },
     "roles": {
         "admin": "Admin",

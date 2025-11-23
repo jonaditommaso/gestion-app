@@ -1310,6 +1310,11 @@
         "date-format-long": "Largo (ej: 25 de noviembre, 2025)",
         "due-date-required": "La fecha de vencimiento es obligatoria",
         "description-required": "La descripción es obligatoria",
+        "activity": "Actividad",
+        "write-comment": "Escribe un comentario...",
+        "save": "Guardar",
+        "click-add-description": "Click para agregar una descripción...",
+        "open-in-new-page": "Abrir en nueva página",
         "notifications": "Notificaciones",
         "notifications-description": "Configure cuándo y cómo se envían notificaciones automáticas a los miembros del workspace",
         "notify-task-assignment": "Avisar al asignar tarea",
@@ -1494,7 +1499,8 @@
         "due-date": "Fecha límite",
         "logout": "Cerrar sesión",
         "settings": "Configuración",
-        "user": "Usuario"
+        "user": "Usuario",
+        "not-defined": "Sin definir"
     },
     "roles": {
         "admin": "Admin",

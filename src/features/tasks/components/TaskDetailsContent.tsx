@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ExternalLinkIcon, MoreHorizontalIcon, TrashIcon, XIcon } from "lucide-react";
 import TaskDetails, { TaskTitleEditor } from "./TaskDetails";
+import { useTranslations } from "next-intl";
 
 interface TaskDetailsContentProps {
     task: Task;
@@ -20,6 +21,8 @@ const TaskDetailsActions = ({
     onClose: () => void;
     isDeleting: boolean;
 }) => {
+    const t = useTranslations('workspaces');
+
     return (
         <div className="flex items-center gap-2">
             <DropdownMenu>
@@ -31,11 +34,11 @@ const TaskDetailsActions = ({
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={onOpenInNewPage}>
                         <ExternalLinkIcon className="size-4 mr-2" />
-                        Open in new page
+                        {t('open-in-new-page')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={onDelete} className="text-destructive">
                         <TrashIcon className="size-4 mr-2" />
-                        Delete task
+                        {t('delete-task')}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

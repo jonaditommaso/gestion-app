@@ -225,14 +225,14 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
             <div className="lg:col-span-2 space-y-8">
                 {/* Description section */}
                 <div>
-                    <h3 className="text-base font-semibold mb-2">Description</h3>
+                    <h3 className="text-base font-semibold mb-2">{t('description')}</h3>
 
                     {isEditingDescription ? (
                         <div className="space-y-3">
                             <RichTextArea
                                 value={description}
                                 onChange={setDescription}
-                                placeholder="Add a more detailed description..."
+                                placeholder={t('add-description')}
                                 onImageUpload={handleImageUpload}
                             />
                             <div className="flex items-center gap-x-2">
@@ -241,7 +241,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                     onClick={handleSaveDescription}
                                     disabled={isPending}
                                 >
-                                    Save
+                                    {t('save')}
                                 </Button>
                                 <Button
                                     size="sm"
@@ -252,7 +252,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                     }}
                                     disabled={isPending}
                                 >
-                                    Cancel
+                                    {t('cancel')}
                                 </Button>
                             </div>
                         </div>
@@ -281,7 +281,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                     dangerouslySetInnerHTML={{ __html: task.description }}
                                 />
                             ) : (
-                                <p className="text-muted-foreground text-sm">Click to add a description...</p>
+                                <p className="text-muted-foreground text-sm">{t('click-add-description')}</p>
                             )}
                         </div>
                     )}
@@ -296,7 +296,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
 
                 {/* Activity section */}
                 <div>
-                    <h3 className="text-base font-semibold mb-2">Activity</h3>
+                    <h3 className="text-base font-semibold mb-2">{t('activity')}</h3>
                     <div className="space-y-4">
                         {isAddingComment ? (
                             <div className="flex gap-x-3">
@@ -306,7 +306,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 />
                                 <div className="flex-1 space-y-3">
                                     <textarea
-                                        placeholder="Write a comment..."
+                                        placeholder={t('write-comment')}
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                         className="w-full min-h-[100px] p-3 rounded-lg border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
@@ -321,7 +321,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                                 setIsAddingComment(false);
                                             }}
                                         >
-                                            Save
+                                            {t('save')}
                                         </Button>
                                         <Button
                                             size="sm"
@@ -331,7 +331,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                                 setIsAddingComment(false);
                                             }}
                                         >
-                                            Cancel
+                                            {t('cancel')}
                                         </Button>
                                     </div>
                                 </div>
@@ -347,7 +347,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 />
                                 <div className="flex-1 p-3 rounded-lg border bg-muted/30 group-hover:bg-muted/50 transition-all">
                                     <p className="text-muted-foreground text-sm">
-                                        Write a comment...
+                                        {t('write-comment')}
                                     </p>
                                 </div>
                             </div>
@@ -418,7 +418,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {/* Priority */}
                     <div className="flex items-center py-1">
                         <span className="text-xs font-medium text-muted-foreground w-24">
-                            Priority
+                            {t('priority')}
                         </span>
                         <Select
                             value={String(task.priority || 3)}
@@ -450,7 +450,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {/* Assignee */}
                     <div className="flex items-center py-1">
                         <span className="text-xs font-medium text-muted-foreground w-24">
-                            Assignee
+                            {t('assignee')}
                         </span>
                         <div className="flex items-center gap-x-2">
                             <MemberAvatar
@@ -464,13 +464,13 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {/* Due Date */}
                     <div className="flex items-center py-1">
                         <span className="text-xs font-medium text-muted-foreground w-24">
-                            Due Date
+                            {t('due-date')}
                         </span>
                         <div>
                             <CustomDatePicker
                                 value={task.dueDate ? new Date(task.dueDate) : undefined}
                                 onChange={handleDueDateChange}
-                                placeholder="Select date"
+                                placeholder='not-defined'
                                 className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
                                 hideIcon
                             />
@@ -482,11 +482,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 <div className="border-t pt-6">
                     <div className="text-xs text-muted-foreground space-y-2">
                         <div>
-                            <span className="font-medium">Created:</span>{' '}
+                            <span className="font-medium">{t('created')}:</span>{' '}
                             {format(new Date(task.$createdAt), 'MMM d, yyyy')}
                         </div>
                         <div>
-                            <span className="font-medium">Updated:</span>{' '}
+                            <span className="font-medium">{t('updated')}:</span>{' '}
                             {format(new Date(task.$updatedAt), 'MMM d, yyyy')}
                         </div>
                     </div>
