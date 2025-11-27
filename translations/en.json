@@ -1359,7 +1359,8 @@
         "protected-column": "Protected column",
         "protected-column-description": "Only administrators can move tasks to this column. You can modify it in settings.",
         "go-to-settings": "Go to Settings",
-        "not-defined": "Undefined"
+        "not-defined": "Undefined",
+        "back": "Back"
     },
     "team": {
         "no-team-title": "You don't have a team",

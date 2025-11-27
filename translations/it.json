@@ -1345,7 +1345,8 @@
         "protected-column": "Colonna protetta",
         "protected-column-description": "Solo gli amministratori possono spostare attività in questa colonna. Puoi modificarlo nelle impostazioni.",
         "go-to-settings": "Vai alle Impostazioni",
-        "not-defined": "Non definito"
+        "not-defined": "Non definito",
+        "back": "Indietro"
     },
     "team": {
         "no-team-title": "Non hai un team",

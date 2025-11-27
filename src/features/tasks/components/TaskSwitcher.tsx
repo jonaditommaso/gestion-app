@@ -13,10 +13,11 @@ import { useTaskFilters } from "../hooks/use-task-filters";
 import { DataTable } from "./DataTable";
 import { columns } from "../columns";
 import DataKanban from "./DataKanban";
-import { TaskStatus } from "../types";
+import { Task, TaskStatus } from "../types";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import DataCalendar from "./DataCalendar";
 import { useTranslations } from "next-intl";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 interface TaskSwitcherProps {
     openSettings: () => void;
@@ -28,6 +29,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
     const [currentTab, setCurrentTab] = useState('table') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
     const t = useTranslations('workspaces');
+    const { canCreateTask } = useWorkspacePermissions();
 
     const [{
         status,
@@ -75,14 +77,16 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                                 {t('calendar')}
                             </TabsTrigger>
                         </TabsList>
-                        <Button
-                            size='sm'
-                            className="w-full lg:w-auto"
-                            onClick={() => handleNewTask()}
-                        >
-                            <PlusIcon className="size-4 mr-2" />
-                            {t('new')}
-                        </Button>
+                        {canCreateTask && (
+                            <Button
+                                size='sm'
+                                className="w-full lg:w-auto"
+                                onClick={() => handleNewTask()}
+                            >
+                                <PlusIcon className="size-4 mr-2" />
+                                {t('new')}
+                            </Button>
+                        )}
                     </div>
 
                     <Separator className="my-4" />
@@ -97,18 +101,18 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                     ) : (
                         <>
                             <TabsContent value="table" className="mt-0 overflow-auto">
-                                <DataTable columns={columns} data={tasks?.documents ?? []} />
+                                <DataTable columns={columns} data={(tasks?.documents ?? []) as Task[]} />
                             </TabsContent>
                             <TabsContent value="kanban" className="mt-0 h-full">
                                 <DataKanban
-                                    data={tasks?.documents ?? []}
+                                    data={(tasks?.documents ?? []) as Task[]}
                                     addTask={handleNewTask}
                                     onChangeTasks={onKanbanChange}
                                     openSettings={openSettings}
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
-                                <DataCalendar data={tasks?.documents ?? []} />
+                                <DataCalendar data={(tasks?.documents ?? []) as Task[]} />
                             </TabsContent>
                         </>
 

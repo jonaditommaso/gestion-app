@@ -7,6 +7,7 @@ import { ShowCardCountType, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constan
 import { useTaskFilters } from "../hooks/use-task-filters";
 import EditableText from "@/components/EditableText";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 
 interface KanbanColumnHeaderProps {
@@ -29,6 +30,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
 
     const icon = statusIconMap[board]
     const config = useWorkspaceConfig();
+    const { canCreateTask, canEditLabel } = useWorkspacePermissions();
 
     const [{ assigneeId, search, dueDate, priority }] = useTaskFilters();
 
@@ -69,8 +71,11 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         onSave={handleSaveLabel}
                         size="sm"
                         className="px-0 py-0 min-h-0 w-full"
-                        displayClassName="hover:bg-muted/80 text-sm font-medium truncate"
+                        displayClassName={`text-sm font-medium truncate ${
+                            canEditLabel ? 'hover:bg-muted/80' : 'cursor-default'
+                        }`}
                         inputClassName="text-sm font-medium w-full"
+                        disabled={!canEditLabel}
                     />
                 </div>
                 {shouldShowCount && (
@@ -79,9 +84,11 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                     </div>
                 )}
             </div>
-            <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
-                <PlusIcon className="size-4 text-neutral-500" />
-            </Button>
+            {canCreateTask && (
+                <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
+                    <PlusIcon className="size-4 text-neutral-500" />
+                </Button>
+            )}
         </div>
     );
 }
