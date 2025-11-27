@@ -309,7 +309,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </SelectContent>
                         </Select>
                     </div>
-                    {/* TODO: Add custom threshold option - show count only when cards >= X */}
+                    {/* //TODO: Add custom threshold option - show count only when cards >= X */}
 
                     <Separator />
 
@@ -479,15 +479,14 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </div>
                         </div>
                         <div className="space-y-3 pl-4 border-l-2">
-                            {/* //TODO: add when multi-assignee works */}
-                            {/* <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('assignee')}</span>
                                 <Switch
                                     checked={currentConfig[WorkspaceConfigKey.REQUIRED_ASSIGNEE]}
                                     onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.REQUIRED_ASSIGNEE, checked)}
                                     disabled={isPending}
                                 />
-                            </div> */}
+                            </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">{t('due-date')}</span>
                                 <Switch
