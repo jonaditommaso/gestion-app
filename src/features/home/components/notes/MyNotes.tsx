@@ -75,7 +75,13 @@ const MyNotes = () => {
                             <div className="flex justify-end items-center gap-2">
                                 <Popover open={popoverIsOpen} onOpenChange={() => setPopoverIsOpen(prev => !prev)} >
                                     <PopoverTrigger asChild>
-                                        <Palette className="text-muted-foreground ml-1 cursor-pointer hover:bg-sidebar transition-all duration-100 p-2 w-10 h-10 rounded-full" size={24}/>
+                                        {newNote.bgColor !== 'none' ? (
+                                            <div className="ml-1 cursor-pointer hover:bg-sidebar transition-all duration-100 p-2 w-10 h-10 rounded-full flex items-center justify-center">
+                                                <div className={`w-full h-full rounded-full border border-muted-foreground/20 ${newNote.bgColor}`} />
+                                            </div>
+                                        ) : (
+                                            <Palette className="text-muted-foreground ml-1 cursor-pointer hover:bg-sidebar transition-all duration-100 p-2 w-10 h-10 rounded-full" size={24}/>
+                                        )}
                                     </PopoverTrigger>
                                     <ColorNoteSelector onChange={onChange} />
                                 </Popover>
