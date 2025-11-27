@@ -6,7 +6,7 @@ export const createTaskSchema = zod.object({
     status: zod.nativeEnum(TaskStatus, { required_error: 'Required' }),
     workspaceId: zod.string().trim().min(1, 'Required'),
     dueDate: zod.coerce.date().optional().nullable(),
-    assigneeId: zod.string().trim().min(1, 'Required'),
+    assigneesIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),
     priority: zod.number().int().min(1).max(5),
     description: zod.string().optional().nullish(),
     featured: zod.boolean().optional(),

@@ -50,11 +50,23 @@ const AddWorkspaceMembersModal = ({
     };
 
     const handleAddMembers = () => {
+        // Construir el array de members con toda la información necesaria
+        const membersData = selectedUsers.map(userId => {
+            const teamMember = teamMembers?.find(m => m.userId === userId);
+            return {
+                userId,
+                name: teamMember?.name || '',
+                email: teamMember?.email || '',
+                avatarId: teamMember?.prefs?.image || null
+            };
+        });
+
         addMembers(
             {
                 json: {
                     workspaceId,
-                    userIds: selectedUsers
+                    userIds: selectedUsers,
+                    members: membersData
                 }
             },
             {

@@ -1304,6 +1304,11 @@
         "date-format-long": "Long (e.g: November 17th, 2025)",
         "due-date-required": "Due date is required",
         "description-required": "Description is required",
+        "assignee-required": "At least one assignee is required",
+        "no-assignee": "No assignee",
+        "select-items": "Select items...",
+        "no-results-found": "No results found",
+        "search": "Search",
         "activity": "Activity",
         "write-comment": "Write a comment...",
         "save": "Save",
@@ -1353,7 +1358,8 @@
         "column-limit-reached-description": "You cannot move more tasks to this column. The maximum limit is {limit}. You can modify it in settings.",
         "protected-column": "Protected column",
         "protected-column-description": "Only administrators can move tasks to this column. You can modify it in settings.",
-        "go-to-settings": "Go to Settings"
+        "go-to-settings": "Go to Settings",
+        "not-defined": "Undefined"
     },
     "team": {
         "no-team-title": "You don't have a team",

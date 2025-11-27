@@ -3,12 +3,17 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { createTaskSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASK_ASSIGNEES_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { createAdminClient } from "@/lib/appwrite";
 import { Task, TaskStatus } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
+import { Models } from "node-appwrite";
+
+interface TaskAssignee extends Models.Document {
+    taskId: string;
+    workspaceMemberId: string;
+}
 
 const app = new Hono()
 
@@ -17,8 +22,6 @@ const app = new Hono()
         sessionMiddleware,
         zValidator('query', getTaskSchema),
         async (ctx) => {
-            const { users } = await createAdminClient();
-
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
@@ -38,10 +41,6 @@ const app = new Hono()
                 Query.equal('workspaceId', workspaceId),
                 Query.orderDesc('$createdAt'),
             ]
-
-            if (assigneeId) {
-                query.push(Query.equal('assigneeId', assigneeId))
-            }
 
             if (status) {
                 query.push(Query.equal('status', status))
@@ -65,34 +64,59 @@ const app = new Hono()
                 query
             )
 
-            const assigneeIds = tasks.documents.map(task => task.assigneeId)
+            // Obtener todos los task IDs
+            let taskIds = tasks.documents.map(task => task.$id);
 
-            const members = await databases.listDocuments(
-                DATABASE_ID,
-                MEMBERS_ID,
-                assigneeIds.length > 0 ? [Query.contains('$id', assigneeIds)] : []
-            );
+            // Si hay filtro por assigneeId, obtener solo las tareas asignadas a ese miembro
+            if (assigneeId) {
+                const assigneeTasksResult = await databases.listDocuments<TaskAssignee>(
+                    DATABASE_ID,
+                    TASK_ASSIGNEES_ID,
+                    [Query.equal('workspaceMemberId', assigneeId)]
+                );
+                const assigneeTaskIds = assigneeTasksResult.documents.map(ta => ta.taskId);
+                // Filtrar taskIds para incluir solo los que están asignados al miembro
+                taskIds = taskIds.filter(id => assigneeTaskIds.includes(id));
+            }
 
-            const assignees = await Promise.all(
-                members.documents.map(async member => {
-                    const user = await users.get(member.userId)
+            // Obtener todas las asignaciones de tareas
+            const taskAssignees = taskIds.length > 0
+                ? await databases.listDocuments<TaskAssignee>(
+                    DATABASE_ID,
+                    TASK_ASSIGNEES_ID,
+                    [Query.contains('taskId', taskIds)]
+                )
+                : { documents: [] };
+
+            // Obtener los IDs únicos de workspace members
+            const memberIds = [...new Set(taskAssignees.documents.map(ta => ta.workspaceMemberId))];
+
+            // Obtener los datos de los members desde la colección
+            const members = memberIds.length > 0
+                ? await databases.listDocuments(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            // Mapear las tareas con sus assignees
+            const populatedTasks = tasks.documents
+                .filter(task => taskIds.includes(task.$id)) // Filtrar por taskIds (incluye filtro de assigneeId si aplica)
+                .map(task => {
+                    // Encontrar todas las asignaciones para esta tarea
+                    const taskAssignments = taskAssignees.documents.filter(ta => ta.taskId === task.$id);
+
+                    // Obtener los miembros asignados a esta tarea
+                    const assignees = taskAssignments.map(ta => {
+                        return members.documents.find(m => m.$id === ta.workspaceMemberId);
+                    }).filter(Boolean); // Eliminar valores undefined
 
                     return {
-                        ...member,
-                        name: user.name,
-                        email: user.email
+                        ...task,
+                        assignees // Array de assignees en lugar de assignee único
                     }
-                })
-            )
-
-            const populatedTasks = tasks.documents.map(task => {
-                const assignee = assignees.find(assignee => assignee.$id === task.assigneeId);
-
-                return {
-                    ...task,
-                    assignee
-                }
-            });
+                });
 
             return ctx.json({
                 data: { ...tasks, documents: populatedTasks }
@@ -109,7 +133,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, workspaceId, dueDate, assigneeId, priority, description } = ctx.req.valid('json');
+            const { name, status, workspaceId, dueDate, assigneesIds, priority, description } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -145,15 +169,46 @@ const app = new Hono()
                     status,
                     workspaceId,
                     dueDate,
-                    assigneeId,
+                    // assigneeId,
                     priority,
                     description,
                     position: newPosition,
-                    userId: user.$id,
+                    createdBy: member.$id,
                 }
             )
 
-            return ctx.json({ data: task })
+            // Create task assignees if exist
+            if (assigneesIds && assigneesIds.length > 0) {
+                await Promise.all(
+                    assigneesIds.map((memberId: string) =>
+                        databases.createDocument(
+                            DATABASE_ID,
+                            TASK_ASSIGNEES_ID,
+                            ID.unique(),
+                            {
+                                taskId: task.$id,
+                                workspaceMemberId: memberId,
+                            }
+                        )
+                    )
+                );
+            }
+
+            // Obtener los datos completos de los assignees
+            const assignees = assigneesIds && assigneesIds.length > 0
+                ? await databases.listDocuments(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', assigneesIds)]
+                )
+                : { documents: [] };
+
+            return ctx.json({
+                data: {
+                    ...task,
+                    assignees: assignees.documents
+                }
+            })
         }
     )
 
@@ -273,7 +328,6 @@ const app = new Hono()
             const currentUser = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { users } = await createAdminClient();
             const { taskId } = ctx.req.param();
 
             const task = await databases.getDocument<Task>(
@@ -292,24 +346,29 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const member = await databases.getDocument(
+            // Obtener las asignaciones de esta tarea
+            const taskAssignees = await databases.listDocuments<TaskAssignee>(
                 DATABASE_ID,
-                MEMBERS_ID,
-                task.assigneeId
+                TASK_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
             );
 
-            const user = await users.get(member.userId)
+            // Obtener los IDs de los workspace members
+            const memberIds = taskAssignees.documents.map(ta => ta.workspaceMemberId);
 
-            const assignee = {
-                ...member,
-                name: user.name,
-                email: user.email
-            }
+            // Obtener los datos de los members
+            const assignees = memberIds.length > 0
+                ? await databases.listDocuments(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
 
             return ctx.json({
                 data: {
                     ...task,
-                    assignee
+                    assignees: assignees.documents
                 }
             })
         }

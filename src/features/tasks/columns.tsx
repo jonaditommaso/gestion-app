@@ -8,6 +8,31 @@ import MemberAvatar from "../members/components/MemberAvatar"
 import TaskDate from "./components/TaskDate"
 import TaskActions from "./components/TaskActions"
 import { StatusCell } from "./components/StatusCell"
+import { useTranslations } from "next-intl"
+
+const AssigneeCell = ({ assignees }: { assignees?: Array<{ $id: string, name: string }> }) => {
+  const t = useTranslations('workspaces');
+
+  if (!assignees || assignees.length === 0) {
+    return <span className="text-sm text-muted-foreground">{t('no-assignee')}</span>;
+  }
+
+  const firstAssignee = assignees[0];
+
+  return (
+    <div className="flex items-center gap-x-2 text-sm font-medium">
+      <MemberAvatar
+        className='size-6'
+        fallbackClassName='text-xs'
+        name={firstAssignee.name}
+      />
+      <p className="line-clamp-1">
+        {firstAssignee.name}
+        {assignees.length > 1 && <span className="text-muted-foreground ml-1">+{assignees.length - 1}</span>}
+      </p>
+    </div>
+  );
+};
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -30,7 +55,7 @@ export const columns: ColumnDef<Task>[] = [
     }
   },
   {
-    accessorKey: 'assignee',
+    accessorKey: 'assignees',
     header: ({ column }) => {
       return (
         <Button
@@ -43,18 +68,8 @@ export const columns: ColumnDef<Task>[] = [
       )
     },
     cell: ({ row }) => {
-        const assignee = row.original.assignee;
-
-      return (
-        <div className="flex items-center gap-x-2 text-sm font-medium">
-          <MemberAvatar
-            className='size-6'
-            fallbackClassName='text-xs'
-            name={assignee.name}
-          />
-          <p className="line-clamp-1">{assignee.name}</p>
-        </div>
-      )
+      const assignees = row.original.assignees;
+      return <AssigneeCell assignees={assignees} />;
     }
   },
   {

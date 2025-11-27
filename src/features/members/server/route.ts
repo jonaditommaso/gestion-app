@@ -67,13 +67,19 @@ const app = new Hono()
         sessionMiddleware,
         zValidator('json', zod.object({
             workspaceId: zod.string(),
-            userIds: zod.array(zod.string()).min(1)
+            userIds: zod.array(zod.string()).min(1),
+            members: zod.array(zod.object({
+                userId: zod.string(),
+                name: zod.string(),
+                email: zod.string().email(),
+                avatarId: zod.string().optional().nullable()
+            })).min(1)
         })),
         async ctx => {
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const { workspaceId, userIds } = ctx.req.valid('json');
+            const { workspaceId, members } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -86,14 +92,14 @@ const app = new Hono()
             }
 
             const createdMembers = await Promise.all(
-                userIds.map(async (userId) => {
+                members.map(async (memberData) => {
                     // Verificar si ya es miembro
                     const existingMember = await databases.listDocuments(
                         DATABASE_ID,
                         MEMBERS_ID,
                         [
                             Query.equal('workspaceId', workspaceId),
-                            Query.equal('userId', userId)
+                            Query.equal('userId', memberData.userId)
                         ]
                     );
 
@@ -106,9 +112,12 @@ const app = new Hono()
                         MEMBERS_ID,
                         ID.unique(),
                         {
-                            userId,
+                            userId: memberData.userId,
                             workspaceId,
-                            role: MemberRole.MEMBER
+                            role: MemberRole.MEMBER,
+                            name: memberData.name,
+                            email: memberData.email,
+                            avatarId: memberData.avatarId || null
                         }
                     );
                 })

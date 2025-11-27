@@ -19,7 +19,12 @@ export type TaskMetadata = {
 export type Task = Models.Document & {
     name: string,
     status: TaskStatus,
-    assigneeId: string,
+    assignees?: Array<{
+        $id: string,
+        name: string,
+        email: string,
+        avatarId?: string,
+    }>,
     position: number,
     dueDate: string,
     workspaceId: string,

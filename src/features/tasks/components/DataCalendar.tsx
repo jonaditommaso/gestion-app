@@ -32,7 +32,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
         start: new Date(task.dueDate),
         end: new Date(task.dueDate),
         title: task.name,
-        assignee: task.assignee,
+        assignees: task.assignees || [],
         status: task.status,
         id: task.$id,
         featured: task.featured,
@@ -66,7 +66,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
                 eventWrapper: ({ event }) => (
                     <EventCard
                         title={event.title}
-                        assignee={event.assignee}
+                        assignees={event.assignees}
                         status={event.status}
                         id={event.id}
                         featured={event.featured}

@@ -1310,6 +1310,11 @@
         "date-format-long": "Largo (ej: 25 de noviembre, 2025)",
         "due-date-required": "La fecha de vencimiento es obligatoria",
         "description-required": "La descripción es obligatoria",
+        "assignee-required": "Debe asignar al menos un miembro",
+        "no-assignee": "Sin asignar",
+        "select-items": "Seleccionar elementos...",
+        "no-results-found": "No se encontraron resultados",
+        "search": "Buscar",
         "activity": "Actividad",
         "write-comment": "Escribe un comentario...",
         "save": "Guardar",
@@ -1359,7 +1364,8 @@
         "column-limit-reached-description": "No puedes mover más tareas a esta columna. El límite máximo es {limit}. Puedes modificarlo en la configuración.",
         "protected-column": "Columna protegida",
         "protected-column-description": "Solo los administradores pueden mover tareas a esta columna. Puedes modificarlo en la configuración.",
-        "go-to-settings": "Ir a Configuración"
+        "go-to-settings": "Ir a Configuración",
+        "not-defined": "Sin definir"
     },
     "team": {
         "no-team-title": "No tienes un equipo",

@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
 import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
@@ -29,6 +28,7 @@ import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { useMemo } from "react";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -55,6 +55,11 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const extensions: Record<string, any> = {};
 
+        // Si el asignado es requerido
+        if (config[WorkspaceConfigKey.REQUIRED_ASSIGNEE]) {
+            extensions.assigneesIds = zod.array(zod.string()).min(1, t('assignee-required'));
+        }
+
         // Si la fecha de vencimiento es requerida
         if (config[WorkspaceConfigKey.REQUIRED_DUE_DATE]) {
             extensions.dueDate = zod.coerce.date({ required_error: t('due-date-required') });
@@ -80,6 +85,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
             priority: 3, // default
             type: 'task', // default
             status: initialStatus || defaultTaskStatus,
+            assigneesIds: [],
         }
     })
 
@@ -163,36 +169,24 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                             <div className="grid grid-cols-2 gap-x-4">
                                 <FormField
                                     control={form.control}
-                                    name='assigneeId'
+                                    name='assigneesIds'
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>
                                                 {t('assignee')}
                                             </FormLabel>
-                                            <Select
-                                                defaultValue={field.value}
-                                                onValueChange={field.onChange}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger className="!mt-0">
-                                                        <SelectValue placeholder={t('select-assignee')} />
-                                                    </SelectTrigger>
-                                                </FormControl >
-                                                <FormMessage />
-                                                <SelectContent >
-                                                    {memberOptions?.map(member => (
-                                                        <SelectItem key={member.id} value={member.id}>
-                                                            <div className="flex items-center gap-x-2">
-                                                                <MemberAvatar
-                                                                    className='size-6'
-                                                                    name={member.name}
-                                                                />
-                                                                {member.name}
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <FormControl>
+                                                <MultiSelect
+                                                    options={memberOptions?.map(member => ({
+                                                        label: member.name,
+                                                        value: member.id
+                                                    })) || []}
+                                                    selected={field.value || []}
+                                                    onChange={field.onChange}
+                                                    className="!mt-0"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />

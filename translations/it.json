@@ -1290,6 +1290,11 @@
         "date-format-long": "Lungo (es: 25 novembre, 2025)",
         "due-date-required": "La data di scadenza è obbligatoria",
         "description-required": "La descrizione è obbligatoria",
+        "assignee-required": "È necessario assegnare almeno un membro",
+        "no-assignee": "Nessun assegnatario",
+        "select-items": "Seleziona elementi...",
+        "no-results-found": "Nessun risultato trovato",
+        "search": "Cerca",
         "activity": "Attività",
         "write-comment": "Scrivi un commento...",
         "save": "Salva",
@@ -1339,7 +1344,8 @@
         "column-limit-reached-description": "Non puoi spostare più attività in questa colonna. Il limite massimo è {limit}. Puoi modificarlo nelle impostazioni.",
         "protected-column": "Colonna protetta",
         "protected-column-description": "Solo gli amministratori possono spostare attività in questa colonna. Puoi modificarlo nelle impostazioni.",
-        "go-to-settings": "Vai alle Impostazioni"
+        "go-to-settings": "Vai alle Impostazioni",
+        "not-defined": "Non definito"
     },
     "team": {
         "no-team-title": "Non hai un team",

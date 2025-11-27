@@ -114,10 +114,17 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                                 </>
                             )}
                         </div>
-                        <MemberAvatar
-                            name={task.assignee.name}
-                            fallbackClassName="text-[10px]"
-                            />
+                        {task.assignees && task.assignees.length > 0 && (
+                            <div className="flex items-center">
+                                <MemberAvatar
+                                    name={task.assignees[0].name}
+                                    fallbackClassName="text-[10px]"
+                                />
+                                {task.assignees.length > 1 && (
+                                    <span className="ml-1 text-[10px] text-muted-foreground">+{task.assignees.length - 1}</span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </>
             )}

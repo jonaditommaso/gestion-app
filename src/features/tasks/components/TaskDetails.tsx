@@ -8,6 +8,7 @@ import { TASK_TYPE_OPTIONS } from "../constants/type";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
+import { useCurrent } from "@/features/auth/api/use-current";
 import { Button } from "@/components/ui/button";
 import RichTextArea from "@/components/RichTextArea";
 import { useUpdateTask } from "../api/use-update-task";
@@ -134,6 +135,7 @@ export const TaskTitleEditor = ({
 
 const TaskDetails = ({ task }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
+    const { data: user } = useCurrent();
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(task.description || '');
     const [isAddingComment, setIsAddingComment] = useState(false);
@@ -301,7 +303,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         {isAddingComment ? (
                             <div className="flex gap-x-3">
                                 <MemberAvatar
-                                    name={task.assignee.name}
+                                    name={user?.name || 'User'}
                                     className="size-9 flex-shrink-0"
                                 />
                                 <div className="flex-1 space-y-3">
@@ -342,7 +344,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 onClick={() => setIsAddingComment(true)}
                             >
                                 <MemberAvatar
-                                    name={task.assignee.name}
+                                    name={user?.name || 'User'}
                                     className="size-9 flex-shrink-0"
                                 />
                                 <div className="flex-1 p-3 rounded-lg border bg-muted/30 group-hover:bg-muted/50 transition-all">
@@ -453,11 +455,31 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                             {t('assignee')}
                         </span>
                         <div className="flex items-center gap-x-2">
-                            <MemberAvatar
-                                name={task.assignee.name}
-                                className="size-6"
-                            />
-                            <span className="text-sm">{task.assignee.name}</span>
+                            {task.assignees && task.assignees.length > 0 ? (
+                                <>
+                                    <div className="flex items-center -space-x-2">
+                                        {task.assignees.slice(0, 3).map((assignee, index) => (
+                                            <div
+                                                key={assignee.$id}
+                                                style={{ zIndex: task.assignees!.length - index }}
+                                            >
+                                                <MemberAvatar
+                                                    name={assignee.name}
+                                                    className="size-6 border-2 border-background"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <span className="text-sm">
+                                        {task.assignees[0].name}
+                                        {task.assignees.length > 1 && (
+                                            <span className="text-muted-foreground"> +{task.assignees.length - 1} more</span>
+                                        )}
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="text-sm text-muted-foreground">{t('not-defined')}</span>
+                            )}
                         </div>
                     </div>
 

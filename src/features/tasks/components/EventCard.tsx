@@ -5,20 +5,25 @@ import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { statusColorMap } from "../constants/status";
+import { useTranslations } from "next-intl";
 
 interface EventCardProps {
     title: string,
-    // todo, solve this any, and search this (eslint-disable-next-line @typescript-eslint/no-explicit-any) in another files to solve it
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assignee: any, // type
+    assignees?: Array<{
+        $id: string,
+        name: string,
+        email: string,
+        avatarId?: string,
+    }>,
     status: TaskStatus,
     id: string,
     featured?: boolean
 }
 
-const EventCard = ({ title, assignee, status, id, featured }: EventCardProps) => {
+const EventCard = ({ title, assignees, status, id, featured }: EventCardProps) => {
     const workspaceId = useWorkspaceId();
-    const router = useRouter()
+    const router = useRouter();
+    const t = useTranslations('workspaces');
 
     const onClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.stopPropagation();
@@ -38,7 +43,16 @@ const EventCard = ({ title, assignee, status, id, featured }: EventCardProps) =>
             >
                 <p>{title}</p>
                 <div className="flex items-center gap-x-1">
-                    <MemberAvatar name={assignee?.name} />
+                    {assignees && assignees.length > 0 ? (
+                        <>
+                            <MemberAvatar name={assignees[0].name} />
+                            {assignees.length > 1 && (
+                                <span className="text-[10px] text-muted-foreground">+{assignees.length - 1}</span>
+                            )}
+                        </>
+                    ) : (
+                        <span className="text-[10px] text-muted-foreground">{t('no-assignee')}</span>
+                    )}
                 </div>
             </div>
         </div>
