@@ -112,7 +112,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
-                                <DataCalendar data={(tasks?.documents ?? []) as Task[]} />
+                                <DataCalendar data={((tasks?.documents ?? []) as Task[]).filter(task => task.dueDate)} />
                             </TabsContent>
                         </>
 
