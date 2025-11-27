@@ -16,15 +16,19 @@ export type TaskMetadata = {
     // tags?: string[];
 }
 
+export type WorkspaceMember = Models.Document & {
+    userId: string,
+    workspaceId: string,
+    role: string,
+    name: string,
+    email: string,
+    avatarId?: string,
+}
+
 export type Task = Models.Document & {
     name: string,
     status: TaskStatus,
-    assignees?: Array<{
-        $id: string,
-        name: string,
-        email: string,
-        avatarId?: string,
-    }>,
+    assignees?: WorkspaceMember[],
     position: number,
     dueDate: string,
     workspaceId: string,

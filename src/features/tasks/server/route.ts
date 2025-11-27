@@ -5,7 +5,7 @@ import { createTaskSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
 import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASK_ASSIGNEES_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { Task, TaskStatus } from "../types";
+import { Task, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Models } from "node-appwrite";
@@ -93,7 +93,7 @@ const app = new Hono()
 
             // Obtener los datos de los members desde la colección
             const members = memberIds.length > 0
-                ? await databases.listDocuments(
+                ? await databases.listDocuments<WorkspaceMember>(
                     DATABASE_ID,
                     MEMBERS_ID,
                     [Query.contains('$id', memberIds)]
@@ -196,7 +196,7 @@ const app = new Hono()
 
             // Obtener los datos completos de los assignees
             const assignees = assigneesIds && assigneesIds.length > 0
-                ? await databases.listDocuments(
+                ? await databases.listDocuments<WorkspaceMember>(
                     DATABASE_ID,
                     MEMBERS_ID,
                     [Query.contains('$id', assigneesIds)]
@@ -317,7 +317,31 @@ const app = new Hono()
                 updates
             )
 
-            return ctx.json({ data: task })
+            // Obtener las asignaciones de esta tarea
+            const taskAssignees = await databases.listDocuments<TaskAssignee>(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
+            );
+
+            // Obtener los IDs de los workspace members
+            const memberIds = taskAssignees.documents.map(ta => ta.workspaceMemberId);
+
+            // Obtener los datos de los members
+            const assignees = memberIds.length > 0
+                ? await databases.listDocuments<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            return ctx.json({
+                data: {
+                    ...task,
+                    assignees: assignees.documents
+                }
+            })
         }
     )
 
@@ -358,7 +382,7 @@ const app = new Hono()
 
             // Obtener los datos de los members
             const assignees = memberIds.length > 0
-                ? await databases.listDocuments(
+                ? await databases.listDocuments<WorkspaceMember>(
                     DATABASE_ID,
                     MEMBERS_ID,
                     [Query.contains('$id', memberIds)]
