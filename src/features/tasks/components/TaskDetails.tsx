@@ -24,6 +24,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { TaskAssigneesManager } from "./TaskAssigneesManager";
+import { useGetMembers } from "@/features/members/api/use-get-members";
+import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -136,6 +139,8 @@ export const TaskTitleEditor = ({
 const TaskDetails = ({ task }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
     const { data: user } = useCurrent();
+    const workspaceId = useWorkspaceId();
+    const { data: membersData } = useGetMembers({ workspaceId });
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(task.description || '');
     const [isAddingComment, setIsAddingComment] = useState(false);
@@ -148,6 +153,8 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const config = useWorkspaceConfig();
+
+    const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
 
     const handleStatusChange = (status: string) => {
         updateTask({
@@ -449,40 +456,6 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         </Select>
                     </div>
 
-                    {/* Assignee */}
-                    <div className="flex items-center py-1">
-                        <span className="text-xs font-medium text-muted-foreground w-24">
-                            {t('assignee')}
-                        </span>
-                        <div className="flex items-center gap-x-2">
-                            {task.assignees && task.assignees.length > 0 ? (
-                                <>
-                                    <div className="flex items-center -space-x-2">
-                                        {task.assignees.slice(0, 3).map((assignee, index) => (
-                                            <div
-                                                key={assignee.$id}
-                                                style={{ zIndex: task.assignees!.length - index }}
-                                            >
-                                                <MemberAvatar
-                                                    name={assignee.name}
-                                                    className="size-6 border-2 border-background"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <span className="text-sm">
-                                        {task.assignees[0].name}
-                                        {task.assignees.length > 1 && (
-                                            <span className="text-muted-foreground"> +{task.assignees.length - 1} more</span>
-                                        )}
-                                    </span>
-                                </>
-                            ) : (
-                                <span className="text-sm text-muted-foreground">{t('not-defined')}</span>
-                            )}
-                        </div>
-                    </div>
-
                     {/* Due Date */}
                     <div className="flex items-center py-1">
                         <span className="text-xs font-medium text-muted-foreground w-24">
@@ -497,6 +470,18 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 hideIcon
                             />
                         </div>
+                    </div>
+
+                    {/* Assignees */}
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-24">
+                            {t('assignees')}
+                        </span>
+                        <TaskAssigneesManager
+                            taskId={task.$id}
+                            assignees={task.assignees || []}
+                            availableMembers={availableMembers}
+                        />
                     </div>
                 </div>
 

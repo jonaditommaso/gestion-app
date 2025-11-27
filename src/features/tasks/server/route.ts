@@ -458,6 +458,158 @@ const app = new Hono()
     )
 
     .post(
+        '/:taskId/assign',
+        sessionMiddleware,
+        zValidator('json', zod.object({
+            workspaceMemberId: zod.string()
+        })),
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+            const { taskId } = ctx.req.param();
+            const { workspaceMemberId } = ctx.req.valid('json');
+
+            // Get task
+            const task = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId
+            );
+
+            // Check authorization
+            const member = await getMember({
+                databases,
+                workspaceId: task.workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Check if already assigned
+            const existingAssignment = await databases.listDocuments<TaskAssignee>(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [
+                    Query.equal('taskId', taskId),
+                    Query.equal('workspaceMemberId', workspaceMemberId)
+                ]
+            );
+
+            if (existingAssignment.documents.length > 0) {
+                return ctx.json({ error: 'Member already assigned' }, 400);
+            }
+
+            // Create assignment
+            await databases.createDocument(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                ID.unique(),
+                {
+                    taskId,
+                    workspaceMemberId
+                }
+            );
+
+            // Get updated assignees
+            const taskAssignees = await databases.listDocuments<TaskAssignee>(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
+            );
+
+            const memberIds = taskAssignees.documents.map(ta => ta.workspaceMemberId);
+            const assignees = memberIds.length > 0
+                ? await databases.listDocuments<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            return ctx.json({
+                data: {
+                    ...task,
+                    assignees: assignees.documents
+                }
+            });
+        }
+    )
+
+    .delete(
+        '/:taskId/assign/:workspaceMemberId',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+            const { taskId, workspaceMemberId } = ctx.req.param();
+
+            // Get task
+            const task = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId
+            );
+
+            // Check authorization
+            const member = await getMember({
+                databases,
+                workspaceId: task.workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Find assignment
+            const assignment = await databases.listDocuments<TaskAssignee>(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [
+                    Query.equal('taskId', taskId),
+                    Query.equal('workspaceMemberId', workspaceMemberId)
+                ]
+            );
+
+            if (assignment.documents.length === 0) {
+                return ctx.json({ error: 'Assignment not found' }, 404);
+            }
+
+            // Delete assignment
+            await databases.deleteDocument(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                assignment.documents[0].$id
+            );
+
+            // Get updated assignees
+            const taskAssignees = await databases.listDocuments<TaskAssignee>(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
+            );
+
+            const memberIds = taskAssignees.documents.map(ta => ta.workspaceMemberId);
+            const assignees = memberIds.length > 0
+                ? await databases.listDocuments<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            return ctx.json({
+                data: {
+                    ...task,
+                    assignees: assignees.documents
+                }
+            });
+        }
+    )
+
+    .post(
         '/upload-task-image',
         sessionMiddleware,
         zValidator('form', zod.object({

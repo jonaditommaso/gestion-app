@@ -29,6 +29,8 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { useCurrent } from "@/features/auth/api/use-current";
+import { useGetMembers } from "@/features/members/api/use-get-members";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -42,10 +44,15 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
     const t = useTranslations('workspaces');
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
+    const { data: currentUser } = useCurrent();
+    const { data: membersData } = useGetMembers({ workspaceId });
 
     const config = useWorkspaceConfig();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const { getStatusDisplayName } = useStatusDisplayName();
+
+    // Encontrar el ID del miembro actual en el workspace
+    const currentMemberId = membersData?.documents?.find(m => m.userId === currentUser?.$id)?.$id;
 
     // Crear schema dinámico basado en la configuración del workspace
     const dynamicSchema = useMemo(() => {
@@ -183,6 +190,8 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                                                     })) || []}
                                                     selected={field.value || []}
                                                     onChange={field.onChange}
+                                                    currentUserId={currentMemberId}
+                                                    showAssignToMe={true}
                                                     className="!mt-0"
                                                 />
                                             </FormControl>

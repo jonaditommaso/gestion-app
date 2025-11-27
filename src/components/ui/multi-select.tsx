@@ -3,10 +3,11 @@
 import * as React from "react"
 import { X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
+import { UserPlus } from "lucide-react"
 
 export type Option = {
   label: string
@@ -19,6 +20,8 @@ interface MultiSelectProps {
   onChange: (values: string[]) => void
   className?: string
   disabled?: boolean
+  currentUserId?: string
+  showAssignToMe?: boolean
 }
 
 export function MultiSelect({
@@ -27,6 +30,8 @@ export function MultiSelect({
   onChange,
   className,
   disabled = false,
+  currentUserId,
+  showAssignToMe = false,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
   const t = useTranslations('workspaces')
@@ -42,6 +47,14 @@ export function MultiSelect({
       onChange([...selected, value])
     }
   }
+
+  const handleAssignToMe = () => {
+    if (currentUserId && !selected.includes(currentUserId)) {
+      onChange([...selected, currentUserId])
+    }
+  }
+
+  const isCurrentUserSelected = currentUserId ? selected.includes(currentUserId) : false;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -92,6 +105,22 @@ export function MultiSelect({
           <CommandInput placeholder={t('search')} />
           <CommandList>
             <CommandEmpty>{t('no-results-found')}</CommandEmpty>
+
+            {showAssignToMe && currentUserId && !isCurrentUserSelected && (
+              <>
+                <CommandGroup>
+                  <CommandItem
+                    onSelect={handleAssignToMe}
+                    className="cursor-pointer"
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    {t('assign-to-me')}
+                  </CommandItem>
+                </CommandGroup>
+                <CommandSeparator />
+              </>
+            )}
+
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selected.includes(option.value)
