@@ -1,7 +1,6 @@
 import { DATABASE_ID, MEMBERS_ID } from "@/config";
 import { MemberRole } from "@/features/workspaces/members/types";
 import { getMember } from "@/features/workspaces/members/utils";
-import { createAdminClient } from "@/lib/appwrite";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
@@ -16,8 +15,6 @@ const app = new Hono()
         sessionMiddleware,
         zValidator('query', zod.object({ workspaceId: zod.string() })),
         async ctx => {
-            const { users } = await createAdminClient();
-
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
@@ -41,23 +38,9 @@ const app = new Hono()
                 ]
             );
 
-            const populatedMembers = await Promise.all(
-                members.documents.map(async member => {
-                    const user = await users.get(member.userId);
-
-                    return {
-                        ...member,
-                        name: user.name,
-                        email: user.email
-                    }
-                })
-            )
 
             return ctx.json({
-                data: {
-                    ...members,
-                    documents: populatedMembers
-                }
+                data: members
             })
         }
     )
