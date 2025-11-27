@@ -139,7 +139,18 @@ const WorkspaceInfoModal = ({
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-sm truncate">{member.name}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-medium text-sm truncate">{member.name}</p>
+                                                {member.role && (
+                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${
+                                                        member.role === 'ADMIN'
+                                                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                                                    }`}>
+                                                        {member.role}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="text-xs text-muted-foreground truncate">
                                                 {member.email}
                                             </p>
