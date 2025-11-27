@@ -1,8 +1,8 @@
 import { z as zod } from 'zod';
 
 export const notesSchema = zod.object({
-    title: zod.string().trim().min(1, 'Required'),
-    content: zod.string().trim().min(1, 'Required'),
+    title: zod.string().optional(),
+    content: zod.string().optional(),
     bgColor: zod.string().trim().min(1, 'Required'),
 })
 
@@ -11,7 +11,7 @@ export const messagesSchema = zod.object({
     to: zod.string().trim().min(1, 'Required'),
 })
 
-export const unreadMessagesSchema  = zod.object({
+export const unreadMessagesSchema = zod.object({
     unreadMessages: zod.array(
         zod.object({
             $id: zod.string(),
