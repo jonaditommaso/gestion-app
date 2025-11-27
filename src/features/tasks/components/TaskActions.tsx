@@ -5,6 +5,7 @@ import { useDeleteTask } from "../api/use-delete-task";
 import { useUpdateTask } from "../api/use-update-task";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 interface TaskActionsProps {
     id: string,
@@ -14,6 +15,7 @@ interface TaskActionsProps {
 
 const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => {
     const t = useTranslations('workspaces')
+    const { canDeleteTask } = useWorkspacePermissions();
     const [ConfirmDialog, confirm] = useConfirm(
         t('delete-task'),
         t('action-cannot-be-undone'),
@@ -75,14 +77,16 @@ const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => 
                             </>
                         )}
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={onDelete}
-                        disabled={isDeletingTask || isUpdatingTask}
-                        className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
-                    >
-                        <TrashIcon className="size-4 mr-2 stroke-2" />
-                        {t('delete-task')}
-                    </DropdownMenuItem>
+                    {canDeleteTask && (
+                        <DropdownMenuItem
+                            onClick={onDelete}
+                            disabled={isDeletingTask || isUpdatingTask}
+                            className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
+                        >
+                            <TrashIcon className="size-4 mr-2 stroke-2" />
+                            {t('delete-task')}
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
