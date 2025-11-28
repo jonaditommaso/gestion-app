@@ -294,6 +294,11 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         const sourceStatus = source.droppableId as TaskStatus;
         const destStatus = destination.droppableId as TaskStatus;
 
+        // Si la task se suelta en la misma posición, no hacer nada
+        if (sourceStatus === destStatus && source.index === destination.index) {
+            return;
+        }
+
         // Check if destination column is protected and user is not admin
         if (sourceStatus !== destStatus && !isAdmin) {
             const protectedKey = STATUS_TO_PROTECTED_KEY[destStatus];
@@ -419,16 +424,18 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         onChangeTasks(updatesPayload)
     }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents])
 
+    // Determinar si necesitamos scroll (más de 5 columnas)
+    const needsScroll = orderedStatuses.length > 5;
+
     return (
         <>
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="columns" type="COLUMN" direction="horizontal">
                     {(columnsProvided) => (
                         <div
-                            className="flex overflow-x-auto h-full p-[2px] px-4"
+                            className="flex h-full p-[2px] px-4 overflow-x-auto"
                             ref={columnsProvided.innerRef}
                             {...columnsProvided.droppableProps}
-                            style={{ minWidth: 'fit-content', width: '100%' }}
                         >
                             {orderedStatuses.map((statusObj, index) => {
                                 const board = statusObj.id as TaskStatus;
@@ -452,10 +459,12 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                             <div
                                                 ref={columnProvided.innerRef}
                                                 {...columnProvided.draggableProps}
-                                                className="flex flex-1"
+                                                className="flex"
                                                 style={{
                                                     ...columnProvided.draggableProps.style,
-                                                    minWidth: '190px',
+                                                    flex: needsScroll ? '0 0 280px' : '1 1 auto',
+                                                    minWidth: needsScroll ? '280px' : '200px',
+                                                    maxWidth: needsScroll ? '280px' : undefined,
                                                 }}
                                             >
                                                 {/* Add column divider before columns */}
