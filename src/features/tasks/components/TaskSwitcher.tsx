@@ -27,7 +27,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
     const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
-    const [currentTab, setCurrentTab] = useState('table') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
+    const [currentTab, setCurrentTab] = useState('kanban') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
     const t = useTranslations('workspaces');
     const { canCreateTask } = useWorkspacePermissions();
 
@@ -67,11 +67,11 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                 <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'}`}>
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
-                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
-                                {t('table')}
-                            </TabsTrigger>
                             <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto">
                                 Kanban
+                            </TabsTrigger>
+                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
+                                {t('table')}
                             </TabsTrigger>
                             <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto">
                                 {t('calendar')}

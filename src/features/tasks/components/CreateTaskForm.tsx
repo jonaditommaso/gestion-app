@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTranslations } from "next-intl";
-import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
+import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import RichTextArea from "@/components/RichTextArea";
 import { TaskStatus } from "../types";
 import { useUploadTaskImage } from "../api/use-upload-task-image";
@@ -50,6 +50,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
     const config = useWorkspaceConfig();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const { getStatusDisplayName } = useStatusDisplayName();
+    const { allStatuses, getIconComponent } = useCustomStatuses();
 
     // Encontrar el ID del miembro actual en el workspace
     const currentMemberId = membersData?.documents?.find(m => m.userId === currentUser?.$id)?.$id;
@@ -315,14 +316,17 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
                                                 </FormControl>
                                                 <FormMessage />
                                                 <SelectContent>
-                                                    {TASK_STATUS_OPTIONS.map((status) => (
-                                                        <SelectItem key={status.value} value={status.value}>
-                                                            <div className="flex items-center gap-x-2">
-                                                                <div className={cn("size-3 rounded-full", status.color)} />
-                                                                {getStatusDisplayName(status.value)}
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
+                                                    {allStatuses.map((status) => {
+                                                        const IconComponent = getIconComponent(status.icon);
+                                                        return (
+                                                            <SelectItem key={status.id} value={status.id}>
+                                                                <div className="flex items-center gap-x-2">
+                                                                    <IconComponent className="size-3" style={{ color: status.color }} />
+                                                                    {status.isDefault ? getStatusDisplayName(status.id as TaskStatus) : status.label}
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>

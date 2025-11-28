@@ -1,4 +1,3 @@
-import { snakeCaseToTitleCase } from "@/lib/utils";
 import { TaskStatus } from "../types";
 import React, { useState, useEffect } from "react";
 import { CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotIcon, CircleIcon, PlusIcon } from "lucide-react";
@@ -8,6 +7,9 @@ import { useTaskFilters } from "../hooks/use-task-filters";
 import EditableText from "@/components/EditableText";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { CustomStatus } from "@/app/workspaces/types/custom-status";
+import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
+import { useTranslations } from "next-intl";
 
 
 interface KanbanColumnHeaderProps {
@@ -16,6 +18,7 @@ interface KanbanColumnHeaderProps {
     addTask: () => void,
     showCount?: string;
     onUpdateLabel: (status: TaskStatus, label: string) => void;
+    customStatus?: CustomStatus;
 }
 
 const statusIconMap: Record<TaskStatus, React.ReactNode> = {
@@ -26,11 +29,12 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.DONE]: <CircleCheckIcon className="size-[18px] text-emerald-400" />,
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus }: KanbanColumnHeaderProps) => {
 
-    const icon = statusIconMap[board]
+    const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
     const { canCreateTask, canEditLabel } = useWorkspacePermissions();
+    const { getIconComponent } = useCustomStatuses();
 
     const [{ assigneeId, search, dueDate, priority }] = useTaskFilters();
 
@@ -41,10 +45,36 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
     const shouldShowCount = showCount === ShowCardCountType.ALWAYS ||
                             (showCount === ShowCardCountType.FILTERED && hasActiveFilters);
 
-    // Get custom label or use default translated name
-    const labelKey = STATUS_TO_LABEL_KEY[board];
-    const customLabel = config[labelKey] as string | null;
-    const defaultLabel = snakeCaseToTitleCase(board);
+    // Get icon - either from custom status or from default map
+    let icon: React.ReactNode;
+    if (customStatus) {
+        const IconComponent = getIconComponent(customStatus.icon);
+        icon = <IconComponent className="size-[18px]" style={{ color: customStatus.color }} />;
+    } else {
+        icon = statusIconMap[board];
+    }
+
+    // Get label - either from custom status or from config/default
+    let defaultLabel: string;
+    let customLabel: string | null = null;
+
+    if (customStatus) {
+        defaultLabel = customStatus.label;
+    } else {
+        const labelKey = STATUS_TO_LABEL_KEY[board];
+        customLabel = config[labelKey] as string | null;
+
+        // Usar traducciones en lugar de snakeCaseToTitleCase
+        const statusTranslationKey = {
+            [TaskStatus.BACKLOG]: 'backlog',
+            [TaskStatus.TODO]: 'todo',
+            [TaskStatus.IN_PROGRESS]: 'in-progress',
+            [TaskStatus.IN_REVIEW]: 'in-review',
+            [TaskStatus.DONE]: 'done',
+        }[board];
+
+        defaultLabel = statusTranslationKey ? t(statusTranslationKey) : board;
+    }
 
     // Local state for optimistic update
     const [localLabel, setLocalLabel] = useState(customLabel || defaultLabel);
