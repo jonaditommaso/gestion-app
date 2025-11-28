@@ -1,25 +1,25 @@
 'use client'
 
-import { useGetImageProfile } from "@/features/settings/api/use-get-image-profile";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export const useProfilePicture = (id?: string | undefined) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [imageUrl, setImageUrl] = useState<any>(undefined);
-    const {mutate: getImageProfile, isPending } = useGetImageProfile(id)
+    const { data: imageUrl, isPending } = useQuery({
+        queryKey: ['image-profile', id],
+        queryFn: async () => {
+            const response = await fetch(`/api/settings/get-image${id ? `/${id}` : ''}`);
 
-
-    useEffect(() => {
-        getImageProfile(undefined, {
-            onSuccess: (blob) => {
-                const url = URL.createObjectURL(blob);
-                setImageUrl(url);
-            },
-            onError: (err) => {
-                console.error('No se pudo obtener la imagen:', err);
+            if (!response.ok) {
+                return null;
             }
-        })
-    }, []);
 
-    return { imageUrl, isPending }
+            const contentType = response.headers.get('Content-Type') || 'image/jpeg';
+            const arrayBuffer = await response.arrayBuffer();
+            const blob = new Blob([arrayBuffer], { type: contentType });
+            return URL.createObjectURL(blob);
+        },
+        retry: false,
+        staleTime: 0 // Siempre refetch cuando se invalida
+    });
+
+    return { imageUrl: imageUrl ?? undefined, isPending }
 }
