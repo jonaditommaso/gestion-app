@@ -12,19 +12,24 @@ export const useStatusDisplayName = () => {
     const config = useWorkspaceConfig();
 
     const getStatusDisplayName = (status: TaskStatus): string => {
-        const labelKey = STATUS_TO_LABEL_KEY[status];
+        // CUSTOM status no usa este hook, usa el label del custom status directamente
+        if (status === TaskStatus.CUSTOM) {
+            return 'Custom';
+        }
+
+        const labelKey = STATUS_TO_LABEL_KEY[status as string];
         const customLabel = labelKey ? config[labelKey] as string | null : null;
 
         // Obtener la traducción key desde TASK_STATUS_OPTIONS
-        const statusOption = {
+        const statusOption: Record<string, string> = {
             'BACKLOG': 'backlog',
             'TODO': 'todo',
             'IN_PROGRESS': 'in-progress',
             'IN_REVIEW': 'in-review',
             'DONE': 'done',
-        }[status] || status.toLowerCase();
+        };
 
-        return customLabel || t(statusOption);
+        return customLabel || t(statusOption[status] || status.toLowerCase());
     };
 
     return { getStatusDisplayName };

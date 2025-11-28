@@ -1,6 +1,7 @@
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useTranslations } from "next-intl";
 import { useState } from "react"
 
@@ -35,6 +36,9 @@ export const useConfirm = (
     const ConfirmationDialog = () => (
         <Dialog open={promise !== null} onOpenChange={handleClose}>
             <DialogContent>
+                <VisuallyHidden>
+                    <DialogTitle>{title}</DialogTitle>
+                </VisuallyHidden>
                 <Card className="w-full h-full border-none shadow-none">
                     <CardContent className="pt-8">
                         <CardHeader className="p-0">

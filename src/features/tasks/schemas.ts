@@ -4,6 +4,7 @@ import { TaskStatus } from './types';
 export const createTaskSchema = zod.object({
     name: zod.string().trim().min(1, 'Required'),
     status: zod.nativeEnum(TaskStatus, { required_error: 'Required' }),
+    statusCustomId: zod.string().optional().nullable(), // ID del custom status cuando status === 'CUSTOM'
     workspaceId: zod.string().trim().min(1, 'Required'),
     dueDate: zod.coerce.date().optional().nullable(),
     assigneesIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),

@@ -19,14 +19,17 @@ import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
-import { CreateCustomStatusDialog } from "@/app/workspaces/components/CreateCustomStatusDialog";
+import { CustomStatusDialog } from "@/app/workspaces/components/CustomStatusDialog";
 import { CustomStatus, WorkspaceMetadata } from "@/app/workspaces/types/custom-status";
 import { PlusIcon } from "lucide-react";
+import { useConfirm } from "@/hooks/use-confirm";
+import { useDeleteTask } from "../api/use-delete-task";
+import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 
 interface DataKanbanProps {
     data: Task[],
-    addTask: (status: TaskStatus) => void,
-    onChangeTasks: (tasks: { $id: string, status: TaskStatus, position: number }[]) => void;
+    addTask: (status: TaskStatus, statusCustomId?: string) => void,
+    onChangeTasks: (tasks: { $id: string, status: TaskStatus, statusCustomId?: string | null, position: number }[]) => void;
     openSettings: () => void;
 }
 
@@ -49,6 +52,16 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const { data: workspaces } = useGetWorkspaces();
     const { allStatuses } = useCustomStatuses();
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
+    const [editingStatus, setEditingStatus] = useState<CustomStatus | undefined>(undefined);
+
+    const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
+        t('delete-column-confirm-title'),
+        t('delete-column-confirm-message'),
+        'destructive'
+    );
+
+    const { mutate: deleteTask } = useDeleteTask();
+    const { mutate: bulkUpdateTasks } = useBulkUpdateTasks();
 
     // Estado local para el orden de columnas (optimistic update)
     const [localColumnOrder, setLocalColumnOrder] = useState<string[]>([]);
@@ -150,6 +163,186 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         });
     };
 
+    const handleEditCustomStatus = (statusData: Omit<CustomStatus, 'id' | 'isDefault' | 'position'>) => {
+        if (!editingStatus) return;
+
+        const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+        const existingMetadata: WorkspaceMetadata = currentWorkspace?.metadata
+            ? (typeof currentWorkspace.metadata === 'string'
+                ? JSON.parse(currentWorkspace.metadata)
+                : currentWorkspace.metadata)
+            : {};
+
+        if (editingStatus.isDefault) {
+            // For default statuses, save overrides in defaultStatusOverrides
+            const existingOverrides = existingMetadata.defaultStatusOverrides || {};
+            const newOverrides = {
+                ...existingOverrides,
+                [editingStatus.id]: {
+                    label: statusData.label,
+                    icon: statusData.icon,
+                    color: statusData.color,
+                },
+            };
+
+            const newMetadata: WorkspaceMetadata = {
+                ...existingMetadata,
+                defaultStatusOverrides: newOverrides,
+            };
+
+            updateWorkspace({
+                param: { workspaceId },
+                json: { metadata: JSON.stringify(newMetadata) }
+            }, {
+                onSuccess: () => {
+                    toast.success(t('column-updated'));
+                    setEditingStatus(undefined);
+                },
+                onError: () => {
+                    toast.error(t('custom-status-error'));
+                }
+            });
+        } else {
+            // For custom statuses, update in customStatuses array
+            const existingCustomStatuses = existingMetadata.customStatuses || [];
+            const updatedCustomStatuses = existingCustomStatuses.map(status => {
+                if (status.id === editingStatus.id) {
+                    return {
+                        ...status,
+                        ...statusData,
+                    };
+                }
+                return status;
+            });
+
+            const newMetadata: WorkspaceMetadata = {
+                ...existingMetadata,
+                customStatuses: updatedCustomStatuses,
+            };
+
+            updateWorkspace({
+                param: { workspaceId },
+                json: { metadata: JSON.stringify(newMetadata) }
+            }, {
+                onSuccess: () => {
+                    toast.success(t('column-updated'));
+                    setEditingStatus(undefined);
+                },
+                onError: () => {
+                    toast.error(t('custom-status-error'));
+                }
+            });
+        }
+    };
+
+    const handleSaveStatus = (statusData: Omit<CustomStatus, 'id' | 'isDefault' | 'position'>) => {
+        if (editingStatus) {
+            handleEditCustomStatus(statusData);
+        } else {
+            handleCreateCustomStatus(statusData);
+        }
+    };
+
+    const handleOpenEditColumn = (status: CustomStatus) => {
+        setEditingStatus(status);
+        setIsCreateStatusOpen(true);
+    };
+
+    const handleMoveAllCards = (sourceStatusId: string, targetStatusId: string) => {
+        const tasksToMove = tasks[sourceStatusId] || [];
+        if (tasksToMove.length === 0) return;
+
+        // Determinar si el destino es un custom status
+        const isTargetCustom = targetStatusId.startsWith('CUSTOM_');
+        const targetStatus = isTargetCustom ? TaskStatus.CUSTOM : targetStatusId as TaskStatus;
+
+        // Get current max position in target column
+        const targetTasks = tasks[targetStatusId] || [];
+        let maxPosition = targetTasks.length > 0
+            ? Math.max(...targetTasks.map(t => t.position))
+            : 0;
+
+        // Prepare updates: move all tasks to target status with new positions
+        const updates = tasksToMove.map(task => {
+            maxPosition += 1000;
+            return {
+                $id: task.$id,
+                status: targetStatus,
+                statusCustomId: isTargetCustom ? targetStatusId : null,
+                position: maxPosition
+            };
+        });
+
+        // Optimistically update local state
+        setTasks(prevTasks => {
+            const newTasks = { ...prevTasks };
+            // Remove tasks from source
+            newTasks[sourceStatusId] = [];
+            // Add tasks to target
+            newTasks[targetStatusId] = [
+                ...(newTasks[targetStatusId] || []),
+                ...tasksToMove.map((task, idx) => ({
+                    ...task,
+                    status: targetStatus,
+                    statusCustomId: isTargetCustom ? targetStatusId : undefined,
+                    position: updates[idx].position
+                }))
+            ].sort((a, b) => a.position - b.position);
+            return newTasks;
+        });
+
+        // Send bulk update to server
+        bulkUpdateTasks({
+            json: { tasks: updates }
+        });
+    };
+
+    const handleDeleteColumn = async (statusId: string) => {
+        const confirmed = await confirmDelete();
+        if (!confirmed) return;
+
+        // Get tasks in this column and delete them
+        const tasksInColumn = tasks[statusId] || [];
+        for (const task of tasksInColumn) {
+            deleteTask({ param: { taskId: task.$id } });
+        }
+
+        // Hide the column
+        const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+        const existingMetadata: WorkspaceMetadata = currentWorkspace?.metadata
+            ? (typeof currentWorkspace.metadata === 'string'
+                ? JSON.parse(currentWorkspace.metadata)
+                : currentWorkspace.metadata)
+            : {};
+
+        const hiddenStatuses = existingMetadata.hiddenStatuses || [];
+
+        // Add the status to hidden list
+        const newHiddenStatuses = [...hiddenStatuses, statusId];
+
+        const newMetadata: WorkspaceMetadata = {
+            ...existingMetadata,
+            hiddenStatuses: newHiddenStatuses,
+        };
+
+        updateWorkspace({
+            param: { workspaceId },
+            json: { metadata: JSON.stringify(newMetadata) }
+        }, {
+            onSuccess: () => {
+                toast.success(t('column-deleted'));
+            },
+            onError: () => {
+                toast.error(t('custom-status-error'));
+            }
+        });
+    };
+
+    // Helper para determinar si un status ID corresponde a un custom status
+    const isCustomStatus = useCallback((statusId: string): boolean => {
+        return statusId.startsWith('CUSTOM_');
+    }, []);
+
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
             [TaskStatus.BACKLOG]: [],
@@ -160,10 +353,13 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
 
         data.forEach(task => {
-            if (!initialTasks[task.status]) {
-                initialTasks[task.status] = [];
+            const effectiveStatus = task.status === TaskStatus.CUSTOM && task.statusCustomId
+                ? task.statusCustomId
+                : task.status;
+            if (!initialTasks[effectiveStatus]) {
+                initialTasks[effectiveStatus] = [];
             }
-            initialTasks[task.status].push(task)
+            initialTasks[effectiveStatus].push(task)
         })
 
         Object.keys(initialTasks).forEach(status => {
@@ -183,10 +379,13 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
 
         data.forEach(task => {
-            if (!newTasks[task.status]) {
-                newTasks[task.status] = [];
+            const effectiveStatus = task.status === TaskStatus.CUSTOM && task.statusCustomId
+                ? task.statusCustomId
+                : task.status;
+            if (!newTasks[effectiveStatus]) {
+                newTasks[effectiveStatus] = [];
             }
-            newTasks[task.status].push(task)
+            newTasks[effectiveStatus].push(task)
         })
 
         Object.keys(newTasks).forEach(status => {
@@ -291,18 +490,26 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
 
         // Handle task reordering (existing logic)
-        const sourceStatus = source.droppableId as TaskStatus;
-        const destStatus = destination.droppableId as TaskStatus;
+        const sourceStatusId = source.droppableId; // Puede ser TaskStatus o CUSTOM_xxx
+        const destStatusId = destination.droppableId; // Puede ser TaskStatus o CUSTOM_xxx
+
+        // Determinar el status real para enviar al servidor
+        const isSourceCustom = isCustomStatus(sourceStatusId);
+        const isDestCustom = isCustomStatus(destStatusId);
+
+        const sourceStatus = isSourceCustom ? TaskStatus.CUSTOM : sourceStatusId as TaskStatus;
+        const destStatus = isDestCustom ? TaskStatus.CUSTOM : destStatusId as TaskStatus;
 
         // Si la task se suelta en la misma posición, no hacer nada
-        if (sourceStatus === destStatus && source.index === destination.index) {
+        if (sourceStatusId === destStatusId && source.index === destination.index) {
             return;
         }
 
         // Check if destination column is protected and user is not admin
-        if (sourceStatus !== destStatus && !isAdmin) {
+        // Solo aplica a columnas default, no custom
+        if (sourceStatusId !== destStatusId && !isAdmin && !isDestCustom) {
             const protectedKey = STATUS_TO_PROTECTED_KEY[destStatus];
-            const isProtected = config[protectedKey] as boolean;
+            const isProtected = protectedKey ? config[protectedKey] as boolean : false;
 
             if (isProtected) {
                 const toastId = toast.info(t('protected-column'), {
@@ -329,88 +536,100 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
 
         // Check if destination column has a rigid limit and would be exceeded
-        if (sourceStatus !== destStatus) {
+        // Solo aplica a columnas default, no custom
+        if (sourceStatusId !== destStatusId && !isDestCustom) {
             const limitKeys = STATUS_TO_LIMIT_KEYS[destStatus];
-            const limitType = config[limitKeys.type] as ColumnLimitType;
-            const limitMax = config[limitKeys.max] as number | null;
-            const currentTaskCount = tasks[destStatus].length;
+            if (limitKeys) {
+                const limitType = config[limitKeys.type] as ColumnLimitType;
+                const limitMax = config[limitKeys.max] as number | null;
+                const currentTaskCount = tasks[destStatusId]?.length || 0;
 
-            if (limitType === ColumnLimitType.RIGID && limitMax !== null && currentTaskCount >= limitMax) {
-                // Show toast with custom layout (button below description)
-                const toastId = toast.info(t('column-limit-reached'), {
-                    description: (
-                        <div className="flex flex-col gap-2">
-                            <p>{t('column-limit-reached-description', { limit: limitMax })}</p>
-                            <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={() => {
-                                    toast.dismiss(toastId);
-                                    openSettings();
-                                }}
-                                className="w-fit"
-                            >
-                                {t('go-to-settings')}
-                            </Button>
-                        </div>
-                    ),
-                    duration: 5000,
-                });
-                return; // Prevent the drag
+                if (limitType === ColumnLimitType.RIGID && limitMax !== null && currentTaskCount >= limitMax) {
+                    // Show toast with custom layout (button below description)
+                    const toastId = toast.info(t('column-limit-reached'), {
+                        description: (
+                            <div className="flex flex-col gap-2">
+                                <p>{t('column-limit-reached-description', { limit: limitMax })}</p>
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() => {
+                                        toast.dismiss(toastId);
+                                        openSettings();
+                                    }}
+                                    className="w-fit"
+                                >
+                                    {t('go-to-settings')}
+                                </Button>
+                            </div>
+                        ),
+                        duration: 5000,
+                    });
+                    return; // Prevent the drag
+                }
             }
         }
 
-        const updatesPayload: { $id: string, status: TaskStatus, position: number }[] = []
+        const updatesPayload: { $id: string, status: TaskStatus, statusCustomId?: string | null, position: number }[] = []
 
-        setTasks(prevTaks => {
-            const newTasks = {...prevTaks}
+        setTasks(prevTasks => {
+            const newTasks = {...prevTasks}
 
-            const sourceColumn = [...newTasks[sourceStatus]];
+            // Usar statusId para acceder a las columnas locales
+            const sourceColumn = [...(newTasks[sourceStatusId] || [])];
             const [movedTask] = sourceColumn.splice(source.index, 1)
 
             if (!movedTask) {
                 console.error('No task found at the source index')
-                return prevTaks
+                return prevTasks
             }
 
-            const updatedMovedTask = sourceStatus !== destStatus
-                ? {...movedTask, status: destStatus}
+            // Actualizar la tarea con el nuevo status
+            const updatedMovedTask = sourceStatusId !== destStatusId
+                ? {
+                    ...movedTask,
+                    status: destStatus,
+                    statusCustomId: isDestCustom ? destStatusId : undefined
+                  }
                 : movedTask
 
-            newTasks[sourceStatus] = sourceColumn;
+            newTasks[sourceStatusId] = sourceColumn;
 
-            const destColumn = [...newTasks[destStatus]];
+            const destColumn = [...(newTasks[destStatusId] || [])];
             destColumn.splice(destination.index, 0, updatedMovedTask);
 
-            newTasks[destStatus] = destColumn;
+            newTasks[destStatusId] = destColumn;
 
             updatesPayload.push({
                 $id: updatedMovedTask.$id,
                 status: destStatus,
+                statusCustomId: isDestCustom ? destStatusId : null,
                 position: Math.min((destination.index + 1) * 1000, 1_000_000)
             })
 
-            newTasks[destStatus].forEach((task, index) => {
+            newTasks[destStatusId].forEach((task, index) => {
                 if (task && task.$id !== updatedMovedTask.$id) {
                     const newPosition = Math.min((index + 1) * 1000, 1_000_000)
                     if (task.position !== newPosition) {
                         updatesPayload.push({
                             $id: task.$id,
                             status: destStatus,
+                            statusCustomId: isDestCustom ? destStatusId : null,
                             position: newPosition
                         })
                     }
                 }
             })
 
-            if (sourceStatus !== destStatus) {
-                newTasks[sourceStatus].forEach((task, index) => {
+            if (sourceStatusId !== destStatusId) {
+                newTasks[sourceStatusId].forEach((task, index) => {
                     if (task) {
                         const newPosition = Math.min((index + 1) * 1000, 1_000_000)
                         if (task.position !== newPosition) {
                             updatesPayload.push({
                                 $id: task.$id,
                                 status: sourceStatus,
+                                statusCustomId: isSourceCustom ? sourceStatusId : null,
                                 position: newPosition
                             })
                         }
@@ -422,7 +641,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         })
 
         onChangeTasks(updatesPayload)
-    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents])
+    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents, isCustomStatus])
 
     // Determinar si necesitamos scroll (más de 5 columnas)
     const needsScroll = orderedStatuses.length > 5;
@@ -507,10 +726,22 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                         <KanbanColumnHeader
                                                             board={board}
                                                             taskCount={taskCount}
-                                                            addTask={() => addTask(board)}
+                                                            addTask={() => {
+                                                                // Si es custom status, pasar CUSTOM + el ID
+                                                                if (statusObj.id.startsWith('CUSTOM_')) {
+                                                                    addTask(TaskStatus.CUSTOM, statusObj.id);
+                                                                } else {
+                                                                    addTask(board);
+                                                                }
+                                                            }}
                                                             showCount={config[WorkspaceConfigKey.SHOW_CARD_COUNT]}
                                                             onUpdateLabel={handleUpdateLabel}
                                                             customStatus={statusObj.isDefault ? undefined : statusObj}
+                                                            statusInfo={statusObj}
+                                                            onEditColumn={() => handleOpenEditColumn(statusObj)}
+                                                            onMoveAllCards={(targetStatusId) => handleMoveAllCards(statusObj.id, targetStatusId)}
+                                                            onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
+                                                            availableStatuses={orderedStatuses}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">
                                                             {(provided) => (
@@ -571,12 +802,21 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                 </Droppable>
             </DragDropContext>
 
-            <CreateCustomStatusDialog
+            <CustomStatusDialog
                 open={isCreateStatusOpen}
-                onOpenChange={setIsCreateStatusOpen}
-                onCreateStatus={handleCreateCustomStatus}
+                onOpenChange={(open) => {
+                    setIsCreateStatusOpen(open);
+                    if (!open) {
+                        // Delay reset to allow dialog close animation to complete
+                        setTimeout(() => setEditingStatus(undefined), 200);
+                    }
+                }}
+                onSaveStatus={handleSaveStatus}
                 existingStatusCount={allStatuses.length}
+                editingStatus={editingStatus}
             />
+
+            <ConfirmDeleteDialog />
         </>
     );
 }

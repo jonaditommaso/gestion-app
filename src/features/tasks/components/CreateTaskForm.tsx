@@ -35,10 +35,11 @@ import { useGetMembers } from "@/features/members/api/use-get-members";
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
     onCancel: () => void,
-    initialStatus?: TaskStatus
+    initialStatus?: TaskStatus,
+    initialStatusCustomId?: string
 }
 
-const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFormProps) => {
+const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusCustomId }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
     const workspaceId = useWorkspaceId();
     const t = useTranslations('workspaces');
@@ -113,6 +114,10 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus }: CreateTaskFo
         const payload = {
             ...rest,
             workspaceId,
+            // Incluir statusCustomId si el status es CUSTOM
+            ...(rest.status === TaskStatus.CUSTOM && initialStatusCustomId && {
+                statusCustomId: initialStatusCustomId
+            }),
             ...(processedDescription && { description: checkEmptyContent(processedDescription) ? null : processedDescription }),
             ...(imageIds.length > 0 && {
                 metadata: stringifyTaskMetadata({ imageIds })

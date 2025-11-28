@@ -27,6 +27,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
     const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
+    const [initialStatusCustomId, setInitialStatusCustomId] = useState<string | undefined>(undefined);
     const [currentTab, setCurrentTab] = useState('kanban') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
     const t = useTranslations('workspaces');
     const { canCreateTask } = useWorkspacePermissions();
@@ -43,12 +44,13 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const { mutate: bulkUpdate  } = useBulkUpdateTasks()
 
 
-    const handleNewTask = (status?: TaskStatus) => {
+    const handleNewTask = (status?: TaskStatus, statusCustomId?: string) => {
         setInitialStatus(status);
+        setInitialStatusCustomId(statusCustomId);
         setModalOpen(true);
     }
 
-    const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, position: number }[]) => {
+    const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, statusCustomId?: string | null, position: number }[]) => {
         bulkUpdate({
             json: { tasks }
         })
@@ -57,7 +59,11 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     return (
        <div className="mt-2">
             <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
-                <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} initialStatus={initialStatus} />
+                <CreateTaskFormWrapper
+                    onCancel={() => setModalOpen(false)}
+                    initialStatus={initialStatus}
+                    initialStatusCustomId={initialStatusCustomId}
+                />
             </DialogContainer>
             <Tabs
                 className="flex-1 w-full border rounded-lg"

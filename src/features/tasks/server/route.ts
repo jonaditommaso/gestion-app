@@ -133,7 +133,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, workspaceId, dueDate, assigneesIds, priority, description } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -148,12 +148,20 @@ const app = new Hono()
             const highestPositionTask = await databases.listDocuments(
                 DATABASE_ID,
                 TASKS_ID,
-                [
-                    Query.equal('status', status),
-                    Query.equal('workspaceId', workspaceId),
-                    Query.orderAsc('position'),
-                    Query.limit(1),
-                ]
+                status === TaskStatus.CUSTOM && statusCustomId
+                    ? [
+                        Query.equal('status', TaskStatus.CUSTOM),
+                        Query.equal('statusCustomId', statusCustomId),
+                        Query.equal('workspaceId', workspaceId),
+                        Query.orderAsc('position'),
+                        Query.limit(1),
+                    ]
+                    : [
+                        Query.equal('status', status),
+                        Query.equal('workspaceId', workspaceId),
+                        Query.orderAsc('position'),
+                        Query.limit(1),
+                    ]
             )
 
             const newPosition = highestPositionTask.documents.length > 0
@@ -167,6 +175,7 @@ const app = new Hono()
                 {
                     name,
                     status,
+                    statusCustomId: status === TaskStatus.CUSTOM ? statusCustomId : null,
                     workspaceId,
                     dueDate,
                     // assigneeId,
@@ -310,11 +319,17 @@ const app = new Hono()
                 }
             }
 
+            // Si se actualiza el status y no es CUSTOM, limpiar statusCustomId
+            const finalUpdates = { ...updates };
+            if (updates.status && updates.status !== TaskStatus.CUSTOM) {
+                finalUpdates.statusCustomId = null;
+            }
+
             const task = await databases.updateDocument<Task>(
                 DATABASE_ID,
                 TASKS_ID,
                 taskId,
-                updates
+                finalUpdates
             )
 
             // Obtener las asignaciones de esta tarea
@@ -408,6 +423,7 @@ const app = new Hono()
                     zod.object({
                         $id: zod.string(),
                         status: zod.nativeEnum(TaskStatus),
+                        statusCustomId: zod.string().optional().nullable(),
                         position: zod.number().int().positive().min(1000).max(1_000_000)
                     })
                 )
@@ -443,13 +459,18 @@ const app = new Hono()
             }
 
             const updatedTasks = await Promise.all(tasks.map(async task => {
-                const { $id, status, position } = task;
+                const { $id, status, statusCustomId, position } = task;
 
                 return databases.updateDocument<Task>(
                     DATABASE_ID,
                     TASKS_ID,
                     $id,
-                    { status, position }
+                    {
+                        status,
+                        position,
+                        // Si es CUSTOM, guardar el ID; si no, limpiar el campo
+                        statusCustomId: status === TaskStatus.CUSTOM ? statusCustomId : null
+                    }
                 )
             }))
 

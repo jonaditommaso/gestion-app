@@ -5,7 +5,8 @@ export enum TaskStatus {
     TODO = 'TODO',
     IN_PROGRESS = 'IN_PROGRESS',
     IN_REVIEW = 'IN_REVIEW',
-    DONE = 'DONE'
+    DONE = 'DONE',
+    CUSTOM = 'CUSTOM'
 };
 
 export type TaskMetadata = {
@@ -28,6 +29,7 @@ export type WorkspaceMember = Models.Document & {
 export type Task = Models.Document & {
     name: string,
     status: TaskStatus,
+    statusCustomId?: string, // ID del custom status cuando status === 'CUSTOM'
     assignees?: WorkspaceMember[],
     position: number,
     dueDate: string,

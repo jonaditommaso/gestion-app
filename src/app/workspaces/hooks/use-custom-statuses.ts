@@ -93,20 +93,28 @@ export const useCustomStatuses = () => {
 
         const customStatuses = metadata.customStatuses || [];
         const defaultPositions = metadata.defaultStatusPositions || {};
+        const defaultOverrides = metadata.defaultStatusOverrides || {};
+        const hiddenStatuses = metadata.hiddenStatuses || [];
 
-        // Aplicar posiciones sobrescritas a los defaults
+        // Aplicar posiciones y overrides a los defaults
         const defaultsWithOverrides = DEFAULT_STATUSES.map(status => {
-            if (defaultPositions[status.id] !== undefined) {
-                return { ...status, position: defaultPositions[status.id] };
-            }
-            return status;
+            const override = defaultOverrides[status.id] || {};
+            return {
+                ...status,
+                position: defaultPositions[status.id] ?? status.position,
+                label: override.label ?? status.label,
+                icon: override.icon ?? status.icon,
+                color: override.color ?? status.color,
+            };
         });
 
         // Combinar defaults (con overrides) y customs, luego ordenar por posición
         const combined = [...defaultsWithOverrides, ...customStatuses];
 
-        // Ordenar simplemente por position
-        return combined.sort((a, b) => a.position - b.position);
+        // Filtrar columnas ocultas y ordenar por position
+        return combined
+            .filter(status => !hiddenStatuses.includes(status.id))
+            .sort((a, b) => a.position - b.position);
     }, [workspaces, workspaceId]);
 
     const getStatusById = (id: string) => {
