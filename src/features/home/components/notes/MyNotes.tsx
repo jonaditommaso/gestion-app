@@ -12,6 +12,11 @@ import { useCreateNote } from "../../api/use-create-note";
 import { useTranslations } from "next-intl";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import dynamic from "next/dynamic";
+import EditNoteModal from "./EditNoteModal";
+import { useUpdateNote } from "../../api/use-update-note";
+import { useDeleteNote } from "../../api/use-delete-note";
+import { AnimatePresence } from "motion/react";
+import { NoteData } from "../../types";
 
 const ColorNoteSelector = dynamic(() => import('./ColorNoteSelector'))
 
@@ -24,8 +29,13 @@ const INITIAL_STATE_NOTE = {
 const MyNotes = () => {
     const { data, isPending } = useGetNotes();
     const { mutate: createNote, isPending: isCreatingNote } = useCreateNote();
+    const { mutate: updateNote } = useUpdateNote();
+    const { mutate: deleteNote } = useDeleteNote();
+
     const [newNote, setNewNote] = useState(INITIAL_STATE_NOTE);
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+    const [selectedNote, setSelectedNote] = useState<NoteData | null>(null);
+
     const t = useTranslations('home')
 
     const onChange = (value: string, field: 'title' | 'content' | 'bgColor') => {
@@ -41,6 +51,20 @@ const MyNotes = () => {
     const handleCreateNote = () => {
         createNote({ json: newNote });
         setNewNote(INITIAL_STATE_NOTE)
+    }
+
+    const handleUpdateColor = (id: string, color: string) => {
+        const note = data?.documents.find(n => n.$id === id);
+        if (note) {
+            updateNote({
+                param: { noteId: id },
+                json: {
+                    title: note.title,
+                    content: note.content,
+                    bgColor: color
+                }
+            });
+        }
     }
 
     return (
@@ -91,19 +115,30 @@ const MyNotes = () => {
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-2 justify-center">
-                            {data?.documents.map(note => (
-                                <Note
-                                    key={note.$id}
-                                    title={note.title}
-                                    content={note.content}
-                                    bgColor={note.bgColor}
-                                />
-                            ))}
+                            <AnimatePresence>
+                                {data?.documents.map(note => (
+                                    <Note
+                                        key={note.$id}
+                                        note={note as NoteData}
+                                        onEdit={setSelectedNote}
+                                        onDelete={(id) => deleteNote({ param: { noteId: id } })}
+                                        onUpdateColor={handleUpdateColor}
+                                    />
+                                ))}
+                            </AnimatePresence>
                         </div>
                     </>
                 )
             }
             </CardContent>
+
+            {selectedNote && (
+                <EditNoteModal
+                    note={selectedNote}
+                    isOpen={!!selectedNote}
+                    onClose={() => setSelectedNote(null)}
+                />
+            )}
         </Card>
     );
 }
