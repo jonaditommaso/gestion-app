@@ -22,6 +22,9 @@ export type WorkspaceMetadata = {
     // Custom status columns
     customStatuses?: CustomStatus[];
 
+    // Override positions for default statuses (when reordered)
+    defaultStatusPositions?: Record<string, number>;
+
     // Other metadata fields
     [key: string]: unknown;
 };

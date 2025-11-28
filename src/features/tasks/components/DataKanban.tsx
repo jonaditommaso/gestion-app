@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Task, TaskStatus } from "../types";
 import {
     DragDropContext,
@@ -49,6 +49,19 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const { data: workspaces } = useGetWorkspaces();
     const { allStatuses } = useCustomStatuses();
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
+
+    // Estado local para el orden de columnas (optimistic update)
+    const [localColumnOrder, setLocalColumnOrder] = useState<string[]>([]);
+
+    // Sincronizar el orden local con allStatuses cuando cambie
+    useEffect(() => {
+        setLocalColumnOrder(allStatuses.map(s => s.id));
+    }, [allStatuses]);
+
+    // Usar el orden local para renderizar
+    const orderedStatuses = localColumnOrder.length > 0
+        ? localColumnOrder.map(id => allStatuses.find(s => s.id === id)).filter(Boolean) as typeof allStatuses
+        : allStatuses;
 
     // Check if user is ADMIN at organization level
     const isAdmin = user?.prefs?.role === 'ADMIN';
@@ -188,8 +201,96 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const onDragEnd = useCallback((result: DropResult) => {
         if(!result.destination) return;
 
-        const { source, destination } = result;
+        const { source, destination, type } = result;
 
+        // Handle column reordering
+        if (type === 'COLUMN') {
+            if (!isAdmin) return; // Solo admins pueden reordenar columnas
+
+            const sourceIndex = source.index;
+            const destIndex = destination.index;
+
+            if (sourceIndex === destIndex) return;
+
+            // Optimistic update del orden local
+            const newOrder = [...localColumnOrder];
+            const [movedId] = newOrder.splice(sourceIndex, 1);
+            newOrder.splice(destIndex, 0, movedId);
+            setLocalColumnOrder(newOrder);
+
+            // Calcular la nueva posición decimal usando orderedStatuses
+            let newPosition: number;
+
+            // Crear una copia del array de statuses para calcular posiciones
+            const statusesCopy = [...orderedStatuses];
+            const [movedStatus] = statusesCopy.splice(sourceIndex, 1);
+            statusesCopy.splice(destIndex, 0, movedStatus);
+
+            if (destIndex === 0) {
+                // Mover al principio
+                newPosition = statusesCopy[1].position - 0.5;
+            } else if (destIndex === statusesCopy.length - 1) {
+                // Mover al final
+                newPosition = statusesCopy[statusesCopy.length - 2].position + 0.5;
+            } else {
+                // Mover entre dos columnas
+                const prevPosition = statusesCopy[destIndex - 1].position;
+                const nextPosition = statusesCopy[destIndex + 1].position;
+                newPosition = (prevPosition + nextPosition) / 2;
+            }
+
+            // Obtener metadata actual
+            const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+            const existingMetadata: WorkspaceMetadata = currentWorkspace?.metadata
+                ? (typeof currentWorkspace.metadata === 'string'
+                    ? JSON.parse(currentWorkspace.metadata)
+                    : currentWorkspace.metadata)
+                : {};
+
+            const movedStatusObj = orderedStatuses[sourceIndex];
+
+            if (movedStatusObj.isDefault) {
+                // Es un status por defecto, guardar su nueva posición en defaultStatusPositions
+                const defaultPositions = existingMetadata.defaultStatusPositions || {};
+                const newDefaultPositions = {
+                    ...defaultPositions,
+                    [movedStatusObj.id]: newPosition,
+                };
+
+                const newMetadata: WorkspaceMetadata = {
+                    ...existingMetadata,
+                    defaultStatusPositions: newDefaultPositions,
+                };
+
+                updateWorkspace({
+                    param: { workspaceId },
+                    json: { metadata: JSON.stringify(newMetadata) }
+                });
+            } else {
+                // Es un custom status, actualizar su posición
+                const existingCustomStatuses = existingMetadata.customStatuses || [];
+                const updatedCustomStatuses = existingCustomStatuses.map(status => {
+                    if (status.id === movedStatusObj.id) {
+                        return { ...status, position: newPosition };
+                    }
+                    return status;
+                });
+
+                const newMetadata: WorkspaceMetadata = {
+                    ...existingMetadata,
+                    customStatuses: updatedCustomStatuses,
+                };
+
+                updateWorkspace({
+                    param: { workspaceId },
+                    json: { metadata: JSON.stringify(newMetadata) }
+                });
+            }
+
+            return;
+        }
+
+        // Handle task reordering (existing logic)
         const sourceStatus = source.droppableId as TaskStatus;
         const destStatus = destination.droppableId as TaskStatus;
 
@@ -316,119 +417,149 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         })
 
         onChangeTasks(updatesPayload)
-    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin])
+    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents])
 
     return (
         <>
             <DragDropContext onDragEnd={onDragEnd}>
-                <div className="flex overflow-x-auto h-full p-[2px] px-4">
-                    {allStatuses.map((statusObj, index) => {
-                        const board = statusObj.id as TaskStatus;
-                        const limitKeys = STATUS_TO_LIMIT_KEYS[board];
-                        const limitType = limitKeys ? config[limitKeys.type] as ColumnLimitType : ColumnLimitType.NO;
-                        const limitMax = limitKeys ? config[limitKeys.max] as number | null : null;
-                        const taskCount = tasks[board]?.length || 0;
+                <Droppable droppableId="columns" type="COLUMN" direction="horizontal">
+                    {(columnsProvided) => (
+                        <div
+                            className="flex overflow-x-auto h-full p-[2px] px-4"
+                            ref={columnsProvided.innerRef}
+                            {...columnsProvided.droppableProps}
+                            style={{ minWidth: 'fit-content', width: '100%' }}
+                        >
+                            {orderedStatuses.map((statusObj, index) => {
+                                const board = statusObj.id as TaskStatus;
+                                const limitKeys = STATUS_TO_LIMIT_KEYS[board];
+                                const limitType = limitKeys ? config[limitKeys.type] as ColumnLimitType : ColumnLimitType.NO;
+                                const limitMax = limitKeys ? config[limitKeys.max] as number | null : null;
+                                const taskCount = tasks[board]?.length || 0;
 
-                        // Determine if limit is exceeded (only when it goes OVER the limit)
-                        const isLimitExceeded = limitType !== ColumnLimitType.NO && limitMax !== null && taskCount > limitMax;
-                        const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
+                                // Determine if limit is exceeded (only when it goes OVER the limit)
+                                const isLimitExceeded = limitType !== ColumnLimitType.NO && limitMax !== null && taskCount > limitMax;
+                                const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
 
-                        return (
-                            <Fragment key={board}>
-                                {/* Add column divider before first column and between columns */}
-                                {isAdmin && (
-                                    <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index}>
-                                        <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute size-7 rounded-full bg-background hover:bg-primary/10 transition-all shadow-md"
-                                                onClick={() => {
-                                                    setIsCreateStatusOpen(true);
-                                                    // La posición es ANTES de la columna actual (index)
-                                                    insertPositionStore.position = index;
-                                                }}
-                                                title={t('add-custom-column')}
-                                            >
-                                                <PlusIcon className="size-4 text-muted-foreground hover:text-primary transition-colors" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div
-                                    key={board}
-                                    className="flex-1 mx-1 min-w-[190px] flex flex-col h-full"
-                                    data-column-index={index}
-                                >
-                                    <div
-                                        className={cn(
-                                            "bg-muted p-1.5 rounded-md flex flex-col h-full",
-                                            isFlexibleWarning && "ring-2 ring-red-500 bg-red-100/50 dark:bg-red-800/20"
-                                        )}
+                                return (
+                                    <Draggable
+                                        key={board}
+                                        draggableId={`column-${board}`}
+                                        index={index}
+                                        isDragDisabled={!isAdmin}
                                     >
-                                        <KanbanColumnHeader
-                                            board={board}
-                                            taskCount={taskCount}
-                                            addTask={() => addTask(board)}
-                                            showCount={config[WorkspaceConfigKey.SHOW_CARD_COUNT]}
-                                            onUpdateLabel={handleUpdateLabel}
-                                            customStatus={statusObj.isDefault ? undefined : statusObj}
-                                        />
-                                        <Droppable droppableId={board}>
-                                            {(provided) => (
+                                        {(columnProvided, columnSnapshot) => (
+                                            <div
+                                                ref={columnProvided.innerRef}
+                                                {...columnProvided.draggableProps}
+                                                className="flex flex-1"
+                                                style={{
+                                                    ...columnProvided.draggableProps.style,
+                                                    minWidth: '190px',
+                                                }}
+                                            >
+                                                {/* Add column divider before columns */}
+                                                {isAdmin && (
+                                                    <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index}>
+                                                        <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="absolute size-7 rounded-full bg-background hover:bg-primary/10 transition-all shadow-md"
+                                                                onClick={() => {
+                                                                    setIsCreateStatusOpen(true);
+                                                                    insertPositionStore.position = index;
+                                                                }}
+                                                                title={t('add-custom-column')}
+                                                            >
+                                                                <PlusIcon className="size-4 text-muted-foreground hover:text-primary transition-colors" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 <div
-                                                    {...provided.droppableProps}
-                                                    ref={provided.innerRef}
-                                                    className="flex-1 py-1.5 overflow-y-auto"
+                                                    className={cn(
+                                                        "mx-1 flex flex-col h-full w-full",
+                                                        columnSnapshot.isDragging && "opacity-90",
+                                                        isAdmin && "cursor-grab active:cursor-grabbing"
+                                                    )}
+                                                    data-column-index={index}
+                                                    {...columnProvided.dragHandleProps}
                                                 >
-                                                    {(tasks[board] || []).map((task, index) => (
-                                                        <Draggable key={task.$id} draggableId={task.$id} index={index}>
-                                                            {provided => (
+                                                    <div
+                                                        className={cn(
+                                                            "bg-muted p-1.5 rounded-md flex flex-col h-full",
+                                                            isFlexibleWarning && "ring-2 ring-red-500 bg-red-100/50 dark:bg-red-800/20",
+                                                            columnSnapshot.isDragging && "ring-2 ring-primary shadow-lg"
+                                                        )}
+                                                    >
+                                                        <KanbanColumnHeader
+                                                            board={board}
+                                                            taskCount={taskCount}
+                                                            addTask={() => addTask(board)}
+                                                            showCount={config[WorkspaceConfigKey.SHOW_CARD_COUNT]}
+                                                            onUpdateLabel={handleUpdateLabel}
+                                                            customStatus={statusObj.isDefault ? undefined : statusObj}
+                                                        />
+                                                        <Droppable droppableId={board} type="TASK">
+                                                            {(provided) => (
                                                                 <div
-                                                                    {...provided.draggableProps}
-                                                                    {...provided.dragHandleProps}
+                                                                    {...provided.droppableProps}
                                                                     ref={provided.innerRef}
+                                                                    className="flex-1 py-1.5 overflow-y-auto"
                                                                 >
-                                                                    <KanbanCard task={task} />
+                                                                    {(tasks[board] || []).map((task, taskIndex) => (
+                                                                        <Draggable key={task.$id} draggableId={task.$id} index={taskIndex}>
+                                                                            {provided => (
+                                                                                <div
+                                                                                    {...provided.draggableProps}
+                                                                                    {...provided.dragHandleProps}
+                                                                                    ref={provided.innerRef}
+                                                                                >
+                                                                                    <KanbanCard task={task} />
+                                                                                </div>
+                                                                            )}
+                                                                        </Draggable>
+                                                                    ))}
+
+                                                                    {provided.placeholder}
                                                                 </div>
                                                             )}
-                                                        </Draggable>
-                                                    ))}
-
-                                                    {provided.placeholder}
+                                                        </Droppable>
+                                                    </div>
                                                 </div>
-                                            )}
-                                        </Droppable>
-                                    </div>
-                                </div>
 
-                                {/* Add column divider after last column */}
-                                {isAdmin && index === allStatuses.length - 1 && (
-                                    <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index + 1}>
-                                        <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute size-7 rounded-full bg-background hover:bg-primary/10 transition-all shadow-md"
-                                                onClick={() => {
-                                                    setIsCreateStatusOpen(true);
-                                                    // La posición es DESPUÉS de la última columna (index + 1)
-                                                    insertPositionStore.position = index + 1;
-                                                }}
-                                                title={t('add-custom-column')}
-                                            >
-                                                <PlusIcon className="size-4 text-muted-foreground hover:text-primary transition-colors" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )}
-                            </Fragment>
-                        )
-                    })}
-                </div>
+                                                {/* Add column divider after last column */}
+                                                {isAdmin && index === orderedStatuses.length - 1 && (
+                                                    <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index + 1}>
+                                                        <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="absolute size-7 rounded-full bg-background hover:bg-primary/10 transition-all shadow-md"
+                                                                onClick={() => {
+                                                                    setIsCreateStatusOpen(true);
+                                                                    insertPositionStore.position = index + 1;
+                                                                }}
+                                                                title={t('add-custom-column')}
+                                                            >
+                                                                <PlusIcon className="size-4 text-muted-foreground hover:text-primary transition-colors" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                )
+                            })}
+                            {columnsProvided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </DragDropContext>
 
             <CreateCustomStatusDialog

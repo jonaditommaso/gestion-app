@@ -92,10 +92,18 @@ export const useCustomStatuses = () => {
             : workspace.metadata;
 
         const customStatuses = metadata.customStatuses || [];
+        const defaultPositions = metadata.defaultStatusPositions || {};
 
-        // Combinar defaults y customs, luego ordenar por posición
-        // Los defaults y customs comparten el mismo espacio de posiciones
-        const combined = [...DEFAULT_STATUSES, ...customStatuses];
+        // Aplicar posiciones sobrescritas a los defaults
+        const defaultsWithOverrides = DEFAULT_STATUSES.map(status => {
+            if (defaultPositions[status.id] !== undefined) {
+                return { ...status, position: defaultPositions[status.id] };
+            }
+            return status;
+        });
+
+        // Combinar defaults (con overrides) y customs, luego ordenar por posición
+        const combined = [...defaultsWithOverrides, ...customStatuses];
 
         // Ordenar simplemente por position
         return combined.sort((a, b) => a.position - b.position);
