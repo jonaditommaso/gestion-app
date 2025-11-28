@@ -5,6 +5,7 @@ import {
     Databases,
     Users,
     Teams,
+    Storage,
 } from 'node-appwrite'
 import { cookies } from 'next/headers';
 import { AUTH_COOKIE } from '@/features/auth/constants';
@@ -16,7 +17,7 @@ export async function createSessionClient() {
 
     const session = (await cookies()).get(AUTH_COOKIE)
 
-    if(!session || !session.value) { //return null;
+    if (!session || !session.value) { //return null;
         throw new Error('Unauthorized')
     }
 
@@ -47,6 +48,9 @@ export async function createAdminClient() {
         },
         get teams() {
             return new Teams(client)
+        },
+        get storage() {
+            return new Storage(client)
         }
     }
 }
