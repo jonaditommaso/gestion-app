@@ -89,15 +89,13 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                                 onClick={() => handleColorSelect(preset.value)}
                                 disabled={isPending}
                                 className={cn(
-                                    "relative h-24 rounded-lg transition-all hover:scale-105 border-4",
+                                    "relative h-24 rounded-lg transition-all hover:scale-105 border-4 overflow-hidden",
                                     selectedColor === preset.value
                                         ? "border-primary ring-4 ring-primary/20"
                                         : "border-transparent hover:border-primary/30",
-                                    isPending && "opacity-50 cursor-not-allowed"
+                                    isPending && "opacity-50 cursor-not-allowed",
+                                    preset.gradient
                                 )}
-                                style={{
-                                    backgroundColor: preset.value === 'transparent' ? undefined : preset.value
-                                }}
                                 title={preset.name}
                             >
                                 {selectedColor === preset.value && (
