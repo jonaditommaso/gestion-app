@@ -45,7 +45,7 @@ const EventCard = ({ title, assignees, status, id, featured }: EventCardProps) =
                 <div className="flex items-center gap-x-1">
                     {assignees && assignees.length > 0 ? (
                         <>
-                            <MemberAvatar name={assignees[0].name} />
+                            <MemberAvatar name={assignees[0].name} memberId={assignees[0].$id} />
                             {assignees.length > 1 && (
                                 <span className="text-[10px] text-muted-foreground">+{assignees.length - 1}</span>
                             )}

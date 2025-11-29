@@ -65,6 +65,7 @@ export const TaskAssigneesManager = ({ taskId, assignees, availableMembers }: Ta
                             >
                                 <MemberAvatar
                                     name={assignee.name}
+                                    memberId={assignee.$id}
                                     className="size-6 border-2 border-background cursor-pointer transition-transform hover:scale-110"
                                 />
                                 <button
@@ -134,6 +135,7 @@ export const TaskAssigneesManager = ({ taskId, assignees, availableMembers }: Ta
                                                     <div className="flex items-center flex-1 gap-x-2">
                                                         <MemberAvatar
                                                             name={member.name}
+                                                            memberId={member.$id}
                                                             className="size-5"
                                                         />
                                                         <span className="truncate">{member.name}</span>
@@ -194,6 +196,7 @@ export const TaskAssigneesManager = ({ taskId, assignees, availableMembers }: Ta
                                         >
                                             <MemberAvatar
                                                 name={member.name}
+                                                memberId={member.$id}
                                                 className="mr-2 size-5"
                                             />
                                             <span className="truncate">{member.name}</span>

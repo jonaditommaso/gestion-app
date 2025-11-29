@@ -207,6 +207,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                     onChange={field.onChange}
                                                     currentUserId={currentMemberId}
                                                     showAssignToMe={true}
+                                                    showAvatars={true}
                                                     className="!mt-0"
                                                 />
                                             </FormControl>

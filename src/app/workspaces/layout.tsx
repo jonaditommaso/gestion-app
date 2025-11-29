@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { COLOR_PRESETS } from "./constants/color-presets";
+import { MembersProvider } from "@/context/MembersContext";
 
 interface WorkspacesLayoutProps {
     children: React.ReactNode
@@ -36,11 +37,22 @@ const WorkspacesLayout = ({ children }: WorkspacesLayoutProps) => {
         return 'bg-background';
     };
 
-    return (
+    const content = (
         <div className={`ml-[0px] flex justify-center pt-[70px] gap-10 min-h-screen transition-colors ${getBackgroundClass()}`}>
             {children}
         </div>
     );
+
+    // Solo envolver con MembersProvider si hay un workspaceId
+    if (workspaceId) {
+        return (
+            <MembersProvider workspaceId={workspaceId}>
+                {content}
+            </MembersProvider>
+        );
+    }
+
+    return content;
 }
 
 export default WorkspacesLayout;

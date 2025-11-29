@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { UserPlus } from "lucide-react"
+import MemberAvatar from "@/features/members/components/MemberAvatar"
 
 export type Option = {
   label: string
@@ -22,6 +23,7 @@ interface MultiSelectProps {
   disabled?: boolean
   currentUserId?: string
   showAssignToMe?: boolean
+  showAvatars?: boolean
 }
 
 export function MultiSelect({
@@ -32,6 +34,7 @@ export function MultiSelect({
   disabled = false,
   currentUserId,
   showAssignToMe = false,
+  showAvatars = false,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
   const t = useTranslations('workspaces')
@@ -147,6 +150,13 @@ export function MultiSelect({
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
+                    {showAvatars && (
+                      <MemberAvatar
+                        name={option.label}
+                        memberId={option.value}
+                        className="mr-2 size-5"
+                      />
+                    )}
                     {option.label}
                   </CommandItem>
                 )

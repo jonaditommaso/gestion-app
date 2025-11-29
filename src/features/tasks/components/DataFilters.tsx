@@ -111,6 +111,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                                 <MemberAvatar
                                     className='size-6'
                                     name={member.name}
+                                    memberId={member.id}
                                 />
                                 {member.name}
                             </div>

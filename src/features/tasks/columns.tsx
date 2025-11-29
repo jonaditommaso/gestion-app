@@ -25,6 +25,7 @@ const AssigneeCell = ({ assignees }: { assignees?: Array<{ $id: string, name: st
         className='size-6'
         fallbackClassName='text-xs'
         name={firstAssignee.name}
+        memberId={firstAssignee.$id}
       />
       <p className="line-clamp-1">
         {firstAssignee.name}

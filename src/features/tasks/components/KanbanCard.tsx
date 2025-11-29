@@ -118,6 +118,7 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                             <div className="flex items-center">
                                 <MemberAvatar
                                     name={task.assignees[0].name}
+                                    memberId={task.assignees[0].$id}
                                     fallbackClassName="text-[10px]"
                                 />
                                 {task.assignees.length > 1 && (
