@@ -154,6 +154,18 @@ const SignUpCard = () => {
                             <Button size={isMobile ? 'sm' : 'lg'} className="w-full" disabled={isPending}>
                                 {t('signup-button')}
                             </Button>
+
+                            {!searchParams.get("plan") && (
+                                <div className="text-center text-sm text-muted-foreground mt-2">
+                                    <p>{t('default-free-plan-info')}</p>
+                                    <Link
+                                        href="/pricing"
+                                        className="underline text-primary hover:text-primary/80"
+                                    >
+                                        {t('view-plans')}
+                                    </Link>
+                                </div>
+                            )}
                         </form>
                     </Form>
                 </CardContent>

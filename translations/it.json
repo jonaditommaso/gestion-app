@@ -1024,7 +1024,9 @@
         "username-updated": "Nome utente aggiornato",
         "failed-updating-username": "Errore durante l’aggiornamento del nome utente",
         "free-plan": "Piano Free",
-        "pro-plan": "Piano Pro"
+        "pro-plan": "Piano Pro",
+        "default-free-plan-info": "L'account verrà creato con il Piano Free per impostazione predefinita.",
+        "view-plans": "Visualizza Piani"
     },
     "info-messages": {
         "empty-table": "Tabella vuota",

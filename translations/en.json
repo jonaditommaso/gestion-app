@@ -1038,7 +1038,9 @@
         "username-updated": "Username updated",
         "failed-updating-username": "There was an error updating the username",
         "free-plan": "Free Plan",
-        "pro-plan": "Pro Plan"
+        "pro-plan": "Pro Plan",
+        "default-free-plan-info": "The account will be created with Free Plan by default.",
+        "view-plans": "View Plans"
     },
     "info-messages": {
         "empty-table": "Empty table",

@@ -1044,7 +1044,9 @@
         "username-updated": "Nombre de usuario actualizado",
         "failed-updating-username": "Hubo un error actualizando el nombre de usuario",
         "free-plan": "Plan Free",
-        "pro-plan": "Plan Pro"
+        "pro-plan": "Plan Pro",
+        "default-free-plan-info": "La cuenta se creará con Plan Free por defecto.",
+        "view-plans": "Ver Planes"
     },
     "info-messages": {
         "empty-table": "Tabla vacía",
