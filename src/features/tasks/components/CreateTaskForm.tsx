@@ -87,19 +87,24 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
         return baseSchema;
     }, [config, t]);
 
+    // Para custom statuses, usar el statusCustomId como valor del selector
+    const effectiveInitialStatus = initialStatus === TaskStatus.CUSTOM && initialStatusCustomId
+        ? initialStatusCustomId as TaskStatus
+        : (initialStatus || defaultTaskStatus);
+
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(dynamicSchema),
         defaultValues: {
             workspaceId,
             priority: 3, // default
             type: 'task', // default
-            status: initialStatus || defaultTaskStatus,
+            status: effectiveInitialStatus,
             assigneesIds: [],
         }
     })
 
     const onSubmit = async (values: zod.infer<typeof createTaskSchema>) => {
-        const { description, ...rest } = values
+        const { description, status, ...rest } = values
 
         // Procesar imágenes en la descripción si existen
         let processedDescription = description;
@@ -111,13 +116,17 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
             imageIds.push(...result.imageIds);
         }
 
+        // Detectar si es un custom status (el valor del selector será CUSTOM_xxxxx)
+        const isCustomStatus = status.startsWith('CUSTOM_');
+        const finalStatus = isCustomStatus ? TaskStatus.CUSTOM : status;
+        const statusCustomId = isCustomStatus ? status : null;
+
         const payload = {
             ...rest,
+            status: finalStatus,
             workspaceId,
-            // Incluir statusCustomId si el status es CUSTOM
-            ...(rest.status === TaskStatus.CUSTOM && initialStatusCustomId && {
-                statusCustomId: initialStatusCustomId
-            }),
+            // Incluir statusCustomId si es un custom status
+            ...(statusCustomId && { statusCustomId }),
             ...(processedDescription && { description: checkEmptyContent(processedDescription) ? null : processedDescription }),
             ...(imageIds.length > 0 && {
                 metadata: stringifyTaskMetadata({ imageIds })
