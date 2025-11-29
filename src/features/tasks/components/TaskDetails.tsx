@@ -13,7 +13,6 @@ import RichTextArea from "@/components/RichTextArea";
 import { useUpdateTask } from "../api/use-update-task";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { useUploadTaskImage } from "../api/use-upload-task-image";
 import { getImageIds, stringifyTaskMetadata } from "../utils/metadata-helpers";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
@@ -25,6 +24,7 @@ import { TaskAssigneesManager } from "./TaskAssigneesManager";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
+import { LabelSelector } from "./LabelSelector";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -143,8 +143,6 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [description, setDescription] = useState(task.description || '');
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
-    const [isEditingLabel, setIsEditingLabel] = useState(false);
-    const [label, setLabel] = useState(task.label || '');
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
     const { imagesLoaded, imagesLoadedCache, descriptionHasImage, descriptionContainerRef } = useImageDescriptionLoading(task, isEditingDescription);
 
@@ -193,29 +191,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         });
     };
 
-    const handleLabelBlur = () => {
-        if (label !== task.label) {
-            updateTask({
-                json: { label: label || undefined },
-                param: { taskId: task.$id }
-            }, {
-                onSuccess: () => {
-                    setIsEditingLabel(false);
-                }
-            });
-        } else {
-            setIsEditingLabel(false);
-        }
-    };
-
-    const handleLabelKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleLabelBlur();
-        } else if (e.key === 'Escape') {
-            setLabel(task.label || '');
-            setIsEditingLabel(false);
-        }
+    const handleLabelChange = (labelId: string | undefined) => {
+        updateTask({
+            json: { label: labelId || null },
+            param: { taskId: task.$id }
+        });
     };
 
     const handleSaveDescription = async () => {
@@ -425,30 +405,12 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         <span className="text-xs font-medium text-muted-foreground w-24">
                             {t('label')}
                         </span>
-                        {isEditingLabel ? (
-                            <Input
-                                value={label}
-                                onChange={(e) => setLabel(e.target.value)}
-                                onBlur={handleLabelBlur}
-                                onKeyDown={handleLabelKeyDown}
-                                maxLength={25}
-                                placeholder={t('enter-label')}
-                                disabled={isPending}
-                                className="h-7 text-sm border-0 shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5"
-                                autoFocus
-                            />
-                        ) : (
-                            <div
-                                onClick={() => setIsEditingLabel(true)}
-                                className="cursor-pointer hover:bg-muted rounded-sm px-1.5 py-1 transition-colors"
-                            >
-                                {task.label ? (
-                                    <span className="text-sm">{task.label}</span>
-                                ) : (
-                                    <span className="text-sm text-muted-foreground">{t('no-label')}</span>
-                                )}
-                            </div>
-                        )}
+                        <LabelSelector
+                            value={task.label || undefined}
+                            onChange={handleLabelChange}
+                            disabled={isPending}
+                            variant="inline"
+                        />
                     </div>
 
                     {/* Priority */}

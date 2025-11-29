@@ -31,6 +31,7 @@ import { useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { LabelSelector } from "./LabelSelector";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -299,11 +300,10 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                 {t('label')}
                                             </FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    placeholder={t('enter-label')}
-                                                    maxLength={25}
-                                                    className="!mt-0"
+                                                <LabelSelector
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    className="!mt-0 w-full"
                                                 />
                                             </FormControl>
                                             <FormMessage />

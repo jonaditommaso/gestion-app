@@ -17,7 +17,7 @@ export const createTaskSchema = zod.object({
     priority: zod.number().int().min(1).max(5),
     description: zod.string().optional().nullish(),
     featured: zod.boolean().optional(),
-    label: zod.string().max(25).optional(),
+    label: zod.string().max(25).optional().nullish(),
     type: zod.string().optional(),
     metadata: zod.string().optional(), // JSON stringified
 })

@@ -16,6 +16,15 @@ export type CustomStatus = {
 };
 
 /**
+ * Custom label/tag definition for tasks
+ */
+export type CustomLabel = {
+    id: string; // unique identifier (e.g., "LABEL_1699999999999")
+    name: string; // display name (max 20 chars)
+    color: string; // hex color for background
+};
+
+/**
  * Overrides for default status columns (label, icon, color)
  */
 export type DefaultStatusOverride = {
@@ -39,6 +48,9 @@ export type WorkspaceMetadata = {
 
     // Hidden/deleted columns (both default and custom)
     hiddenStatuses?: string[];
+
+    // Custom labels/tags for tasks
+    customLabels?: CustomLabel[];
 
     // Other metadata fields
     [key: string]: unknown;
