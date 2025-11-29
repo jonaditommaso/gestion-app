@@ -260,6 +260,25 @@ const app = new Hono()
                 }
             }
 
+            // Eliminar todos los assignees de la task
+            const assignees = await databases.listDocuments(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
+            );
+
+            for (const assignee of assignees.documents) {
+                try {
+                    await databases.deleteDocument(
+                        DATABASE_ID,
+                        TASK_ASSIGNEES_ID,
+                        assignee.$id
+                    );
+                } catch (err) {
+                    console.error(`Error deleting task assignee ${assignee.$id}:`, err);
+                }
+            }
+
             await databases.deleteDocument(
                 DATABASE_ID,
                 TASKS_ID,
