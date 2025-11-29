@@ -106,8 +106,9 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       const status = row.original.status;
+      const statusCustomId = row.original.statusCustomId;
 
-      return <StatusCell status={status} />
+      return <StatusCell status={status} statusCustomId={statusCustomId} />
     }
   },
   {
