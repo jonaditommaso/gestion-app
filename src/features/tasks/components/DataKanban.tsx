@@ -307,7 +307,6 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
             deleteTask({ param: { taskId: task.$id } });
         }
 
-        // Hide the column
         const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
         const existingMetadata: WorkspaceMetadata = currentWorkspace?.metadata
             ? (typeof currentWorkspace.metadata === 'string'
@@ -315,15 +314,35 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                 : currentWorkspace.metadata)
             : {};
 
-        const hiddenStatuses = existingMetadata.hiddenStatuses || [];
+        // Check if it's a custom status (starts with CUSTOM_)
+        const isCustom = statusId.startsWith('CUSTOM_');
 
-        // Add the status to hidden list
-        const newHiddenStatuses = [...hiddenStatuses, statusId];
+        let newMetadata: WorkspaceMetadata;
 
-        const newMetadata: WorkspaceMetadata = {
-            ...existingMetadata,
-            hiddenStatuses: newHiddenStatuses,
-        };
+        if (isCustom) {
+            // For custom statuses: remove completely from customStatuses array
+            const existingCustomStatuses = existingMetadata.customStatuses || [];
+            const updatedCustomStatuses = existingCustomStatuses.filter(
+                status => status.id !== statusId
+            );
+
+            // Only include customStatuses if there are still items
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { customStatuses: _removed, ...restMetadata } = existingMetadata;
+            newMetadata = {
+                ...restMetadata,
+                ...(updatedCustomStatuses.length > 0 && { customStatuses: updatedCustomStatuses }),
+            };
+        } else {
+            // For default statuses: add to hiddenStatuses (soft delete)
+            const hiddenStatuses = existingMetadata.hiddenStatuses || [];
+            const newHiddenStatuses = [...hiddenStatuses, statusId];
+
+            newMetadata = {
+                ...existingMetadata,
+                hiddenStatuses: newHiddenStatuses,
+            };
+        }
 
         updateWorkspace({
             param: { workspaceId },
