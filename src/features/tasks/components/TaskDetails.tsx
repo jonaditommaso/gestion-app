@@ -1,8 +1,7 @@
 'use client'
-import { Task } from "../types";
-import { useState } from "react";
+import { Task, TaskStatus } from "../types";
+import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
@@ -22,11 +21,10 @@ import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
-import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
-import { STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 import { TaskAssigneesManager } from "./TaskAssigneesManager";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
+import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -152,13 +150,31 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
 
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
-    const config = useWorkspaceConfig();
+    const { allStatuses, getIconComponent } = useCustomStatuses();
 
     const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
 
-    const handleStatusChange = (status: string) => {
+    // Obtener el valor efectivo del status para el selector
+    const effectiveStatusValue = task.status === TaskStatus.CUSTOM && task.statusCustomId
+        ? task.statusCustomId
+        : task.status;
+
+    // Encontrar el status actual fuera del render para evitar setState durante render
+    const currentStatusData = useMemo(() => {
+        return allStatuses.find(s => s.id === effectiveStatusValue);
+    }, [allStatuses, effectiveStatusValue]);
+
+    const handleStatusChange = (statusValue: string) => {
+        // Detectar si es un custom status
+        const isCustomStatus = statusValue.startsWith('CUSTOM_');
+        const finalStatus = isCustomStatus ? TaskStatus.CUSTOM : statusValue;
+        const statusCustomId = isCustomStatus ? statusValue : null;
+
         updateTask({
-            json: { status: status as Task['status'] },
+            json: {
+                status: finalStatus as Task['status'],
+                statusCustomId
+            },
             param: { taskId: task.$id }
         });
     };
@@ -370,20 +386,31 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 {/* Status */}
                 <div>
                     <Select
-                        value={task.status}
+                        value={effectiveStatusValue}
                         onValueChange={handleStatusChange}
                         disabled={isPending}
                     >
-                        <SelectTrigger className={`w-fit gap-2 font-semibold text-white ${TASK_STATUS_OPTIONS.find(s => s.value === task.status)?.solidColor || ''}`}>
-                            <SelectValue />
+                        <SelectTrigger
+                            className="w-fit gap-2 font-semibold text-white"
+                            style={{ backgroundColor: currentStatusData?.color || '#6b7280' }}
+                        >
+                            <div className="flex items-center gap-2">
+                                {currentStatusData && (() => {
+                                    const IconComponent = getIconComponent(currentStatusData.icon);
+                                    return IconComponent ? <IconComponent className="size-4" /> : null;
+                                })()}
+                                <SelectValue placeholder={currentStatusData?.label || 'Select status'} />
+                            </div>
                         </SelectTrigger>
                         <SelectContent>
-                            {TASK_STATUS_OPTIONS.map(status => {
-                                const labelKey = STATUS_TO_LABEL_KEY[status.value];
-                                const customLabel = config[labelKey];
+                            {allStatuses.map(status => {
+                                const IconComponent = getIconComponent(status.icon);
                                 return (
-                                    <SelectItem key={status.value} value={status.value}>
-                                        {customLabel || t(status.translationKey)}
+                                    <SelectItem key={status.id} value={status.id}>
+                                        <div className="flex items-center gap-2">
+                                            {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
+                                            {status.label}
+                                        </div>
                                     </SelectItem>
                                 );
                             })}
