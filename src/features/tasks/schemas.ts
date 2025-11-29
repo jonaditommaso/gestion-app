@@ -1,9 +1,15 @@
 import { z as zod } from 'zod';
 import { TaskStatus } from './types';
 
+// Custom validation for status: accepts TaskStatus enum values OR custom status IDs (CUSTOM_xxxxx)
+const statusSchema = zod.string().refine(
+    (val) => Object.values(TaskStatus).includes(val as TaskStatus) || val.startsWith('CUSTOM_'),
+    { message: 'Invalid status value' }
+);
+
 export const createTaskSchema = zod.object({
     name: zod.string().trim().min(1, 'Required'),
-    status: zod.nativeEnum(TaskStatus, { required_error: 'Required' }),
+    status: statusSchema,
     statusCustomId: zod.string().optional().nullable(), // ID del custom status cuando status === 'CUSTOM'
     workspaceId: zod.string().trim().min(1, 'Required'),
     dueDate: zod.coerce.date().optional().nullable(),
