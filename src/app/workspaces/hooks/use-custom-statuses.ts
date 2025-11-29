@@ -22,6 +22,7 @@ const DEFAULT_STATUSES: CustomStatus[] = [
     {
         id: TaskStatus.BACKLOG,
         label: 'Backlog',
+        translationKey: 'backlog',
         color: '#ec4899',
         icon: 'circle-dashed',
         position: 0,
@@ -30,6 +31,7 @@ const DEFAULT_STATUSES: CustomStatus[] = [
     {
         id: TaskStatus.TODO,
         label: 'To Do',
+        translationKey: 'todo',
         color: '#ef4444',
         icon: 'circle',
         position: 1,
@@ -38,6 +40,7 @@ const DEFAULT_STATUSES: CustomStatus[] = [
     {
         id: TaskStatus.IN_PROGRESS,
         label: 'In Progress',
+        translationKey: 'in-progress',
         color: '#eab308',
         icon: 'circle-dot-dashed',
         position: 2,
@@ -46,6 +49,7 @@ const DEFAULT_STATUSES: CustomStatus[] = [
     {
         id: TaskStatus.IN_REVIEW,
         label: 'In Review',
+        translationKey: 'in-review',
         color: '#3b82f6',
         icon: 'circle-dot',
         position: 3,
@@ -54,6 +58,7 @@ const DEFAULT_STATUSES: CustomStatus[] = [
     {
         id: TaskStatus.DONE,
         label: 'Done',
+        translationKey: 'done',
         color: '#10b981',
         icon: 'circle-check',
         position: 4,

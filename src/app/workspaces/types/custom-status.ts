@@ -6,6 +6,7 @@ import { CustomStatusIconValue } from "../constants/custom-status-options";
 export type CustomStatus = {
     id: string; // unique identifier (e.g., "CUSTOM_1", "CUSTOM_2")
     label: string; // display name
+    translationKey?: string; // translation key for default statuses
     color: string; // hex color for the icon
     icon: CustomStatusIconValue;
     position: number; // order in the kanban board

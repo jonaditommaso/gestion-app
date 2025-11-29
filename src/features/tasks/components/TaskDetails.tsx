@@ -379,7 +379,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                     const IconComponent = getIconComponent(currentStatusData.icon);
                                     return IconComponent ? <IconComponent className="size-4" /> : null;
                                 })()}
-                                <SelectValue placeholder={currentStatusData?.label || 'Select status'} />
+                                <span>
+                                    {currentStatusData?.translationKey
+                                        ? t(currentStatusData.translationKey)
+                                        : currentStatusData?.label || t('select-status')}
+                                </span>
                             </div>
                         </SelectTrigger>
                         <SelectContent>
@@ -389,7 +393,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                     <SelectItem key={status.id} value={status.id}>
                                         <div className="flex items-center gap-2">
                                             {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
-                                            {status.label}
+                                            {status.translationKey ? t(status.translationKey) : status.label}
                                         </div>
                                     </SelectItem>
                                 );
