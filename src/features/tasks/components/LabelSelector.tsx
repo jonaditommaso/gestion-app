@@ -21,9 +21,10 @@ interface LabelSelectorProps {
     className?: string;
     showClear?: boolean;
     variant?: 'default' | 'inline'; // inline = text style for TaskDetails
+    readOnly?: boolean;
 }
 
-export const LabelSelector = ({ value, onChange, disabled, className, showClear = true, variant = 'default' }: LabelSelectorProps) => {
+export const LabelSelector = ({ value, onChange, disabled, className, showClear = true, variant = 'default', readOnly = false }: LabelSelectorProps) => {
     const t = useTranslations('workspaces');
     const workspaceId = useWorkspaceId();
     const { data: workspaces } = useGetWorkspaces();
@@ -128,6 +129,24 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
 
     return (
         <div className="flex items-center gap-1 !mt-0">
+            {readOnly ? (
+                <div className="px-1.5 py-1">
+                    {selectedLabel ? (
+                        <span
+                            className="px-2 py-0.5 rounded text-xs font-medium"
+                            style={{
+                                backgroundColor: selectedLabel.color,
+                                color: selectedColorData?.textColor || '#000',
+                            }}
+                        >
+                            {selectedLabel.name}
+                        </span>
+                    ) : (
+                        <span className="text-sm text-muted-foreground">{t('no-label')}</span>
+                    )}
+                </div>
+            ) : (
+            <>
             <Popover open={isOpen} onOpenChange={setIsOpen}>
                 <PopoverTrigger asChild className="!mt-0">
                     {variant === 'inline' ? (
@@ -248,6 +267,8 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                 >
                     <X className="size-4" />
                 </Button>
+            )}
+            </>
             )}
         </div>
     );

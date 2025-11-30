@@ -15,9 +15,10 @@ interface TaskAssigneesManagerProps {
     taskId: string;
     assignees: WorkspaceMember[];
     availableMembers: WorkspaceMember[];
+    readOnly?: boolean;
 }
 
-export const TaskAssigneesManager = ({ taskId, assignees, availableMembers }: TaskAssigneesManagerProps) => {
+export const TaskAssigneesManager = ({ taskId, assignees, availableMembers, readOnly = false }: TaskAssigneesManagerProps) => {
     const t = useTranslations('workspaces');
     const [open, setOpen] = useState(false);
     const { data: currentUser } = useCurrent();
@@ -51,6 +52,44 @@ export const TaskAssigneesManager = ({ taskId, assignees, availableMembers }: Ta
             handleAssign(currentMember.$id);
         }
     };
+
+    // Modo readOnly: mostrar solo avatares y nombres sin interactividad
+    if (readOnly) {
+        return (
+            <div className="flex items-center gap-x-2">
+                {assignees && assignees.length > 0 ? (
+                    <>
+                        <div className="flex items-center -space-x-2">
+                            {assignees.slice(0, 3).map((assignee, index) => (
+                                <div
+                                    key={assignee.$id}
+                                    style={{ zIndex: assignees.length - index }}
+                                >
+                                    <MemberAvatar
+                                        name={assignee.name}
+                                        memberId={assignee.$id}
+                                        className="size-6 border-2 border-background"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <span className="text-sm">
+                            {assignees[0].name}
+                            {assignees.length > 1 && (
+                                <span className="text-muted-foreground ml-1">
+                                    +{assignees.length - 1}
+                                </span>
+                            )}
+                        </span>
+                    </>
+                ) : (
+                    <span className="text-sm text-muted-foreground px-2 py-1">
+                        {t('no-assignee')}
+                    </span>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center gap-x-2">

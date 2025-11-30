@@ -1370,6 +1370,8 @@
         "write-comment": "Escribe un comentario...",
         "save": "Guardar",
         "click-add-description": "Click para agregar una descripción...",
+        "no-description": "Sin descripción",
+        "no-comments": "No hay comentarios",
         "open-in-new-page": "Abrir en nueva página",
         "notifications": "Notificaciones",
         "notifications-description": "Configure cuándo y cómo se envían notificaciones automáticas a los miembros del workspace",

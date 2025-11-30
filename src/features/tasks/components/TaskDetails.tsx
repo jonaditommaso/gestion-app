@@ -30,18 +30,21 @@ const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_
 
 interface TaskDetailsProps {
     task: Task;
+    readOnly?: boolean;
 }
 
 export const TaskTitleEditor = ({
     taskId,
     initialTitle,
     initialType,
-    size = 'modal'
+    size = 'modal',
+    readOnly = false
 }: {
     taskId: string;
     initialTitle: string;
     initialType?: string;
     size?: 'modal' | 'page';
+    readOnly?: boolean;
 }) => {
     const t = useTranslations('workspaces');
     const [isEditing, setIsEditing] = useState(false);
@@ -91,26 +94,32 @@ export const TaskTitleEditor = ({
 
     return (
         <div className="flex-1 flex items-center gap-x-3">
-            <Select value={currentType} onValueChange={handleTypeChange} disabled={isPending}>
-                <SelectTrigger className="w-fit h-fit border-0 shadow-none bg-transparent hover:bg-muted rounded p-1 focus:ring-0 focus:ring-offset-0 [&>svg:nth-child(2)]:hidden">
+            {readOnly ? (
+                <div className="p-1">
                     <TypeIcon className={cn(iconSize, typeOption.textColor)} />
-                </SelectTrigger>
-                <SelectContent>
-                    {TASK_TYPE_OPTIONS.map(type => {
-                        const Icon = type.icon;
-                        return (
-                            <SelectItem key={type.value} value={type.value}>
-                                <div className="flex items-center gap-x-2">
-                                    <Icon className={cn("size-4", type.textColor)} />
-                                    {t(type.translationKey)}
-                                </div>
-                            </SelectItem>
-                        );
-                    })}
-                </SelectContent>
-            </Select>
+                </div>
+            ) : (
+                <Select value={currentType} onValueChange={handleTypeChange} disabled={isPending}>
+                    <SelectTrigger className="w-fit h-fit border-0 shadow-none bg-transparent hover:bg-muted rounded p-1 focus:ring-0 focus:ring-offset-0 [&>svg:nth-child(2)]:hidden">
+                        <TypeIcon className={cn(iconSize, typeOption.textColor)} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {TASK_TYPE_OPTIONS.map(type => {
+                            const Icon = type.icon;
+                            return (
+                                <SelectItem key={type.value} value={type.value}>
+                                    <div className="flex items-center gap-x-2">
+                                        <Icon className={cn("size-4", type.textColor)} />
+                                        {t(type.translationKey)}
+                                    </div>
+                                </SelectItem>
+                            );
+                        })}
+                    </SelectContent>
+                </Select>
+            )}
             <div className="flex-1">
-                {isEditing ? (
+                {!readOnly && isEditing ? (
                     <input
                         type="text"
                         value={title}
@@ -123,8 +132,11 @@ export const TaskTitleEditor = ({
                     />
                 ) : (
                     <TitleTag
-                        className={`w-full ${textSize} font-bold cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition border border-transparent`}
-                        onClick={() => setIsEditing(true)}
+                        className={cn(
+                            `w-full ${textSize} font-bold rounded px-2 py-1 transition border border-transparent`,
+                            !readOnly && "cursor-pointer hover:bg-muted/50"
+                        )}
+                        onClick={readOnly ? undefined : () => setIsEditing(true)}
                     >
                         {title}
                     </TitleTag>
@@ -134,7 +146,7 @@ export const TaskTitleEditor = ({
     );
 };
 
-const TaskDetails = ({ task }: TaskDetailsProps) => {
+const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
     const { data: user } = useCurrent();
     const workspaceId = useWorkspaceId();
@@ -232,7 +244,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 <div>
                     <h3 className="text-base font-semibold mb-2">{t('description')}</h3>
 
-                    {isEditingDescription ? (
+                    {!readOnly && isEditingDescription ? (
                         <div className="space-y-3">
                             <RichTextArea
                                 value={description}
@@ -264,13 +276,14 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     ) : (
                         <div
                             className={cn(
-                                "p-4 rounded-lg cursor-pointer transition-all",
+                                "p-4 rounded-lg transition-all",
+                                !readOnly && "cursor-pointer",
                                 task.description
-                                    ? 'hover:bg-muted/30'
-                                    : 'border bg-muted/30 hover:bg-muted/50',
+                                    ? (!readOnly && 'hover:bg-muted/30')
+                                    : (!readOnly ? 'border bg-muted/30 hover:bg-muted/50' : ''),
                                 descriptionHasImage ? "min-h-[400px]" : "min-h-[60px]"
                             )}
-                            onClick={() => setIsEditingDescription(true)}
+                            onClick={readOnly ? undefined : () => setIsEditingDescription(true)}
                         >
                             {descriptionHasImage && !imagesLoaded && !imagesLoadedCache ? (
                                 <div className="space-y-4">
@@ -286,7 +299,9 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                     dangerouslySetInnerHTML={{ __html: task.description }}
                                 />
                             ) : (
-                                <p className="text-muted-foreground text-sm">{t('click-add-description')}</p>
+                                <p className="text-muted-foreground text-sm">
+                                    {readOnly ? t('no-description') : t('click-add-description')}
+                                </p>
                             )}
                         </div>
                     )}
@@ -303,7 +318,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 <div>
                     <h3 className="text-base font-semibold mb-2">{t('activity')}</h3>
                     <div className="space-y-4">
-                        {isAddingComment ? (
+                        {readOnly ? (
+                            <p className="text-muted-foreground text-sm p-3">
+                                {t('no-comments')}
+                            </p>
+                        ) : isAddingComment ? (
                             <div className="flex gap-x-3">
                                 <MemberAvatar
                                     name={user?.name || 'User'}
@@ -365,41 +384,58 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
             <div className="space-y-6 bg-muted/30 p-4 rounded-lg border border-border/40 h-fit">
                 {/* Status */}
                 <div>
-                    <Select
-                        value={effectiveStatusValue}
-                        onValueChange={handleStatusChange}
-                        disabled={isPending}
-                    >
-                        <SelectTrigger
-                            className="w-fit gap-2 font-semibold text-white"
+                    {readOnly ? (
+                        <div
+                            className="w-fit gap-2 font-semibold text-white rounded-md px-3 py-2 flex items-center"
                             style={{ backgroundColor: currentStatusData?.color || '#6b7280' }}
                         >
-                            <div className="flex items-center gap-2">
-                                {currentStatusData && (() => {
-                                    const IconComponent = getIconComponent(currentStatusData.icon);
-                                    return IconComponent ? <IconComponent className="size-4" /> : null;
-                                })()}
-                                <span>
-                                    {currentStatusData?.translationKey
-                                        ? t(currentStatusData.translationKey)
-                                        : currentStatusData?.label || t('select-status')}
-                                </span>
-                            </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                            {allStatuses.map(status => {
-                                const IconComponent = getIconComponent(status.icon);
-                                return (
-                                    <SelectItem key={status.id} value={status.id}>
-                                        <div className="flex items-center gap-2">
-                                            {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
-                                            {status.translationKey ? t(status.translationKey) : status.label}
-                                        </div>
-                                    </SelectItem>
-                                );
-                            })}
-                        </SelectContent>
-                    </Select>
+                            {currentStatusData && (() => {
+                                const IconComponent = getIconComponent(currentStatusData.icon);
+                                return IconComponent ? <IconComponent className="size-4" /> : null;
+                            })()}
+                            <span>
+                                {currentStatusData?.translationKey
+                                    ? t(currentStatusData.translationKey)
+                                    : currentStatusData?.label || t('select-status')}
+                            </span>
+                        </div>
+                    ) : (
+                        <Select
+                            value={effectiveStatusValue}
+                            onValueChange={handleStatusChange}
+                            disabled={isPending}
+                        >
+                            <SelectTrigger
+                                className="w-fit gap-2 font-semibold text-white"
+                                style={{ backgroundColor: currentStatusData?.color || '#6b7280' }}
+                            >
+                                <div className="flex items-center gap-2">
+                                    {currentStatusData && (() => {
+                                        const IconComponent = getIconComponent(currentStatusData.icon);
+                                        return IconComponent ? <IconComponent className="size-4" /> : null;
+                                    })()}
+                                    <span>
+                                        {currentStatusData?.translationKey
+                                            ? t(currentStatusData.translationKey)
+                                            : currentStatusData?.label || t('select-status')}
+                                    </span>
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {allStatuses.map(status => {
+                                    const IconComponent = getIconComponent(status.icon);
+                                    return (
+                                        <SelectItem key={status.id} value={status.id}>
+                                            <div className="flex items-center gap-2">
+                                                {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
+                                                {status.translationKey ? t(status.translationKey) : status.label}
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
+                            </SelectContent>
+                        </Select>
+                    )}
                 </div>
 
                 {/* Details Table */}
@@ -414,6 +450,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                             onChange={handleLabelChange}
                             disabled={isPending}
                             variant="inline"
+                            readOnly={readOnly}
                         />
                     </div>
 
@@ -422,31 +459,44 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         <span className="text-xs font-medium text-muted-foreground w-24">
                             {t('priority')}
                         </span>
-                        <Select
-                            value={String(task.priority || 3)}
-                            onValueChange={handlePriorityChange}
-                            disabled={isPending}
-                        >
-                            <SelectTrigger className="w-fit border-0 h-auto shadow-none bg-transparent [&>svg]:hidden hover:bg-muted rounded-sm px-1.5 py-1">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {TASK_PRIORITY_OPTIONS.map(priority => {
-                                    const Icon = priority.icon;
-                                    return (
-                                        <SelectItem key={priority.value} value={String(priority.value)}>
-                                            <div className="flex items-center gap-x-2">
-                                                <Icon
-                                                    className="size-4"
-                                                    style={{ color: priority.color }}
-                                                />
-                                                {t(priority.translationKey)}
-                                            </div>
-                                        </SelectItem>
-                                    );
-                                })}
-                            </SelectContent>
-                        </Select>
+                        {readOnly ? (
+                            (() => {
+                                const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3));
+                                const Icon = priorityOption?.icon;
+                                return (
+                                    <div className="flex items-center gap-x-2 px-1.5 py-1">
+                                        {Icon && <Icon className="size-4" style={{ color: priorityOption?.color }} />}
+                                        <span className="text-sm">{priorityOption ? t(priorityOption.translationKey) : '-'}</span>
+                                    </div>
+                                );
+                            })()
+                        ) : (
+                            <Select
+                                value={String(task.priority || 3)}
+                                onValueChange={handlePriorityChange}
+                                disabled={isPending}
+                            >
+                                <SelectTrigger className="w-fit border-0 h-auto shadow-none bg-transparent [&>svg]:hidden hover:bg-muted rounded-sm px-1.5 py-1">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {TASK_PRIORITY_OPTIONS.map(priority => {
+                                        const Icon = priority.icon;
+                                        return (
+                                            <SelectItem key={priority.value} value={String(priority.value)}>
+                                                <div className="flex items-center gap-x-2">
+                                                    <Icon
+                                                        className="size-4"
+                                                        style={{ color: priority.color }}
+                                                    />
+                                                    {t(priority.translationKey)}
+                                                </div>
+                                            </SelectItem>
+                                        );
+                                    })}
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
 
                     {/* Due Date */}
@@ -455,13 +505,19 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                             {t('due-date')}
                         </span>
                         <div>
-                            <CustomDatePicker
-                                value={task.dueDate ? new Date(task.dueDate) : undefined}
-                                onChange={handleDueDateChange}
-                                placeholder='not-defined'
-                                className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
-                                hideIcon
-                            />
+                            {readOnly ? (
+                                <span className="text-sm px-1.5 py-1">
+                                    {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : t('not-defined')}
+                                </span>
+                            ) : (
+                                <CustomDatePicker
+                                    value={task.dueDate ? new Date(task.dueDate) : undefined}
+                                    onChange={handleDueDateChange}
+                                    placeholder='not-defined'
+                                    className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
+                                    hideIcon
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -474,6 +530,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                             taskId={task.$id}
                             assignees={task.assignees || []}
                             availableMembers={availableMembers}
+                            readOnly={readOnly}
                         />
                     </div>
                 </div>
