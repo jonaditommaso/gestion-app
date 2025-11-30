@@ -56,6 +56,7 @@ export const TaskTitleEditor = ({
     const TypeIcon = typeOption.icon;
 
     const handleSave = () => {
+        if (readOnly) return;
         if (title.trim() && title !== initialTitle) {
             updateTask({
                 json: { name: title.trim() },
@@ -72,6 +73,7 @@ export const TaskTitleEditor = ({
     };
 
     const handleTypeChange = (type: string) => {
+        if (readOnly) return;
         updateTask({
             json: { type },
             param: { taskId }
@@ -175,6 +177,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     }, [allStatuses, effectiveStatusValue]);
 
     const handleStatusChange = (statusValue: string) => {
+        if (readOnly) return;
         // Detectar si es un custom status
         const isCustomStatus = statusValue.startsWith('CUSTOM_');
         const finalStatus = isCustomStatus ? TaskStatus.CUSTOM : statusValue;
@@ -190,6 +193,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     };
 
     const handlePriorityChange = (priority: string) => {
+        if (readOnly) return;
         updateTask({
             json: { priority: parseInt(priority) },
             param: { taskId: task.$id }
@@ -197,6 +201,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     };
 
     const handleDueDateChange = (date: Date | undefined) => {
+        if (readOnly) return;
         updateTask({
             json: { dueDate: date },
             param: { taskId: task.$id }
@@ -204,6 +209,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     };
 
     const handleLabelChange = (labelId: string | undefined) => {
+        if (readOnly) return;
         updateTask({
             json: { label: labelId || null },
             param: { taskId: task.$id }
@@ -211,6 +217,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     };
 
     const handleSaveDescription = async () => {
+        if (readOnly) return;
         // Procesar imágenes en la descripción si existen
         let processedDescription = description;
         const currentImageIds = getImageIds(task);
