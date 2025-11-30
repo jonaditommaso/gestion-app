@@ -1,9 +1,9 @@
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { createTaskSchema, getTaskSchema } from "../schemas";
+import { createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASK_ASSIGNEES_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
@@ -733,6 +733,59 @@ const app = new Hono()
                 console.error('Error fetching image:', err);
                 return ctx.json({ error: 'Image not found' }, 404);
             }
+        }
+    )
+
+    .post(
+        '/share',
+        sessionMiddleware,
+        zValidator('json', createTaskShareSchema),
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { taskId, workspaceId, token, expiresAt, type, sharedBy, sharedTo, readOnly } = ctx.req.valid('json');
+
+            // Verificar que el usuario es miembro del workspace
+            const member = await getMember({
+                databases,
+                workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Verificar que la tarea existe y pertenece al workspace
+            const task = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId
+            );
+
+            if (task.workspaceId !== workspaceId) {
+                return ctx.json({ error: 'Task does not belong to this workspace' }, 400);
+            }
+
+            // Crear el documento de share
+            await databases.createDocument(
+                DATABASE_ID,
+                TASK_SHARES_ID,
+                ID.unique(),
+                {
+                    taskId,
+                    workspaceId,
+                    token: token || null,
+                    expiresAt: expiresAt || null,
+                    type,
+                    sharedBy,
+                    sharedTo: sharedTo || null,
+                    readOnly,
+                }
+            );
+
+            return ctx.json({ success: true });
         }
     )
 

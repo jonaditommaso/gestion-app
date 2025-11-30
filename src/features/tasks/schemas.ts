@@ -1,5 +1,5 @@
 import { z as zod } from 'zod';
-import { TaskStatus } from './types';
+import { TaskShareType, TaskStatus } from './types';
 
 // Custom validation for status: accepts TaskStatus enum values OR custom status IDs (CUSTOM_xxxxx)
 const statusSchema = zod.string().refine(
@@ -29,4 +29,15 @@ export const getTaskSchema = zod.object({
     search: zod.string().nullish(),
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish()
+})
+
+export const createTaskShareSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+    workspaceId: zod.string().trim().min(1, 'Required'),
+    token: zod.string().optional(),
+    expiresAt: zod.coerce.date().optional(),
+    type: zod.nativeEnum(TaskShareType),
+    sharedBy: zod.string().trim().min(1, 'Required'),
+    sharedTo: zod.string().optional(),
+    readOnly: zod.boolean(),
 })

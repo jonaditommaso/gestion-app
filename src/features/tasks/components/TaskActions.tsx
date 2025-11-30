@@ -14,10 +14,11 @@ interface TaskActionsProps {
     id: string,
     children: React.ReactNode,
     isFeatured?: boolean,
-    taskName?: string
+    taskName?: string,
+    taskType?: string
 }
 
-const TaskActions = ({ id, children, isFeatured = false, taskName = '' }: TaskActionsProps) => {
+const TaskActions = ({ id, children, isFeatured = false, taskName = '', taskType = 'task' }: TaskActionsProps) => {
     const t = useTranslations('workspaces')
     const { canDeleteTask } = useWorkspacePermissions();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -57,6 +58,7 @@ const TaskActions = ({ id, children, isFeatured = false, taskName = '' }: TaskAc
             <ShareTaskModal
                 taskId={id}
                 taskName={taskName}
+                taskType={taskType}
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
             />

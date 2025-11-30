@@ -9,6 +9,11 @@ export enum TaskStatus {
     CUSTOM = 'CUSTOM'
 };
 
+export enum TaskShareType {
+    INTERNAL = 'INTERNAL',
+    EXTERNAL = 'EXTERNAL'
+};
+
 export type TaskMetadata = {
     imageIds?: string[];
     // Aquí podemos agregar más campos en el futuro:

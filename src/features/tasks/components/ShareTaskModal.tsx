@@ -18,10 +18,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { useCurrent } from "@/features/auth/api/use-current";
+import { TASK_TYPE_OPTIONS } from "../constants/type";
+import { useCreateTaskShare } from "../api/use-create-task-share";
+import { TaskShareType } from "../types";
 
 interface ShareTaskModalProps {
     taskId: string;
     taskName: string;
+    taskType?: string;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -33,32 +37,71 @@ interface SelectableMember {
     type: 'workspace' | 'team';
 }
 
-export const ShareTaskModal = ({ taskId, taskName, isOpen, onClose }: ShareTaskModalProps) => {
+export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, onClose }: ShareTaskModalProps) => {
     const t = useTranslations('workspaces');
     const workspaceId = useWorkspaceId();
     const { data: currentUser } = useCurrent();
     const { data: workspaceMembers } = useGetMembers({ workspaceId });
     const { data: teamMembers } = useGetTeamMembers();
+    const { mutateAsync: createTaskShare } = useCreateTaskShare();
+
+    // Get task type option
+    const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === taskType) || TASK_TYPE_OPTIONS.find(t => t.value === 'task')!;
+    const TypeIcon = typeOption.icon;
 
     const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
     const [message, setMessage] = useState('');
     const [showMessageInput, setShowMessageInput] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [publicLinkCopied, setPublicLinkCopied] = useState(false);
+    const [isGeneratingPublicLink, setIsGeneratingPublicLink] = useState(false);
     const [isSending, setIsSending] = useState(false);
 
-    // Generar link público
-    const publicLink = typeof window !== 'undefined'
-        ? `${window.location.origin}/shared/task/${taskId}`
+    // Enlace directo a la tarea (requiere autenticación)
+    const taskLink = typeof window !== 'undefined'
+        ? `${window.location.origin}/workspaces/${workspaceId}/tasks/${taskId}`
         : '';
 
-    const handleCopyLink = async () => {
+    const handleCopyTaskLink = async () => {
         try {
-            await navigator.clipboard.writeText(publicLink);
+            await navigator.clipboard.writeText(taskLink);
             setCopied(true);
             toast.success(t('link-copied'));
             setTimeout(() => setCopied(false), 2000);
         } catch {
             toast.error(t('error-copying-link'));
+        }
+    };
+
+    const handleGeneratePublicLink = async () => {
+        if (!currentUser) return;
+
+        setIsGeneratingPublicLink(true);
+        try {
+            const token = crypto.randomUUID();
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 15); // 15 días de vigencia
+
+            await createTaskShare({
+                json: {
+                    taskId,
+                    workspaceId,
+                    token,
+                    expiresAt,
+                    type: TaskShareType.EXTERNAL,
+                    sharedBy: currentUser.$id,
+                    readOnly: true,
+                }
+            });
+
+            const link = `${window.location.origin}/shared/task/${token}`;
+            await navigator.clipboard.writeText(link);
+            setPublicLinkCopied(true);
+            toast.success(t('public-link-generated'));
+        } catch {
+            toast.error(t('error-copying-link'));
+        } finally {
+            setIsGeneratingPublicLink(false);
         }
     };
 
@@ -92,6 +135,7 @@ export const ShareTaskModal = ({ taskId, taskName, isOpen, onClose }: ShareTaskM
         setMessage('');
         setShowMessageInput(false);
         setCopied(false);
+        setPublicLinkCopied(false);
         onClose();
     };
 
@@ -137,7 +181,8 @@ export const ShareTaskModal = ({ taskId, taskName, isOpen, onClose }: ShareTaskM
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="text-sm text-muted-foreground mb-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                    <TypeIcon className={cn("size-4", typeOption.textColor)} />
                     <span className="font-medium text-foreground">{taskName}</span>
                 </div>
 
@@ -252,6 +297,35 @@ export const ShareTaskModal = ({ taskId, taskName, isOpen, onClose }: ShareTaskM
                                 </Button>
                             </>
                         )}
+
+                        {/* Enlace de la tarea (siempre visible) */}
+                        <div className="space-y-2 pt-2">
+                            <p className="text-xs text-muted-foreground">
+                                {t.rich('copy-task-link', {
+                                    bold: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>
+                                })}
+                            </p>
+                            <div className="flex gap-2">
+                                <Input
+                                    value={taskLink}
+                                    readOnly
+                                    tabIndex={-1}
+                                    className="flex-1 bg-muted text-sm"
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={handleCopyTaskLink}
+                                    className="shrink-0"
+                                >
+                                    {copied ? (
+                                        <Check className="size-4 text-green-500" />
+                                    ) : (
+                                        <Copy className="size-4" />
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
                     </div>
 
                     <Separator />
@@ -269,25 +343,33 @@ export const ShareTaskModal = ({ taskId, taskName, isOpen, onClose }: ShareTaskM
                             })}
                         </p>
 
-                        <div className="flex gap-2">
-                            <Input
-                                value={publicLink}
-                                readOnly
-                                className="flex-1 bg-muted text-sm"
-                            />
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={handleCopyLink}
-                                className="shrink-0"
-                            >
-                                {copied ? (
-                                    <Check className="size-4 text-green-500" />
-                                ) : (
-                                    <Copy className="size-4" />
-                                )}
-                            </Button>
-                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={handleGeneratePublicLink}
+                            disabled={isGeneratingPublicLink || publicLinkCopied}
+                            className="w-full"
+                        >
+                            {publicLinkCopied ? (
+                                <>
+                                    <Check className="size-4 mr-2 text-green-500" />
+                                    {t('public-link-generated')}
+                                </>
+                            ) : isGeneratingPublicLink ? (
+                                t('generating')
+                            ) : (
+                                <>
+                                    <Link className="size-4 mr-2" />
+                                    {t('generate-public-link')}
+                                </>
+                            )}
+                        </Button>
+
+                        <p className="text-xs text-muted-foreground">
+                            {t.rich('link-validity', {
+                                days: 15,
+                                bold: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>
+                            })} {t('link-validity-settings')}
+                        </p>
                     </div>
                 </div>
             </DialogContent>
