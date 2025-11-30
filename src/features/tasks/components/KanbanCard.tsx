@@ -72,7 +72,7 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                 <div className="flex items-start justify-between gap-x-2">
                     <p className="text-sm line-clamp-2">{task.name}</p>
                     <div onClick={(e) => e.stopPropagation()}>
-                        <TaskActions id={task.$id} isFeatured={task.featured}>
+                        <TaskActions id={task.$id} isFeatured={task.featured} taskName={task.name}>
                             <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
                         </TaskActions>
                     </div>

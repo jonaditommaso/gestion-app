@@ -1,21 +1,26 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ExternalLinkIcon, FlagIcon, FlagOffIcon, TrashIcon } from "lucide-react";
+import { ExternalLinkIcon, FlagIcon, FlagOffIcon, Share2Icon, TrashIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useUpdateTask } from "../api/use-update-task";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { useState } from "react";
+import { ShareTaskModal } from "./ShareTaskModal";
+import { Separator } from "@/components/ui/separator";
 
 interface TaskActionsProps {
     id: string,
     children: React.ReactNode,
-    isFeatured?: boolean
+    isFeatured?: boolean,
+    taskName?: string
 }
 
-const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => {
+const TaskActions = ({ id, children, isFeatured = false, taskName = '' }: TaskActionsProps) => {
     const t = useTranslations('workspaces')
     const { canDeleteTask } = useWorkspacePermissions();
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [ConfirmDialog, confirm] = useConfirm(
         t('delete-task'),
         t('action-cannot-be-undone'),
@@ -49,6 +54,12 @@ const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => 
     return (
         <div className="flex justify-end">
             <ConfirmDialog />
+            <ShareTaskModal
+                taskId={id}
+                taskName={taskName}
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+            />
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                     {children}
@@ -60,6 +71,13 @@ const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => 
                     >
                         <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
                         {t('task-details')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="font-medium p-[10px]"
+                    >
+                        <Share2Icon className="size-4 mr-2 stroke-2" />
+                        {t('share-task')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={onToggleFeatured}
@@ -78,14 +96,17 @@ const TaskActions = ({ id, children, isFeatured = false }: TaskActionsProps) => 
                         )}
                     </DropdownMenuItem>
                     {canDeleteTask && (
-                        <DropdownMenuItem
-                            onClick={onDelete}
-                            disabled={isDeletingTask || isUpdatingTask}
-                            className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
-                        >
-                            <TrashIcon className="size-4 mr-2 stroke-2" />
-                            {t('delete-task')}
-                        </DropdownMenuItem>
+                        <>
+                            <Separator />
+                            <DropdownMenuItem
+                                onClick={onDelete}
+                                disabled={isDeletingTask || isUpdatingTask}
+                                className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
+                            >
+                                <TrashIcon className="size-4 mr-2 stroke-2" />
+                                {t('delete-task')}
+                            </DropdownMenuItem>
+                        </>
                     )}
                 </DropdownMenuContent>
             </DropdownMenu>
