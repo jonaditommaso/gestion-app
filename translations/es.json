@@ -1101,6 +1101,7 @@
     },
     "records": {
         "create-records-table": "Crear nueva tabla de registros",
+        "table-name-required": "Debes ingresar un nombre para crear la tabla",
         "add": "Agregar",
         "add-table": "Agregar tabla",
         "new-table": "Nueva tabla...",

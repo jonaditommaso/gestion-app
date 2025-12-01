@@ -1095,6 +1095,7 @@
     },
     "records": {
         "create-records-table": "Create a new table of records",
+        "table-name-required": "You must enter a name to create the table",
         "add": "Add",
         "add-table": "Add table",
         "new-table": "New table...",
