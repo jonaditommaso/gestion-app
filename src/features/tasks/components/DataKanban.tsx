@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { Task, TaskStatus } from "../types";
 import {
     DragDropContext,
@@ -669,6 +669,15 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     // Determinar si necesitamos scroll (más de 5 columnas)
     const needsScroll = orderedStatuses.length > 5;
 
+    // Calculate task counts by status for passing to KanbanColumnHeader
+    const taskCountByStatus = useMemo(() => {
+        const counts: Record<string, number> = {};
+        for (const statusId of Object.keys(tasks)) {
+            counts[statusId] = tasks[statusId]?.length || 0;
+        }
+        return counts;
+    }, [tasks]);
+
     return (
         <>
             <DragDropContext onDragEnd={onDragEnd}>
@@ -768,6 +777,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
                                                             availableStatuses={orderedStatuses}
                                                             isRigidLimitReached={isRigidLimitReached}
+                                                            taskCountByStatus={taskCountByStatus}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">
                                                             {(provided) => (

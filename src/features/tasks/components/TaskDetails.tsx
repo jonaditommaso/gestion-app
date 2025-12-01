@@ -26,6 +26,9 @@ import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { LabelSelector } from "./LabelSelector";
+import { useGetTasks } from "../api/use-get-tasks";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -165,6 +168,8 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { allStatuses, getIconComponent } = useCustomStatuses();
+    const config = useWorkspaceConfig();
+    const { data: tasksData } = useGetTasks({ workspaceId });
 
     const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
 
@@ -172,6 +177,35 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const effectiveStatusValue = task.status === TaskStatus.CUSTOM && task.statusCustomId
         ? task.statusCustomId
         : task.status;
+
+    // Calculate which statuses have reached their rigid limit
+    const statusesWithRigidLimitReached = useMemo(() => {
+        const blocked = new Set<string>();
+        const tasks = tasksData?.documents || [];
+
+        Object.keys(STATUS_TO_LIMIT_KEYS).forEach(statusId => {
+            const limitKeys = STATUS_TO_LIMIT_KEYS[statusId];
+            const limitType = config[limitKeys.type] as ColumnLimitType;
+            const limitMax = config[limitKeys.max] as number | null;
+
+            // Count tasks in this status
+            const taskCount = tasks.filter(t => {
+                if (statusId === 'CUSTOM') return false;
+                return t.status === statusId ||
+                    (t.status === TaskStatus.CUSTOM && t.statusCustomId === statusId);
+            }).length;
+
+            // Check if rigid limit is reached (don't block current status)
+            if (limitType === ColumnLimitType.RIGID && limitMax !== null && taskCount >= limitMax) {
+                // Don't block the current status (user can stay where they are)
+                if (statusId !== effectiveStatusValue) {
+                    blocked.add(statusId);
+                }
+            }
+        });
+
+        return blocked;
+    }, [tasksData?.documents, config, effectiveStatusValue]);
 
     // Encontrar el status actual fuera del render para evitar setState durante render
     const currentStatusData = useMemo(() => {
@@ -433,11 +467,22 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             <SelectContent>
                                 {allStatuses.map(status => {
                                     const IconComponent = getIconComponent(status.icon);
+                                    const isBlocked = statusesWithRigidLimitReached.has(status.id);
                                     return (
-                                        <SelectItem key={status.id} value={status.id}>
+                                        <SelectItem
+                                            key={status.id}
+                                            value={status.id}
+                                            disabled={isBlocked}
+                                            className={cn(isBlocked && "opacity-50")}
+                                        >
                                             <div className="flex items-center gap-2">
                                                 {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
                                                 {status.translationKey ? t(status.translationKey) : status.label}
+                                                {isBlocked && (
+                                                    <span className="text-xs text-muted-foreground ml-1">
+                                                        ({t('limit-reached')})
+                                                    </span>
+                                                )}
                                             </div>
                                         </SelectItem>
                                     );
