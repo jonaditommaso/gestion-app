@@ -115,11 +115,10 @@ export const columns: ColumnDef<Task>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const id = row.original.$id;
-      const isFeatured = row.original.featured;
+      const { $id, name, type, featured } = row.original;
 
       return (
-        <TaskActions id={id} isFeatured={isFeatured}>
+        <TaskActions taskId={$id} taskName={name} taskType={type} isFeatured={featured}>
           <Button variant='ghost' className="size-8 p-0">
             <MoreVertical className="size-4" />
           </Button>

@@ -1,62 +1,104 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ExternalLinkIcon, FlagIcon, FlagOffIcon, Share2Icon, TrashIcon } from "lucide-react";
+import { ExternalLinkIcon, FlagIcon, FlagOffIcon, MoreHorizontalIcon, Share2Icon, TrashIcon, XIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useUpdateTask } from "../api/use-update-task";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
-import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { useState } from "react";
 import { ShareTaskModal } from "./ShareTaskModal";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
+
+export type TaskActionsVariant = 'kanban' | 'modal' | 'page';
 
 interface TaskActionsProps {
-    id: string,
-    children: React.ReactNode,
-    isFeatured?: boolean,
-    taskName?: string,
-    taskType?: string
+    taskId: string;
+    taskName: string;
+    taskType?: string;
+    isFeatured?: boolean;
+    /**
+     * - 'kanban': Para KanbanCard y DataTable. Muestra "Abrir detalles" (nueva pestaña)
+     * - 'modal': Para TaskDetailsModal. Muestra "Abrir en nueva página" + botón cerrar
+     * - 'page': Para página de tarea. Sin opciones de navegación
+     */
+    variant?: TaskActionsVariant;
+    /** Solo para variant='modal' - callback para cerrar el modal */
+    onClose?: () => void;
+    /** Contenido personalizado para el trigger (solo kanban) */
+    children?: React.ReactNode;
 }
 
-const TaskActions = ({ id, children, isFeatured = false, taskName = '', taskType = 'task' }: TaskActionsProps) => {
-    const t = useTranslations('workspaces')
-    const { canDeleteTask } = useWorkspacePermissions();
+const TaskActions = ({
+    taskId,
+    taskName,
+    taskType = 'task',
+    isFeatured = false,
+    variant = 'kanban',
+    onClose,
+    children
+}: TaskActionsProps) => {
+    const t = useTranslations('workspaces');
+    const router = useRouter();
+    const workspaceId = useWorkspaceId();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+    const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
+    const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
+
     const [ConfirmDialog, confirm] = useConfirm(
         t('delete-task'),
         t('action-cannot-be-undone'),
         'destructive'
     );
 
-    const workspaceId = useWorkspaceId()
+    const isPending = isDeletingTask || isUpdatingTask;
 
-    const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
-    const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
+    const onOpenInNewTab = () => {
+        window.open(`/workspaces/${workspaceId}/tasks/${taskId}`, '_blank');
+    };
 
-    const onOpenTask = () => {
-        window.open(`/workspaces/${workspaceId}/tasks/${id}`, '_blank')
-    }
+    const onOpenInNewPage = () => {
+        router.push(`/workspaces/${workspaceId}/tasks/${taskId}`);
+    };
 
     const onDelete = async () => {
-        const ok = await confirm()
+        const ok = await confirm();
         if (!ok) return;
 
-        deleteTask({ param: { taskId: id }})
-    }
+        deleteTask(
+            { param: { taskId } },
+            {
+                onSuccess: () => {
+                    if (variant === 'modal' && onClose) {
+                        onClose();
+                    } else if (variant === 'page') {
+                        router.push(`/workspaces/${workspaceId}/tasks`);
+                    }
+                }
+            }
+        );
+    };
 
-    // todo: check how to implement optimistic update here with useOptimistic
     const onToggleFeatured = () => {
         updateTask({
             json: { featured: !isFeatured },
-            param: { taskId: id }
-        })
-    }
+            param: { taskId }
+        });
+    };
+
+    const triggerButton = children || (
+        <Button variant="ghost" size="icon" disabled={isPending}>
+            <MoreHorizontalIcon className="size-5" />
+        </Button>
+    );
 
     return (
-        <div className="flex justify-end">
+        <div className={variant === 'kanban' ? "flex justify-end" : "flex items-center gap-2"}>
             <ConfirmDialog />
             <ShareTaskModal
-                taskId={id}
+                taskId={taskId}
                 taskName={taskName}
                 taskType={taskType}
                 isOpen={isShareModalOpen}
@@ -64,26 +106,40 @@ const TaskActions = ({ id, children, isFeatured = false, taskName = '', taskType
             />
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                    {children}
+                    {triggerButton}
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem
-                        onClick={onOpenTask}
-                        className="font-medium p-[10px]"
-                    >
-                        <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
-                        {t('task-details')}
-                    </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="w-56">
+                    {/* Opción de navegación según variante */}
+                    {variant === 'kanban' && (
+                        <DropdownMenuItem
+                            onClick={onOpenInNewTab}
+                            className="font-medium p-[10px] cursor-pointer"
+                        >
+                            <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
+                            {t('task-details')}
+                        </DropdownMenuItem>
+                    )}
+                    {variant === 'modal' && (
+                        <DropdownMenuItem
+                            onClick={onOpenInNewPage}
+                            className="font-medium p-[10px] cursor-pointer"
+                        >
+                            <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
+                            {t('open-in-new-page')}
+                        </DropdownMenuItem>
+                    )}
+
+                    {/* Opciones comunes */}
                     <DropdownMenuItem
                         onClick={() => setIsShareModalOpen(true)}
-                        className="font-medium p-[10px]"
+                        className="font-medium p-[10px] cursor-pointer"
                     >
                         <Share2Icon className="size-4 mr-2 stroke-2" />
                         {t('share-task')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={onToggleFeatured}
-                        className="font-medium p-[10px]"
+                        className="font-medium p-[10px] cursor-pointer"
                     >
                         {isFeatured ? (
                             <>
@@ -97,23 +153,27 @@ const TaskActions = ({ id, children, isFeatured = false, taskName = '', taskType
                             </>
                         )}
                     </DropdownMenuItem>
-                    {canDeleteTask && (
-                        <>
-                            <Separator />
-                            <DropdownMenuItem
-                                onClick={onDelete}
-                                disabled={isDeletingTask || isUpdatingTask}
-                                className="text-amber-700 focus:text-amber-700 font-medium p-[10px]"
-                            >
-                                <TrashIcon className="size-4 mr-2 stroke-2" />
-                                {t('delete-task')}
-                            </DropdownMenuItem>
-                        </>
-                    )}
+
+                    <Separator />
+                    <DropdownMenuItem
+                        onClick={onDelete}
+                        disabled={isPending}
+                        className="text-amber-700 focus:text-amber-700 font-medium p-[10px] cursor-pointer"
+                    >
+                        <TrashIcon className="size-4 mr-2 stroke-2" />
+                        {t('delete-task')}
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Botón de cerrar solo para modal */}
+            {variant === 'modal' && onClose && (
+                <Button variant="ghost" size="icon" onClick={onClose}>
+                    <XIcon className="size-5" />
+                </Button>
+            )}
         </div>
     );
-}
+};
 
 export default TaskActions;
