@@ -72,12 +72,15 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
           transformedRow
         ];
 
-        addHeaders({
-            json: {
-                headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
-            },
-            param: { tableId: currentRecordTable }
-        });
+        // Solo agregar headers si hay nuevos
+        if (filteredHeaders.length > 0) {
+            addHeaders({
+                json: {
+                    headers: recordToEdit?.headers ? [...filteredHeaders, ...recordToEdit?.headers] : headers,
+                },
+                param: { tableId: currentRecordTable }
+            });
+        }
 
         addRecords({
             json: {
