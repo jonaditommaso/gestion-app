@@ -643,6 +643,34 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('public-link-expiration')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('public-link-expiration-description')}
+                            </p>
+                        </div>
+                        <Select
+                            value={String(displayConfig[WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS])}
+                            onValueChange={(value) => updateConfig(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS, value === '0' ? 0 : Number(value))}
+                            disabled={isConfigPending(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS)}
+                        >
+                            <SelectTrigger className="w-fit">
+                                <SelectValue placeholder={t('expiration-5-days')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">{t('expiration-1-day')}</SelectItem>
+                                <SelectItem value="5">{t('expiration-5-days')}</SelectItem>
+                                <SelectItem value="10">{t('expiration-10-days')}</SelectItem>
+                                <SelectItem value="15">{t('expiration-15-days')}</SelectItem>
+                                <SelectItem value="30">{t('expiration-30-days')}</SelectItem>
+                                <SelectItem value="0">{t('expiration-unlimited')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </CardContent>
             </Card>
 

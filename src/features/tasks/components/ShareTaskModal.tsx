@@ -22,6 +22,8 @@ import { TASK_TYPE_OPTIONS } from "../constants/type";
 import { useCreateTaskShare } from "../api/use-create-task-share";
 import { useBulkCreateTaskShare } from "../api/use-bulk-create-task-share";
 import { TaskShareType } from "../types";
+import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 
 interface ShareTaskModalProps {
     taskId: string;
@@ -48,6 +50,10 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
     const { data: teamMembers } = useGetTeamMembers();
     const { mutateAsync: createTaskShare } = useCreateTaskShare();
     const { mutateAsync: bulkCreateTaskShare } = useBulkCreateTaskShare();
+    const workspaceConfig = useWorkspaceConfig();
+
+    // Obtener días de vigencia del enlace público de la configuración
+    const publicLinkExpirationDays = workspaceConfig[WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS] as number;
 
     // Get task type option
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === taskType) || TASK_TYPE_OPTIONS.find(t => t.value === 'task')!;
@@ -83,8 +89,13 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
         setIsGeneratingPublicLink(true);
         try {
             const token = crypto.randomUUID();
-            const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + 15); // 15 días de vigencia
+
+            // Si es 0, no expira (ilimitado)
+            let expiresAt: Date | undefined;
+            if (publicLinkExpirationDays > 0) {
+                expiresAt = new Date();
+                expiresAt.setDate(expiresAt.getDate() + publicLinkExpirationDays);
+            }
 
             await createTaskShare({
                 json: {
@@ -395,10 +406,16 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
                         </Button>
 
                         <p className="text-xs text-muted-foreground">
-                            {t.rich('link-validity', {
-                                days: 15,
-                                bold: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>
-                            })} {t('link-validity-settings')}
+                            {publicLinkExpirationDays === 0 ? (
+                                t.rich('link-validity-unlimited', {
+                                    bold: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>
+                                })
+                            ) : (
+                                t.rich('link-validity', {
+                                    days: publicLinkExpirationDays,
+                                    bold: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>
+                                })
+                            )} {t('link-validity-settings')}
                         </p>
                     </div>
                 </div>

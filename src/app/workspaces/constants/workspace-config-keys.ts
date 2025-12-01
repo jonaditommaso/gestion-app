@@ -42,6 +42,7 @@ export enum WorkspaceConfigKey {
     AUTO_ASSIGN_ON_CREATE = 'autoAssignOnCreate',
     GENERATE_TASK_CODE = 'generateTaskCode',
     DATE_FORMAT = 'dateFormat',
+    PUBLIC_LINK_EXPIRATION_DAYS = 'publicLinkExpirationDays',
 
     // Notifications
     NOTIFY_TASK_ASSIGNMENT = 'notifyTaskAssignment',
@@ -126,6 +127,7 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE]: false,
     [WorkspaceConfigKey.GENERATE_TASK_CODE]: true, // enabled by default
     [WorkspaceConfigKey.DATE_FORMAT]: DateFormatType.LONG,
+    [WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS]: 5, // 5 days by default
 
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,
