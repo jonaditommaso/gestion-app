@@ -41,3 +41,16 @@ export const createTaskShareSchema = zod.object({
     sharedTo: zod.string().optional(),
     readOnly: zod.boolean(),
 })
+
+export const bulkCreateTaskShareSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+    taskName: zod.string().trim().min(1, 'Required'),
+    workspaceId: zod.string().trim().min(1, 'Required'),
+    recipients: zod.array(zod.object({
+        memberId: zod.string().trim().min(1, 'Required'),
+        userId: zod.string().trim().min(1, 'Required'),
+        isWorkspaceMember: zod.boolean(),
+    })).min(1, 'At least one recipient is required'),
+    message: zod.string().optional(),
+    locale: zod.enum(['es', 'en', 'it']).default('es'),
+})

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Check, ChevronDown, Copy, Link, Send, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "motion/react";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetMembers as useGetTeamMembers } from "@/features/team/api/use-get-members";
@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import { useCreateTaskShare } from "../api/use-create-task-share";
+import { useBulkCreateTaskShare } from "../api/use-bulk-create-task-share";
 import { TaskShareType } from "../types";
 
 interface ShareTaskModalProps {
@@ -32,6 +33,7 @@ interface ShareTaskModalProps {
 
 interface SelectableMember {
     id: string;
+    userId: string;
     name: string;
     email?: string;
     type: 'workspace' | 'team';
@@ -39,11 +41,13 @@ interface SelectableMember {
 
 export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, onClose }: ShareTaskModalProps) => {
     const t = useTranslations('workspaces');
+    const locale = useLocale() as 'es' | 'en' | 'it';
     const workspaceId = useWorkspaceId();
     const { data: currentUser } = useCurrent();
     const { data: workspaceMembers } = useGetMembers({ workspaceId });
     const { data: teamMembers } = useGetTeamMembers();
     const { mutateAsync: createTaskShare } = useCreateTaskShare();
+    const { mutateAsync: bulkCreateTaskShare } = useBulkCreateTaskShare();
 
     // Get task type option
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === taskType) || TASK_TYPE_OPTIONS.find(t => t.value === 'task')!;
@@ -122,12 +126,36 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
         }
 
         setIsSending(true);
-        // TODO: Implementar envío interno
-        // Por ahora simulamos el envío
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsSending(false);
-        toast.success(t('task-shared-successfully'));
-        handleClose();
+        try {
+            // Construir la lista de recipients con la info necesaria
+            const recipients = Array.from(selectedMembers).map(memberId => {
+                const member = uniqueMembers.find(m => m.id === memberId);
+                if (!member) throw new Error('Member not found');
+
+                return {
+                    memberId: member.id,
+                    userId: member.userId,
+                    isWorkspaceMember: member.type === 'workspace',
+                };
+            });
+
+            await bulkCreateTaskShare({
+                json: {
+                    taskId,
+                    taskName,
+                    workspaceId,
+                    recipients,
+                    message: message.trim() || undefined,
+                    locale,
+                }
+            });
+
+            handleClose();
+        } catch {
+            // El error ya se maneja en el hook
+        } finally {
+            setIsSending(false);
+        }
     };
 
     const handleClose = () => {
@@ -140,18 +168,20 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
     };
 
     // Combinar miembros del workspace y del team
-    const workspaceMembersList = (workspaceMembers?.documents || []) as unknown as Array<{ $id: string; name: string; email?: string; userId?: string }>;
-    const teamMembersList = (teamMembers || []) as unknown as Array<{ $id: string; userName: string; userEmail?: string; userId?: string }>;
+    const workspaceMembersList = (workspaceMembers?.documents || []) as unknown as Array<{ $id: string; name: string; email?: string; userId: string }>;
+    const teamMembersList = (teamMembers || []) as unknown as Array<{ $id: string; userName: string; userEmail?: string; userId: string }>;
 
     const allMembers: SelectableMember[] = [
         ...workspaceMembersList.map((m) => ({
             id: m.$id,
+            userId: m.userId,
             name: m.name,
             email: m.email,
             type: 'workspace' as const
         })),
         ...teamMembersList.map((m) => ({
             id: `team_${m.$id}`,
+            userId: m.userId,
             name: m.userName,
             email: m.userEmail,
             type: 'team' as const

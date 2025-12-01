@@ -26,8 +26,6 @@ export const useWorkspacePermissions = () => {
     const { data: members } = useGetMembers({ workspaceId });
     const config = useWorkspaceConfig();
 
-    console.log({ members })
-
     const permissions = useMemo(() => {
         // Find current user's member record in this workspace
         const currentMember = (members?.documents as WorkspaceMemberDocument[] | undefined)?.find(

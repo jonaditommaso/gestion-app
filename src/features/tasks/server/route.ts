@@ -1,11 +1,11 @@
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
+import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { Task, TaskShare, TaskStatus, WorkspaceMember } from "../types";
+import { Task, TaskShare, TaskShareType, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Models } from "node-appwrite";
@@ -849,6 +849,107 @@ const app = new Hono()
                     readOnly: share.readOnly
                 }
             });
+        }
+    )
+
+    .post(
+        '/share/bulk',
+        sessionMiddleware,
+        zValidator('json', bulkCreateTaskShareSchema),
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { taskId, taskName, workspaceId, recipients, message, locale } = ctx.req.valid('json');
+
+            // Traducciones para el mensaje de compartir
+            const shareMessageTranslations = {
+                es: (name: string) => `${name} te ha compartido una tarea`,
+                en: (name: string) => `${name} shared a task with you`,
+                it: (name: string) => `${name} ha condiviso un'attività con te`,
+            };
+
+            // Verificar que el usuario es miembro del workspace
+            const member = await getMember({
+                databases,
+                workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Verificar que la tarea existe y pertenece al workspace
+            const task = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId
+            );
+
+            if (task.workspaceId !== workspaceId) {
+                return ctx.json({ error: 'Task does not belong to this workspace' }, 400);
+            }
+
+            // Construir el enlace base
+            const origin = ctx.req.header('origin') || ctx.req.header('referer')?.replace(/\/$/, '') || '';
+
+            // Crear shares y mensajes para cada recipient
+            const sharePromises = recipients.map(async (recipient) => {
+                let taskLink: string;
+                let token: string | null = null;
+
+                if (recipient.isWorkspaceMember) {
+                    // Miembro del workspace: link directo
+                    taskLink = `${origin}/workspaces/${workspaceId}/tasks/${taskId}`;
+                } else {
+                    // Miembro del team (no workspace): generar token sin expiración
+                    token = crypto.randomUUID();
+                    taskLink = `${origin}/shared/task/${token}`;
+                }
+
+                // Crear el documento de share
+                await databases.createDocument(
+                    DATABASE_ID,
+                    TASK_SHARES_ID,
+                    ID.unique(),
+                    {
+                        taskId,
+                        workspaceId,
+                        token,
+                        expiresAt: null, // Sin expiración para shares internos
+                        type: TaskShareType.INTERNAL,
+                        sharedBy: user.$id,
+                        sharedTo: recipient.userId,
+                        readOnly: !recipient.isWorkspaceMember,
+                    }
+                );
+
+                // Construir el contenido del mensaje usando la traducción correcta
+                const translatedHeader = shareMessageTranslations[locale](member.name);
+                let messageContent = `📋 ${translatedHeader}: "${taskName}"\n\n🔗 ${taskLink}`;
+                if (message && message.trim()) {
+                    messageContent = `📋 ${translatedHeader}: "${taskName}"\n\n💬 "${message.trim()}"\n\n🔗 ${taskLink}`;
+                }
+
+                // Crear el mensaje para el recipient
+                await databases.createDocument(
+                    DATABASE_ID,
+                    MESSAGES_ID,
+                    ID.unique(),
+                    {
+                        read: false,
+                        content: messageContent,
+                        to: recipient.userId,
+                        from: user.$id,
+                        userId: user.$id
+                    }
+                );
+            });
+
+            await Promise.all(sharePromises);
+
+            return ctx.json({ success: true });
         }
     )
 
