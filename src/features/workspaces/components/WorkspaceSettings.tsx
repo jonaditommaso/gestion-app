@@ -803,7 +803,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    {/* <Separator />
+                    <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -817,7 +817,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY, checked)}
                             disabled={isPending || isAdminMode}
                         />
-                    </div> */}
+                    </div>
 
                     <Separator />
 
