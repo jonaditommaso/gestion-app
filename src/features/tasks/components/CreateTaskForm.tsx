@@ -28,7 +28,7 @@ import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { useGetMembers } from "@/features/members/api/use-get-members";
@@ -53,6 +53,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const config = useWorkspaceConfig();
     const { canEditLabel } = useWorkspacePermissions();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
+    const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
     const { getStatusDisplayName } = useStatusDisplayName();
     const { allStatuses, getIconComponent } = useCustomStatuses();
 
@@ -105,6 +106,17 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
             assigneesIds: [],
         }
     })
+
+    // Auto-asignar al usuario actual si la configuración está habilitada
+    useEffect(() => {
+        if (autoAssignOnCreate && currentMemberId) {
+            const currentAssignees = form.getValues('assigneesIds') || [];
+            // Solo establecer si está vacío (no sobrescribir si ya hay asignados)
+            if (currentAssignees.length === 0) {
+                form.setValue('assigneesIds', [currentMemberId]);
+            }
+        }
+    }, [autoAssignOnCreate, currentMemberId, form]);
 
     const onSubmit = async (values: zod.infer<typeof createTaskSchema>) => {
         const { description, status, ...rest } = values

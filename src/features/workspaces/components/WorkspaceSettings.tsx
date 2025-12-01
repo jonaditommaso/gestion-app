@@ -579,8 +579,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    {/* //TODO: implement multi-assignee */}
-                    {/* <Separator />
+                    <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -594,7 +593,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE, checked)}
                             disabled={isPending}
                         />
-                    </div> */}
+                    </div>
 
                     {/* //TODO: implement code generation with cloud function */}
                     {/* <Separator /> */}
