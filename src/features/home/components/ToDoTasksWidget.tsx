@@ -9,7 +9,11 @@ import { useLocale } from "next-intl";
 
 const ToDoTasksWidget = () => {
     const {data: member} = useGetMember();
-    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId: member?.workspaceId,  status: TaskStatus.TODO });
+    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({
+        workspaceId: member?.workspaceId,
+        status: TaskStatus.TODO,
+        enabled: !!member?.workspaceId
+    });
     const t = useTranslations('home');
     const locale = useLocale();
 

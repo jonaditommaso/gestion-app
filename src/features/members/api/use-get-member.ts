@@ -7,8 +7,8 @@ export const useGetMember = () => {
         queryFn: async () => {
             const response = await client.api.members['current'].$get();
 
-            if(!response.ok) {
-                throw new Error('Failed to fetch current member')
+            if (!response.ok) {
+                return null;
             }
 
             const { data } = await response.json();

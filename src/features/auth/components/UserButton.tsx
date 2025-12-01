@@ -18,7 +18,7 @@ const UserButton = () => {
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
     const { setTheme } = useTheme();
-    const { imageUrl, isPending } = useProfilePicture();
+    const { imageUrl, isPending } = useProfilePicture(undefined, !!user?.prefs?.image);
     const t = useTranslations('general')
 
     if(isLoading || isPending) {

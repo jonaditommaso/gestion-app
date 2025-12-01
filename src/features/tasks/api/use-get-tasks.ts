@@ -3,12 +3,13 @@ import { client } from "@/lib/rpc";
 import { TaskStatus } from "../types";
 
 interface UseGetTasksProps {
-    workspaceId: string,
+    workspaceId?: string,
     status?: TaskStatus | null,
     assigneeId?: string | null,
     dueDate?: string | null,
     search?: string | null,
-    priority?: number | null
+    priority?: number | null,
+    enabled?: boolean
 }
 
 export const useGetTasks = ({
@@ -17,7 +18,8 @@ export const useGetTasks = ({
     assigneeId,
     dueDate,
     search,
-    priority
+    priority,
+    enabled = true
 }: UseGetTasksProps) => {
     const query = useQuery({
         queryKey: [
@@ -33,7 +35,7 @@ export const useGetTasks = ({
             const response = await client.api.tasks.$get(
                 {
                     query: {
-                        workspaceId,
+                        workspaceId: workspaceId!,
                         status: status ?? undefined,
                         assigneeId: assigneeId ?? undefined,
                         dueDate: dueDate ?? undefined,
@@ -52,7 +54,8 @@ export const useGetTasks = ({
             return data;
         },
         retry: false,
-        refetchOnMount: false
+        refetchOnMount: false,
+        enabled
     })
 
     return query;
