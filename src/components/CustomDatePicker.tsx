@@ -1,13 +1,12 @@
 'use client'
 
 import { CalendarIcon } from "lucide-react";
-import { Popover, PopoverTrigger } from "./ui/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { PopoverContent } from "@radix-ui/react-popover";
 import { Calendar } from "./ui/calendar";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -22,7 +21,7 @@ interface CustomDatePickerProps {
 const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-date', hideIcon = false }: CustomDatePickerProps) => {
     const [pickerIsOpen, setPickerIsOpen] = useState(false);
     const t = useTranslations('general');
-    const { theme } = useTheme();
+    // const { theme } = useTheme();
 
     const handleSelect = (date: Date) => {
         onChange(date);
@@ -45,7 +44,11 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-da
                     { value ? format(value, 'PPP') : <span>{t(placeholder)}</span> }
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white rounded-sm border-2" style={{ background: (theme === 'light' ? 'white' : '#212121') }}>
+            <PopoverContent
+                className="w-auto p-0 rounded-sm border z-[100]"
+                align="start"
+                sideOffset={4}
+            >
                 <Calendar
                     mode="single"
                     selected={value}

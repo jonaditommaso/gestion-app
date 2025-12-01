@@ -12,6 +12,7 @@ import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
 import { TASK_STATUS_OPTIONS } from "../constants/status";
+import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 
 interface DataFiltersProps {
     hideStatusFilter?: boolean;
@@ -22,6 +23,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
     const { data: members, isLoading } = useGetMembers({ workspaceId });
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
+    const { allStatuses, getIconComponent } = useCustomStatuses();
 
     const memberOptions = members?.documents.map(member => ({
         id: member.$id,
@@ -69,12 +71,21 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                     <SelectContent>
                         <SelectItem value="all">{t('all-statuses')}</SelectItem>
                         <SelectSeparator />
-                        {TASK_STATUS_OPTIONS.map(status => {
-                            const labelKey = STATUS_TO_LABEL_KEY[status.value];
-                            const customLabel = config[labelKey];
+                        {allStatuses.map(statusItem => {
+                            const IconComponent = getIconComponent(statusItem.icon);
+                            // Para status default, usar traducción o label personalizado
+                            const labelKey = statusItem.isDefault ? STATUS_TO_LABEL_KEY[statusItem.id] : null;
+                            const customLabel = labelKey ? config[labelKey] : null;
+                            const displayLabel = statusItem.isDefault
+                                ? (customLabel || t(TASK_STATUS_OPTIONS.find(s => s.value === statusItem.id)?.translationKey || statusItem.id.toLowerCase()))
+                                : statusItem.label;
+
                             return (
-                                <SelectItem key={status.value} value={status.value}>
-                                    {customLabel || t(status.translationKey)}
+                                <SelectItem key={statusItem.id} value={statusItem.id}>
+                                    <div className="flex items-center gap-x-2">
+                                        <IconComponent className="size-3" style={{ color: statusItem.color }} />
+                                        {displayLabel}
+                                    </div>
                                 </SelectItem>
                             );
                         })}
@@ -100,6 +111,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                                 <MemberAvatar
                                     className='size-6'
                                     name={member.name}
+                                    memberId={member.id}
                                 />
                                 {member.name}
                             </div>

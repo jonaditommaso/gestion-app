@@ -16,11 +16,13 @@ import AddWorkspaceMembersModal from "./AddWorkspaceMembersModal";
 import WorkspaceInfoModal from "./WorkspaceInfoModal";
 import { WorkspaceType } from "@/features/workspaces/types";
 import WorkspaceCustomize from "./WorkspaceCustomize";
+import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
 
 const WorkspaceView = () => {
     const workspaceId = useWorkspaceId();
     const { data: workspaces, isLoading } = useGetWorkspaces();
     const t = useTranslations('workspaces');
+    const { canInviteMembers, isAdminMode } = useWorkspacePermissions();
 
     const [optionsView, setOptionsView] = useState<string | null>(null);
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
@@ -75,7 +77,15 @@ const WorkspaceView = () => {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="min-w-48">
-                        {workspaceOptions.map((option) => (
+                        {workspaceOptions
+                            .filter(option => {
+                                // Ocultar add-member si no tiene permisos o está en admin mode
+                                if (option.key === 'add-member' && (!canInviteMembers || isAdminMode)) {
+                                    return false;
+                                }
+                                return true;
+                            })
+                            .map((option) => (
                             <DropdownMenuItem
                                 key={option.key}
                                 className="flex items-center gap-2 p-2 cursor-pointer"
@@ -93,7 +103,7 @@ const WorkspaceView = () => {
                     style={{ display: !optionsView ? 'none' : '' }}
                     onClick={() => setOptionsView(null)}
                 >
-                    Regresar
+                    {t('back')}
                 </Button>
             </div>
 

@@ -1,7 +1,6 @@
 import { DATABASE_ID, MEMBERS_ID } from "@/config";
 import { MemberRole } from "@/features/workspaces/members/types";
 import { getMember } from "@/features/workspaces/members/utils";
-import { createAdminClient } from "@/lib/appwrite";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
@@ -16,8 +15,6 @@ const app = new Hono()
         sessionMiddleware,
         zValidator('query', zod.object({ workspaceId: zod.string() })),
         async ctx => {
-            const { users } = await createAdminClient();
-
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
@@ -41,23 +38,9 @@ const app = new Hono()
                 ]
             );
 
-            const populatedMembers = await Promise.all(
-                members.documents.map(async member => {
-                    const user = await users.get(member.userId);
-
-                    return {
-                        ...member,
-                        name: user.name,
-                        email: user.email
-                    }
-                })
-            )
 
             return ctx.json({
-                data: {
-                    ...members,
-                    documents: populatedMembers
-                }
+                data: members
             })
         }
     )
@@ -67,13 +50,19 @@ const app = new Hono()
         sessionMiddleware,
         zValidator('json', zod.object({
             workspaceId: zod.string(),
-            userIds: zod.array(zod.string()).min(1)
+            userIds: zod.array(zod.string()).min(1),
+            members: zod.array(zod.object({
+                userId: zod.string(),
+                name: zod.string(),
+                email: zod.string().email(),
+                avatarId: zod.string().optional().nullable()
+            })).min(1)
         })),
         async ctx => {
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const { workspaceId, userIds } = ctx.req.valid('json');
+            const { workspaceId, members } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -86,14 +75,14 @@ const app = new Hono()
             }
 
             const createdMembers = await Promise.all(
-                userIds.map(async (userId) => {
+                members.map(async (memberData) => {
                     // Verificar si ya es miembro
                     const existingMember = await databases.listDocuments(
                         DATABASE_ID,
                         MEMBERS_ID,
                         [
                             Query.equal('workspaceId', workspaceId),
-                            Query.equal('userId', userId)
+                            Query.equal('userId', memberData.userId)
                         ]
                     );
 
@@ -106,9 +95,12 @@ const app = new Hono()
                         MEMBERS_ID,
                         ID.unique(),
                         {
-                            userId,
+                            userId: memberData.userId,
                             workspaceId,
-                            role: MemberRole.MEMBER
+                            role: MemberRole.MEMBER,
+                            name: memberData.name,
+                            email: memberData.email,
+                            avatarId: memberData.avatarId || null
                         }
                     );
                 })

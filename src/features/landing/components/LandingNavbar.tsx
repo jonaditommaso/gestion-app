@@ -42,7 +42,7 @@ export function LandingNavbar() {
     }
   }, [isMobile, isMobileMenuOpen]);
 
-  const notShowInView = ['/login', '/oauth/loading', '/meets/loading', '/signup', '/mfa', `/team/join-team/${params.invitation}`]
+  const notShowInView = ['/login', '/oauth/loading', '/meets/loading', '/signup', '/mfa', `/team/join-team/${params.invitation}`, `/shared/task/${params.token}`]
 
   if(notShowInView.includes(pathname)) return null; //check how to implement it in ssr, and more gral
 

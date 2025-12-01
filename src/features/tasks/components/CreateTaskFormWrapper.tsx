@@ -8,9 +8,10 @@ import { TaskStatus } from "../types";
 interface CreateTaskFormWrapperProps {
     onCancel: () => void;
     initialStatus?: TaskStatus;
+    initialStatusCustomId?: string;
 }
 
-const CreateTaskFormWrapper = ({ onCancel, initialStatus }: CreateTaskFormWrapperProps) => {
+const CreateTaskFormWrapper = ({ onCancel, initialStatus, initialStatusCustomId }: CreateTaskFormWrapperProps) => {
     const workspaceId = useWorkspaceId()
 
     const { data: members, isLoading: isLoadingMembers } = useGetMembers({ workspaceId })
@@ -31,7 +32,12 @@ const CreateTaskFormWrapper = ({ onCancel, initialStatus }: CreateTaskFormWrappe
     }
 
     return (
-        <CreateTaskForm memberOptions={memberOptions} onCancel={onCancel} initialStatus={initialStatus} />
+        <CreateTaskForm
+            memberOptions={memberOptions}
+            onCancel={onCancel}
+            initialStatus={initialStatus}
+            initialStatusCustomId={initialStatusCustomId}
+        />
     );
 }
 

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
 import TaskDetails, { TaskTitleEditor } from "@/features/tasks/components/TaskDetails";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 const TaskPageActions = ({
     taskId
@@ -65,6 +66,7 @@ const TaskPageActions = ({
 const TaskIdClient = () => {
     const taskId = useTaskId();
     const { data, isLoading } = useGetTask({ taskId })
+    const { canDeleteTask } = useWorkspacePermissions();
 
     if (isLoading) return <CustomLoader />
 
@@ -81,7 +83,7 @@ const TaskIdClient = () => {
                         initialType={data.type}
                         size="page"
                     />
-                    <TaskPageActions taskId={data.$id} />
+                    {canDeleteTask && <TaskPageActions taskId={data.$id} />}
                 </div>
 
                 {/* Content */}

@@ -7,6 +7,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useGetTask } from "../api/use-get-task";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import TaskDetailsContent from "./TaskDetailsContent";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 interface TaskDetailsModalProps {
     taskId: string;
@@ -18,6 +19,7 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
     const router = useRouter();
     const { data: task, isLoading } = useGetTask({ taskId });
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
+    const { canDeleteTask } = useWorkspacePermissions();
     const [ConfirmDialog, confirm] = useConfirm(
         'Delete task',
         'This action cannot be undone.',
@@ -66,12 +68,14 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
                                     initialTitle={task.name}
                                     initialType={task.type}
                                 />
-                                <TaskDetailsContent.Actions
-                                    onOpenInNewPage={handleOpenInNewPage}
-                                    onDelete={handleDelete}
-                                    onClose={onClose}
-                                    isDeleting={isDeletingTask}
-                                />
+                                {canDeleteTask && (
+                                    <TaskDetailsContent.Actions
+                                        onOpenInNewPage={handleOpenInNewPage}
+                                        onDelete={handleDelete}
+                                        onClose={onClose}
+                                        isDeleting={isDeletingTask}
+                                    />
+                                )}
                             </div>
 
                             {/* Content */}

@@ -1,16 +1,23 @@
 import { z as zod } from 'zod';
-import { TaskStatus } from './types';
+import { TaskShareType, TaskStatus } from './types';
+
+// Custom validation for status: accepts TaskStatus enum values OR custom status IDs (CUSTOM_xxxxx)
+const statusSchema = zod.string().refine(
+    (val) => Object.values(TaskStatus).includes(val as TaskStatus) || val.startsWith('CUSTOM_'),
+    { message: 'Invalid status value' }
+);
 
 export const createTaskSchema = zod.object({
     name: zod.string().trim().min(1, 'Required'),
-    status: zod.nativeEnum(TaskStatus, { required_error: 'Required' }),
+    status: statusSchema,
+    statusCustomId: zod.string().optional().nullable(), // ID del custom status cuando status === 'CUSTOM'
     workspaceId: zod.string().trim().min(1, 'Required'),
-    dueDate: zod.coerce.date(),
-    assigneeId: zod.string().trim().min(1, 'Required'),
+    dueDate: zod.coerce.date().optional().nullable(),
+    assigneesIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),
     priority: zod.number().int().min(1).max(5),
     description: zod.string().optional().nullish(),
     featured: zod.boolean().optional(),
-    label: zod.string().max(25).optional(),
+    label: zod.string().max(25).optional().nullish(),
     type: zod.string().optional(),
     metadata: zod.string().optional(), // JSON stringified
 })
@@ -22,4 +29,28 @@ export const getTaskSchema = zod.object({
     search: zod.string().nullish(),
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish()
+})
+
+export const createTaskShareSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+    workspaceId: zod.string().trim().min(1, 'Required'),
+    token: zod.string().optional(),
+    expiresAt: zod.coerce.date().optional(),
+    type: zod.nativeEnum(TaskShareType),
+    sharedBy: zod.string().trim().min(1, 'Required'),
+    sharedTo: zod.string().optional(),
+    readOnly: zod.boolean(),
+})
+
+export const bulkCreateTaskShareSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+    taskName: zod.string().trim().min(1, 'Required'),
+    workspaceId: zod.string().trim().min(1, 'Required'),
+    recipients: zod.array(zod.object({
+        memberId: zod.string().trim().min(1, 'Required'),
+        userId: zod.string().trim().min(1, 'Required'),
+        isWorkspaceMember: zod.boolean(),
+    })).min(1, 'At least one recipient is required'),
+    message: zod.string().optional(),
+    locale: zod.enum(['es', 'en', 'it']).default('es'),
 })

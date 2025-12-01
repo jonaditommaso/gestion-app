@@ -5,7 +5,13 @@ export enum TaskStatus {
     TODO = 'TODO',
     IN_PROGRESS = 'IN_PROGRESS',
     IN_REVIEW = 'IN_REVIEW',
-    DONE = 'DONE'
+    DONE = 'DONE',
+    CUSTOM = 'CUSTOM'
+};
+
+export enum TaskShareType {
+    INTERNAL = 'INTERNAL',
+    EXTERNAL = 'EXTERNAL'
 };
 
 export type TaskMetadata = {
@@ -16,10 +22,20 @@ export type TaskMetadata = {
     // tags?: string[];
 }
 
+export type WorkspaceMember = Models.Document & {
+    userId: string,
+    workspaceId: string,
+    role: string,
+    name: string,
+    email: string,
+    avatarId?: string,
+}
+
 export type Task = Models.Document & {
     name: string,
     status: TaskStatus,
-    assigneeId: string,
+    statusCustomId?: string, // ID del custom status cuando status === 'CUSTOM'
+    assignees?: WorkspaceMember[],
     position: number,
     dueDate: string,
     workspaceId: string,
@@ -28,4 +44,15 @@ export type Task = Models.Document & {
     label?: string,
     type?: string,
     metadata?: string, // JSON stringified TaskMetadata
+}
+
+export type TaskShare = Models.Document & {
+    taskId: string,
+    workspaceId: string,
+    token?: string,
+    expiresAt?: string,
+    type: TaskShareType,
+    sharedBy: string,
+    sharedTo?: string,
+    readOnly: boolean,
 }

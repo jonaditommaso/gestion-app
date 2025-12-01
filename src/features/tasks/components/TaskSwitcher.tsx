@@ -13,10 +13,11 @@ import { useTaskFilters } from "../hooks/use-task-filters";
 import { DataTable } from "./DataTable";
 import { columns } from "../columns";
 import DataKanban from "./DataKanban";
-import { TaskStatus } from "../types";
+import { Task, TaskStatus } from "../types";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import DataCalendar from "./DataCalendar";
 import { useTranslations } from "next-intl";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 interface TaskSwitcherProps {
     openSettings: () => void;
@@ -26,8 +27,10 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const workspaceId = useWorkspaceId();
     const [modalOpen, setModalOpen] = useState(false);
     const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
-    const [currentTab, setCurrentTab] = useState('table') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
+    const [initialStatusCustomId, setInitialStatusCustomId] = useState<string | undefined>(undefined);
+    const [currentTab, setCurrentTab] = useState('kanban') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
     const t = useTranslations('workspaces');
+    const { canCreateTask } = useWorkspacePermissions();
 
     const [{
         status,
@@ -41,12 +44,13 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const { mutate: bulkUpdate  } = useBulkUpdateTasks()
 
 
-    const handleNewTask = (status?: TaskStatus) => {
+    const handleNewTask = (status?: TaskStatus, statusCustomId?: string) => {
         setInitialStatus(status);
+        setInitialStatusCustomId(statusCustomId);
         setModalOpen(true);
     }
 
-    const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, position: number }[]) => {
+    const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, statusCustomId?: string | null, position: number }[]) => {
         bulkUpdate({
             json: { tasks }
         })
@@ -55,7 +59,11 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     return (
        <div className="mt-2">
             <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
-                <CreateTaskFormWrapper onCancel={() => setModalOpen(false)} initialStatus={initialStatus} />
+                <CreateTaskFormWrapper
+                    onCancel={() => setModalOpen(false)}
+                    initialStatus={initialStatus}
+                    initialStatusCustomId={initialStatusCustomId}
+                />
             </DialogContainer>
             <Tabs
                 className="flex-1 w-full border rounded-lg"
@@ -65,24 +73,26 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                 <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'}`}>
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
-                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
-                                {t('table')}
-                            </TabsTrigger>
                             <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto">
                                 Kanban
+                            </TabsTrigger>
+                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
+                                {t('table')}
                             </TabsTrigger>
                             <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto">
                                 {t('calendar')}
                             </TabsTrigger>
                         </TabsList>
-                        <Button
-                            size='sm'
-                            className="w-full lg:w-auto"
-                            onClick={() => handleNewTask()}
-                        >
-                            <PlusIcon className="size-4 mr-2" />
-                            {t('new')}
-                        </Button>
+                        {canCreateTask && (
+                            <Button
+                                size='sm'
+                                className="w-full lg:w-auto"
+                                onClick={() => handleNewTask()}
+                            >
+                                <PlusIcon className="size-4 mr-2" />
+                                {t('new')}
+                            </Button>
+                        )}
                     </div>
 
                     <Separator className="my-4" />
@@ -97,18 +107,18 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                     ) : (
                         <>
                             <TabsContent value="table" className="mt-0 overflow-auto">
-                                <DataTable columns={columns} data={tasks?.documents ?? []} />
+                                <DataTable columns={columns} data={(tasks?.documents ?? []) as Task[]} />
                             </TabsContent>
                             <TabsContent value="kanban" className="mt-0 h-full">
                                 <DataKanban
-                                    data={tasks?.documents ?? []}
+                                    data={(tasks?.documents ?? []) as Task[]}
                                     addTask={handleNewTask}
                                     onChangeTasks={onKanbanChange}
                                     openSettings={openSettings}
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
-                                <DataCalendar data={tasks?.documents ?? []} />
+                                <DataCalendar data={((tasks?.documents ?? []) as Task[]).filter(task => task.dueDate)} />
                             </TabsContent>
                         </>
 

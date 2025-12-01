@@ -14,5 +14,9 @@ export const profilePhotoSchema = zod.object({
   //   zod.string().transform((value) => value === '' ? undefined : value)
   // ])
   // .optional()
-  image: zod.any()
+  image: zod.any() // backend validation (size and type)
+})
+
+export const uploadImageSchema = zod.object({
+  image: zod.string().min(1, 'Image is required')
 })

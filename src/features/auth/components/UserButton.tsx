@@ -51,13 +51,15 @@ const UserButton = () => {
         <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger className="outline-none relative">
                 {imageUrl
-                    ? <Image
-                        src={imageUrl}
-                        alt="Profile picture"
-                        height={50}
-                        width={40}
-                        className="rounded-sm object-cover border border-gray-300"
-                    />
+                    ? <div className="size-10 rounded-full overflow-hidden border border-gray-300 hover:opacity-75 transition">
+                        <Image
+                            src={imageUrl}
+                            alt="Profile picture"
+                            height={40}
+                            width={40}
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
                     : (
                     <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
                         <AvatarFallback className="bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center">
@@ -69,13 +71,15 @@ const UserButton = () => {
             <DropdownMenuContent align="end" side="bottom" className="w-60" sideOffset={10}>
                 <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
                     {imageUrl
-                        ? <Image
-                            src={imageUrl}
-                            alt="Profile picture"
-                            className="rounded-sm object-cover border border-gray-300"
-                            height={40}
-                            width={40}
-                        />
+                        ? <div className="size-[50px] rounded-full overflow-hidden border border-gray-300">
+                            <Image
+                                src={imageUrl}
+                                alt="Profile picture"
+                                className="object-cover w-full h-full"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
                     : (
                         <Avatar className="size-[50px] transition border border-neutral-300">
                             <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">

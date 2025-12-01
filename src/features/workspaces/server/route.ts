@@ -90,7 +90,10 @@ const app = new Hono()
                 {
                     userId: user.$id,
                     workspaceId: workspace.$id,
-                    role: MemberRole.ADMIN
+                    role: MemberRole.ADMIN,
+                    name: user.name,
+                    email: user.email,
+                    avatarId: user.prefs?.image || null
                 }
             )
 
@@ -173,7 +176,10 @@ const app = new Hono()
                 {
                     workspaceId,
                     userId: user.$id,
-                    role: MemberRole.MEMBER
+                    role: MemberRole.MEMBER,
+                    name: user.name,
+                    email: user.email,
+                    avatarId: user.prefs?.image || null
                 }
             );
 
