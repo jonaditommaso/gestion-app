@@ -24,6 +24,7 @@ import { TaskAssigneesManager } from "./TaskAssigneesManager";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { LabelSelector } from "./LabelSelector";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
@@ -153,6 +154,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const { data: user } = useCurrent();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
+    const { canEditLabel } = useWorkspacePermissions();
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(task.description || '');
     const [isAddingComment, setIsAddingComment] = useState(false);
@@ -458,6 +460,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             disabled={isPending}
                             variant="inline"
                             readOnly={readOnly}
+                            canEdit={canEditLabel}
                         />
                     </div>
 

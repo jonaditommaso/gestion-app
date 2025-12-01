@@ -835,7 +835,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    {/* <Separator />
+                    <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -845,11 +845,11 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </p>
                         </div>
                         <Switch
-                            checked={currentConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
+                            checked={displayConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY, checked)}
-                            disabled={isPending || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY) || isAdminMode}
                         />
-                    </div> */}
+                    </div>
 
                     <Separator />
 

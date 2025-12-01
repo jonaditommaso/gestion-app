@@ -14,6 +14,7 @@ import { CustomLabel, WorkspaceMetadata } from "../types/custom-status";
 import { LABEL_COLORS, MAX_LABEL_NAME_LENGTH } from "../constants/label-colors";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
+import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
 
 interface WorkspaceCustomizeProps {
     workspace: WorkspaceType;
@@ -22,6 +23,7 @@ interface WorkspaceCustomizeProps {
 const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
     const t = useTranslations('workspaces');
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
+    const { canEditLabel } = useWorkspacePermissions();
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
@@ -236,10 +238,10 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
         <div className="mt-10 max-w-6xl mx-auto">
             <ConfirmDeleteDialog />
 
-            {/* Grid layout: 3 columns for left side, 1 for labels */}
-            <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-                {/* Left Column - Name + Background Colors (3/4 width) */}
-                <div className="lg:col-span-4 space-y-6">
+            {/* Grid layout: 3 columns for left side, 1 for labels (if has permission) */}
+            <div className={cn("grid grid-cols-1 gap-6", canEditLabel ? "lg:grid-cols-6" : "lg:grid-cols-1 max-w-4xl")}>
+                {/* Left Column - Name + Background Colors */}
+                <div className={cn("space-y-6", canEditLabel && "lg:col-span-4")}>
                     {/* Workspace Name */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-muted-foreground">
@@ -298,7 +300,8 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                     </Card>
                 </div>
 
-                {/* Right Column - Custom Labels (1/4 width) */}
+                {/* Right Column - Custom Labels (only if has permission) */}
+                {canEditLabel && (
                 <Card className="lg:col-span-2 h-fit">
                     <CardHeader>
                         <CardTitle className="text-lg">{t('custom-labels')}</CardTitle>
@@ -360,6 +363,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                         </p>
                     </CardContent>
                 </Card>
+                )}
             </div>
         </div>
     );

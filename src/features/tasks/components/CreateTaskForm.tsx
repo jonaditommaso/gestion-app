@@ -26,6 +26,7 @@ import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
 import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
@@ -50,6 +51,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const { data: membersData } = useGetMembers({ workspaceId });
 
     const config = useWorkspaceConfig();
+    const { canEditLabel } = useWorkspacePermissions();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const { getStatusDisplayName } = useStatusDisplayName();
     const { allStatuses, getIconComponent } = useCustomStatuses();
@@ -304,6 +306,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                     value={field.value}
                                                     onChange={field.onChange}
                                                     className="!mt-0 w-full"
+                                                    canEdit={canEditLabel}
                                                 />
                                             </FormControl>
                                             <FormMessage />
