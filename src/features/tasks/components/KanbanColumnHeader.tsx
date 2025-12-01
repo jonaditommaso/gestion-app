@@ -34,6 +34,8 @@ interface KanbanColumnHeaderProps {
     onDeleteColumn?: () => void;
     /** All available statuses for move cards menu */
     availableStatuses?: CustomStatus[];
+    /** Whether the column has reached its rigid limit */
+    isRigidLimitReached?: boolean;
 }
 
 const statusIconMap: Record<TaskStatus, React.ReactNode> = {
@@ -45,7 +47,7 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.CUSTOM]: <CircleDashedIcon className="size-[18px] text-gray-400" />, // Fallback, custom statuses use their own icon
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [] }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false }: KanbanColumnHeaderProps) => {
 
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
@@ -228,7 +230,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>
-                {canCreateTask && (
+                {canCreateTask && !isRigidLimitReached && (
                     <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
                         <PlusIcon className="size-4 text-neutral-500" />
                     </Button>

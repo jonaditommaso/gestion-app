@@ -689,6 +689,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                 // Determine if limit is exceeded (only when it goes OVER the limit)
                                 const isLimitExceeded = limitType !== ColumnLimitType.NO && limitMax !== null && taskCount > limitMax;
                                 const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
+                                // Determine if rigid limit is reached (at or over limit) - blocks adding new tasks
+                                const isRigidLimitReached = limitType === ColumnLimitType.RIGID && limitMax !== null && taskCount >= limitMax;
 
                                 return (
                                     <Draggable
@@ -765,6 +767,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             onMoveAllCards={(targetStatusId) => handleMoveAllCards(statusObj.id, targetStatusId)}
                                                             onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
                                                             availableStatuses={orderedStatuses}
+                                                            isRigidLimitReached={isRigidLimitReached}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">
                                                             {(provided) => (
