@@ -45,3 +45,14 @@ export type Task = Models.Document & {
     type?: string,
     metadata?: string, // JSON stringified TaskMetadata
 }
+
+export type TaskShare = Models.Document & {
+    taskId: string,
+    workspaceId: string,
+    token?: string,
+    expiresAt?: string,
+    type: TaskShareType,
+    sharedBy: string,
+    sharedTo?: string,
+    readOnly: boolean,
+}

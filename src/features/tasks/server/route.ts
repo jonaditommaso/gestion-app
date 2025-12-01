@@ -5,10 +5,11 @@ import { createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schem
 import { getMember } from "@/features/workspaces/members/utils";
 import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { Task, TaskStatus, WorkspaceMember } from "../types";
+import { Task, TaskShare, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Models } from "node-appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
@@ -786,6 +787,68 @@ const app = new Hono()
             );
 
             return ctx.json({ success: true });
+        }
+    )
+
+    .get(
+        '/shared/:token',
+        async ctx => {
+            const { databases } = await createAdminClient();
+            const { token } = ctx.req.param();
+
+            // Buscar el share por token
+            const shares = await databases.listDocuments<TaskShare>(
+                DATABASE_ID,
+                TASK_SHARES_ID,
+                [Query.equal('token', token)]
+            );
+
+            if (shares.documents.length === 0) {
+                return ctx.json({ error: 'Share not found' }, 404);
+            }
+
+            const share = shares.documents[0];
+
+            // Verificar si el enlace ha expirado
+            if (share.expiresAt) {
+                const expiresAt = new Date(share.expiresAt);
+                if (expiresAt < new Date()) {
+                    return ctx.json({ error: 'Link expired' }, 410);
+                }
+            }
+
+            // Obtener la tarea
+            const task = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                share.taskId
+            );
+
+            // Obtener los assignees de la tarea
+            const taskAssignees = await databases.listDocuments<TaskAssignee>(
+                DATABASE_ID,
+                TASK_ASSIGNEES_ID,
+                [Query.equal('taskId', share.taskId)]
+            );
+
+            const memberIds = taskAssignees.documents.map(ta => ta.workspaceMemberId);
+            const assignees = memberIds.length > 0
+                ? await databases.listDocuments<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            return ctx.json({
+                data: {
+                    task: {
+                        ...task,
+                        assignees: assignees.documents
+                    },
+                    readOnly: share.readOnly
+                }
+            });
         }
     )
 
