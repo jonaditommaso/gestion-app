@@ -1248,6 +1248,7 @@
         "bug": "Bug",
         "task": "Task",
         "test": "Test",
+        "urgent": "Urgent",
         "label": "Label",
         "enter-label": "Enter label",
         "no-label": "No label",

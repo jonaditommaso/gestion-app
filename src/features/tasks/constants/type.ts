@@ -1,4 +1,4 @@
-import { CircleDotIcon, BugIcon, CheckSquareIcon, FlaskConicalIcon } from "lucide-react";
+import { CircleDotIcon, BugIcon, CheckSquareIcon, FlaskConicalIcon, FlameIcon } from "lucide-react";
 
 export const TASK_TYPE_OPTIONS = [
     {
@@ -28,5 +28,12 @@ export const TASK_TYPE_OPTIONS = [
         color: 'bg-green-500',
         textColor: 'text-green-500',
         icon: FlaskConicalIcon
+    },
+    {
+        value: 'urgent',
+        translationKey: 'urgent',
+        color: 'bg-orange-500',
+        textColor: 'text-orange-500',
+        icon: FlameIcon
     }
 ] as const;

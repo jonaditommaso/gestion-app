@@ -1234,6 +1234,7 @@
         "bug": "Bug",
         "task": "Compito",
         "test": "Test",
+        "urgent": "Urgente",
         "label": "Etichetta",
         "enter-label": "Inserisci etichetta",
         "no-label": "Nessuna etichetta",

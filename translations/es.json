@@ -1254,6 +1254,7 @@
         "bug": "Error",
         "task": "Tarea",
         "test": "Prueba",
+        "urgent": "Urgente",
         "label": "Etiqueta",
         "enter-label": "Ingresar etiqueta",
         "no-label": "Sin etiqueta",
