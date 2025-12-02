@@ -367,6 +367,22 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
                     <Separator />
 
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('multi-select-labels')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('multi-select-labels-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={displayConfig[WorkspaceConfigKey.MULTI_SELECT_LABELS]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.MULTI_SELECT_LABELS, checked)}
+                            disabled={isConfigPending(WorkspaceConfigKey.MULTI_SELECT_LABELS)}
+                        />
+                    </div>
+
+                    <Separator />
+
                     <div className="space-y-4">
                         <div className="flex items-start justify-between">
                             <div className="space-y-0.5 flex-1">

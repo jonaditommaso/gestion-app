@@ -9,6 +9,7 @@ interface UseGetTasksProps {
     dueDate?: string | null,
     search?: string | null,
     priority?: number | null,
+    label?: string[] | null,
     enabled?: boolean
 }
 
@@ -19,6 +20,7 @@ export const useGetTasks = ({
     dueDate,
     search,
     priority,
+    label,
     enabled = true
 }: UseGetTasksProps) => {
     const query = useQuery({
@@ -29,7 +31,8 @@ export const useGetTasks = ({
             assigneeId,
             dueDate,
             search,
-            priority
+            priority,
+            label
         ],
         queryFn: async () => {
             const response = await client.api.tasks.$get(
@@ -40,7 +43,8 @@ export const useGetTasks = ({
                         assigneeId: assigneeId ?? undefined,
                         dueDate: dueDate ?? undefined,
                         search: search ?? undefined,
-                        priority: priority ? String(priority) : undefined
+                        priority: priority ? String(priority) : undefined,
+                        label: label && label.length > 0 ? label.join(',') : undefined
                     }
                 }
             );

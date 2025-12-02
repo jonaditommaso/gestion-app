@@ -1,4 +1,4 @@
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs'
+import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryStates } from 'nuqs'
 import { TaskStatus } from '../types'
 import { useWorkspaceConfig } from '@/app/workspaces/hooks/use-workspace-config'
 import { STATUS_TO_LABEL_KEY } from '@/app/workspaces/constants/workspace-config-keys'
@@ -49,7 +49,8 @@ export const useTaskFilters = () => {
         assigneeId: parseAsString,
         search: parseAsString,
         dueDate: parseAsString,
-        priority: parseAsInteger
+        priority: parseAsInteger,
+        label: parseAsArrayOf(parseAsString),
     });
 
     // Convertir el status de la URL (label) a status key
@@ -76,6 +77,7 @@ export const useTaskFilters = () => {
         search: string | null;
         dueDate: string | null;
         priority: number | null;
+        label: string[] | null;
     }>) => {
         const modifiedFilters: Partial<{
             status: string | null;
@@ -83,6 +85,7 @@ export const useTaskFilters = () => {
             search: string | null;
             dueDate: string | null;
             priority: number | null;
+            label: string[] | null;
         }> = { ...newFilters };
 
         if ('status' in modifiedFilters && modifiedFilters.status !== undefined) {
