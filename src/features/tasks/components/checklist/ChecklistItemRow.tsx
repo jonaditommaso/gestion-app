@@ -161,7 +161,7 @@ export const ChecklistItemRow = ({
                     <Checkbox
                         checked={item.completed}
                         onCheckedChange={handleToggle}
-                        disabled={readOnly || isPending}
+                        disabled={readOnly}
                         className="size-5"
                     />
                 </div>
