@@ -5,6 +5,7 @@ import workspaces from '@/features/workspaces/server/route'
 import records from '@/features/records/server/route'
 import members from '@/features/members/server/route'
 import tasks from '@/features/tasks/server/route'
+import checklist from '@/features/tasks/server/checklist.route'
 import billing from '@/features/billing-management/server/route'
 import settings from '@/features/settings/server/route'
 import team from '@/features/team/server/route'
@@ -23,6 +24,7 @@ const routes = app
   .route('/records', records)
   .route('/members', members)
   .route('/tasks', tasks)
+  .route('/checklist', checklist)
   .route('/billing', billing)
   .route('/settings', settings)
   .route('/team', team)

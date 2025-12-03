@@ -29,6 +29,7 @@ import { LabelSelector } from "./LabelSelector";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { Checklist } from "@/features/checklist";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -356,6 +357,16 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         </div>
                     )}
                 </div>
+
+                {/* Checklist section */}
+                <Checklist
+                    taskId={task.$id}
+                    workspaceId={task.workspaceId}
+                    members={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
+                    readOnly={readOnly}
+                    checklistCount={task.checklistCount || 0}
+                    savedChecklistTitle={task.checklistTitle}
+                />
 
                 {/* Activity section */}
                 <div>
