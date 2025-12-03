@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from "react";
-import { PopulatedChecklistItem } from "../types";
+import { PopulatedChecklistItem } from "../../../checklist/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +19,9 @@ import {
     ClipboardPaste
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUpdateChecklistItem } from "../api/use-update-checklist-item";
-import { useDeleteChecklistItem } from "../api/use-delete-checklist-item";
-import { useConvertToTask } from "../api/use-convert-to-task";
+import { useUpdateChecklistItem } from "../../../checklist/api/use-update-checklist-item";
+import { useDeleteChecklistItem } from "../../../checklist/api/use-delete-checklist-item";
+import { useConvertToTask } from "../../../checklist/api/use-convert-to-task";
 import { useTranslations } from "next-intl";
 import { format, type Locale as DateLocale } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";

@@ -1,7 +1,7 @@
 // Components
-export { Checklist } from './components/Checklist';
-export { ChecklistItemRow } from './components/ChecklistItemRow';
-export { ChecklistProgress } from './components/ChecklistProgress';
+export { Checklist } from '../tasks/components/checklist';
+export { ChecklistItemRow } from '../tasks/components/checklist/ChecklistItemRow';
+export { ChecklistProgress } from '../tasks/components/checklist/ChecklistProgress';
 
 // Types
 export * from './types';

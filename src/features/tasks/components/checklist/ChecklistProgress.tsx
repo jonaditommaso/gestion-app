@@ -1,5 +1,5 @@
 'use client';
-import { ChecklistProgress as ChecklistProgressType } from "../types";
+import { ChecklistProgress as ChecklistProgressType } from "../../../checklist/types";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
