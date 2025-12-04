@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useGetChecklistItems } from "../../../checklist/api/use-get-checklist-items";
 import { useCreateChecklistItem } from "../../../checklist/api/use-create-checklist-item";
 import { useUpdateChecklistItem } from "../../../checklist/api/use-update-checklist-item";
@@ -38,6 +38,8 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     const [newItemTitle, setNewItemTitle] = useState('');
     const [hasCreatedItem, setHasCreatedItem] = useState(false);
     const [isAddingItems, setIsAddingItems] = useState(false);
+    const [isInputVisible, setIsInputVisible] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const hasChecklist = checklistCount > 0 || hasCreatedItem;
     const shouldFetch = hasChecklist;
@@ -59,6 +61,13 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
         return { total, completed, percentage };
     }, [items]);
+
+    // Focus input when it becomes visible
+    useEffect(() => {
+        if (isInputVisible && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isInputVisible]);
 
     const handleAddItem = () => {
         if (!newItemTitle.trim()) return;
@@ -84,6 +93,18 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
                 ...(isFirstItem && checklistTitle.trim() ? { checklistTitle: checklistTitle.trim() } : {}),
             }
         });
+
+        // Keep focus on input after adding - use requestAnimationFrame for better timing
+        requestAnimationFrame(() => {
+            inputRef.current?.focus();
+        });
+    };
+
+    const handleInputBlur = () => {
+        // Close input if empty
+        if (!newItemTitle.trim()) {
+            setIsInputVisible(false);
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -92,6 +113,7 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
             handleAddItem();
         } else if (e.key === 'Escape') {
             setNewItemTitle('');
+            setIsInputVisible(false);
             if (!hasCreatedItem && items.length === 0) {
                 setIsCreatingChecklist(false);
             }
@@ -349,23 +371,38 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
 
             {/* Add new item inline */}
             {!readOnly && (
-                <div className="flex items-center gap-2">
-                    <Input
-                        value={newItemTitle}
-                        onChange={(e) => setNewItemTitle(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={t('checklist-item-placeholder')}
-                        disabled={isCreating}
-                        className="h-9"
-                    />
+                isInputVisible ? (
+                    <div className="flex items-center gap-2">
+                        <Input
+                            ref={inputRef}
+                            value={newItemTitle}
+                            onChange={(e) => setNewItemTitle(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            onBlur={handleInputBlur}
+                            placeholder={t('checklist-item-placeholder')}
+                            className="h-9"
+                        />
+                        <Button
+                            size="sm"
+                            onClick={handleAddItem}
+                            disabled={!newItemTitle.trim()}
+                            className="h-9"
+                        >
+                            <Plus className="size-4" />
+                            {t('add-item')}
+                        </Button>
+                    </div>
+                ) : (
                     <Button
+                        variant="ghost"
                         size="sm"
-                        onClick={handleAddItem}
-                        disabled={!newItemTitle.trim() || isCreating}
+                        onClick={() => setIsInputVisible(true)}
+                        className="text-muted-foreground hover:text-foreground"
                     >
-                        <Plus className="size-4" />
+                        <Plus className="size-4 mr-2" />
+                        {t('add-item')}
                     </Button>
-                </div>
+                )
             )}
         </div>
     );

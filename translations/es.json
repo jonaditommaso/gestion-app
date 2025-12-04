@@ -1474,6 +1474,7 @@
         "checklist-title-placeholder": "Título de la lista...",
         "continue": "Continuar",
         "add-checklist": "Agregar lista",
+        "add-item": "Agregar ítem",
         "checklist-item-placeholder": "Agregar un ítem...",
         "checklist-add-first-item-hint": "Presiona Enter para agregar el ítem o Escape para cancelar",
         "delete-checklist-item": "Eliminar ítem",

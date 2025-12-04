@@ -1468,6 +1468,7 @@
         "checklist-title-placeholder": "Checklist title...",
         "continue": "Continue",
         "add-checklist": "Add checklist",
+        "add-item": "Add item",
         "checklist-item-placeholder": "Add an item...",
         "checklist-add-first-item-hint": "Press Enter to add the item or Escape to cancel",
         "delete-checklist-item": "Delete item",
