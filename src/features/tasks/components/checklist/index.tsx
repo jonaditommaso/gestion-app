@@ -52,10 +52,25 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     const { mutate: addAssignee } = useAddChecklistAssignee({ taskId });
     const { mutate: removeAssignee } = useRemoveChecklistAssignee({ taskId });
 
-    const items = useMemo(() =>
-        (data?.documents || []) as PopulatedChecklistItem[],
+    // Server items sorted by position
+    const serverItems = useMemo(() =>
+        ((data?.documents || []) as PopulatedChecklistItem[]).sort((a, b) => a.position - b.position),
         [data?.documents]
     );
+
+    // Local optimistic state for drag & drop
+    const [localItems, setLocalItems] = useState<PopulatedChecklistItem[]>([]);
+    const [isDragging, setIsDragging] = useState(false);
+
+    // Sync local items with server items when they change (only if not dragging)
+    useEffect(() => {
+        if (!isDragging) {
+            setLocalItems(serverItems);
+        }
+    }, [serverItems, isDragging]);
+
+    // Use local items for rendering (optimistic)
+    const items = localItems.length > 0 ? localItems : serverItems;
 
     const progress = useMemo(() => {
         const total = items.length;
@@ -125,23 +140,49 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     const handleDragEnd = useCallback((result: DropResult) => {
         const { destination, source, draggableId } = result;
 
-        if (!destination) return;
-        if (destination.index === source.index) return;
+        if (!destination) {
+            setIsDragging(false);
+            return;
+        }
+        if (destination.index === source.index) {
+            setIsDragging(false);
+            return;
+        }
 
+        // Create reordered array for optimistic update
         const reorderedItems = Array.from(items);
         const [movedItem] = reorderedItems.splice(source.index, 1);
         reorderedItems.splice(destination.index, 0, movedItem);
 
+        // Calculate new position
         const before = destination.index > 0 ? reorderedItems[destination.index - 1].position : null;
         const after = destination.index < reorderedItems.length - 1 ? reorderedItems[destination.index + 1].position : null;
-
         const newPosition = calculatePosition(before, after);
 
+        // Optimistically update local state immediately
+        const optimisticItems = reorderedItems.map((item) => {
+            if (item.$id === draggableId) {
+                return { ...item, position: newPosition };
+            }
+            return item;
+        });
+        setLocalItems(optimisticItems);
+
+        // Then send update to server
         updateItem({
             param: { itemId: draggableId },
             json: { position: newPosition }
+        }, {
+            onSettled: () => {
+                // Allow sync with server again after mutation completes
+                setIsDragging(false);
+            }
         });
     }, [items, updateItem]);
+
+    const handleDragStart = useCallback(() => {
+        setIsDragging(true);
+    }, []);
 
     const handleAssigneeAdd = useCallback((itemId: string, memberId: string) => {
         addAssignee({
@@ -324,7 +365,7 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
 
             {/* Items list with drag and drop */}
             {items.length > 0 && (
-                <DragDropContext onDragEnd={handleDragEnd}>
+                <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <Droppable
                         droppableId="checklist-items"
                         type="CHECKLIST_ITEM"
