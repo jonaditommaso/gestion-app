@@ -21,6 +21,7 @@ import {
     type DraggableStateSnapshot
 } from '@hello-pangea/dnd';
 import DraggablePortal from "@/components/DraggablePortal";
+import EditableText from "@/components/EditableText";
 
 interface ChecklistProps {
     taskId: string;
@@ -29,9 +30,10 @@ interface ChecklistProps {
     readOnly?: boolean;
     checklistCount?: number;
     savedChecklistTitle?: string; // Title saved in the task
+    onTitleChange?: (title: string) => void; // Callback to update title
 }
 
-export const Checklist = ({ taskId, workspaceId, members, readOnly = false, checklistCount = 0, savedChecklistTitle }: ChecklistProps) => {
+export const Checklist = ({ taskId, workspaceId, members, readOnly = false, checklistCount = 0, savedChecklistTitle, onTitleChange }: ChecklistProps) => {
     const t = useTranslations('workspaces');
     const [isCreatingChecklist, setIsCreatingChecklist] = useState(false);
     const [checklistTitle, setChecklistTitle] = useState('');
@@ -291,25 +293,34 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     // Use saved title from task, then local state, then fallback to translation
     const displayTitle = savedChecklistTitle || checklistTitle.trim() || t('checklist');
 
+    const handleTitleSave = (newTitle: string) => {
+        if (newTitle.trim() && newTitle !== displayTitle && onTitleChange) {
+            onTitleChange(newTitle.trim());
+        }
+    };
+
     return (
         <div className="space-y-4">
             {/* Header with progress */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <ListChecks className="size-5 text-muted-foreground" />
-                    <h3 className="text-base font-semibold">{displayTitle}</h3>
-                    {progress.total > 0 && (
-                        <span className="text-sm text-muted-foreground">
-                            ({progress.completed}/{progress.total})
-                        </span>
+                    <ListChecks className="size-5 text-muted-foreground flex-shrink-0" />
+                    {!readOnly && onTitleChange ? (
+                        <EditableText
+                            value={displayTitle}
+                            onSave={handleTitleSave}
+                            size="md"
+                            className="font-semibold !py-0 !px-1 !min-h-0"
+                            inputClassName="!py-0 !px-1 text-base"
+                        />
+                    ) : (
+                        <h3 className="text-base font-semibold">{displayTitle}</h3>
                     )}
                 </div>
             </div>
 
             {/* Progress bar */}
-            {progress.total > 0 && (
-                <ChecklistProgress progress={progress} showLabel={false} />
-            )}
+            {progress.total > 0 && <ChecklistProgress progress={progress} />}
 
             {/* Items list with drag and drop */}
             {items.length > 0 && (

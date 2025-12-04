@@ -20,6 +20,7 @@ export const createTaskSchema = zod.object({
     label: zod.string().max(25).optional().nullish(),
     type: zod.string().optional(),
     metadata: zod.string().optional(), // JSON stringified
+    checklistTitle: zod.string().optional().nullable(), // Title of the checklist
 })
 
 export const getTaskSchema = zod.object({

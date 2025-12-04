@@ -16,7 +16,8 @@ import {
     Calendar,
     Users,
     X,
-    ClipboardPaste
+    ClipboardPaste,
+    GripVertical
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUpdateChecklistItem } from "../../../checklist/api/use-update-checklist-item";
@@ -64,7 +65,11 @@ export const ChecklistItemRow = ({
     const [title, setTitle] = useState(item.title);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showAssignees, setShowAssignees] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Keep hover state visible when any popover/dropdown is open
+    const isInteracting = showDatePicker || showAssignees || showDropdown;
 
     const { mutate: updateItem, isPending: isUpdating } = useUpdateChecklistItem({ taskId });
     const { mutate: deleteItem, isPending: isDeleting } = useDeleteChecklistItem({ taskId });
@@ -153,9 +158,20 @@ export const ChecklistItemRow = ({
             <div
                 className={cn(
                     "group flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors",
-                    item.completed && "opacity-60"
+                    item.completed && "opacity-60",
+                    isInteracting && "bg-muted/50"
                 )}
             >
+                {/* Drag handle - visible on hover */}
+                {!readOnly && (
+                    <div className={cn(
+                        "w-4 flex-shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-50 transition-opacity",
+                        isInteracting && "opacity-50"
+                    )}>
+                        <GripVertical className="size-4 text-muted-foreground" />
+                    </div>
+                )}
+
                 {/* Checkbox */}
                 <div onMouseDown={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -233,7 +249,10 @@ export const ChecklistItemRow = ({
                 {/* Actions */}
                 {!readOnly && (
                     <div
-                        className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className={cn(
+                            "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
+                            isInteracting && "opacity-100"
+                        )}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
                         {/* Assignees popover */}
@@ -320,21 +339,21 @@ export const ChecklistItemRow = ({
                         </Popover>
 
                         {/* More actions */}
-                        <DropdownMenu>
+                        <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="size-7">
                                     <MoreHorizontal className="size-3.5" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={handleConvert}>
+                                <DropdownMenuItem onClick={handleConvert} className="cursor-pointer">
                                     <ClipboardPaste className="size-4 mr-2" />
                                     {t('convert-to-task')}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={handleDelete}
-                                    className="text-destructive focus:text-destructive"
+                                    className="text-destructive focus:text-destructive cursor-pointer"
                                 >
                                     <Trash2 className="size-4 mr-2" />
                                     {t('delete')}

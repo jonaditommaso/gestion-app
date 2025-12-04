@@ -366,6 +366,12 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                     readOnly={readOnly}
                     checklistCount={task.checklistCount || 0}
                     savedChecklistTitle={task.checklistTitle}
+                    onTitleChange={(newTitle) => {
+                        updateTask({
+                            json: { checklistTitle: newTitle },
+                            param: { taskId: task.$id }
+                        });
+                    }}
                 />
 
                 {/* Activity section */}
