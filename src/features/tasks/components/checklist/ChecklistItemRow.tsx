@@ -14,6 +14,7 @@ import {
     MoreHorizontal,
     Trash2,
     Calendar,
+    Clock,
     Users,
     X,
     ClipboardPaste,
@@ -28,9 +29,10 @@ import { format, type Locale as DateLocale } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
 import { useLocale } from "next-intl";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
-import CustomDatePicker from "@/components/CustomDatePicker";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useConfirm } from "@/hooks/use-confirm";
+import { getDueDateColor } from "../../utils/getDueDateColor";
 
 interface ChecklistItemRowProps {
     item: PopulatedChecklistItem;
@@ -234,15 +236,46 @@ export const ChecklistItemRow = ({
                     </div>
                 )}
 
-                {/* Due date */}
-                {item.dueDate && (
+                {/* Due date - always visible when set, clickable to edit */}
+                {item.dueDate && !readOnly && (
+                    <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+                        <PopoverTrigger asChild>
+                            <button
+                                className={cn(
+                                    "flex items-center gap-1 text-xs px-1.5 py-1 rounded hover:bg-muted transition-colors cursor-pointer",
+                                    getDueDateColor(item.dueDate, item.completed)
+                                )}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                style={{backgroundColor: 'red !important'}}
+                            >
+                                <Clock className={cn("size-3", getDueDateColor(item.dueDate, item.completed))} />
+                                <span className={cn("whitespace-nowrap", getDueDateColor(item.dueDate, item.completed))}>
+                                    {format(new Date(item.dueDate), 'MMM d', { locale: dateLocale })}
+                                </span>
+                            </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                            <CalendarComponent
+                                mode="single"
+                                selected={new Date(item.dueDate)}
+                                onSelect={handleDateChange}
+                                initialFocus
+                                locale={dateLocale}
+                            />
+                        </PopoverContent>
+                    </Popover>
+                )}
+
+                {/* Due date - read only display */}
+                {item.dueDate && readOnly && (
                     <span className={cn(
-                        "text-xs whitespace-nowrap",
-                        new Date(item.dueDate) < new Date() && !item.completed
-                            ? "text-destructive"
-                            : "text-muted-foreground"
+                        "flex items-center gap-1 text-xs",
+                        getDueDateColor(item.dueDate, item.completed)
                     )}>
-                        {format(new Date(item.dueDate), 'MMM d', { locale: dateLocale })}
+                        <Clock className={cn("size-3", getDueDateColor(item.dueDate, item.completed))} />
+                        <span className={cn("whitespace-nowrap", getDueDateColor(item.dueDate, item.completed))}>
+                            {format(new Date(item.dueDate), 'MMM d', { locale: dateLocale })}
+                        </span>
                     </span>
                 )}
 
@@ -322,21 +355,25 @@ export const ChecklistItemRow = ({
                             </PopoverContent>
                         </Popover>
 
-                        {/* Date picker */}
-                        <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
-                            <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-7">
-                                    <Calendar className="size-3.5" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="end">
-                                <CustomDatePicker
-                                    value={item.dueDate ? new Date(item.dueDate) : undefined}
-                                    onChange={handleDateChange}
-                                    placeholder="due-date"
-                                />
-                            </PopoverContent>
-                        </Popover>
+                        {/* Date picker - only show calendar icon when no date is set */}
+                        {!item.dueDate && (
+                            <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+                                <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="size-7">
+                                        <Calendar className="size-3.5" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="end">
+                                    <CalendarComponent
+                                        mode="single"
+                                        selected={undefined}
+                                        onSelect={handleDateChange}
+                                        initialFocus
+                                        locale={dateLocale}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        )}
 
                         {/* More actions */}
                         <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
