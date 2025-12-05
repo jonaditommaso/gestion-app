@@ -217,8 +217,92 @@ export const ChecklistItemRow = ({
                     )}
                 </div>
 
-                {/* Assignees */}
-                {item.assignees.length > 0 && (
+                {/* Assignees - visible when there are assignees, clickable to edit */}
+                {item.assignees.length > 0 && !readOnly && (
+                    <Popover open={showAssignees} onOpenChange={setShowAssignees}>
+                        <PopoverTrigger asChild>
+                            <button
+                                className="flex -space-x-1 cursor-pointer hover:opacity-80 transition-opacity"
+                                onMouseDown={(e) => e.stopPropagation()}
+                            >
+                                {item.assignees.slice(0, 3).map(assignee => (
+                                    <MemberAvatar
+                                        key={assignee.workspaceMemberId}
+                                        name={assignee.name || '?'}
+                                        memberId={assignee.workspaceMemberId}
+                                        className="size-6 border-2 border-background"
+                                    />
+                                ))}
+                                {item.assignees.length > 3 && (
+                                    <div className="size-6 rounded-full bg-muted flex items-center justify-center text-xs border-2 border-background">
+                                        +{item.assignees.length - 3}
+                                    </div>
+                                )}
+                            </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 p-2" align="end">
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground px-2">
+                                    {t('assignees')}
+                                </p>
+                                {/* Current assignees */}
+                                {item.assignees.map(assignee => (
+                                    <div
+                                        key={assignee.workspaceMemberId}
+                                        className="flex items-center justify-between p-1.5 rounded hover:bg-muted"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <MemberAvatar
+                                                name={assignee.name || '?'}
+                                                memberId={assignee.workspaceMemberId}
+                                                className="size-6"
+                                            />
+                                            <span className="text-sm truncate">
+                                                {assignee.name}
+                                            </span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-6"
+                                            onClick={() => onAssigneeRemove(item.$id, assignee.workspaceMemberId)}
+                                        >
+                                            <X className="size-3" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                {/* Add more assignees */}
+                                {unassignedMembers.length > 0 && (
+                                    <>
+                                        <div className="border-t my-2" />
+                                        <p className="text-xs font-medium text-muted-foreground px-2">
+                                            {t('add-assignee')}
+                                        </p>
+                                        {unassignedMembers.map(member => (
+                                            <div
+                                                key={member.$id}
+                                                className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer"
+                                                onClick={() => onAssigneeAdd(item.$id, member.$id)}
+                                            >
+                                                <MemberAvatar
+                                                    name={member.name}
+                                                    memberId={member.$id}
+                                                    className="size-6"
+                                                />
+                                                <span className="text-sm truncate">
+                                                    {member.name}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                )}
+
+                {/* Assignees - read only display */}
+                {item.assignees.length > 0 && readOnly && (
                     <div className="flex -space-x-1" onMouseDown={(e) => e.stopPropagation()}>
                         {item.assignees.slice(0, 3).map(assignee => (
                             <MemberAvatar
@@ -288,72 +372,39 @@ export const ChecklistItemRow = ({
                         )}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
-                        {/* Assignees popover */}
-                        <Popover open={showAssignees} onOpenChange={setShowAssignees}>
-                            <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-7">
-                                    <Users className="size-3.5" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-56 p-2" align="end">
-                                <div className="space-y-2">
-                                    <p className="text-xs font-medium text-muted-foreground px-2">
-                                        {t('assignees')}
-                                    </p>
-                                    {/* Current assignees */}
-                                    {item.assignees.map(assignee => (
-                                        <div
-                                            key={assignee.workspaceMemberId}
-                                            className="flex items-center justify-between p-1.5 rounded hover:bg-muted"
-                                        >
-                                            <div className="flex items-center gap-2">
+                        {/* Assignees popover - only show icon when no assignees */}
+                        {item.assignees.length === 0 && unassignedMembers.length > 0 && (
+                            <Popover open={showAssignees} onOpenChange={setShowAssignees}>
+                                <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="size-7">
+                                        <Users className="size-3.5" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-56 p-2" align="end">
+                                    <div className="space-y-2">
+                                        <p className="text-xs font-medium text-muted-foreground px-2">
+                                            {t('add-assignee')}
+                                        </p>
+                                        {unassignedMembers.map(member => (
+                                            <div
+                                                key={member.$id}
+                                                className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer"
+                                                onClick={() => onAssigneeAdd(item.$id, member.$id)}
+                                            >
                                                 <MemberAvatar
-                                                    name={assignee.name || '?'}
-                                                    memberId={assignee.workspaceMemberId}
+                                                    name={member.name}
+                                                    memberId={member.$id}
                                                     className="size-6"
                                                 />
                                                 <span className="text-sm truncate">
-                                                    {assignee.name}
+                                                    {member.name}
                                                 </span>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-6"
-                                                onClick={() => onAssigneeRemove(item.$id, assignee.workspaceMemberId)}
-                                            >
-                                                <X className="size-3" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                    {/* Add assignees */}
-                                    {unassignedMembers.length > 0 && (
-                                        <>
-                                            <div className="border-t my-2" />
-                                            <p className="text-xs font-medium text-muted-foreground px-2">
-                                                {t('add-assignee')}
-                                            </p>
-                                            {unassignedMembers.map(member => (
-                                                <div
-                                                    key={member.$id}
-                                                    className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer"
-                                                    onClick={() => onAssigneeAdd(item.$id, member.$id)}
-                                                >
-                                                    <MemberAvatar
-                                                        name={member.name}
-                                                        memberId={member.$id}
-                                                        className="size-6"
-                                                    />
-                                                    <span className="text-sm truncate">
-                                                        {member.name}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </>
-                                    )}
-                                </div>
-                            </PopoverContent>
-                        </Popover>
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        )}
 
                         {/* Date picker - only show calendar icon when no date is set */}
                         {!item.dueDate && (
