@@ -13,7 +13,6 @@ export type ChecklistItem = Models.Document & {
     position: number;
     createdBy: string;
     updatedBy?: string | null;
-    convertedToTaskId?: string | null;
 }
 
 /**

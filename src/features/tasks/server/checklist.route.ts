@@ -2,7 +2,7 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, MEMBERS_ID, TASKS_ID, CHECKLIST_ITEMS_ID, CHECKLIST_ITEM_ASSIGNEES_ID } from "@/config";
+import { DATABASE_ID, MEMBERS_ID, TASKS_ID, CHECKLIST_ITEMS_ID, CHECKLIST_ITEM_ASSIGNEES_ID, TASK_ASSIGNEES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskStatus, WorkspaceMember } from "../types";
 import type { ChecklistItem, ChecklistItemAssignee } from "@/features/checklist/types";
@@ -52,7 +52,6 @@ const app = new Hono()
                 CHECKLIST_ITEMS_ID,
                 [
                     Query.equal('taskId', taskId),
-                    Query.isNull('convertedToTaskId'),
                     Query.orderAsc('position'),
                     Query.limit(100)
                 ]
@@ -474,34 +473,59 @@ const app = new Hono()
                 }
             );
 
-            // Mark checklist item as converted
-            await databases.updateDocument(
+            // Migrate assignees from checklist item to new task
+            const checklistAssignees = await databases.listDocuments<ChecklistItemAssignee>(
                 DATABASE_ID,
-                CHECKLIST_ITEMS_ID,
-                itemId,
-                {
-                    completed: true,
-                    convertedToTaskId: newTask.$id,
-                    updatedBy: member.$id
-                }
+                CHECKLIST_ITEM_ASSIGNEES_ID,
+                [Query.equal('itemId', itemId)]
             );
 
-            // Update parent task completed counter if item wasn't already completed
-            if (!item.completed) {
-                const parentTask = await databases.getDocument(
+            // Create task assignees and delete checklist item assignees
+            for (const assignee of checklistAssignees.documents) {
+                // Create task assignee
+                await databases.createDocument(
                     DATABASE_ID,
-                    TASKS_ID,
-                    item.taskId
-                );
-                await databases.updateDocument(
-                    DATABASE_ID,
-                    TASKS_ID,
-                    item.taskId,
+                    TASK_ASSIGNEES_ID,
+                    ID.unique(),
                     {
-                        checklistCompletedCount: (parentTask.checklistCompletedCount || 0) + 1,
+                        taskId: newTask.$id,
+                        workspaceMemberId: assignee.workspaceMemberId
                     }
                 );
+
+                // Delete checklist item assignee
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    CHECKLIST_ITEM_ASSIGNEES_ID,
+                    assignee.$id
+                );
             }
+
+            // Delete the checklist item (it's now a task)
+            await databases.deleteDocument(
+                DATABASE_ID,
+                CHECKLIST_ITEMS_ID,
+                itemId
+            );
+
+            // Update parent task checklist counters
+            const parentTask = await databases.getDocument(
+                DATABASE_ID,
+                TASKS_ID,
+                item.taskId
+            );
+
+            await databases.updateDocument(
+                DATABASE_ID,
+                TASKS_ID,
+                item.taskId,
+                {
+                    checklistCount: Math.max(0, (parentTask.checklistCount || 0) - 1),
+                    checklistCompletedCount: item.completed
+                        ? Math.max(0, (parentTask.checklistCompletedCount || 0) - 1)
+                        : parentTask.checklistCompletedCount || 0,
+                }
+            );
 
             return ctx.json({ data: newTask });
         }
