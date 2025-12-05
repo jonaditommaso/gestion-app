@@ -18,7 +18,8 @@ import {
     Users,
     X,
     ClipboardPaste,
-    GripVertical
+    GripVertical,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUpdateChecklistItem } from "../../../checklist/api/use-update-checklist-item";
@@ -161,7 +162,8 @@ export const ChecklistItemRow = ({
                 className={cn(
                     "group flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors",
                     item.completed && "opacity-60",
-                    isInteracting && "bg-muted/50"
+                    isInteracting && "bg-muted/50",
+                    isConverting && "opacity-50 pointer-events-none"
                 )}
             >
                 {/* Drag handle - visible on hover */}
@@ -363,92 +365,98 @@ export const ChecklistItemRow = ({
                     </span>
                 )}
 
-                {/* Actions */}
+                {/* Actions - show loader when converting */}
                 {!readOnly && (
-                    <div
-                        className={cn(
-                            "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
-                            isInteracting && "opacity-100"
-                        )}
-                        onMouseDown={(e) => e.stopPropagation()}
-                    >
-                        {/* Assignees popover - only show icon when no assignees */}
-                        {item.assignees.length === 0 && unassignedMembers.length > 0 && (
-                            <Popover open={showAssignees} onOpenChange={setShowAssignees}>
-                                <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="size-7">
-                                        <Users className="size-3.5" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-56 p-2" align="end">
-                                    <div className="space-y-2">
-                                        <p className="text-xs font-medium text-muted-foreground px-2">
-                                            {t('add-assignee')}
-                                        </p>
-                                        {unassignedMembers.map(member => (
-                                            <div
-                                                key={member.$id}
-                                                className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer"
-                                                onClick={() => onAssigneeAdd(item.$id, member.$id)}
-                                            >
-                                                <MemberAvatar
-                                                    name={member.name}
-                                                    memberId={member.$id}
-                                                    className="size-6"
-                                                />
-                                                <span className="text-sm truncate">
-                                                    {member.name}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        )}
+                    isConverting ? (
+                        <div className="flex items-center justify-center px-2">
+                            <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : (
+                        <div
+                            className={cn(
+                                "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
+                                isInteracting && "opacity-100"
+                            )}
+                            onMouseDown={(e) => e.stopPropagation()}
+                        >
+                            {/* Assignees popover - only show icon when no assignees */}
+                            {item.assignees.length === 0 && unassignedMembers.length > 0 && (
+                                <Popover open={showAssignees} onOpenChange={setShowAssignees}>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="size-7">
+                                            <Users className="size-3.5" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-56 p-2" align="end">
+                                        <div className="space-y-2">
+                                            <p className="text-xs font-medium text-muted-foreground px-2">
+                                                {t('add-assignee')}
+                                            </p>
+                                            {unassignedMembers.map(member => (
+                                                <div
+                                                    key={member.$id}
+                                                    className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer"
+                                                    onClick={() => onAssigneeAdd(item.$id, member.$id)}
+                                                >
+                                                    <MemberAvatar
+                                                        name={member.name}
+                                                        memberId={member.$id}
+                                                        className="size-6"
+                                                    />
+                                                    <span className="text-sm truncate">
+                                                        {member.name}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            )}
 
-                        {/* Date picker - only show calendar icon when no date is set */}
-                        {!item.dueDate && (
-                            <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
-                                <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="size-7">
-                                        <Calendar className="size-3.5" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="end">
-                                    <CalendarComponent
-                                        mode="single"
-                                        selected={undefined}
-                                        onSelect={handleDateChange}
-                                        initialFocus
-                                        locale={dateLocale}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        )}
+                            {/* Date picker - only show calendar icon when no date is set */}
+                            {!item.dueDate && (
+                                <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="size-7">
+                                            <Calendar className="size-3.5" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="end">
+                                        <CalendarComponent
+                                            mode="single"
+                                            selected={undefined}
+                                            onSelect={handleDateChange}
+                                            initialFocus
+                                            locale={dateLocale}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            )}
 
-                        {/* More actions */}
-                        <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-7">
-                                    <MoreHorizontal className="size-3.5" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={handleConvert} className="cursor-pointer">
-                                    <ClipboardPaste className="size-4 mr-2" />
-                                    {t('convert-to-task')}
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={handleDelete}
-                                    className="text-destructive focus:text-destructive cursor-pointer"
-                                >
-                                    <Trash2 className="size-4 mr-2" />
-                                    {t('delete')}
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                            {/* More actions */}
+                            <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="size-7">
+                                        <MoreHorizontal className="size-3.5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={handleConvert} className="cursor-pointer">
+                                        <ClipboardPaste className="size-4 mr-2" />
+                                        {t('convert-to-task')}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={handleDelete}
+                                        className="text-destructive focus:text-destructive cursor-pointer"
+                                    >
+                                        <Trash2 className="size-4 mr-2" />
+                                        {t('delete')}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    )
                 )}
             </div>
         </>
