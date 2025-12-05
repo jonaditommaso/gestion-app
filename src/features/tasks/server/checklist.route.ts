@@ -14,6 +14,7 @@ import {
     convertToTaskSchema,
     addChecklistAssigneeSchema,
     bulkAssignChecklistSchema,
+    deleteChecklistSchema,
 } from "@/features/checklist/schemas";
 
 const app = new Hono()
@@ -346,7 +347,7 @@ const app = new Hono()
 
     // Delete checklist item
     .delete(
-        '/:itemId',
+        '/item/:itemId',
         sessionMiddleware,
         async (ctx) => {
             const user = ctx.get('user');
@@ -742,6 +743,91 @@ const app = new Hono()
             }));
 
             return ctx.json({ data: populatedAssignees });
+        }
+    )
+
+    // Delete entire checklist (all items and assignees)
+    .delete(
+        '/all',
+        sessionMiddleware,
+        zValidator('json', deleteChecklistSchema),
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { taskId } = ctx.req.valid('json');
+
+            // Get task to verify workspace access
+            const task = await databases.getDocument(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId
+            );
+
+            const member = await getMember({
+                databases,
+                workspaceId: task.workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Get all checklist items for this task
+            const items = await databases.listDocuments<ChecklistItem>(
+                DATABASE_ID,
+                CHECKLIST_ITEMS_ID,
+                [
+                    Query.equal('taskId', taskId),
+                    Query.limit(100)
+                ]
+            );
+
+            const itemIds = items.documents.map(item => item.$id);
+
+            // Delete all assignees for these items
+            if (itemIds.length > 0) {
+                const assignees = await databases.listDocuments(
+                    DATABASE_ID,
+                    CHECKLIST_ITEM_ASSIGNEES_ID,
+                    [
+                        Query.contains('itemId', itemIds),
+                        Query.limit(500)
+                    ]
+                );
+
+                for (const assignee of assignees.documents) {
+                    await databases.deleteDocument(
+                        DATABASE_ID,
+                        CHECKLIST_ITEM_ASSIGNEES_ID,
+                        assignee.$id
+                    );
+                }
+            }
+
+            // Delete all checklist items
+            for (const item of items.documents) {
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    CHECKLIST_ITEMS_ID,
+                    item.$id
+                );
+            }
+
+            // Reset task checklist fields
+            await databases.updateDocument(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId,
+                {
+                    checklistCount: 0,
+                    checklistCompletedCount: 0,
+                    checklistTitle: null,
+                }
+            );
+
+            return ctx.json({ data: { taskId } });
         }
     )
 

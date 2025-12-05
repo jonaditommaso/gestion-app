@@ -1485,6 +1485,10 @@
         "checklist-error-convert": "Error converting item",
         "failed-add-assignee": "Error adding assignee",
         "failed-remove-assignee": "Error removing assignee",
+        "delete-checklist": "Delete checklist",
+        "delete-checklist-confirm": "Are you sure you want to delete this checklist? All items will be removed.",
+        "checklist-deleted": "Checklist deleted successfully",
+        "checklist-error-delete-all": "Error deleting checklist",
         "back": "Back"
     },
     "team": {

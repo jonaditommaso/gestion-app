@@ -1491,6 +1491,10 @@
         "checklist-error-convert": "Error al convertir el ítem",
         "failed-add-assignee": "Error al agregar el asignado",
         "failed-remove-assignee": "Error al quitar el asignado",
+        "delete-checklist": "Eliminar lista",
+        "delete-checklist-confirm": "¿Estás seguro de eliminar esta lista? Todos los ítems serán eliminados.",
+        "checklist-deleted": "Lista eliminada correctamente",
+        "checklist-error-delete-all": "Error al eliminar la lista",
         "back": "Regresar"
     },
     "team": {

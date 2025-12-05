@@ -5,12 +5,13 @@ import { useCreateChecklistItem } from "../../../checklist/api/use-create-checkl
 import { useUpdateChecklistItem } from "../../../checklist/api/use-update-checklist-item";
 import { useAddChecklistAssignee } from "../../../checklist/api/use-add-checklist-assignee";
 import { useRemoveChecklistAssignee } from "../../../checklist/api/use-remove-checklist-assignee";
+import { useDeleteChecklist } from "../../../checklist/api/use-delete-checklist";
 import { ChecklistItemRow } from "./ChecklistItemRow";
 import { ChecklistProgress } from "./ChecklistProgress";
 import { PopulatedChecklistItem, calculatePosition, POSITION_GAP } from "../../../checklist/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, ListChecks, X } from "lucide-react";
+import { Plus, ListChecks, X, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
     DragDropContext,
@@ -22,6 +23,7 @@ import {
 } from '@hello-pangea/dnd';
 import DraggablePortal from "@/components/DraggablePortal";
 import EditableText from "@/components/EditableText";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface ChecklistProps {
     taskId: string;
@@ -51,6 +53,13 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     const { mutate: updateItem } = useUpdateChecklistItem({ taskId });
     const { mutate: addAssignee } = useAddChecklistAssignee({ taskId });
     const { mutate: removeAssignee } = useRemoveChecklistAssignee({ taskId });
+    const { mutate: deleteChecklist, isPending: isDeleting } = useDeleteChecklist({ taskId });
+
+    const [DeleteChecklistDialog, confirmDeleteChecklist] = useConfirm(
+        t('delete-checklist'),
+        t('delete-checklist-confirm'),
+        'destructive'
+    );
 
     // Server items sorted by position
     const serverItems = useMemo(() =>
@@ -198,6 +207,12 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
         removeAssignee({ itemId, workspaceMemberId: memberId });
     }, [removeAssignee]);
 
+    const handleDeleteChecklist = async () => {
+        const ok = await confirmDeleteChecklist();
+        if (!ok) return;
+        deleteChecklist({ json: { taskId } });
+    };
+
     const handleTitleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -341,24 +356,37 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     };
 
     return (
-        <div className="space-y-4">
-            {/* Header with progress */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <ListChecks className="size-5 text-muted-foreground flex-shrink-0" />
-                    {!readOnly && onTitleChange ? (
-                        <EditableText
-                            value={displayTitle}
-                            onSave={handleTitleSave}
-                            size="md"
-                            className="font-semibold !py-0 !px-1 !min-h-0"
-                            inputClassName="!py-0 !px-1 text-base"
-                        />
-                    ) : (
-                        <h3 className="text-base font-semibold">{displayTitle}</h3>
+        <>
+            <DeleteChecklistDialog />
+            <div className="space-y-4">
+                {/* Header with progress */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <ListChecks className="size-5 text-muted-foreground flex-shrink-0" />
+                        {!readOnly && onTitleChange ? (
+                            <EditableText
+                                value={displayTitle}
+                                onSave={handleTitleSave}
+                                size="md"
+                                className="font-semibold !py-0 !px-1 !min-h-0"
+                                inputClassName="!py-0 !px-1 text-base"
+                            />
+                        ) : (
+                            <h3 className="text-base font-semibold">{displayTitle}</h3>
+                        )}
+                    </div>
+                    {!readOnly && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 text-muted-foreground hover:text-destructive"
+                            onClick={handleDeleteChecklist}
+                            disabled={isDeleting}
+                        >
+                            <Trash2 className="size-4" />
+                        </Button>
                     )}
                 </div>
-            </div>
 
             {/* Progress bar */}
             {progress.total > 0 && <ChecklistProgress progress={progress} />}
@@ -456,6 +484,7 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
                     </Button>
                 )
             )}
-        </div>
+            </div>
+        </>
     );
 };

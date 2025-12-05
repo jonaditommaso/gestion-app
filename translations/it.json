@@ -1471,6 +1471,10 @@
         "checklist-error-convert": "Errore durante la conversione dell'elemento",
         "failed-add-assignee": "Errore durante l'aggiunta dell'assegnatario",
         "failed-remove-assignee": "Errore durante la rimozione dell'assegnatario",
+        "delete-checklist": "Elimina checklist",
+        "delete-checklist-confirm": "Sei sicuro di voler eliminare questa checklist? Tutti gli elementi verranno rimossi.",
+        "checklist-deleted": "Checklist eliminata con successo",
+        "checklist-error-delete-all": "Errore durante l'eliminazione della checklist",
         "back": "Indietro"
     },
     "team": {

@@ -42,6 +42,10 @@ export const convertToTaskSchema = zod.object({
     workspaceId: zod.string().trim().min(1, 'Required'),
 });
 
+export const deleteChecklistSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+});
+
 // ===== Checklist Item Assignees Schemas =====
 
 export const addChecklistAssigneeSchema = zod.object({
