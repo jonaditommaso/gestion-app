@@ -2,7 +2,7 @@
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, Check, ChevronsUpDown } from "lucide-react";
+import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { TaskStatus } from "../types";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import CustomDatePicker from "@/components/CustomDatePicker";
@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface DataFiltersProps {
     hideStatusFilter?: boolean;
@@ -46,6 +47,19 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
         label
     }, setFilters] = useTaskFilters();
 
+    // Check if any filter is active
+    const hasActiveFilters = status || assigneeId || dueDate || priority || (label && label.length > 0);
+
+    const clearAllFilters = () => {
+        setFilters({
+            status: null,
+            assigneeId: null,
+            dueDate: null,
+            priority: null,
+            label: null
+        });
+    };
+
     const onStatusChange = (value: string) => {
         if (value === 'all') {
             setFilters({ status: null })
@@ -73,10 +87,11 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
     if (isLoading) return null;
 
     return (
-        <div className="flex flex-col lg:flex-row gap-2">
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-2">
+            <div className="flex flex-col lg:flex-row gap-2">
             {!hideStatusFilter && (
                 <Select
-                    defaultValue={status ?? undefined}
+                    value={status ?? 'all'}
                     onValueChange={(value) => onStatusChange(value)}
                 >
                     <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -110,7 +125,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 </Select>
             )}
             <Select
-                defaultValue={assigneeId ?? undefined}
+                value={assigneeId ?? 'all'}
                 onValueChange={(value) => onAssigneeChange(value)}
             >
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -137,7 +152,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 </SelectContent>
             </Select>
             <Select
-                defaultValue={priority?.toString() ?? undefined}
+                value={priority?.toString() ?? 'all'}
                 onValueChange={(value) => onPriorityChange(value)}
             >
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -242,7 +257,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 </Popover>
             ) : (
                 <Select
-                    defaultValue={label?.[0] ?? undefined}
+                    value={label?.[0] ?? 'all'}
                     onValueChange={onLabelChange}
                 >
                     <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -285,6 +300,18 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 value={dueDate ? new Date(dueDate) : undefined}
                 onChange={date => { setFilters({ dueDate: date ? date.toISOString() : null }) }}
             />
+            </div>
+            {hasActiveFilters && (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFilters}
+                    className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                >
+                    <X className="size-4 mr-1" />
+                    {t('clear-filters')}
+                </Button>
+            )}
         </div>
     );
 }

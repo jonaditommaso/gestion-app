@@ -1244,6 +1244,7 @@
         "all-assignees": "Tutti gli assegnatari",
         "all-priorities": "Tutte le priorità",
         "all-labels": "Tutte le etichette",
+        "clear-filters": "Cancella filtri",
         "no-labels-available": "Nessuna etichetta disponibile",
         "multi-select-labels": "Selezione multipla etichette",
         "multi-select-labels-description": "Consenti la selezione di più etichette per filtrare le attività",

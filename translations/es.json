@@ -1264,6 +1264,7 @@
         "all-assignees": "Todos asignados",
         "all-priorities": "Todas las prioridades",
         "all-labels": "Todas las etiquetas",
+        "clear-filters": "Limpiar filtros",
         "no-labels-available": "No hay etiquetas disponibles",
         "multi-select-labels": "Selección múltiple de etiquetas",
         "multi-select-labels-description": "Permitir seleccionar varias etiquetas para filtrar tareas",

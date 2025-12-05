@@ -1258,6 +1258,7 @@
         "all-assignees": "All assignees",
         "all-priorities": "All priorities",
         "all-labels": "All labels",
+        "clear-filters": "Clear filters",
         "no-labels-available": "No labels available",
         "multi-select-labels": "Multi-select labels",
         "multi-select-labels-description": "Allow selecting multiple labels to filter tasks",
