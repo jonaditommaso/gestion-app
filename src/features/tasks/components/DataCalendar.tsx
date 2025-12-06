@@ -1,8 +1,9 @@
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { Task } from "../types";
-import { enUS } from "date-fns/locale";
+import { es, enUS, it } from "date-fns/locale";
 import { addMonths, format, getDay, parse, startOfWeek, subMonths } from "date-fns";
 import { useState } from "react";
+import { useLocale } from "next-intl";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/date-calendar.css'
@@ -13,8 +14,16 @@ interface DataCalendarProps {
     data: Task[]
 }
 
+const localeMap = {
+    es: es,
+    en: enUS,
+    it: it
+};
+
 const locales = {
-    'en-US': enUS
+    'en-US': enUS,
+    'es': es,
+    'it': it
 }
 
 const localizer = dateFnsLocalizer({
@@ -27,6 +36,8 @@ const localizer = dateFnsLocalizer({
 
 const DataCalendar = ({ data }: DataCalendarProps) => {
     const [value, setValue] = useState(data.length > 0 ? new Date(data[0].dueDate) : new Date())
+    const locale = useLocale() as keyof typeof localeMap;
+    const dateLocale = localeMap[locale] || enUS;
 
     const events = data.map(task => ({
         start: new Date(task.dueDate),
@@ -58,6 +69,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
             toolbar
             showAllEvents
             className="h-full"
+            culture={locale}
             max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
             formats={{
                 weekdayFormat: (date, culture, localizer) => localizer?.format(date, 'EEEE', culture) ?? '',
@@ -72,7 +84,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
                         featured={event.featured}
                     />
                 ),
-                toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} />
+                toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} locale={dateLocale} />
             }}
         />
     );

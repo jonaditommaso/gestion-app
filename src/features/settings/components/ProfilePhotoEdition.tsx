@@ -24,7 +24,7 @@ const ProfilePhotoEdition = ({ user }: ProfilePhotoEditionProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadImageProfile, isPending } = useUploadImageProfile();
     const { mutate: deleteImageProfile, isPending: isDeleting } = useDeleteImageProfile();
-    const { imageUrl, isPending: isProfilePicturePending } = useProfilePicture();
+    const { imageUrl, isPending: isProfilePicturePending } = useProfilePicture(undefined, !!user?.prefs?.image);
     const t = useTranslations('settings');
     const [isHovered, setIsHovered] = useState(false);
     const [ConfirmDialog, confirm] = useConfirm(

@@ -26,7 +26,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, workspaceId, dueDate, assigneeId, priority } = ctx.req.valid('query');
+            const { search, status, workspaceId, dueDate, assigneeId, priority, label } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -57,6 +57,16 @@ const app = new Hono()
 
             if (priority) {
                 query.push(Query.equal('priority', priority))
+            }
+
+            if (label) {
+                // Soportar múltiples labels separados por coma
+                const labels = label.split(',').map(l => l.trim()).filter(Boolean);
+                if (labels.length === 1) {
+                    query.push(Query.equal('label', labels[0]));
+                } else if (labels.length > 1) {
+                    query.push(Query.contains('label', labels));
+                }
             }
 
             const tasks = await databases.listDocuments<Task>(
@@ -134,7 +144,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -179,11 +189,14 @@ const app = new Hono()
                     statusCustomId: status === TaskStatus.CUSTOM ? statusCustomId : null,
                     workspaceId,
                     dueDate,
-                    // assigneeId,
                     priority,
                     description,
                     position: newPosition,
                     createdBy: member.$id,
+                    label: label || null,
+                    type: type || 'task',
+                    featured: featured || false,
+                    metadata: metadata || null,
                 }
             )
 

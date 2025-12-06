@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-export const useProfilePicture = (id?: string | undefined) => {
+export const useProfilePicture = (id?: string | undefined, hasImage: boolean = true) => {
     const { data: imageUrl, isPending } = useQuery({
         queryKey: ['image-profile', id],
         queryFn: async () => {
@@ -18,8 +18,9 @@ export const useProfilePicture = (id?: string | undefined) => {
             return URL.createObjectURL(blob);
         },
         retry: false,
-        staleTime: 0 // Siempre refetch cuando se invalida
+        staleTime: 0, // Siempre refetch cuando se invalida
+        enabled: hasImage
     });
 
-    return { imageUrl: imageUrl ?? undefined, isPending }
+    return { imageUrl: imageUrl ?? undefined, isPending: hasImage ? isPending : false }
 }

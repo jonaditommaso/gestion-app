@@ -2,7 +2,7 @@ import { TaskStatus } from "../types";
 import React, { useState, useEffect } from "react";
 import { CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotIcon, CircleIcon, MoreHorizontalIcon, PencilIcon, PlusIcon, ArrowRightIcon, TrashIcon, ArrowLeftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ShowCardCountType, STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { ShowCardCountType, STATUS_TO_LABEL_KEY, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import EditableText from "@/components/EditableText";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
@@ -10,6 +10,7 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { CustomStatus } from "@/app/workspaces/types/custom-status";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,6 +35,10 @@ interface KanbanColumnHeaderProps {
     onDeleteColumn?: () => void;
     /** All available statuses for move cards menu */
     availableStatuses?: CustomStatus[];
+    /** Whether the column has reached its rigid limit */
+    isRigidLimitReached?: boolean;
+    /** Task count by status ID for calculating move limits */
+    taskCountByStatus?: Record<string, number>;
 }
 
 const statusIconMap: Record<TaskStatus, React.ReactNode> = {
@@ -45,7 +50,7 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.CUSTOM]: <CircleDashedIcon className="size-[18px] text-gray-400" />, // Fallback, custom statuses use their own icon
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [] }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, taskCountByStatus = {} }: KanbanColumnHeaderProps) => {
 
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
@@ -210,17 +215,37 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                         const statusLabel = status.isDefault && statusTranslationKey[status.id]
                                             ? t(statusTranslationKey[status.id])
                                             : status.label;
+
+                                        // Check if moving all cards would exceed the target's rigid limit
+                                        const targetLimitKeys = STATUS_TO_LIMIT_KEYS[status.id];
+                                        const targetLimitType = targetLimitKeys ? config[targetLimitKeys.type] as ColumnLimitType : ColumnLimitType.NO;
+                                        const targetLimitMax = targetLimitKeys ? config[targetLimitKeys.max] as number | null : null;
+                                        const targetCurrentCount = taskCountByStatus[status.id] || 0;
+                                        const wouldExceedLimit = targetLimitType === ColumnLimitType.RIGID &&
+                                            targetLimitMax !== null &&
+                                            (targetCurrentCount + taskCount) > targetLimitMax;
+
                                         return (
                                             <DropdownMenuItem
                                                 key={status.id}
                                                 onClick={() => {
+                                                    if (wouldExceedLimit) return;
                                                     onMoveAllCards?.(status.id);
                                                     setIsDropdownOpen(false);
                                                 }}
-                                                className="cursor-pointer"
+                                                className={cn(
+                                                    "cursor-pointer",
+                                                    wouldExceedLimit && "opacity-50 cursor-not-allowed"
+                                                )}
+                                                disabled={wouldExceedLimit}
                                             >
                                                 <IconComponent className="size-4 mr-2" style={{ color: status.color }} />
                                                 {statusLabel}
+                                                {wouldExceedLimit && (
+                                                    <span className="ml-auto text-xs text-muted-foreground">
+                                                        ({t('limit-reached')})
+                                                    </span>
+                                                )}
                                             </DropdownMenuItem>
                                         );
                                     })}
@@ -228,7 +253,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>
-                {canCreateTask && (
+                {canCreateTask && !isRigidLimitReached && (
                     <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
                         <PlusIcon className="size-4 text-neutral-500" />
                     </Button>

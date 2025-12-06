@@ -367,6 +367,22 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
                     <Separator />
 
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('multi-select-labels')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('multi-select-labels-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={displayConfig[WorkspaceConfigKey.MULTI_SELECT_LABELS]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.MULTI_SELECT_LABELS, checked)}
+                            disabled={isConfigPending(WorkspaceConfigKey.MULTI_SELECT_LABELS)}
+                        />
+                    </div>
+
+                    <Separator />
+
                     <div className="space-y-4">
                         <div className="flex items-start justify-between">
                             <div className="space-y-0.5 flex-1">
@@ -579,8 +595,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    {/* //TODO: implement multi-assignee */}
-                    {/* <Separator />
+                    <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -594,7 +609,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE, checked)}
                             disabled={isPending}
                         />
-                    </div> */}
+                    </div>
 
                     {/* //TODO: implement code generation with cloud function */}
                     {/* <Separator /> */}
@@ -640,6 +655,34 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                     </div>
                                 </SelectItem>
                                 <SelectItem value="long">{t('date-format-long')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('public-link-expiration')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('public-link-expiration-description')}
+                            </p>
+                        </div>
+                        <Select
+                            value={String(displayConfig[WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS])}
+                            onValueChange={(value) => updateConfig(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS, value === '0' ? 0 : Number(value))}
+                            disabled={isConfigPending(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS)}
+                        >
+                            <SelectTrigger className="w-fit">
+                                <SelectValue placeholder={t('expiration-5-days')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">{t('expiration-1-day')}</SelectItem>
+                                <SelectItem value="5">{t('expiration-5-days')}</SelectItem>
+                                <SelectItem value="10">{t('expiration-10-days')}</SelectItem>
+                                <SelectItem value="15">{t('expiration-15-days')}</SelectItem>
+                                <SelectItem value="30">{t('expiration-30-days')}</SelectItem>
+                                <SelectItem value="0">{t('expiration-unlimited')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -775,7 +818,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    {/* <Separator />
+                    <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -789,7 +832,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY, checked)}
                             disabled={isPending || isAdminMode}
                         />
-                    </div> */}
+                    </div>
 
                     <Separator />
 
@@ -807,7 +850,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
 
-                    {/* <Separator />
+                    <Separator />
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -817,11 +860,11 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </p>
                         </div>
                         <Switch
-                            checked={currentConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
+                            checked={displayConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY, checked)}
-                            disabled={isPending || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY) || isAdminMode}
                         />
-                    </div> */}
+                    </div>
 
                     <Separator />
 

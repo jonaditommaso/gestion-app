@@ -1,4 +1,4 @@
-import { MoreHorizontalIcon, TextIcon, Clock } from "lucide-react";
+import { MoreHorizontalIcon, TextIcon, Clock, ListChecks } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
 import { Separator } from "@/components/ui/separator";
@@ -31,6 +31,11 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
     const PriorityIcon = priorityOption.icon
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === (task.type || 'task'))!
     const TypeIcon = typeOption.icon
+
+    // Checklist progress from task data
+    const checklistTotal = task.checklistCount || 0;
+    const checklistCompleted = task.checklistCompletedCount || 0;
+    const hasChecklist = checklistTotal > 0;
 
     // Get label data if it's a custom label (starts with LABEL_)
     const customLabel = task.label?.startsWith('LABEL_') ? getLabelById(task.label) : null;
@@ -72,14 +77,25 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                 <div className="flex items-start justify-between gap-x-2">
                     <p className="text-sm line-clamp-2">{task.name}</p>
                     <div onClick={(e) => e.stopPropagation()}>
-                        <TaskActions id={task.$id} isFeatured={task.featured} taskName={task.name} taskType={task.type}>
+                        <TaskActions taskId={task.$id} taskName={task.name} taskType={task.type} isFeatured={task.featured}>
                             <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
                         </TaskActions>
                     </div>
                 </div>
                 <div className="flex items-start justify-between gap-x-2">
-                    <div>
+                    <div className="flex items-center gap-2">
                         {task.description && <TextIcon className="size-4 text-neutral-500" />}
+                        {hasChecklist && (
+                            <div className={cn(
+                                "flex items-center gap-1 text-xs",
+                                checklistCompleted === checklistTotal
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-muted-foreground"
+                            )}>
+                                <ListChecks className="size-3.5" />
+                                <span>{checklistCompleted}/{checklistTotal}</span>
+                            </div>
+                        )}
                     </div>
                     <PriorityIcon
                         className="size-4"

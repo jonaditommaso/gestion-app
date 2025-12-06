@@ -20,6 +20,7 @@ export const createTaskSchema = zod.object({
     label: zod.string().max(25).optional().nullish(),
     type: zod.string().optional(),
     metadata: zod.string().optional(), // JSON stringified
+    checklistTitle: zod.string().optional().nullable(), // Title of the checklist
 })
 
 export const getTaskSchema = zod.object({
@@ -28,7 +29,8 @@ export const getTaskSchema = zod.object({
     status: zod.nativeEnum(TaskStatus).nullish(),
     search: zod.string().nullish(),
     dueDate: zod.string().nullish(),
-    priority: zod.coerce.number().int().min(1).max(5).nullish()
+    priority: zod.coerce.number().int().min(1).max(5).nullish(),
+    label: zod.string().nullish()
 })
 
 export const createTaskShareSchema = zod.object({

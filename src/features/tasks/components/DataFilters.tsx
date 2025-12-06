@@ -2,7 +2,7 @@
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ListChecksIcon, UserIcon, SignalIcon } from "lucide-react";
+import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { TaskStatus } from "../types";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import CustomDatePicker from "@/components/CustomDatePicker";
@@ -10,9 +10,15 @@ import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
-import { STATUS_TO_LABEL_KEY } from "@/app/workspaces/constants/workspace-config-keys";
+import { STATUS_TO_LABEL_KEY, WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { TASK_STATUS_OPTIONS } from "../constants/status";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
+import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface DataFiltersProps {
     hideStatusFilter?: boolean;
@@ -24,6 +30,9 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
     const { allStatuses, getIconComponent } = useCustomStatuses();
+    const { customLabels, getLabelColor } = useCustomLabels();
+    const isMultiSelectLabels = config[WorkspaceConfigKey.MULTI_SELECT_LABELS];
+    const [labelPopoverOpen, setLabelPopoverOpen] = useState(false);
 
     const memberOptions = members?.documents.map(member => ({
         id: member.$id,
@@ -34,8 +43,22 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
         status,
         assigneeId,
         dueDate,
-        priority
+        priority,
+        label
     }, setFilters] = useTaskFilters();
+
+    // Check if any filter is active
+    const hasActiveFilters = status || assigneeId || dueDate || priority || (label && label.length > 0);
+
+    const clearAllFilters = () => {
+        setFilters({
+            status: null,
+            assigneeId: null,
+            dueDate: null,
+            priority: null,
+            label: null
+        });
+    };
 
     const onStatusChange = (value: string) => {
         if (value === 'all') {
@@ -53,13 +76,22 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
         setFilters({ priority: value === 'all' ? null : parseInt(value) })
     }
 
+    const onLabelChange = (value: string) => {
+        setFilters({ label: value === 'all' ? null : [value] })
+    }
+
+    const onMultiLabelChange = (values: string[]) => {
+        setFilters({ label: values.length > 0 ? values : null })
+    }
+
     if (isLoading) return null;
 
     return (
-        <div className="flex flex-col lg:flex-row gap-2">
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-2">
+            <div className="flex flex-col lg:flex-row gap-2">
             {!hideStatusFilter && (
                 <Select
-                    defaultValue={status ?? undefined}
+                    value={status ?? 'all'}
                     onValueChange={(value) => onStatusChange(value)}
                 >
                     <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -93,7 +125,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 </Select>
             )}
             <Select
-                defaultValue={assigneeId ?? undefined}
+                value={assigneeId ?? 'all'}
                 onValueChange={(value) => onAssigneeChange(value)}
             >
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -120,7 +152,7 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                 </SelectContent>
             </Select>
             <Select
-                defaultValue={priority?.toString() ?? undefined}
+                value={priority?.toString() ?? 'all'}
                 onValueChange={(value) => onPriorityChange(value)}
             >
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
@@ -148,12 +180,138 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                     })}
                 </SelectContent>
             </Select>
+            {isMultiSelectLabels ? (
+                <Popover open={labelPopoverOpen} onOpenChange={setLabelPopoverOpen}>
+                    <PopoverTrigger asChild>
+                        <button
+                            className="flex items-center justify-between w-full lg:w-auto h-8 px-3 bg-background border rounded-md text-sm hover:bg-accent hover:text-accent-foreground"
+                        >
+                            <div className="flex items-center gap-2">
+                                <TagIcon className="size-4" />
+                                {label && label.length > 0 ? (
+                                    <div className="flex items-center gap-1">
+                                        {label.slice(0, 5).map(labelId => {
+                                            const labelItem = customLabels.find(l => l.id === labelId);
+                                            const colorInfo = labelItem ? getLabelColor(labelItem.color) : null;
+                                            return (
+                                                <div
+                                                    key={labelId}
+                                                    className="size-3 rounded-sm"
+                                                    style={{ backgroundColor: colorInfo?.value || labelItem?.color || '#888' }}
+                                                    title={labelItem?.name}
+                                                />
+                                            );
+                                        })}
+                                        {label.length > 5 && (
+                                            <span className="text-xs text-muted-foreground">+{label.length - 5}</span>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span>{t('all-labels')}</span>
+                                )}
+                            </div>
+                            <ChevronsUpDown className="size-4 ml-2 opacity-50" />
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-fit min-w-[200px] p-0" align="start">
+                        <Command>
+                            <CommandInput placeholder={t('search')} />
+                            <CommandList>
+                                <CommandEmpty>{t('no-results')}</CommandEmpty>
+                                <CommandGroup>
+                                    {customLabels.map(labelItem => {
+                                        const isSelected = label?.includes(labelItem.id) ?? false;
+                                        const colorInfo = getLabelColor(labelItem.color);
+                                        return (
+                                            <CommandItem
+                                                key={labelItem.id}
+                                                onSelect={() => {
+                                                    if (isSelected) {
+                                                        onMultiLabelChange((label ?? []).filter(l => l !== labelItem.id));
+                                                    } else {
+                                                        onMultiLabelChange([...(label ?? []), labelItem.id]);
+                                                    }
+                                                }}
+                                                className="whitespace-nowrap"
+                                            >
+                                                <div
+                                                    className={cn(
+                                                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                        isSelected ? "bg-primary text-primary-foreground" : "opacity-50"
+                                                    )}
+                                                >
+                                                    {isSelected && <Check className="size-3" />}
+                                                </div>
+                                                <div
+                                                    className="size-3 rounded-full mr-2"
+                                                    style={{ backgroundColor: colorInfo?.value || labelItem.color }}
+                                                />
+                                                {labelItem.name}
+                                            </CommandItem>
+                                        );
+                                    })}
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+            ) : (
+                <Select
+                    value={label?.[0] ?? 'all'}
+                    onValueChange={onLabelChange}
+                >
+                    <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
+                        <div className="flex items-center pr-2">
+                            <TagIcon className="size-4 mr-2" />
+                            <SelectValue placeholder={t('all-labels')} />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">{t('all-labels')}</SelectItem>
+                        {customLabels.length > 0 ? (
+                            <>
+                                <SelectSeparator />
+                                {customLabels.map(labelItem => {
+                                    const colorInfo = getLabelColor(labelItem.color);
+                                    return (
+                                        <SelectItem key={labelItem.id} value={labelItem.id}>
+                                            <div className="flex items-center gap-x-2">
+                                                <div
+                                                    className="size-3 rounded-full"
+                                                    style={{ backgroundColor: colorInfo?.value || labelItem.color }}
+                                                />
+                                                {labelItem.name}
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
+                            </>
+                        ) : (
+                            <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                                {t('no-labels-available')}
+                            </div>
+                        )}
+                    </SelectContent>
+                </Select>
+            )}
             <CustomDatePicker
                 placeholder={'due-date'}
                 className="h-8 w-full lg:w-auto"
                 value={dueDate ? new Date(dueDate) : undefined}
                 onChange={date => { setFilters({ dueDate: date ? date.toISOString() : null }) }}
             />
+            </div>
+            {hasActiveFilters && (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFilters}
+                    className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                >
+                    <X className="size-4 mr-1" />
+                    {t('clear-filters')}
+                </Button>
+            )}
         </div>
     );
 }

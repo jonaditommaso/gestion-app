@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { Task, TaskStatus } from "../types";
 import {
     DragDropContext,
@@ -25,6 +25,7 @@ import { PlusIcon } from "lucide-react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 
 interface DataKanbanProps {
     data: Task[],
@@ -78,6 +79,9 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
 
     // Check if user is ADMIN at organization level
     const isAdmin = user?.prefs?.role === 'ADMIN';
+
+    // Get workspace-level permissions
+    const { canCreateColumn } = useWorkspacePermissions();
 
     const handleUpdateLabel = (status: TaskStatus, label: string) => {
         const labelKey = STATUS_TO_LABEL_KEY[status];
@@ -665,6 +669,15 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     // Determinar si necesitamos scroll (más de 5 columnas)
     const needsScroll = orderedStatuses.length > 5;
 
+    // Calculate task counts by status for passing to KanbanColumnHeader
+    const taskCountByStatus = useMemo(() => {
+        const counts: Record<string, number> = {};
+        for (const statusId of Object.keys(tasks)) {
+            counts[statusId] = tasks[statusId]?.length || 0;
+        }
+        return counts;
+    }, [tasks]);
+
     return (
         <>
             <DragDropContext onDragEnd={onDragEnd}>
@@ -685,6 +698,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                 // Determine if limit is exceeded (only when it goes OVER the limit)
                                 const isLimitExceeded = limitType !== ColumnLimitType.NO && limitMax !== null && taskCount > limitMax;
                                 const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
+                                // Determine if rigid limit is reached (at or over limit) - blocks adding new tasks
+                                const isRigidLimitReached = limitType === ColumnLimitType.RIGID && limitMax !== null && taskCount >= limitMax;
 
                                 return (
                                     <Draggable
@@ -706,7 +721,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 }}
                                             >
                                                 {/* Add column divider before columns */}
-                                                {isAdmin && (
+                                                {canCreateColumn && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
@@ -761,6 +776,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             onMoveAllCards={(targetStatusId) => handleMoveAllCards(statusObj.id, targetStatusId)}
                                                             onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
                                                             availableStatuses={orderedStatuses}
+                                                            isRigidLimitReached={isRigidLimitReached}
+                                                            taskCountByStatus={taskCountByStatus}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">
                                                             {(provided) => (
@@ -791,7 +808,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 </div>
 
                                                 {/* Add column divider after last column */}
-                                                {isAdmin && index === orderedStatuses.length - 1 && (
+                                                {canCreateColumn && index === orderedStatuses.length - 1 && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index + 1}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>

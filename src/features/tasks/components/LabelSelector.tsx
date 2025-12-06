@@ -22,9 +22,10 @@ interface LabelSelectorProps {
     showClear?: boolean;
     variant?: 'default' | 'inline'; // inline = text style for TaskDetails
     readOnly?: boolean;
+    canEdit?: boolean; // can create/edit labels (different from selecting existing)
 }
 
-export const LabelSelector = ({ value, onChange, disabled, className, showClear = true, variant = 'default', readOnly = false }: LabelSelectorProps) => {
+export const LabelSelector = ({ value, onChange, disabled, className, showClear = true, variant = 'default', readOnly = false, canEdit = true }: LabelSelectorProps) => {
     const t = useTranslations('workspaces');
     const workspaceId = useWorkspaceId();
     const { data: workspaces } = useGetWorkspaces();
@@ -41,6 +42,10 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
 
     // If value is a deleted label (LABEL_xxx but not found), treat as no value
     const isDeletedLabel = value?.startsWith('LABEL_') && !selectedLabel;
+
+    // Check if selector should be disabled (no labels exist and can't create)
+    const hasNoLabels = customLabels.length === 0;
+    const shouldDisable = disabled || (!canEdit && hasNoLabels);
 
     // Get label by color
     const getLabelByColor = (color: string) => {
@@ -152,10 +157,11 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                     {variant === 'inline' ? (
                         <button
                             type="button"
-                            disabled={disabled}
+                            disabled={shouldDisable}
                             className={cn(
                                 "text-sm text-left hover:bg-muted rounded-sm px-1.5 py-1 transition-colors",
                                 !selectedLabel && "text-muted-foreground",
+                                shouldDisable && "opacity-50 cursor-not-allowed",
                                 className
                             )}
                         >
@@ -176,7 +182,7 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                             variant="outline"
                             role="combobox"
                             aria-expanded={isOpen}
-                            disabled={disabled}
+                            disabled={shouldDisable}
                             className={cn("justify-between", className)}
                             style={selectedLabel ? {
                                 backgroundColor: selectedLabel.color,
@@ -197,6 +203,9 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                             const existingLabel = getLabelByColor(color.value);
                             const isSelected = existingLabel && value === existingLabel.id;
                             const isEditing = editingColor === color.value;
+
+                            // Si no puede editar y no hay label existente, no mostrar este color
+                            if (!canEdit && !existingLabel) return null;
 
                             return (
                                 <div key={color.value} className="flex items-center gap-2">
@@ -219,7 +228,7 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                                     </button>
 
                                     {/* Label input/display */}
-                                    {isEditing ? (
+                                    {isEditing && canEdit ? (
                                         <input
                                             ref={(el) => { inputRefs.current[color.value] = el; }}
                                             type="text"
@@ -239,9 +248,12 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                                             type="button"
                                             onClick={() => existingLabel
                                                 ? handleSelectLabel(existingLabel.id)
-                                                : handleStartEditing(color.value)
+                                                : canEdit ? handleStartEditing(color.value) : undefined
                                             }
-                                            className="w-44 h-8 px-3 rounded-md text-sm font-medium text-left transition-opacity hover:opacity-80"
+                                            className={cn(
+                                                "w-44 h-8 px-3 rounded-md text-sm font-medium text-left transition-opacity",
+                                                existingLabel || canEdit ? "hover:opacity-80" : "cursor-default"
+                                            )}
                                             style={{
                                                 backgroundColor: color.value,
                                                 color: color.textColor,
@@ -263,7 +275,7 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                     size="icon"
                     className="size-8"
                     onClick={() => onChange(undefined)}
-                    disabled={disabled}
+                    disabled={shouldDisable}
                 >
                     <X className="size-4" />
                 </Button>

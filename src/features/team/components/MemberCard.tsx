@@ -27,7 +27,7 @@ const ImageMock = ({name}: {name: string}) => (
 )
 
 const MemberCard = ({ name, email, position, tags = [], userId, image, birthday }: MemberCardProps) => {
-    const { imageUrl, isPending } = useProfilePicture(userId);
+    const { imageUrl, isPending } = useProfilePicture(userId, !!image);
     const t = useTranslations('team');
 
     return (

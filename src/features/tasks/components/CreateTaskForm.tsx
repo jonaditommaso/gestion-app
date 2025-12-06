@@ -24,13 +24,16 @@ import { stringifyTaskMetadata } from "../utils/metadata-helpers";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
 import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
-import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
+import { toast } from "sonner";
+import { WorkspaceConfigKey, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
+import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { useGetTasks } from "../api/use-get-tasks";
 import { LabelSelector } from "./LabelSelector";
 
 interface CreateTaskFormProps {
@@ -48,14 +51,47 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
     const { data: currentUser } = useCurrent();
     const { data: membersData } = useGetMembers({ workspaceId });
+    const { data: tasksData } = useGetTasks({ workspaceId });
 
     const config = useWorkspaceConfig();
+    const { canEditLabel } = useWorkspacePermissions();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
+    const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
     const { getStatusDisplayName } = useStatusDisplayName();
     const { allStatuses, getIconComponent } = useCustomStatuses();
 
     // Encontrar el ID del miembro actual en el workspace
     const currentMemberId = membersData?.documents?.find(m => m.userId === currentUser?.$id)?.$id;
+
+    // Calcular qué status tienen límite rígido alcanzado
+    const statusesWithRigidLimitReached = useMemo(() => {
+        if (!tasksData?.documents) return new Set<string>();
+
+        const rigidLimitStatuses = new Set<string>();
+
+        // Contar tareas por status
+        const taskCountByStatus: Record<string, number> = {};
+        tasksData.documents.forEach(task => {
+            const statusKey = task.status === TaskStatus.CUSTOM && task.statusCustomId
+                ? task.statusCustomId
+                : task.status;
+            taskCountByStatus[statusKey] = (taskCountByStatus[statusKey] || 0) + 1;
+        });
+
+        // Verificar límites rígidos para cada status default
+        Object.keys(STATUS_TO_LIMIT_KEYS).forEach(statusId => {
+            const limitKeys = STATUS_TO_LIMIT_KEYS[statusId];
+            const limitType = config[limitKeys.type] as ColumnLimitType;
+            const limitMax = config[limitKeys.max] as number | null;
+            const taskCount = taskCountByStatus[statusId] || 0;
+
+            if (limitType === ColumnLimitType.RIGID && limitMax !== null && taskCount >= limitMax) {
+                rigidLimitStatuses.add(statusId);
+            }
+        });
+
+        return rigidLimitStatuses;
+    }, [tasksData, config]);
 
     // Crear schema dinámico basado en la configuración del workspace
     const dynamicSchema = useMemo(() => {
@@ -104,8 +140,25 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
         }
     })
 
+    // Auto-asignar al usuario actual si la configuración está habilitada
+    useEffect(() => {
+        if (autoAssignOnCreate && currentMemberId) {
+            const currentAssignees = form.getValues('assigneesIds') || [];
+            // Solo establecer si está vacío (no sobrescribir si ya hay asignados)
+            if (currentAssignees.length === 0) {
+                form.setValue('assigneesIds', [currentMemberId]);
+            }
+        }
+    }, [autoAssignOnCreate, currentMemberId, form]);
+
     const onSubmit = async (values: zod.infer<typeof createTaskSchema>) => {
         const { description, status, ...rest } = values
+
+        // Verificar si el status seleccionado tiene límite rígido alcanzado
+        if (statusesWithRigidLimitReached.has(status)) {
+            toast.error(t('cannot-create-task-limit-reached'));
+            return;
+        }
 
         // Procesar imágenes en la descripción si existen
         let processedDescription = description;
@@ -304,6 +357,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                     value={field.value}
                                                     onChange={field.onChange}
                                                     className="!mt-0 w-full"
+                                                    canEdit={canEditLabel}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -315,37 +369,61 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                 <FormField
                                     control={form.control}
                                     name='status'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                {t('status')}
-                                            </FormLabel>
-                                            <Select
-                                                defaultValue={field.value}
-                                                onValueChange={field.onChange}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger className="!mt-0">
-                                                        <SelectValue placeholder={t('select-status')} />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <FormMessage />
-                                                <SelectContent>
-                                                    {allStatuses.map((status) => {
-                                                        const IconComponent = getIconComponent(status.icon);
-                                                        return (
-                                                            <SelectItem key={status.id} value={status.id}>
-                                                                <div className="flex items-center gap-x-2">
-                                                                    <IconComponent className="size-3" style={{ color: status.color }} />
-                                                                    {status.isDefault ? getStatusDisplayName(status.id as TaskStatus) : status.label}
-                                                                </div>
-                                                            </SelectItem>
-                                                        );
-                                                    })}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormItem>
-                                    )}
+                                    render={({ field }) => {
+                                        const isCurrentStatusLimitReached = statusesWithRigidLimitReached.has(field.value);
+                                        return (
+                                            <FormItem>
+                                                <FormLabel className={cn(isCurrentStatusLimitReached && "text-destructive")}>
+                                                    {t('status')}
+                                                    {isCurrentStatusLimitReached && (
+                                                        <span className="text-xs ml-1">({t('must-change')})</span>
+                                                    )}
+                                                </FormLabel>
+                                                <Select
+                                                    defaultValue={field.value}
+                                                    onValueChange={field.onChange}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger className={cn(
+                                                            "!mt-0",
+                                                            isCurrentStatusLimitReached && "border-destructive bg-destructive/10 text-destructive"
+                                                        )}>
+                                                            <SelectValue placeholder={t('select-status')} />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                    <SelectContent>
+                                                        {allStatuses.map((status) => {
+                                                            const IconComponent = getIconComponent(status.icon);
+                                                            const isRigidLimitReached = statusesWithRigidLimitReached.has(status.id);
+                                                            // El status seleccionado actualmente NO debe deshabilitarse (para que pueda ver que está seleccionado)
+                                                            // pero otros status con límite sí se deshabilitan
+                                                            const shouldDisable = isRigidLimitReached && status.id !== field.value;
+                                                            return (
+                                                                <SelectItem
+                                                                    key={status.id}
+                                                                    value={status.id}
+                                                                    disabled={shouldDisable}
+                                                                    className={cn(
+                                                                        isRigidLimitReached && status.id === field.value && "text-destructive bg-destructive/10",
+                                                                        shouldDisable && "opacity-50"
+                                                                    )}
+                                                                >
+                                                                    <div className="flex items-center gap-x-2">
+                                                                        <IconComponent className="size-3" style={{ color: status.color }} />
+                                                                        {status.isDefault ? getStatusDisplayName(status.id as TaskStatus) : status.label}
+                                                                        {isRigidLimitReached && (
+                                                                            <span className="text-xs text-muted-foreground">({t('limit-reached')})</span>
+                                                                        )}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            );
+                                                        })}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormItem>
+                                        );
+                                    }}
                                 />
                                 <FormField
                                     control={form.control}

@@ -12,6 +12,7 @@ import { FormEvent, useEffect, useState } from "react";
 import AddRecordsTableModal from "./components/AddRecordsTableModal";
 import { useCreateRecordsTable } from "./api/use-create-records-table";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import AddRecordsTable from "./components/AddRecordsTable";
 import ListTablesModal from "./components/ListTablesModal";
 import { useGetRecords } from "./api/use-get-records";
@@ -45,6 +46,11 @@ const RecordsContent = () => {
 
         const isInput = tableNameInput instanceof HTMLInputElement;
         if (!isInput || isInput == null) return;
+
+        if (!tableNameInput.value.trim()) {
+            toast.warning(t('table-name-required'));
+            return;
+        }
 
         createTable({
             json: {
