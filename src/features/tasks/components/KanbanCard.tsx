@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { WorkspaceConfigKey, DateFormatType } from "@/app/workspaces/constants/workspace-config-keys";
 import { differenceInDays } from "date-fns";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import '@github/relative-time-element';
 import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels";
 
@@ -25,6 +25,7 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
     const config = useWorkspaceConfig();
     const locale = useLocale();
     const { getLabelById, getLabelColor } = useCustomLabels();
+    const t = useTranslations('workspaces')
     const isCompact = config[WorkspaceConfigKey.COMPACT_CARDS];
     const dateFormat = config[WorkspaceConfigKey.DATE_FORMAT];
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
@@ -74,8 +75,8 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                 onClick={() => setIsModalOpen(true)}
             >
             <div>
-                <div className="flex items-start justify-between gap-x-2">
-                    <p className="text-sm line-clamp-2">{task.name}</p>
+                <div className="flex items-start justify-between">
+                    <p className="text-sm max-w-[200px]" title={t('task-name')}>{task.name}</p>
                     <div onClick={(e) => e.stopPropagation()}>
                         <TaskActions taskId={task.$id} taskName={task.name} taskType={task.type} isFeatured={task.featured}>
                             <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
