@@ -164,13 +164,13 @@ const app = new Hono()
                         Query.equal('status', TaskStatus.CUSTOM),
                         Query.equal('statusCustomId', statusCustomId),
                         Query.equal('workspaceId', workspaceId),
-                        Query.orderAsc('position'),
+                        Query.orderDesc('position'),
                         Query.limit(1),
                     ]
                     : [
                         Query.equal('status', status),
                         Query.equal('workspaceId', workspaceId),
-                        Query.orderAsc('position'),
+                        Query.orderDesc('position'),
                         Query.limit(1),
                     ]
             )

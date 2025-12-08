@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
         accessorKey: header,
         header: capitalize(header),
         cell: ({ row }: { row: Row<TData> }) => (
-          <div className="capitalize">{row.getValue(header)}</div>
+          <div>{row.getValue(header)}</div>
         ),
       })),
     [headers]

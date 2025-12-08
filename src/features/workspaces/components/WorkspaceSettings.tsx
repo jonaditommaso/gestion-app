@@ -32,6 +32,33 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
     const { getStatusDisplayName } = useStatusDisplayName();
 
+    const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
+    const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null); // Track which config key is currently being updated
+
+    // Parse current config from metadata
+    const currentConfig = useMemo(() => {
+        try {
+            if (workspace.metadata) {
+                const metadata = typeof workspace.metadata === 'string'
+                    ? JSON.parse(workspace.metadata)
+                    : workspace.metadata;
+                return { ...DEFAULT_WORKSPACE_CONFIG, ...metadata };
+            }
+        } catch (error) {
+            console.error('Error parsing metadata:', error);
+        }
+        return DEFAULT_WORKSPACE_CONFIG;
+    }, [workspace.metadata]);
+
+    // Optimistic state for configurations using React's useOptimistic
+    const [displayConfig, setOptimisticConfig] = useOptimistic(
+        currentConfig,
+        (state, updates: Record<string, unknown>) => ({
+            ...state,
+            ...updates
+        })
+    );
+
     // Fecha de ejemplo: 2 días en el futuro
     const exampleDate = new Date();
     exampleDate.setDate(exampleDate.getDate() + 2);
@@ -83,21 +110,6 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         );
     };
 
-    // Parse current config from metadata
-    const currentConfig = useMemo(() => {
-        try {
-            if (workspace.metadata) {
-                const metadata = typeof workspace.metadata === 'string'
-                    ? JSON.parse(workspace.metadata)
-                    : workspace.metadata;
-                return { ...DEFAULT_WORKSPACE_CONFIG, ...metadata };
-            }
-        } catch (error) {
-            console.error('Error parsing metadata:', error);
-        }
-        return DEFAULT_WORKSPACE_CONFIG;
-    }, [workspace.metadata]);
-
     // Get only custom config (without defaults)
     const getCustomConfig = () => {
         try {
@@ -125,21 +137,6 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         });
         return limits;
     });
-
-    // Track if column limits have unsaved changes
-    const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false);
-
-    // Track which config key is currently being updated
-    const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null);
-
-    // Optimistic state for configurations using React's useOptimistic
-    const [displayConfig, setOptimisticConfig] = useOptimistic(
-        currentConfig,
-        (state, updates: Record<string, unknown>) => ({
-            ...state,
-            ...updates
-        })
-    );
 
     // Helper to check if a specific config is pending
     const isConfigPending = (key: WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive') => {

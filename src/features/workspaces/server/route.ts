@@ -79,7 +79,6 @@ const app = new Hono()
                     createdBy: user.$id,
                     teamId: user.prefs.teamId,
                     inviteCode: generateInviteCode(6),
-                    userId: user.$id,
                 }
             );
 
