@@ -110,7 +110,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                             <TabsContent value="table" className="mt-0 overflow-auto">
                                 <DataTable columns={columns} data={(tasks?.documents ?? []) as Task[]} />
                             </TabsContent>
-                            <TabsContent value="kanban" className="mt-0 h-full">
+                            <TabsContent value="kanban" className="mt-0 max-h-[40rem]">
                                 <DataKanban
                                     data={(tasks?.documents ?? []) as Task[]}
                                     addTask={handleNewTask}

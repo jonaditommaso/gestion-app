@@ -684,7 +684,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                 <Droppable droppableId="columns" type="COLUMN" direction="horizontal">
                     {(columnsProvided) => (
                         <div
-                            className="flex h-full p-[2px] px-4 overflow-x-auto"
+                            className="flex p-[2px] px-4 overflow-x-auto h-[calc(100vh-23rem)]"
                             ref={columnsProvided.innerRef}
                             {...columnsProvided.droppableProps}
                         >
