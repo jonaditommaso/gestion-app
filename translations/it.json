@@ -1131,6 +1131,11 @@
     },
     "workspaces": {
         "create-workspace": "Crea nuovo workspace",
+        "workspace-quick-setup": "Tutto pronto per iniziare. Personalizza il tuo workflow e preferenze quando vuoi.",
+        "includes-by-default": "Incluso di default",
+        "three-views": "Kanban, tabella e calendario",
+        "workflow-configured": "Workflow configurabile",
+        "fully-customizable": "Totalmente personalizzabile",
         "create": "Crea",
         "cancel": "Annulla",
         "my-workspace": "Il mio workspace...",

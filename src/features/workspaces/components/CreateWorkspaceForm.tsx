@@ -14,6 +14,8 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useGetWorkspacesCount } from "../api/use-get-workspaces-count";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle2 } from "lucide-react";
+import { FeatureIncluded, FEATURES_INCLUDED } from "../constants/features-included";
 //import { toast } from "sonner";
 
 interface CreateWorkspaceFormProps {
@@ -70,12 +72,33 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
     return (
         <div>
             <Card className="w-full h-full">
-                <CardHeader className="flex p-3">
+                <CardHeader className="flex p-6 pb-4">
                     <CardTitle className="text-xl font-semibold text-center">
                         {t('create-workspace')}
                     </CardTitle>
+                    <p className="text-sm text-muted-foreground text-center mt-2">
+                        {t('workspace-quick-setup')}
+                    </p>
                 </CardHeader>
-                <CardContent className="pt-5">
+                <CardContent className="pt-2">
+                    {/* Features incluidas */}
+                    <div className="mb-6 p-2 pb-4 bg-muted/30 rounded-lg border border-muted">
+                        <p className="text-xs font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                            <CheckCircle2 size={14} />
+                            {t('includes-by-default')}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {FEATURES_INCLUDED.map((feature: FeatureIncluded) => {
+                                const Icon = feature.icon;
+                                return (
+                                    <div key={feature.key} className="flex items-center gap-1.5 px-3 py-1.5 bg-background rounded-full text-xs border">
+                                        <Icon size={14} className="text-primary" />
+                                        <span>{t(feature.translationKey)}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <div className="flex flex-col gap-y-4 pb-5">
@@ -114,7 +137,7 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
                     </Form>
                 </CardContent>
             </Card>
-            <div className="flex justify-center mt-20">
+            <div className="flex justify-center mt-10">
                 <Image width={400} height={400} alt='new workspace image' src={'/new-workspace.svg'} />
             </div>
         </div>
