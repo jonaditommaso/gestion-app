@@ -6,6 +6,7 @@ import records from '@/features/records/server/route'
 import members from '@/features/members/server/route'
 import tasks from '@/features/tasks/server/route'
 import checklist from '@/features/tasks/server/checklist.route'
+import comments from '@/features/tasks/server/comments.route'
 import billing from '@/features/billing-management/server/route'
 import settings from '@/features/settings/server/route'
 import team from '@/features/team/server/route'
@@ -25,6 +26,7 @@ const routes = app
   .route('/members', members)
   .route('/tasks', tasks)
   .route('/checklist', checklist)
+  .route('/comments', comments)
   .route('/billing', billing)
   .route('/settings', settings)
   .route('/team', team)

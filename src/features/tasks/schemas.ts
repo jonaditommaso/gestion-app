@@ -56,3 +56,17 @@ export const bulkCreateTaskShareSchema = zod.object({
     message: zod.string().optional(),
     locale: zod.enum(['es', 'en', 'it']).default('es'),
 })
+
+// Task Comments schemas
+export const createTaskCommentSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+    content: zod.string().trim().min(1, 'Required'),
+})
+
+export const updateTaskCommentSchema = zod.object({
+    content: zod.string().trim().min(1, 'Required'),
+})
+
+export const getTaskCommentsSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+})
