@@ -4,6 +4,7 @@ import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { TaskComment } from "../../types";
+import { withTimeout } from "@/lib/request-timeout";
 
 type ResponseType = InferResponseType<typeof client.api.comments['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.comments['$post']>
@@ -23,7 +24,10 @@ export const useCreateTaskComment = (currentMember?: { $id: string; name: string
 
     const mutation = useMutation<ResponseType, Error, RequestType, OptimisticContext>({
         mutationFn: async ({ json }) => {
-            const response = await client.api.comments['$post']({ json });
+            // Wrap the request with a 15 second timeout
+            const response = await withTimeout(
+                client.api.comments['$post']({ json })
+            );
 
             if (!response.ok) {
                 throw new Error('Failed to create comment')
@@ -63,17 +67,15 @@ export const useCreateTaskComment = (currentMember?: { $id: string; name: string
             return { previousComments };
         },
         onError: (_, variables, context) => {
-            // Rollback on error
+            // Rollback on error - restore previous state immediately
             if (context?.previousComments) {
                 queryClient.setQueryData(['task-comments', variables.json.taskId], context.previousComments);
             }
             toast.error(t('failed-create-comment'))
         },
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             toast.success(t('comment-created'))
-        },
-        onSettled: (_data, _error, variables) => {
-            // Always refetch after error or success to sync with server
+            // Only invalidate on success to sync with server (replaces temp ID with real one)
             queryClient.invalidateQueries({ queryKey: ['task-comments', variables.json.taskId] })
         }
     })

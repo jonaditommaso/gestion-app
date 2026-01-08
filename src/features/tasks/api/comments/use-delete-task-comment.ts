@@ -4,6 +4,7 @@ import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { TaskComment } from "../../types";
+import { withTimeout } from "@/lib/request-timeout";
 
 type ResponseType = InferResponseType<typeof client.api.comments[':commentId']['$delete'], 200>
 type RequestType = InferRequestType<typeof client.api.comments[':commentId']['$delete']>
@@ -24,7 +25,10 @@ export const useDeleteTaskComment = (taskId?: string) => {
 
     const mutation = useMutation<ResponseType, Error, RequestType, OptimisticContext>({
         mutationFn: async ({ param }) => {
-            const response = await client.api.comments[':commentId']['$delete']({ param });
+            // Wrap the request with a 15 second timeout
+            const response = await withTimeout(
+                client.api.comments[':commentId']['$delete']({ param })
+            );
 
             if (!response.ok) {
                 throw new Error('Failed to delete comment')
@@ -53,19 +57,17 @@ export const useDeleteTaskComment = (taskId?: string) => {
             return { previousComments, taskId };
         },
         onError: (_, __, context) => {
-            // Rollback on error
+            // Rollback on error - restore previous state immediately
             if (context?.previousComments && context?.taskId) {
                 queryClient.setQueryData(['task-comments', context.taskId], context.previousComments);
             }
             toast.error(t('failed-delete-comment'))
         },
-        onSuccess: () => {
+        onSuccess: (_data, _variables, context) => {
             toast.success(t('comment-deleted'))
-        },
-        onSettled: (data) => {
-            // Always refetch after error or success to sync with server
-            if (data?.data?.taskId) {
-                queryClient.invalidateQueries({ queryKey: ['task-comments', data.data.taskId] })
+            // Only invalidate on success to sync with server
+            if (context?.taskId) {
+                queryClient.invalidateQueries({ queryKey: ['task-comments', context.taskId] })
             }
         }
     })
