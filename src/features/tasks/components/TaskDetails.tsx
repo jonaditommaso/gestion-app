@@ -34,6 +34,7 @@ import { Checklist } from "@/features/checklist";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { TaskActivityHistory } from "./TaskActivityHistory";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -638,10 +639,8 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             )}
                         </div>
                     ) : (
-                        /* History tab - placeholder for future implementation */
-                        <div className="text-muted-foreground text-sm p-3 text-center">
-                            {t('no-activity-history')}
-                        </div>
+                        /* History tab - shows activity log */
+                        <TaskActivityHistory taskId={task.$id} />
                     )}
                 </div>
             </div>

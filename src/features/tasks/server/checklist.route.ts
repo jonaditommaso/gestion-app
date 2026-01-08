@@ -16,6 +16,8 @@ import {
     bulkAssignChecklistSchema,
     deleteChecklistSchema,
 } from "@/features/checklist/schemas";
+import { createActivityLog } from "../utils/create-activity-log";
+import { ActivityAction } from "../types/activity-log";
 
 const app = new Hono()
 
@@ -189,6 +191,18 @@ const app = new Hono()
                 updateData
             );
 
+            // Create activity log for checklist item creation
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.CHECKLIST_UPDATED,
+                payload: {
+                    subAction: 'item_added',
+                    itemTitle: title,
+                } satisfies import('../types/activity-log').ChecklistUpdatedPayload,
+            });
+
             return ctx.json({ data: { ...item, assignees: [] } });
         }
     )
@@ -256,6 +270,18 @@ const app = new Hono()
                         checklistCompletedCount: Math.max(0, (task.checklistCompletedCount || 0) + delta),
                     }
                 );
+
+                // Create activity log for checklist item completion toggle
+                createActivityLog({
+                    databases,
+                    taskId: item.taskId,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.CHECKLIST_UPDATED,
+                    payload: {
+                        subAction: updates.completed ? 'item_completed' : 'item_uncompleted',
+                        itemTitle: updatedItem.title,
+                    } satisfies import('../types/activity-log').ChecklistUpdatedPayload,
+                });
             }
 
             return ctx.json({ data: updatedItem });
@@ -410,6 +436,18 @@ const app = new Hono()
                         : task.checklistCompletedCount || 0,
                 }
             );
+
+            // Create activity log for checklist item deletion
+            createActivityLog({
+                databases,
+                taskId: item.taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.CHECKLIST_UPDATED,
+                payload: {
+                    subAction: 'item_removed',
+                    itemTitle: item.title,
+                } satisfies import('../types/activity-log').ChecklistUpdatedPayload,
+            });
 
             return ctx.json({ data: { $id: itemId } });
         }

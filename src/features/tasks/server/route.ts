@@ -3,18 +3,47 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskShare, TaskShareType, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
-import { Models } from "node-appwrite";
+import { Models, Databases } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
+import { createActivityLog } from "../utils/create-activity-log";
+import { ActivityAction } from "../types/activity-log";
+import { WorkspaceType } from "@/features/workspaces/types";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
     workspaceMemberId: string;
 }
+
+// Helper function to get label name from workspace metadata
+const getLabelName = async (databases: Databases, workspaceId: string, labelId: string | null | undefined): Promise<string | null> => {
+    if (!labelId) return null;
+
+    try {
+        const workspace = await databases.getDocument<WorkspaceType>(
+            DATABASE_ID,
+            WORKSPACES_ID,
+            workspaceId
+        );
+
+        if (!workspace.metadata) return labelId;
+
+        const metadata = typeof workspace.metadata === 'string'
+            ? JSON.parse(workspace.metadata)
+            : workspace.metadata;
+
+        const customLabels = metadata.customLabels || [];
+        const label = customLabels.find((l: { id: string; name: string }) => l.id === labelId);
+
+        return label?.name || labelId;
+    } catch {
+        return labelId;
+    }
+};
 
 const app = new Hono()
 
@@ -375,6 +404,168 @@ const app = new Hono()
                 throw err;
             }
 
+            // Create activity logs for each change (in parallel, non-blocking)
+            const activityLogPromises: Promise<void>[] = [];
+
+            // Status change
+            if (updates.status !== undefined && (updates.status !== existingTask.status || updates.statusCustomId !== existingTask.statusCustomId)) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_STATUS_UPDATED,
+                        payload: {
+                            from: existingTask.status,
+                            fromCustomId: existingTask.statusCustomId || null,
+                            to: updates.status,
+                            toCustomId: updates.statusCustomId || null
+                        }
+                    })
+                );
+            }
+
+            // Description change
+            if (updates.description !== undefined && updates.description !== existingTask.description) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.DESCRIPTION_UPDATED,
+                        payload: {
+                            subAction: updates.description ? 'set' : 'cleared'
+                        }
+                    })
+                );
+            }
+
+            // Label change
+            if (updates.label !== undefined && updates.label !== existingTask.label) {
+                // Get label names (snapshot) instead of IDs
+                const [fromLabelName, toLabelName] = await Promise.all([
+                    getLabelName(databases, existingTask.workspaceId, existingTask.label),
+                    getLabelName(databases, existingTask.workspaceId, updates.label)
+                ]);
+
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.LABEL_UPDATED,
+                        payload: {
+                            from: fromLabelName,
+                            to: toLabelName
+                        }
+                    })
+                );
+            }
+
+            // Priority change
+            if (updates.priority !== undefined && updates.priority !== existingTask.priority) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.PRIORITY_UPDATED,
+                        payload: {
+                            from: existingTask.priority || 3,
+                            to: updates.priority
+                        }
+                    })
+                );
+            }
+
+            // Due date change
+            if (updates.dueDate !== undefined) {
+                const newDueDateStr = updates.dueDate ? updates.dueDate.toISOString() : null;
+                if (newDueDateStr !== existingTask.dueDate) {
+                    activityLogPromises.push(
+                        createActivityLog({
+                            databases,
+                            taskId,
+                            actorMemberId: member.$id,
+                            action: ActivityAction.DUE_DATE_UPDATED,
+                            payload: {
+                                from: existingTask.dueDate || null,
+                                to: newDueDateStr
+                            }
+                        })
+                    );
+                }
+            }
+
+            // Type change
+            if (updates.type !== undefined && updates.type !== existingTask.type) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_TYPE_UPDATED,
+                        payload: {
+                            from: existingTask.type || 'task',
+                            to: updates.type
+                        }
+                    })
+                );
+            }
+
+            // Name change
+            if (updates.name !== undefined && updates.name !== existingTask.name) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_NAME_UPDATED,
+                        payload: {
+                            from: existingTask.name,
+                            to: updates.name
+                        }
+                    })
+                );
+            }
+
+            // Featured change
+            if (updates.featured !== undefined && updates.featured !== existingTask.featured) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_FEATURED_UPDATED,
+                        payload: {
+                            from: existingTask.featured || false,
+                            to: updates.featured
+                        }
+                    })
+                );
+            }
+
+            // Checklist title change
+            if (updates.checklistTitle !== undefined && updates.checklistTitle !== existingTask.checklistTitle) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.CHECKLIST_UPDATED,
+                        payload: {
+                            subAction: 'title_changed',
+                            checklistTitle: updates.checklistTitle || undefined
+                        }
+                    })
+                );
+            }
+
+            // Execute all activity log creations in parallel (non-blocking)
+            Promise.all(activityLogPromises).catch(err => {
+                console.error('Error creating activity logs:', err);
+            });
+
             // Obtener las asignaciones de esta tarea
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
                 DATABASE_ID,
@@ -576,6 +767,26 @@ const app = new Hono()
                 }
             );
 
+            // Get the assigned member's info for the activity log
+            const assignedMember = await databases.getDocument<WorkspaceMember>(
+                DATABASE_ID,
+                MEMBERS_ID,
+                workspaceMemberId
+            );
+
+            // Create activity log for assignment (non-blocking)
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.ASSIGNEES_UPDATED,
+                payload: {
+                    subAction: 'added',
+                    memberId: workspaceMemberId,
+                    memberName: assignedMember.name
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
+
             // Get updated assignees
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
                 DATABASE_ID,
@@ -641,12 +852,32 @@ const app = new Hono()
                 return ctx.json({ error: 'Assignment not found' }, 404);
             }
 
+            // Get the member being unassigned for the activity log
+            const unassignedMember = await databases.getDocument<WorkspaceMember>(
+                DATABASE_ID,
+                MEMBERS_ID,
+                workspaceMemberId
+            );
+
             // Delete assignment
             await databases.deleteDocument(
                 DATABASE_ID,
                 TASK_ASSIGNEES_ID,
                 assignment.documents[0].$id
             );
+
+            // Create activity log for unassignment (non-blocking)
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.ASSIGNEES_UPDATED,
+                payload: {
+                    subAction: 'removed',
+                    memberId: workspaceMemberId,
+                    memberName: unassignedMember.name
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
 
             // Get updated assignees
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
@@ -808,6 +1039,18 @@ const app = new Hono()
                     readOnly,
                 }
             );
+
+            // Create activity log for task share
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.TASK_SHARED,
+                payload: {
+                    subAction: type === TaskShareType.INTERNAL ? 'internal' : 'external',
+                    sharedToUserId: sharedTo || undefined,
+                },
+            });
 
             return ctx.json({ success: true });
         }
@@ -971,6 +1214,18 @@ const app = new Hono()
             });
 
             await Promise.all(sharePromises);
+
+            // Create activity log for bulk task share
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.TASK_SHARED,
+                payload: {
+                    subAction: 'internal',
+                    recipientCount: recipients.length,
+                },
+            });
 
             return ctx.json({ success: true });
         }

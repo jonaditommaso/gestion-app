@@ -6,6 +6,8 @@ import { getMember } from "@/features/workspaces/members/utils";
 import { DATABASE_ID, MEMBERS_ID, TASK_COMMENTS_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskComment, WorkspaceMember } from "../types";
+import { createActivityLog } from "../utils/create-activity-log";
+import { ActivityAction } from "../types/activity-log";
 
 const app = new Hono()
 
@@ -116,6 +118,18 @@ const app = new Hono()
                 throw err;
             }
 
+            // Create activity log for comment creation (non-blocking)
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.COMMENT_UPDATED,
+                payload: {
+                    subAction: 'created',
+                    commentId: comment.$id
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
+
             return ctx.json({
                 data: {
                     ...comment,
@@ -182,6 +196,18 @@ const app = new Hono()
                 throw err;
             }
 
+            // Create activity log for comment edit (non-blocking)
+            createActivityLog({
+                databases,
+                taskId: existingComment.taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.COMMENT_UPDATED,
+                payload: {
+                    subAction: 'edited',
+                    commentId
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
+
             return ctx.json({
                 data: {
                     ...updatedComment,
@@ -235,6 +261,18 @@ const app = new Hono()
                 TASK_COMMENTS_ID,
                 commentId
             );
+
+            // Create activity log for comment deletion (non-blocking)
+            createActivityLog({
+                databases,
+                taskId: comment.taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.COMMENT_UPDATED,
+                payload: {
+                    subAction: 'deleted',
+                    commentId
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
 
             return ctx.json({ data: { $id: commentId, taskId: comment.taskId } });
         }

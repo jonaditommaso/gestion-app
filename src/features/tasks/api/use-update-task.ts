@@ -34,6 +34,7 @@ export const useUpdateTask = () => {
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
             queryClient.invalidateQueries({ queryKey: ['task', data.$id] })
+            queryClient.invalidateQueries({ queryKey: ['task-activity-logs', data.$id] })
         },
         onError: (error) => {
             if (error.message === 'content_too_long') {
