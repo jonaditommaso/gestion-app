@@ -189,10 +189,10 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
 
     // Comments hooks with optimistic updates
     const { data: commentsData, isLoading: isLoadingComments } = useGetTaskComments({ taskId: task.$id });
-    const { mutate: createComment, isPending: isCreatingComment } = useCreateTaskComment(
+    const { mutate: createComment } = useCreateTaskComment(
         currentMember ? { $id: currentMember.$id, name: currentMember.name, email: currentMember.email } : undefined
     );
-    const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateTaskComment();
+    const { mutate: updateComment } = useUpdateTaskComment(task.$id);
     const { mutate: deleteComment } = useDeleteTaskComment(task.$id);
 
     const comments = (commentsData?.documents || []) as TaskComment[];
@@ -443,6 +443,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                     <div className="flex gap-x-3">
                                         <MemberAvatar
                                             name={user?.name || 'User'}
+                                            memberId={currentMember?.$id}
                                             className="size-9 flex-shrink-0 mt-1"
                                         />
                                         <div className="flex-1 space-y-3">
@@ -455,18 +456,17 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                             <div className="flex items-center gap-2">
                                                 <Button
                                                     size="sm"
-                                                    disabled={isCreatingComment || !comment.trim() || checkEmptyContent(comment)}
+                                                    disabled={!comment.trim() || checkEmptyContent(comment)}
                                                     onClick={() => {
                                                         if (comment.trim() && !checkEmptyContent(comment)) {
+                                                            // Close editor immediately for instant UX (optimistic)
+                                                            const contentToSave = comment;
+                                                            setComment('');
+                                                            setIsAddingComment(false);
                                                             createComment({
                                                                 json: {
                                                                     taskId: task.$id,
-                                                                    content: comment
-                                                                }
-                                                            }, {
-                                                                onSuccess: () => {
-                                                                    setComment('');
-                                                                    setIsAddingComment(false);
+                                                                    content: contentToSave
                                                                 }
                                                             });
                                                         }
@@ -494,6 +494,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                     >
                                         <MemberAvatar
                                             name={user?.name || 'User'}
+                                            memberId={currentMember?.$id}
                                             className="size-9 flex-shrink-0"
                                         />
                                         <div className="flex-1 p-3 rounded-lg border bg-muted/30 group-hover:bg-muted/50 transition-all">
@@ -524,6 +525,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                         <div key={commentItem.$id} className="flex gap-x-3 group">
                                             <MemberAvatar
                                                 name={commentItem.author?.name || 'User'}
+                                                memberId={commentItem.authorMemberId}
                                                 className="size-9 flex-shrink-0 mt-1"
                                             />
                                             <div className="flex-1">
@@ -592,17 +594,16 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                                         <div className="flex items-center gap-2">
                                                             <Button
                                                                 size="sm"
-                                                                disabled={isUpdatingComment || !editingCommentContent.trim() || checkEmptyContent(editingCommentContent)}
+                                                                disabled={!editingCommentContent.trim() || checkEmptyContent(editingCommentContent)}
                                                                 onClick={() => {
                                                                     if (editingCommentContent.trim() && !checkEmptyContent(editingCommentContent)) {
+                                                                        // Close editor immediately for instant UX (optimistic)
+                                                                        const contentToSave = editingCommentContent;
+                                                                        setEditingCommentId(null);
+                                                                        setEditingCommentContent('');
                                                                         updateComment({
-                                                                            json: { content: editingCommentContent },
+                                                                            json: { content: contentToSave },
                                                                             param: { commentId: commentItem.$id }
-                                                                        }, {
-                                                                            onSuccess: () => {
-                                                                                setEditingCommentId(null);
-                                                                                setEditingCommentContent('');
-                                                                            }
                                                                         });
                                                                     }
                                                                 }}
