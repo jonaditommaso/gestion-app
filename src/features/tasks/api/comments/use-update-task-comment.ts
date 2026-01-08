@@ -31,6 +31,11 @@ export const useUpdateTaskComment = (taskId?: string) => {
             );
 
             if (!response.ok) {
+                // Check for specific error types
+                const errorData = await response.json() as { error?: string };
+                if (errorData.error === 'content_too_long') {
+                    throw new Error('content_too_long');
+                }
                 throw new Error('Failed to update comment')
             }
 
@@ -59,12 +64,16 @@ export const useUpdateTaskComment = (taskId?: string) => {
 
             return { previousComments, taskId };
         },
-        onError: (_, __, context) => {
+        onError: (error, __, context) => {
             // Rollback on error - restore previous state immediately
             if (context?.previousComments && context?.taskId) {
                 queryClient.setQueryData(['task-comments', context.taskId], context.previousComments);
             }
-            toast.error(t('failed-update-comment'))
+            if (error.message === 'content_too_long') {
+                toast.error(t('comment-too-long'));
+            } else {
+                toast.error(t('failed-update-comment'));
+            }
         },
         onSuccess: (_data, _variables, context) => {
             toast.success(t('comment-updated'))

@@ -18,6 +18,11 @@ export const useUpdateTask = () => {
             const response = await client.api.tasks[':taskId']['$patch']({ json, param });
 
             if (!response.ok) {
+                // Check for specific error types
+                const errorData = await response.json() as { error?: string };
+                if (errorData.error === 'content_too_long') {
+                    throw new Error('content_too_long');
+                }
                 throw new Error('Failed to update task')
             }
 
@@ -30,8 +35,12 @@ export const useUpdateTask = () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
             queryClient.invalidateQueries({ queryKey: ['task', data.$id] })
         },
-        onError: () => {
-            toast.error(t('failed-update-task'))
+        onError: (error) => {
+            if (error.message === 'content_too_long') {
+                toast.error(t('content-too-long'));
+            } else {
+                toast.error(t('failed-update-task'));
+            }
         }
     })
     return mutation

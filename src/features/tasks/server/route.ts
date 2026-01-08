@@ -358,12 +358,22 @@ const app = new Hono()
                 finalUpdates.statusCustomId = null;
             }
 
-            const task = await databases.updateDocument<Task>(
-                DATABASE_ID,
-                TASKS_ID,
-                taskId,
-                finalUpdates
-            )
+            let task;
+            try {
+                task = await databases.updateDocument<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    taskId,
+                    finalUpdates
+                )
+            } catch (err: unknown) {
+                // Check if it's an Appwrite error for field length
+                const error = err as { type?: string; message?: string };
+                if (error.type === 'document_invalid_structure' && error.message?.includes('2048')) {
+                    return ctx.json({ error: 'content_too_long' }, 400);
+                }
+                throw err;
+            }
 
             // Obtener las asignaciones de esta tarea
             const taskAssignees = await databases.listDocuments<TaskAssignee>(

@@ -30,6 +30,11 @@ export const useCreateTaskComment = (currentMember?: { $id: string; name: string
             );
 
             if (!response.ok) {
+                // Check for specific error types
+                const errorData = await response.json() as { error?: string };
+                if (errorData.error === 'content_too_long') {
+                    throw new Error('content_too_long');
+                }
                 throw new Error('Failed to create comment')
             }
 
@@ -66,12 +71,16 @@ export const useCreateTaskComment = (currentMember?: { $id: string; name: string
 
             return { previousComments };
         },
-        onError: (_, variables, context) => {
+        onError: (error, variables, context) => {
             // Rollback on error - restore previous state immediately
             if (context?.previousComments) {
                 queryClient.setQueryData(['task-comments', variables.json.taskId], context.previousComments);
             }
-            toast.error(t('failed-create-comment'))
+            if (error.message === 'content_too_long') {
+                toast.error(t('comment-too-long'));
+            } else {
+                toast.error(t('failed-create-comment'));
+            }
         },
         onSuccess: (_data, variables) => {
             toast.success(t('comment-created'))

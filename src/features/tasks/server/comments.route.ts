@@ -96,16 +96,25 @@ const app = new Hono()
             }
 
             // Create the comment
-            const comment = await databases.createDocument<TaskComment>(
-                DATABASE_ID,
-                TASK_COMMENTS_ID,
-                ID.unique(),
-                {
-                    taskId,
-                    authorMemberId: member.$id,
-                    content
+            let comment;
+            try {
+                comment = await databases.createDocument<TaskComment>(
+                    DATABASE_ID,
+                    TASK_COMMENTS_ID,
+                    ID.unique(),
+                    {
+                        taskId,
+                        authorMemberId: member.$id,
+                        content
+                    }
+                );
+            } catch (err: unknown) {
+                const error = err as { type?: string; message?: string };
+                if (error.type === 'document_invalid_structure' && error.message?.includes('2048')) {
+                    return ctx.json({ error: 'content_too_long' }, 400);
                 }
-            );
+                throw err;
+            }
 
             return ctx.json({
                 data: {
@@ -157,12 +166,21 @@ const app = new Hono()
             }
 
             // Update the comment
-            const updatedComment = await databases.updateDocument<TaskComment>(
-                DATABASE_ID,
-                TASK_COMMENTS_ID,
-                commentId,
-                { content }
-            );
+            let updatedComment;
+            try {
+                updatedComment = await databases.updateDocument<TaskComment>(
+                    DATABASE_ID,
+                    TASK_COMMENTS_ID,
+                    commentId,
+                    { content }
+                );
+            } catch (err: unknown) {
+                const error = err as { type?: string; message?: string };
+                if (error.type === 'document_invalid_structure' && error.message?.includes('2048')) {
+                    return ctx.json({ error: 'content_too_long' }, 400);
+                }
+                throw err;
+            }
 
             return ctx.json({
                 data: {
