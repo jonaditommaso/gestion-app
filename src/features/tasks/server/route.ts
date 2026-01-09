@@ -45,6 +45,54 @@ const getLabelName = async (databases: Databases, workspaceId: string, labelId: 
     }
 };
 
+// Helper function to get status display name from workspace metadata
+// For default statuses with custom labels or custom statuses
+const getStatusDisplayName = async (
+    databases: Databases,
+    workspaceId: string,
+    status: string,
+    statusCustomId: string | null | undefined
+): Promise<string | null> => {
+    try {
+        const workspace = await databases.getDocument<WorkspaceType>(
+            DATABASE_ID,
+            WORKSPACES_ID,
+            workspaceId
+        );
+
+        if (!workspace.metadata) return null;
+
+        const metadata = typeof workspace.metadata === 'string'
+            ? JSON.parse(workspace.metadata)
+            : workspace.metadata;
+
+        // If it's a custom status, find it in customStatuses array
+        if (status === 'CUSTOM' && statusCustomId) {
+            const customStatuses = metadata.customStatuses || [];
+            const customStatus = customStatuses.find((s: { id: string; label: string }) => s.id === statusCustomId);
+            return customStatus?.label || null;
+        }
+
+        // For default statuses, check if there's a custom label override
+        const statusLabelKeys: Record<string, string> = {
+            'BACKLOG': 'labelBacklog',
+            'TODO': 'labelTodo',
+            'IN_PROGRESS': 'labelInProgress',
+            'IN_REVIEW': 'labelInReview',
+            'DONE': 'labelDone',
+        };
+
+        const labelKey = statusLabelKeys[status];
+        if (labelKey && metadata[labelKey]) {
+            return metadata[labelKey];
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+};
+
 const app = new Hono()
 
     .get(
@@ -409,6 +457,12 @@ const app = new Hono()
 
             // Status change
             if (updates.status !== undefined && (updates.status !== existingTask.status || updates.statusCustomId !== existingTask.statusCustomId)) {
+                // Get display names for the statuses (custom label or null)
+                const [fromDisplayName, toDisplayName] = await Promise.all([
+                    getStatusDisplayName(databases, existingTask.workspaceId, existingTask.status, existingTask.statusCustomId),
+                    getStatusDisplayName(databases, existingTask.workspaceId, updates.status, updates.statusCustomId)
+                ]);
+
                 activityLogPromises.push(
                     createActivityLog({
                         databases,
@@ -417,9 +471,9 @@ const app = new Hono()
                         action: ActivityAction.TASK_STATUS_UPDATED,
                         payload: {
                             from: existingTask.status,
-                            fromCustomId: existingTask.statusCustomId || null,
+                            fromCustomId: fromDisplayName,
                             to: updates.status,
-                            toCustomId: updates.statusCustomId || null
+                            toCustomId: toDisplayName
                         }
                     })
                 );

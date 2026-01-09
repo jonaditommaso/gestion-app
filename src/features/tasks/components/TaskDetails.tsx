@@ -29,7 +29,7 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { LabelSelector } from "./LabelSelector";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
-import { STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal } from "lucide-react";
@@ -238,6 +238,19 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const currentStatusData = useMemo(() => {
         return allStatuses.find(s => s.id === effectiveStatusValue);
     }, [allStatuses, effectiveStatusValue]);
+
+    // Helper to get status display name considering custom labels
+    const getStatusDisplayName = (status: { id: string; label: string; isDefault?: boolean; translationKey?: string }) => {
+        // For custom statuses, always use their label
+        if (!status.isDefault) {
+            return status.label;
+        }
+        // For default statuses, check if there's a custom label in config
+        const labelKey = STATUS_TO_LABEL_KEY[status.id];
+        const customLabel = labelKey ? config[labelKey] as string | null : null;
+        // Use custom label if exists, otherwise use translation
+        return customLabel || (status.translationKey ? t(status.translationKey) : status.label);
+    };
 
     const handleStatusChange = (statusValue: string) => {
         if (readOnly) return;
@@ -659,9 +672,9 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                 return IconComponent ? <IconComponent className="size-4" /> : null;
                             })()}
                             <span>
-                                {currentStatusData?.translationKey
-                                    ? t(currentStatusData.translationKey)
-                                    : currentStatusData?.label || t('select-status')}
+                                {currentStatusData
+                                    ? getStatusDisplayName(currentStatusData)
+                                    : t('select-status')}
                             </span>
                         </div>
                     ) : (
@@ -680,9 +693,9 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                         return IconComponent ? <IconComponent className="size-4" /> : null;
                                     })()}
                                     <span>
-                                        {currentStatusData?.translationKey
-                                            ? t(currentStatusData.translationKey)
-                                            : currentStatusData?.label || t('select-status')}
+                                        {currentStatusData
+                                            ? getStatusDisplayName(currentStatusData)
+                                            : t('select-status')}
                                     </span>
                                 </div>
                             </SelectTrigger>
@@ -699,7 +712,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                         >
                                             <div className="flex items-center gap-2">
                                                 {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
-                                                {status.translationKey ? t(status.translationKey) : status.label}
+                                                {getStatusDisplayName(status)}
                                                 {isBlocked && (
                                                     <span className="text-xs text-muted-foreground ml-1">
                                                         ({t('limit-reached')})

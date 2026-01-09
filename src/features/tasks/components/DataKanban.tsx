@@ -26,6 +26,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import TaskDetailsModal from "./TaskDetailsModal";
 
 interface DataKanbanProps {
     data: Task[],
@@ -54,6 +55,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const { allStatuses } = useCustomStatuses();
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
     const [editingStatus, setEditingStatus] = useState<CustomStatus | undefined>(undefined);
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-column-confirm-title'),
@@ -794,7 +796,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                                                     {...provided.dragHandleProps}
                                                                                     ref={provided.innerRef}
                                                                                 >
-                                                                                    <KanbanCard task={task} />
+                                                                                    <KanbanCard task={task} onOpenTask={setSelectedTaskId} />
                                                                                 </div>
                                                                             )}
                                                                         </Draggable>
@@ -853,6 +855,14 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
             />
 
             <ConfirmDeleteDialog />
+
+            {selectedTaskId && (
+                <TaskDetailsModal
+                    taskId={selectedTaskId}
+                    isOpen={!!selectedTaskId}
+                    onClose={() => setSelectedTaskId(null)}
+                />
+            )}
         </>
     );
 }
