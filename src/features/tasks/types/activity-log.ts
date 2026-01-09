@@ -32,6 +32,7 @@ export enum ActivitySubAction {
     CHECKLIST_ITEM_COMPLETED = 'item_completed',
     CHECKLIST_ITEM_UNCOMPLETED = 'item_uncompleted',
     CHECKLIST_TITLE_CHANGED = 'title_changed',
+    CHECKLIST_DELETED = 'checklist_deleted',
     // Assignee sub-actions
     ASSIGNEE_ADDED = 'added',
     ASSIGNEE_REMOVED = 'removed',
@@ -79,7 +80,7 @@ export interface DueDateUpdatedPayload {
 }
 
 export interface ChecklistUpdatedPayload {
-    subAction: 'item_added' | 'item_removed' | 'item_completed' | 'item_uncompleted' | 'title_changed';
+    subAction: 'item_added' | 'item_removed' | 'item_completed' | 'item_uncompleted' | 'title_changed' | 'checklist_deleted';
     itemTitle?: string;
     checklistTitle?: string;
 }

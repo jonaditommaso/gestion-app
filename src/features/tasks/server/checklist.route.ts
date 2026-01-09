@@ -865,6 +865,18 @@ const app = new Hono()
                 }
             );
 
+            // Create activity log for checklist deletion
+            await createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.CHECKLIST_UPDATED,
+                payload: {
+                    subAction: 'checklist_deleted',
+                    checklistTitle: task.checklistTitle || undefined,
+                }
+            });
+
             return ctx.json({ data: { taskId } });
         }
     )

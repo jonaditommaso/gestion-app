@@ -102,6 +102,16 @@ const ActivityLogEntry = ({
 }) => {
     const t = useTranslations('workspaces');
     const Icon = getActionIcon(log.action);
+    const dateLocale = DATE_LOCALES[locale] || DATE_LOCALES.en;
+
+    const formatLocalizedDate = (date: string) => {
+        const dateFormats: Record<string, string> = {
+            es: "d 'de' MMMM 'de' yyyy",
+            en: "MMMM d, yyyy",
+            it: "d MMMM yyyy"
+        };
+        return format(new Date(date), dateFormats[locale] || dateFormats.en, { locale: dateLocale });
+    };
 
     const renderActivityText = () => {
         switch (log.action) {
@@ -185,7 +195,7 @@ const ActivityLogEntry = ({
                     return (
                         <span>
                             {t('activity.set-due-date')}{' '}
-                            <strong>{format(new Date(payload.to), 'MMM d, yyyy')}</strong>
+                            <strong>{formatLocalizedDate(payload.to)}</strong>
                         </span>
                     );
                 }
@@ -195,9 +205,9 @@ const ActivityLogEntry = ({
                 return (
                     <span>
                         {t('activity.changed-due-date-from')}{' '}
-                        <strong>{format(new Date(payload.from!), 'MMM d, yyyy')}</strong>
+                        <strong>{formatLocalizedDate(payload.from!)}</strong>
                         <ArrowRight className="inline size-3 mx-1" />
-                        <strong>{format(new Date(payload.to!), 'MMM d, yyyy')}</strong>
+                        <strong>{formatLocalizedDate(payload.to!)}</strong>
                     </span>
                 );
             }
@@ -236,6 +246,13 @@ const ActivityLogEntry = ({
                         );
                     case 'title_changed':
                         return t('activity.changed-checklist-title');
+                    case 'checklist_deleted':
+                        return (
+                            <span>
+                                {t('activity.deleted-checklist')}{' '}
+                                {payload.checklistTitle && <strong>&quot;{payload.checklistTitle}&quot;</strong>}
+                            </span>
+                        );
                     default:
                         return t('activity.updated-checklist');
                 }
@@ -380,7 +397,7 @@ export const TaskActivityHistory = ({ taskId }: TaskActivityHistoryProps) => {
     }
 
     return (
-        <div className="divide-y">
+        <div className="divide-y max-h-80 overflow-y-auto">
             {logs.map((log) => (
                 <ActivityLogEntry key={log.$id} log={log} locale={locale} />
             ))}
