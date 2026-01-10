@@ -103,7 +103,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, workspaceId, dueDate, assigneeId, priority, label } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -117,11 +117,21 @@ const app = new Hono()
 
             const query = [
                 Query.equal('workspaceId', workspaceId),
-                Query.orderDesc('$createdAt'),
+                Query.orderAsc('position'),
             ]
+
+            // Agregar limit si se especificó
+            if (limit) {
+                query.push(Query.limit(limit));
+            }
 
             if (status) {
                 query.push(Query.equal('status', status))
+            }
+
+            // Filtrar por custom status ID si se proporciona
+            if (statusCustomId) {
+                query.push(Query.equal('statusCustomId', statusCustomId))
             }
 
             if (dueDate) {

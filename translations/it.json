@@ -1598,6 +1598,8 @@
         "text-display": "Testo da visualizzare",
         "paste-link": "Incolla link",
         "todo-tasks": "Attività da fare",
+        "tasks-from": "Attività da",
+        "no-tasks": "Nessuna attività in questa colonna",
         "from-workspace": "Dal tuo pannello delle attività.",
         "limit-date": "Data limite",
         "mark-all-read": "Segna tutto come letto",

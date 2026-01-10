@@ -13,6 +13,7 @@ interface HomeCustomizationContextType {
     toggleWidgetVisibility: (widgetId: WidgetId) => void;
     toggleIntegration: (integrationId: IntegrationId) => void;
     toggleSmartWidgets: () => void;
+    setTaskWidgetStatus: (statusId: string) => void;
     saveChanges: () => void;
     cancelChanges: () => void;
     isSaving: boolean;
@@ -110,6 +111,29 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         });
     }, [parsedSavedConfig]);
 
+    const setTaskWidgetStatus = useCallback((statusId: string) => {
+        // Crear el nuevo config con el status actualizado
+        const current = localConfig ?? parsedSavedConfig;
+        const newConfig: HomeConfig = {
+            ...current,
+            taskWidgetStatusId: statusId
+        };
+
+        // Actualizar estado local inmediatamente para UI responsiva
+        setLocalConfig(newConfig);
+
+        // Guardar en la base de datos
+        const overrides = configToOverrides(newConfig);
+        updateConfig({
+            json: { widgets: JSON.stringify(overrides) }
+        }, {
+            onSettled: () => {
+                // Limpiar local config después de que se complete
+                setLocalConfig(null);
+            }
+        });
+    }, [localConfig, parsedSavedConfig, updateConfig]);
+
     const saveChanges = useCallback(() => {
         // Convertir el config completo a overrides (solo cambios respecto al default)
         const overrides = configToOverrides(config);
@@ -153,6 +177,7 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         toggleWidgetVisibility,
         toggleIntegration,
         toggleSmartWidgets,
+        setTaskWidgetStatus,
         saveChanges,
         cancelChanges,
         isSaving,

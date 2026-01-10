@@ -1612,6 +1612,8 @@
         "text-display": "Display text",
         "paste-link": "Paste link",
         "todo-tasks": "To do tasks",
+        "tasks-from": "Tasks from",
+        "no-tasks": "No tasks in this column",
         "from-workspace": "From your activity board.",
         "limit-date": "Due date",
         "mark-all-read": "Mark all as read",

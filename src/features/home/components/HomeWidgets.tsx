@@ -1,7 +1,7 @@
 'use client'
 import { CalendarDemo } from "./Calendar";
 import MyNotes from "./notes/MyNotes";
-import ToDoTasksWidget from "./ToDoTasksWidget";
+import TasksWidget from "./TasksWidget";
 import SendMessageButton from "./messages/SendMessageButton";
 import { MessagesContainer } from "./messages/MessagesContainer";
 import ShortcutButton from "./shortcut/ShortcutButton";
@@ -71,9 +71,17 @@ const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWi
 const HomeWidgetsGrid = () => {
     const { data: messages } = useGetMessages();
     const { data: member } = useGetMember();
+    const { config } = useHomeCustomization();
+
+    // Obtener el status configurado para el widget de tareas
+    const selectedStatusId = config.taskWidgetStatusId || TaskStatus.TODO;
+    const isCustomStatus = selectedStatusId.startsWith('CUSTOM_');
+
     const { data: tasks } = useGetTasks({
         workspaceId: member?.workspaceId,
-        status: TaskStatus.TODO,
+        status: isCustomStatus ? TaskStatus.CUSTOM : selectedStatusId as TaskStatus,
+        statusCustomId: isCustomStatus ? selectedStatusId : null,
+        limit: 2,
         enabled: !!member?.workspaceId
     });
 
@@ -108,7 +116,7 @@ const HomeWidgetsGrid = () => {
             </div>
 
             <ConditionalWidget widgetId="todo-tasks" hasData={hasTasks}>
-                <ToDoTasksWidget />
+                <TasksWidget />
             </ConditionalWidget>
 
             <ConditionalWidget widgetId="calendar-events">

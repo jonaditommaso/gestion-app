@@ -1618,6 +1618,8 @@
         "text-display": "Texto a mostrar",
         "paste-link": "Pegar enlace",
         "todo-tasks": "Tareas que hacer",
+        "tasks-from": "Tareas de",
+        "no-tasks": "No hay tareas en esta columna",
         "from-workspace": "De tu tablero de actividades.",
         "limit-date": "Fecha límite",
         "mark-all-read": "Marcar todo como leído",

@@ -27,10 +27,12 @@ export const getTaskSchema = zod.object({
     workspaceId: zod.string(),
     assigneeId: zod.string().nullish(),
     status: zod.nativeEnum(TaskStatus).nullish(),
+    statusCustomId: zod.string().nullish(), // Para filtrar por custom status específico
     search: zod.string().nullish(),
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish(),
-    label: zod.string().nullish()
+    label: zod.string().nullish(),
+    limit: zod.coerce.number().int().min(1).max(100).nullish() // Límite de resultados
 })
 
 export const createTaskShareSchema = zod.object({

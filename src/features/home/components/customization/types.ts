@@ -28,6 +28,7 @@ export interface HomeConfig {
     smartWidgets: boolean;
     widgets: WidgetConfig[];
     integrations: IntegrationConfig[];
+    taskWidgetStatusId?: string; // ID del status para el widget de tareas (default: TODO)
 }
 
 // Tipos para guardar solo los overrides (cambios respecto al default)
@@ -38,6 +39,7 @@ export interface HomeConfigOverrides {
     smartWidgets?: boolean;
     widgets?: Record<WidgetId, PartialWidgetConfig>;
     integrations?: Record<IntegrationId, PartialIntegrationConfig>;
+    taskWidgetStatusId?: string; // ID del status para el widget de tareas
 }
 
 export interface HomeConfigDocument {
@@ -138,6 +140,11 @@ export function configToOverrides(config: HomeConfig): HomeConfigOverrides {
         overrides.integrations = integrationOverrides as Record<IntegrationId, PartialIntegrationConfig>;
     }
 
+    // Solo guardamos taskWidgetStatusId si difiere del default (TODO)
+    if (config.taskWidgetStatusId && config.taskWidgetStatusId !== 'TODO') {
+        overrides.taskWidgetStatusId = config.taskWidgetStatusId;
+    }
+
     return overrides;
 }
 
@@ -161,6 +168,7 @@ export function mergeConfigWithOverrides(overrides: HomeConfigOverrides): HomeCo
                 ...override,
             };
         }),
+        taskWidgetStatusId: overrides.taskWidgetStatusId, // undefined usará TODO por defecto
     };
 
     return config;
