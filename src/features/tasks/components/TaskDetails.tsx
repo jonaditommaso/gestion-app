@@ -32,7 +32,7 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
-import { Pencil, Trash2, MessageSquare, History, MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
 
@@ -279,7 +279,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const handleDueDateChange = (date: Date | undefined) => {
         if (readOnly) return;
         updateTask({
-            json: { dueDate: date },
+            json: { dueDate: date ?? null },
             param: { taskId: task.$id }
         });
     };
@@ -794,19 +794,33 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         <span className="text-xs font-medium text-muted-foreground w-24">
                             {t('due-date')}
                         </span>
-                        <div>
+                        <div className="flex items-center gap-1">
                             {readOnly ? (
                                 <span className="text-sm px-1.5 py-1">
                                     {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : t('not-defined')}
                                 </span>
                             ) : (
-                                <CustomDatePicker
-                                    value={task.dueDate ? new Date(task.dueDate) : undefined}
-                                    onChange={handleDueDateChange}
-                                    placeholder='not-defined'
-                                    className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
-                                    hideIcon
-                                />
+                                <>
+                                    <CustomDatePicker
+                                        value={task.dueDate ? new Date(task.dueDate) : undefined}
+                                        onChange={handleDueDateChange}
+                                        placeholder='not-defined'
+                                        className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
+                                        hideIcon
+                                    />
+                                    {task.dueDate && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8"
+                                            onClick={() => handleDueDateChange(undefined)}
+                                            disabled={isPending}
+                                        >
+                                            <X className="size-4" />
+                                        </Button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
