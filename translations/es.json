@@ -1655,7 +1655,19 @@
         "no-team-members": "No tienes miembros en tu equipo",
         "calendar-events": "Eventos de calendario",
         "upcoming-events": "Próximos eventos",
-        "with": "con"
+        "with": "con",
+        "personalize-home": "Personalizar Inicio",
+        "add-widget": "Agregar Widget",
+        "add-widget-description": "Personaliza tu pantalla de inicio mostrando u ocultando widgets e integraciones.",
+        "save": "Guardar",
+        "done": "Listo",
+        "widgets": "Widgets",
+        "integrations": "Integraciones",
+        "integrations-coming-soon": "Integraciones próximamente. ¡Mantente atento!",
+        "smart-widgets": "Widgets Inteligentes",
+        "smart-widgets-description": "Cuando está activado, los widgets sin datos se ocultarán automáticamente (ej: panel de mensajes si no tienes ninguno).",
+        "config-saved": "Configuración guardada con éxito",
+        "failed-save-config": "Error al guardar la configuración"
     },
     "app": {
         "search": "Buscar...",

@@ -1649,7 +1649,19 @@
         "no-team-members": "You have no members in your team",
         "calendar-events": "Calendar events",
         "upcoming-events": "Upcoming events",
-        "with": "with"
+        "with": "with",
+        "personalize-home": "Personalize Home",
+        "add-widget": "Add Widget",
+        "add-widget-description": "Customize your home screen by showing or hiding widgets and integrations.",
+        "save": "Save",
+        "done": "Done",
+        "widgets": "Widgets",
+        "integrations": "Integrations",
+        "integrations-coming-soon": "Integrations coming soon. Stay tuned!",
+        "smart-widgets": "Smart Widgets",
+        "smart-widgets-description": "When enabled, widgets without data will be automatically hidden (e.g., messages panel if you have no messages).",
+        "config-saved": "Configuration saved successfully",
+        "failed-save-config": "Failed to save configuration"
     },
     "app": {
         "search": "Search...",
