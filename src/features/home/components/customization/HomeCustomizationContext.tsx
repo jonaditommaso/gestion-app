@@ -107,6 +107,11 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         }, {
             onSuccess: () => {
                 setIsEditMode(false);
+                // Don't clear localConfig here - the optimistic update already handled it
+                // The parsedSavedConfig will update when the query refetches
+            },
+            onSettled: () => {
+                // Clear local config after the mutation settles (success or error handled)
                 setLocalConfig(null);
             }
         });
