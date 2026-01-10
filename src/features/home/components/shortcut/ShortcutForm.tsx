@@ -14,6 +14,7 @@ interface ShortcutFormProps {
     form:  UseFormReturn<{
         link: string;
         text: string;
+        slot?: "shortcut" | "shortcut2" | undefined;
     }>,
     setPopoverIsOpen: Dispatch<SetStateAction<boolean>>
 }
@@ -23,7 +24,7 @@ const ShortcutForm = ({ form, setPopoverIsOpen }: ShortcutFormProps) => {
     const t = useTranslations('home');
 
     const onSubmit = (values: zod.infer<typeof shortcutSchema>) => {
-        addShortcut({ json: values})
+        addShortcut({ json: values })
         setPopoverIsOpen(false);
     }
 

@@ -13,7 +13,7 @@ const SendMessageButton = () => {
         <>
             {/* I do it in this way in order to dont call useGetMembers hook if modal is not rendered */}
             {modalIsOpen && <CreateMessageModal isOpen={modalIsOpen} setIsOpen={setModalIsOpen} />}
-            <Button className="w-full py-10 h-auto" variant='outline' onClick={() => setModalIsOpen(true)}>
+            <Button className="w-full py-11 h-auto" variant='outline' onClick={() => setModalIsOpen(true)}>
                 <MessageSquareText /> <span>{t('send-a-message')}</span>
             </Button>
         </>

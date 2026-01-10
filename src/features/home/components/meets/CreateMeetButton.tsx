@@ -45,7 +45,7 @@ const CreateMeetButton = () => {
 
     const Trigger = (
         <Button
-            className={cn("w-full py-10 h-auto", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
+            className={cn("w-full py-11 h-auto", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
             variant='outline'
             onClick={handleOpen}
         >

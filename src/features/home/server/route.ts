@@ -262,16 +262,40 @@ const app = new Hono()
             const user = ctx.get('user');
             const { users } = await createAdminClient();
 
-            const { link, text } = ctx.req.valid('json');
+            const { link, text, slot } = ctx.req.valid('json');
 
             if (!link || !text) {
                 return ctx.json({ error: 'Cannot create the shortcut' }, 400)
             }
 
+            const shortcutKey = slot || 'shortcut';
+
             await users.updatePrefs(user.$id, {
                 ...(user.prefs ?? {}),
-                shortcut: `${link},${text}`
+                [shortcutKey]: `${link},${text}`
             });
+
+            return ctx.json({ success: true })
+        }
+    )
+
+    .delete(
+        '/shortcut/:slot',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { users } = await createAdminClient();
+            const { slot } = ctx.req.param();
+
+            if (slot !== 'shortcut' && slot !== 'shortcut2') {
+                return ctx.json({ error: 'Invalid shortcut slot' }, 400)
+            }
+
+            // Remove the shortcut by setting it to empty string or undefined
+            const newPrefs = { ...(user.prefs ?? {}) };
+            delete newPrefs[slot];
+
+            await users.updatePrefs(user.$id, newPrefs);
 
             return ctx.json({ success: true })
         }
