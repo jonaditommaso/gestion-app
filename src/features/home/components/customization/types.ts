@@ -30,6 +30,16 @@ export interface HomeConfig {
     integrations: IntegrationConfig[];
 }
 
+// Tipos para guardar solo los overrides (cambios respecto al default)
+export type PartialWidgetConfig = Partial<Omit<WidgetConfig, 'id'>>;
+export type PartialIntegrationConfig = Partial<Omit<IntegrationConfig, 'id'>>;
+
+export interface HomeConfigOverrides {
+    smartWidgets?: boolean;
+    widgets?: Record<WidgetId, PartialWidgetConfig>;
+    integrations?: Record<IntegrationId, PartialIntegrationConfig>;
+}
+
 export interface HomeConfigDocument {
     $id: string;
     userId: string;
@@ -80,3 +90,78 @@ export const INTEGRATION_LABELS: Record<IntegrationId, { en: string; es: string;
     'youtube': { en: 'YouTube', es: 'YouTube', it: 'YouTube' },
     'google-drive': { en: 'Google Drive', es: 'Google Drive', it: 'Google Drive' },
 };
+
+/**
+ * Convierte un HomeConfig completo a overrides (solo los cambios respecto al default)
+ */
+export function configToOverrides(config: HomeConfig): HomeConfigOverrides {
+    const overrides: HomeConfigOverrides = {};
+
+    // Solo guardamos smartWidgets si difiere del default
+    if (config.smartWidgets !== DEFAULT_HOME_CONFIG.smartWidgets) {
+        overrides.smartWidgets = config.smartWidgets;
+    }
+
+    // Solo guardamos widgets que difieren del default
+    const widgetOverrides: Record<string, PartialWidgetConfig> = {};
+    config.widgets.forEach(widget => {
+        const defaultWidget = DEFAULT_WIDGETS.find(w => w.id === widget.id);
+        if (defaultWidget) {
+            const changes: PartialWidgetConfig = {};
+            if (widget.visible !== defaultWidget.visible) {
+                changes.visible = widget.visible;
+            }
+            if (Object.keys(changes).length > 0) {
+                widgetOverrides[widget.id] = changes;
+            }
+        }
+    });
+    if (Object.keys(widgetOverrides).length > 0) {
+        overrides.widgets = widgetOverrides as Record<WidgetId, PartialWidgetConfig>;
+    }
+
+    // Solo guardamos integraciones que difieren del default
+    const integrationOverrides: Record<string, PartialIntegrationConfig> = {};
+    config.integrations.forEach(integration => {
+        const defaultIntegration = DEFAULT_INTEGRATIONS.find(i => i.id === integration.id);
+        if (defaultIntegration) {
+            const changes: PartialIntegrationConfig = {};
+            if (integration.enabled !== defaultIntegration.enabled) {
+                changes.enabled = integration.enabled;
+            }
+            if (Object.keys(changes).length > 0) {
+                integrationOverrides[integration.id] = changes;
+            }
+        }
+    });
+    if (Object.keys(integrationOverrides).length > 0) {
+        overrides.integrations = integrationOverrides as Record<IntegrationId, PartialIntegrationConfig>;
+    }
+
+    return overrides;
+}
+
+/**
+ * Combina los overrides con el default para obtener el HomeConfig completo
+ */
+export function mergeConfigWithOverrides(overrides: HomeConfigOverrides): HomeConfig {
+    const config: HomeConfig = {
+        smartWidgets: overrides.smartWidgets ?? DEFAULT_HOME_CONFIG.smartWidgets,
+        widgets: DEFAULT_WIDGETS.map(defaultWidget => {
+            const override = overrides.widgets?.[defaultWidget.id];
+            return {
+                ...defaultWidget,
+                ...override,
+            };
+        }),
+        integrations: DEFAULT_INTEGRATIONS.map(defaultIntegration => {
+            const override = overrides.integrations?.[defaultIntegration.id];
+            return {
+                ...defaultIntegration,
+                ...override,
+            };
+        }),
+    };
+
+    return config;
+}

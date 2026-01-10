@@ -1,6 +1,6 @@
 'use client'
 import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
-import { HomeConfig, DEFAULT_HOME_CONFIG, WidgetId, IntegrationId } from './types';
+import { HomeConfig, DEFAULT_HOME_CONFIG, WidgetId, IntegrationId, configToOverrides, mergeConfigWithOverrides } from './types';
 import { useGetHomeConfig } from '../../api/use-get-home-config';
 import { useUpdateHomeConfig } from '../../api/use-update-home-config';
 
@@ -45,7 +45,16 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
     const parsedSavedConfig = useMemo<HomeConfig>(() => {
         if (savedConfig?.widgets) {
             try {
-                return JSON.parse(savedConfig.widgets) as HomeConfig;
+                const overrides = JSON.parse(savedConfig.widgets);
+                // Si el formato antiguo tiene un array 'widgets', usamos mergeConfigWithOverrides
+                // Si no, asumimos que es el formato nuevo de overrides
+                if (Array.isArray(overrides.widgets)) {
+                    // Formato antiguo - convertir a overrides
+                    const oldConfig = overrides as HomeConfig;
+                    const newOverrides = configToOverrides(oldConfig);
+                    return mergeConfigWithOverrides(newOverrides);
+                }
+                return mergeConfigWithOverrides(overrides);
             } catch {
                 return DEFAULT_HOME_CONFIG;
             }
@@ -102,8 +111,11 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
     }, [parsedSavedConfig]);
 
     const saveChanges = useCallback(() => {
+        // Convertir el config completo a overrides (solo cambios respecto al default)
+        const overrides = configToOverrides(config);
+
         updateConfig({
-            json: { widgets: JSON.stringify(config) }
+            json: { widgets: JSON.stringify(overrides) }
         }, {
             onSuccess: () => {
                 setIsEditMode(false);
