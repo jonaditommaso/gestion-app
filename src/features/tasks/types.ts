@@ -59,3 +59,11 @@ export type TaskShare = Models.Document & {
     sharedTo?: string,
     readOnly: boolean,
 }
+
+export type TaskComment = Models.Document & {
+    taskId: string,
+    authorMemberId: string,
+    content: string,
+    // Populated fields
+    author?: WorkspaceMember,
+}

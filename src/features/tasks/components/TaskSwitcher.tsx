@@ -67,20 +67,20 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                 />
             </DialogContainer>
             <Tabs
-                className="flex-1 w-full border rounded-lg"
+                className="flex-1 w-full border rounded-lg "
                 defaultValue={currentTab}
                 onValueChange={setCurrentTab}
             >
                 <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'}`}>
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
-                            <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto">
+                            <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto bg-background">
                                 Kanban
                             </TabsTrigger>
-                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto">
+                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto bg-background">
                                 {t('table')}
                             </TabsTrigger>
-                            <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto">
+                            <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto bg-background">
                                 {t('calendar')}
                             </TabsTrigger>
                         </TabsList>
@@ -88,6 +88,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                             <Button
                                 size='sm'
                                 className="w-full lg:w-auto"
+                                variant='secondary'
                                 onClick={() => handleNewTask()}
                             >
                                 <PlusIcon className="size-4 mr-2" />

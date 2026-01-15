@@ -27,10 +27,12 @@ export const getTaskSchema = zod.object({
     workspaceId: zod.string(),
     assigneeId: zod.string().nullish(),
     status: zod.nativeEnum(TaskStatus).nullish(),
+    statusCustomId: zod.string().nullish(), // Para filtrar por custom status específico
     search: zod.string().nullish(),
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish(),
-    label: zod.string().nullish()
+    label: zod.string().nullish(),
+    limit: zod.coerce.number().int().min(1).max(100).nullish() // Límite de resultados
 })
 
 export const createTaskShareSchema = zod.object({
@@ -55,4 +57,18 @@ export const bulkCreateTaskShareSchema = zod.object({
     })).min(1, 'At least one recipient is required'),
     message: zod.string().optional(),
     locale: zod.enum(['es', 'en', 'it']).default('es'),
+})
+
+// Task Comments schemas
+export const createTaskCommentSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
+    content: zod.string().trim().min(1, 'Required'),
+})
+
+export const updateTaskCommentSchema = zod.object({
+    content: zod.string().trim().min(1, 'Required'),
+})
+
+export const getTaskCommentsSchema = zod.object({
+    taskId: zod.string().trim().min(1, 'Required'),
 })

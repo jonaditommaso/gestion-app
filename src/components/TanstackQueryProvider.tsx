@@ -7,6 +7,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { PendingChangesGuard } from './PendingChangesGuard'
 
 function makeQueryClient() {
   return new QueryClient({
@@ -44,6 +45,10 @@ export default function TanstackQueryProvider({ children }: { children: React.Re
   const queryClient = getQueryClient()
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <PendingChangesGuard>
+        {children}
+      </PendingChangesGuard>
+    </QueryClientProvider>
   )
 }

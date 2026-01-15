@@ -29,6 +29,7 @@ export const unreadMessagesSchema = zod.object({
 export const shortcutSchema = zod.object({
     text: zod.string().trim().min(1, 'Required'),
     link: zod.string().trim().min(1, 'Required'),
+    slot: zod.enum(['shortcut', 'shortcut2']).optional(),
 })
 
 export const meetSchemaForm = zod.object({

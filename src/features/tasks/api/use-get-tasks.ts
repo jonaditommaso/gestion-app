@@ -5,22 +5,26 @@ import { TaskStatus } from "../types";
 interface UseGetTasksProps {
     workspaceId?: string,
     status?: TaskStatus | null,
+    statusCustomId?: string | null, // Para filtrar por custom status específico
     assigneeId?: string | null,
     dueDate?: string | null,
     search?: string | null,
     priority?: number | null,
     label?: string[] | null,
+    limit?: number | null, // Límite de resultados
     enabled?: boolean
 }
 
 export const useGetTasks = ({
     workspaceId,
     status,
+    statusCustomId,
     assigneeId,
     dueDate,
     search,
     priority,
     label,
+    limit,
     enabled = true
 }: UseGetTasksProps) => {
     const query = useQuery({
@@ -28,11 +32,13 @@ export const useGetTasks = ({
             'tasks',
             workspaceId,
             status,
+            statusCustomId,
             assigneeId,
             dueDate,
             search,
             priority,
-            label
+            label,
+            limit
         ],
         queryFn: async () => {
             const response = await client.api.tasks.$get(
@@ -40,11 +46,13 @@ export const useGetTasks = ({
                     query: {
                         workspaceId: workspaceId!,
                         status: status ?? undefined,
+                        statusCustomId: statusCustomId ?? undefined,
                         assigneeId: assigneeId ?? undefined,
                         dueDate: dueDate ?? undefined,
                         search: search ?? undefined,
                         priority: priority ? String(priority) : undefined,
-                        label: label && label.length > 0 ? label.join(',') : undefined
+                        label: label && label.length > 0 ? label.join(',') : undefined,
+                        limit: limit ? String(limit) : undefined
                     }
                 }
             );
@@ -58,7 +66,7 @@ export const useGetTasks = ({
             return data;
         },
         retry: false,
-        refetchOnMount: false,
+        refetchOnMount: true,
         enabled
     })
 

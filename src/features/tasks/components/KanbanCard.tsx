@@ -6,8 +6,6 @@ import MemberAvatar from "@/features/members/components/MemberAvatar";
 import TaskDate from "./TaskDate";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
-import { useState } from "react";
-import TaskDetailsModal from "./TaskDetailsModal";
 import { cn } from "@/lib/utils";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { WorkspaceConfigKey, DateFormatType } from "@/app/workspaces/constants/workspace-config-keys";
@@ -18,10 +16,10 @@ import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels";
 
 interface KanbanCardProps {
     task: Task
+    onOpenTask?: (taskId: string) => void
 }
 
-const KanbanCard = ({ task }: KanbanCardProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     const config = useWorkspaceConfig();
     const locale = useLocale();
     const { getLabelById, getLabelColor } = useCustomLabels();
@@ -62,18 +60,12 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
     };
 
     return (
-        <>
-            <TaskDetailsModal
-                taskId={task.$id}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-            />
-            <div
-                className={`p-2.5 mb-1.5 rounded shadow-md space-y-3 cursor-pointer hover:shadow-lg transition ${
-                    task.featured ? 'bg-yellow-50/80 dark:bg-yellow-950/20' : 'bg-card'
-                }`}
-                onClick={() => setIsModalOpen(true)}
-            >
+        <div
+            className={`p-2.5 mb-1.5 rounded shadow-md space-y-3 cursor-pointer hover:shadow-lg transition ${
+                task.featured ? 'bg-yellow-50/80 dark:bg-yellow-950/20' : 'bg-card'
+            }`}
+            onClick={() => onOpenTask?.(task.$id)}
+        >
             <div>
                 <div className="flex items-start justify-between">
                     <p className="text-sm max-w-[200px]" title={t('task-name')}>{task.name}</p>
@@ -168,7 +160,6 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
                 <p className="text-xs text-muted-foreground m-0">JON-672</p>
             </div> */}
         </div>
-        </>
     );
 }
 

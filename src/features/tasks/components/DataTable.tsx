@@ -54,7 +54,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
   })
 
   return (
-    <div>
+    <div className="bg-background p-4 rounded-lg">
       <div className="rounded-md border">
         <Table>
           <TableHeader>

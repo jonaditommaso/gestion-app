@@ -9,9 +9,10 @@ type RequestType = InferRequestType<typeof client.api.checklist.all['$delete']>;
 
 interface UseDeleteChecklistProps {
     taskId: string;
+    onSuccessCallback?: () => void;
 }
 
-export const useDeleteChecklist = ({ taskId }: UseDeleteChecklistProps) => {
+export const useDeleteChecklist = ({ taskId, onSuccessCallback }: UseDeleteChecklistProps) => {
     const queryClient = useQueryClient();
     const t = useTranslations('workspaces');
 
@@ -32,6 +33,10 @@ export const useDeleteChecklist = ({ taskId }: UseDeleteChecklistProps) => {
             // Invalidate task queries to update checklistCount/checklistCompletedCount/checklistTitle
             queryClient.invalidateQueries({ queryKey: ['task', taskId] });
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            // Also invalidate activity logs to show the deletion
+            queryClient.invalidateQueries({ queryKey: ['task-activity-logs', taskId] });
+            // Call the success callback if provided
+            onSuccessCallback?.();
         },
         onError: () => {
             toast.error(t('checklist-error-delete-all'));

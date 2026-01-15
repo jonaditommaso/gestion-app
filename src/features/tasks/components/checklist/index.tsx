@@ -53,7 +53,19 @@ export const Checklist = ({ taskId, workspaceId, members, readOnly = false, chec
     const { mutate: updateItem } = useUpdateChecklistItem({ taskId });
     const { mutate: addAssignee } = useAddChecklistAssignee({ taskId });
     const { mutate: removeAssignee } = useRemoveChecklistAssignee({ taskId });
-    const { mutate: deleteChecklist, isPending: isDeleting } = useDeleteChecklist({ taskId });
+    const { mutate: deleteChecklist, isPending: isDeleting } = useDeleteChecklist({
+        taskId,
+        onSuccessCallback: () => {
+            // Reset all local state when checklist is deleted
+            setHasCreatedItem(false);
+            setIsCreatingChecklist(false);
+            setIsAddingItems(false);
+            setChecklistTitle('');
+            setNewItemTitle('');
+            setIsInputVisible(false);
+            setLocalItems([]);
+        }
+    });
 
     const [DeleteChecklistDialog, confirmDeleteChecklist] = useConfirm(
         t('delete-checklist'),

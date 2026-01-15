@@ -63,6 +63,8 @@ export const useCreateChecklistItem = () => {
             // Invalidate task queries to update checklistCount
             queryClient.invalidateQueries({ queryKey: ['task', variables.json.taskId] });
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            // Invalidate activity logs to show the new checklist item action
+            queryClient.invalidateQueries({ queryKey: ['task-activity-logs', variables.json.taskId] });
         },
         onError: (_, variables, context) => {
             // Rollback to the previous value on error

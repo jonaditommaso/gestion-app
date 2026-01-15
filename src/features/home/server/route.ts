@@ -2,14 +2,76 @@ import { Hono } from "hono";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { Client, Databases, ID, Query } from "node-appwrite";
-import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MESSAGES_ID, NOTES_ID } from "@/config";
+import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MESSAGES_ID, NOTES_ID, USER_HOME_CONFIG_ID } from "@/config";
 import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
+import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
 import { google } from 'googleapis';
 import { cookies } from "next/headers";
 import dayjs from "dayjs";
 
 const app = new Hono()
+
+    .get(
+        '/home-config',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            const configs = await databases.listDocuments(
+                DATABASE_ID,
+                USER_HOME_CONFIG_ID,
+                [Query.equal('userId', user.$id)]
+            );
+
+            if (configs.total === 0) {
+                return ctx.json({ data: null })
+            }
+
+            return ctx.json({ data: configs.documents[0] })
+        }
+    )
+
+    .post(
+        '/home-config',
+        zValidator('json', homeConfigSchema),
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { widgets } = ctx.req.valid('json');
+
+            const existingConfigs = await databases.listDocuments(
+                DATABASE_ID,
+                USER_HOME_CONFIG_ID,
+                [Query.equal('userId', user.$id)]
+            );
+
+            if (existingConfigs.total > 0) {
+                const updated = await databases.updateDocument(
+                    DATABASE_ID,
+                    USER_HOME_CONFIG_ID,
+                    existingConfigs.documents[0].$id,
+                    { widgets }
+                );
+                return ctx.json({ data: updated })
+            }
+
+            const created = await databases.createDocument(
+                DATABASE_ID,
+                USER_HOME_CONFIG_ID,
+                ID.unique(),
+                {
+                    userId: user.$id,
+                    widgets
+                }
+            );
+
+            return ctx.json({ data: created })
+        }
+    )
 
     .post(
         '/notes',
@@ -200,16 +262,40 @@ const app = new Hono()
             const user = ctx.get('user');
             const { users } = await createAdminClient();
 
-            const { link, text } = ctx.req.valid('json');
+            const { link, text, slot } = ctx.req.valid('json');
 
             if (!link || !text) {
                 return ctx.json({ error: 'Cannot create the shortcut' }, 400)
             }
 
+            const shortcutKey = slot || 'shortcut';
+
             await users.updatePrefs(user.$id, {
                 ...(user.prefs ?? {}),
-                shortcut: `${link},${text}`
+                [shortcutKey]: `${link},${text}`
             });
+
+            return ctx.json({ success: true })
+        }
+    )
+
+    .delete(
+        '/shortcut/:slot',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { users } = await createAdminClient();
+            const { slot } = ctx.req.param();
+
+            if (slot !== 'shortcut' && slot !== 'shortcut2') {
+                return ctx.json({ error: 'Invalid shortcut slot' }, 400)
+            }
+
+            // Remove the shortcut by setting it to empty string or undefined
+            const newPrefs = { ...(user.prefs ?? {}) };
+            delete newPrefs[slot];
+
+            await users.updatePrefs(user.$id, newPrefs);
 
             return ctx.json({ success: true })
         }

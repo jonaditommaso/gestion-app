@@ -3,18 +3,95 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskShare, TaskShareType, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
-import { Models } from "node-appwrite";
+import { Models, Databases } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
+import { createActivityLog } from "../utils/create-activity-log";
+import { ActivityAction } from "../types/activity-log";
+import { WorkspaceType } from "@/features/workspaces/types";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
     workspaceMemberId: string;
 }
+
+// Helper function to get label name from workspace metadata
+const getLabelName = async (databases: Databases, workspaceId: string, labelId: string | null | undefined): Promise<string | null> => {
+    if (!labelId) return null;
+
+    try {
+        const workspace = await databases.getDocument<WorkspaceType>(
+            DATABASE_ID,
+            WORKSPACES_ID,
+            workspaceId
+        );
+
+        if (!workspace.metadata) return labelId;
+
+        const metadata = typeof workspace.metadata === 'string'
+            ? JSON.parse(workspace.metadata)
+            : workspace.metadata;
+
+        const customLabels = metadata.customLabels || [];
+        const label = customLabels.find((l: { id: string; name: string }) => l.id === labelId);
+
+        return label?.name || labelId;
+    } catch {
+        return labelId;
+    }
+};
+
+// Helper function to get status display name from workspace metadata
+// For default statuses with custom labels or custom statuses
+const getStatusDisplayName = async (
+    databases: Databases,
+    workspaceId: string,
+    status: string,
+    statusCustomId: string | null | undefined
+): Promise<string | null> => {
+    try {
+        const workspace = await databases.getDocument<WorkspaceType>(
+            DATABASE_ID,
+            WORKSPACES_ID,
+            workspaceId
+        );
+
+        if (!workspace.metadata) return null;
+
+        const metadata = typeof workspace.metadata === 'string'
+            ? JSON.parse(workspace.metadata)
+            : workspace.metadata;
+
+        // If it's a custom status, find it in customStatuses array
+        if (status === 'CUSTOM' && statusCustomId) {
+            const customStatuses = metadata.customStatuses || [];
+            const customStatus = customStatuses.find((s: { id: string; label: string }) => s.id === statusCustomId);
+            return customStatus?.label || null;
+        }
+
+        // For default statuses, check if there's a custom label override
+        const statusLabelKeys: Record<string, string> = {
+            'BACKLOG': 'labelBacklog',
+            'TODO': 'labelTodo',
+            'IN_PROGRESS': 'labelInProgress',
+            'IN_REVIEW': 'labelInReview',
+            'DONE': 'labelDone',
+        };
+
+        const labelKey = statusLabelKeys[status];
+        if (labelKey && metadata[labelKey]) {
+            return metadata[labelKey];
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+};
 
 const app = new Hono()
 
@@ -26,7 +103,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, workspaceId, dueDate, assigneeId, priority, label } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -40,11 +117,21 @@ const app = new Hono()
 
             const query = [
                 Query.equal('workspaceId', workspaceId),
-                Query.orderDesc('$createdAt'),
+                Query.orderAsc('position'),
             ]
+
+            // Agregar limit si se especificó
+            if (limit) {
+                query.push(Query.limit(limit));
+            }
 
             if (status) {
                 query.push(Query.equal('status', status))
+            }
+
+            // Filtrar por custom status ID si se proporciona
+            if (statusCustomId) {
+                query.push(Query.equal('statusCustomId', statusCustomId))
             }
 
             if (dueDate) {
@@ -358,12 +445,190 @@ const app = new Hono()
                 finalUpdates.statusCustomId = null;
             }
 
-            const task = await databases.updateDocument<Task>(
-                DATABASE_ID,
-                TASKS_ID,
-                taskId,
-                finalUpdates
-            )
+            let task;
+            try {
+                task = await databases.updateDocument<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    taskId,
+                    finalUpdates
+                )
+            } catch (err: unknown) {
+                // Check if it's an Appwrite error for field length
+                const error = err as { type?: string; message?: string };
+                if (error.type === 'document_invalid_structure' && error.message?.includes('2048')) {
+                    return ctx.json({ error: 'content_too_long' }, 400);
+                }
+                throw err;
+            }
+
+            // Create activity logs for each change (in parallel, non-blocking)
+            const activityLogPromises: Promise<void>[] = [];
+
+            // Status change
+            if (updates.status !== undefined && (updates.status !== existingTask.status || updates.statusCustomId !== existingTask.statusCustomId)) {
+                // Get display names for the statuses (custom label or null)
+                const [fromDisplayName, toDisplayName] = await Promise.all([
+                    getStatusDisplayName(databases, existingTask.workspaceId, existingTask.status, existingTask.statusCustomId),
+                    getStatusDisplayName(databases, existingTask.workspaceId, updates.status, updates.statusCustomId)
+                ]);
+
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_STATUS_UPDATED,
+                        payload: {
+                            from: existingTask.status,
+                            fromCustomId: fromDisplayName,
+                            to: updates.status,
+                            toCustomId: toDisplayName
+                        }
+                    })
+                );
+            }
+
+            // Description change
+            if (updates.description !== undefined && updates.description !== existingTask.description) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.DESCRIPTION_UPDATED,
+                        payload: {
+                            subAction: updates.description ? 'set' : 'cleared'
+                        }
+                    })
+                );
+            }
+
+            // Label change
+            if (updates.label !== undefined && updates.label !== existingTask.label) {
+                // Get label names (snapshot) instead of IDs
+                const [fromLabelName, toLabelName] = await Promise.all([
+                    getLabelName(databases, existingTask.workspaceId, existingTask.label),
+                    getLabelName(databases, existingTask.workspaceId, updates.label)
+                ]);
+
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.LABEL_UPDATED,
+                        payload: {
+                            from: fromLabelName,
+                            to: toLabelName
+                        }
+                    })
+                );
+            }
+
+            // Priority change
+            if (updates.priority !== undefined && updates.priority !== existingTask.priority) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.PRIORITY_UPDATED,
+                        payload: {
+                            from: existingTask.priority || 3,
+                            to: updates.priority
+                        }
+                    })
+                );
+            }
+
+            // Due date change
+            if (updates.dueDate !== undefined) {
+                const newDueDateStr = updates.dueDate ? updates.dueDate.toISOString() : null;
+                if (newDueDateStr !== existingTask.dueDate) {
+                    activityLogPromises.push(
+                        createActivityLog({
+                            databases,
+                            taskId,
+                            actorMemberId: member.$id,
+                            action: ActivityAction.DUE_DATE_UPDATED,
+                            payload: {
+                                from: existingTask.dueDate || null,
+                                to: newDueDateStr
+                            }
+                        })
+                    );
+                }
+            }
+
+            // Type change
+            if (updates.type !== undefined && updates.type !== existingTask.type) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_TYPE_UPDATED,
+                        payload: {
+                            from: existingTask.type || 'task',
+                            to: updates.type
+                        }
+                    })
+                );
+            }
+
+            // Name change
+            if (updates.name !== undefined && updates.name !== existingTask.name) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_NAME_UPDATED,
+                        payload: {
+                            from: existingTask.name,
+                            to: updates.name
+                        }
+                    })
+                );
+            }
+
+            // Featured change
+            if (updates.featured !== undefined && updates.featured !== existingTask.featured) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_FEATURED_UPDATED,
+                        payload: {
+                            from: existingTask.featured || false,
+                            to: updates.featured
+                        }
+                    })
+                );
+            }
+
+            // Checklist title change
+            if (updates.checklistTitle !== undefined && updates.checklistTitle !== existingTask.checklistTitle) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.CHECKLIST_UPDATED,
+                        payload: {
+                            subAction: 'title_changed',
+                            checklistTitle: updates.checklistTitle || undefined
+                        }
+                    })
+                );
+            }
+
+            // Execute all activity log creations in parallel (non-blocking)
+            Promise.all(activityLogPromises).catch(err => {
+                console.error('Error creating activity logs:', err);
+            });
 
             // Obtener las asignaciones de esta tarea
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
@@ -566,6 +831,26 @@ const app = new Hono()
                 }
             );
 
+            // Get the assigned member's info for the activity log
+            const assignedMember = await databases.getDocument<WorkspaceMember>(
+                DATABASE_ID,
+                MEMBERS_ID,
+                workspaceMemberId
+            );
+
+            // Create activity log for assignment (non-blocking)
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.ASSIGNEES_UPDATED,
+                payload: {
+                    subAction: 'added',
+                    memberId: workspaceMemberId,
+                    memberName: assignedMember.name
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
+
             // Get updated assignees
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
                 DATABASE_ID,
@@ -631,12 +916,32 @@ const app = new Hono()
                 return ctx.json({ error: 'Assignment not found' }, 404);
             }
 
+            // Get the member being unassigned for the activity log
+            const unassignedMember = await databases.getDocument<WorkspaceMember>(
+                DATABASE_ID,
+                MEMBERS_ID,
+                workspaceMemberId
+            );
+
             // Delete assignment
             await databases.deleteDocument(
                 DATABASE_ID,
                 TASK_ASSIGNEES_ID,
                 assignment.documents[0].$id
             );
+
+            // Create activity log for unassignment (non-blocking)
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.ASSIGNEES_UPDATED,
+                payload: {
+                    subAction: 'removed',
+                    memberId: workspaceMemberId,
+                    memberName: unassignedMember.name
+                }
+            }).catch(err => console.error('Error creating activity log:', err));
 
             // Get updated assignees
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
@@ -798,6 +1103,18 @@ const app = new Hono()
                     readOnly,
                 }
             );
+
+            // Create activity log for task share
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.TASK_SHARED,
+                payload: {
+                    subAction: type === TaskShareType.INTERNAL ? 'internal' : 'external',
+                    sharedToUserId: sharedTo || undefined,
+                },
+            });
 
             return ctx.json({ success: true });
         }
@@ -961,6 +1278,18 @@ const app = new Hono()
             });
 
             await Promise.all(sharePromises);
+
+            // Create activity log for bulk task share
+            createActivityLog({
+                databases,
+                taskId,
+                actorMemberId: member.$id,
+                action: ActivityAction.TASK_SHARED,
+                payload: {
+                    subAction: 'internal',
+                    recipientCount: recipients.length,
+                },
+            });
 
             return ctx.json({ success: true });
         }

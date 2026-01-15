@@ -1,12 +1,13 @@
 'use client'
-import { Task, TaskStatus } from "../types";
+import { Task, TaskStatus, TaskComment } from "../types";
 import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
-import { format } from "date-fns";
-import { useTranslations } from "next-intl";
+import { format, formatDistanceToNow } from "date-fns";
+import { es, enUS, it } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { Button } from "@/components/ui/button";
 import RichTextArea from "@/components/RichTextArea";
@@ -28,8 +29,12 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { LabelSelector } from "./LabelSelector";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
-import { STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
+import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
+import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { TaskActivityHistory } from "./TaskActivityHistory";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -153,16 +158,22 @@ export const TaskTitleEditor = ({
     );
 };
 
+const DATE_LOCALES = { es, en: enUS, it };
+
 const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
+    const locale = useLocale() as 'es' | 'en' | 'it';
     const { data: user } = useCurrent();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(task.description || '');
+    const [activeTab, setActiveTab] = useState<'comments' | 'history'>('comments');
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [editingCommentContent, setEditingCommentContent] = useState('');
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
     const { imagesLoaded, imagesLoadedCache, descriptionHasImage, descriptionContainerRef } = useImageDescriptionLoading(task, isEditingDescription);
 
@@ -171,6 +182,21 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const config = useWorkspaceConfig();
     const { data: tasksData } = useGetTasks({ workspaceId });
+
+    // Get current member for comment authorship check (moved before hooks that need it)
+    const currentMember = useMemo(() => {
+        return membersData?.documents?.find(m => m.userId === user?.$id);
+    }, [membersData?.documents, user?.$id]);
+
+    // Comments hooks with optimistic updates
+    const { data: commentsData, isLoading: isLoadingComments } = useGetTaskComments({ taskId: task.$id });
+    const { mutate: createComment } = useCreateTaskComment(
+        currentMember ? { $id: currentMember.$id, name: currentMember.name, email: currentMember.email } : undefined
+    );
+    const { mutate: updateComment } = useUpdateTaskComment(task.$id);
+    const { mutate: deleteComment } = useDeleteTaskComment(task.$id);
+
+    const comments = (commentsData?.documents || []) as TaskComment[];
 
     const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
 
@@ -213,6 +239,19 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
         return allStatuses.find(s => s.id === effectiveStatusValue);
     }, [allStatuses, effectiveStatusValue]);
 
+    // Helper to get status display name considering custom labels
+    const getStatusDisplayName = (status: { id: string; label: string; isDefault?: boolean; translationKey?: string }) => {
+        // For custom statuses, always use their label
+        if (!status.isDefault) {
+            return status.label;
+        }
+        // For default statuses, check if there's a custom label in config
+        const labelKey = STATUS_TO_LABEL_KEY[status.id];
+        const customLabel = labelKey ? config[labelKey] as string | null : null;
+        // Use custom label if exists, otherwise use translation
+        return customLabel || (status.translationKey ? t(status.translationKey) : status.label);
+    };
+
     const handleStatusChange = (statusValue: string) => {
         if (readOnly) return;
         // Detectar si es un custom status
@@ -240,7 +279,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const handleDueDateChange = (date: Date | undefined) => {
         if (readOnly) return;
         updateTask({
-            json: { dueDate: date },
+            json: { dueDate: date ?? null },
             param: { taskId: task.$id }
         });
     };
@@ -374,69 +413,248 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                     }}
                 />
 
-                {/* Activity section */}
+                {/* Activity section with tabs */}
                 <div>
-                    <h3 className="text-base font-semibold mb-2">{t('activity')}</h3>
-                    <div className="space-y-4">
-                        {readOnly ? (
-                            <p className="text-muted-foreground text-sm p-3">
-                                {t('no-comments')}
-                            </p>
-                        ) : isAddingComment ? (
-                            <div className="flex gap-x-3">
-                                <MemberAvatar
-                                    name={user?.name || 'User'}
-                                    className="size-9 flex-shrink-0"
-                                />
-                                <div className="flex-1 space-y-3">
-                                    <textarea
-                                        placeholder={t('write-comment')}
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        className="w-full min-h-[100px] p-3 rounded-lg border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-                                        autoFocus
-                                    />
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            size="sm"
-                                            onClick={() => {
-                                                // TODO: Implement save comment
-                                                setComment('');
-                                                setIsAddingComment(false);
-                                            }}
-                                        >
-                                            {t('save')}
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => {
-                                                setComment('');
-                                                setIsAddingComment(false);
-                                            }}
-                                        >
-                                            {t('cancel')}
-                                        </Button>
+                    {/* Subtle tabs */}
+                    <div className="flex items-center gap-4 mb-4 border-b">
+                        <button
+                            onClick={() => setActiveTab('comments')}
+                            className={cn(
+                                "flex items-center gap-2 pb-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+                                activeTab === 'comments'
+                                    ? "border-primary text-foreground"
+                                    : "border-transparent text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <MessageSquare className="size-4" />
+                            {t('comments')}
+                            {comments.length > 0 && (
+                                <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                                    {comments.length}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('history')}
+                            className={cn(
+                                "flex items-center gap-2 pb-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+                                activeTab === 'history'
+                                    ? "border-primary text-foreground"
+                                    : "border-transparent text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <History className="size-4" />
+                            {t('history')}
+                        </button>
+                    </div>
+
+                    {/* Tab content */}
+                    {activeTab === 'comments' ? (
+                        <div className="space-y-4">
+                            {/* Add comment section */}
+                            {!readOnly && (
+                                isAddingComment ? (
+                                    <div className="flex gap-x-3">
+                                        <MemberAvatar
+                                            name={user?.name || 'User'}
+                                            memberId={currentMember?.$id}
+                                            className="size-9 flex-shrink-0 mt-1"
+                                        />
+                                        <div className="flex-1 space-y-3">
+                                            <RichTextArea
+                                                value={comment}
+                                                onChange={setComment}
+                                                placeholder={t('write-comment')}
+                                                className="min-h-[100px]"
+                                            />
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    disabled={!comment.trim() || checkEmptyContent(comment)}
+                                                    onClick={() => {
+                                                        if (comment.trim() && !checkEmptyContent(comment)) {
+                                                            // Close editor immediately for instant UX (optimistic)
+                                                            const contentToSave = comment;
+                                                            setComment('');
+                                                            setIsAddingComment(false);
+                                                            createComment({
+                                                                json: {
+                                                                    taskId: task.$id,
+                                                                    content: contentToSave
+                                                                }
+                                                            });
+                                                        }
+                                                    }}
+                                                >
+                                                    {t('save')}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setComment('');
+                                                        setIsAddingComment(false);
+                                                    }}
+                                                >
+                                                    {t('cancel')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="flex gap-x-3 items-center cursor-pointer group"
+                                        onClick={() => setIsAddingComment(true)}
+                                    >
+                                        <MemberAvatar
+                                            name={user?.name || 'User'}
+                                            memberId={currentMember?.$id}
+                                            className="size-9 flex-shrink-0"
+                                        />
+                                        <div className="flex-1 p-3 rounded-lg border bg-muted/30 group-hover:bg-muted/50 transition-all">
+                                            <p className="text-muted-foreground text-sm">
+                                                {t('write-comment')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )
+                            )}
+
+                            {/* Comments list */}
+                            {isLoadingComments && comments.length === 0 ? (
+                                <div className="flex gap-x-3">
+                                    <Skeleton className="size-9 rounded-full" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-16 w-full" />
                                     </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div
-                                className="flex gap-x-3 items-center cursor-pointer group"
-                                onClick={() => setIsAddingComment(true)}
-                            >
-                                <MemberAvatar
-                                    name={user?.name || 'User'}
-                                    className="size-9 flex-shrink-0"
-                                />
-                                <div className="flex-1 p-3 rounded-lg border bg-muted/30 group-hover:bg-muted/50 transition-all">
-                                    <p className="text-muted-foreground text-sm">
-                                        {t('write-comment')}
-                                    </p>
+                            ) : comments.length === 0 ? (
+                                <p className="text-muted-foreground text-sm p-3 text-center">
+                                    {t('no-comments')}
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {comments.map((commentItem) => (
+                                        <div key={commentItem.$id} className="flex gap-x-3 group">
+                                            <MemberAvatar
+                                                name={commentItem.author?.name || 'User'}
+                                                memberId={commentItem.authorMemberId}
+                                                className="size-9 flex-shrink-0 mt-1"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium text-sm">
+                                                            {commentItem.author?.name || 'Unknown'}
+                                                        </span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {formatDistanceToNow(new Date(commentItem.$createdAt), {
+                                                                addSuffix: true,
+                                                                locale: DATE_LOCALES[locale] || DATE_LOCALES.en
+                                                            })}
+                                                        </span>
+                                                        {commentItem.$updatedAt !== commentItem.$createdAt && (
+                                                            <span className="text-xs text-muted-foreground italic">
+                                                                ({t('edited')})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {!readOnly && currentMember?.$id === commentItem.authorMemberId && (
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="size-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                >
+                                                                    <MoreHorizontal className="size-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem
+                                                                    onClick={() => {
+                                                                        setEditingCommentId(commentItem.$id);
+                                                                        setEditingCommentContent(commentItem.content);
+                                                                    }}
+                                                                    className="cursor-pointer"
+                                                                >
+                                                                    <Pencil className="size-4 mr-2" />
+                                                                    {t('edit')}
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    className="text-destructive cursor-pointer"
+                                                                    onClick={() => {
+                                                                        deleteComment({
+                                                                            param: { commentId: commentItem.$id }
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    <Trash2 className="size-4 mr-2" />
+                                                                    {t('delete')}
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    )}
+                                                </div>
+                                                {editingCommentId === commentItem.$id ? (
+                                                    <div className="mt-2 space-y-3">
+                                                        <RichTextArea
+                                                            value={editingCommentContent}
+                                                            onChange={setEditingCommentContent}
+                                                            placeholder={t('write-comment')}
+                                                            className="min-h-[80px]"
+                                                        />
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                size="sm"
+                                                                disabled={!editingCommentContent.trim() || checkEmptyContent(editingCommentContent)}
+                                                                onClick={() => {
+                                                                    if (editingCommentContent.trim() && !checkEmptyContent(editingCommentContent)) {
+                                                                        // Close editor immediately for instant UX (optimistic)
+                                                                        const contentToSave = editingCommentContent;
+                                                                        setEditingCommentId(null);
+                                                                        setEditingCommentContent('');
+                                                                        updateComment({
+                                                                            json: { content: contentToSave },
+                                                                            param: { commentId: commentItem.$id }
+                                                                        });
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {t('save')}
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    setEditingCommentId(null);
+                                                                    setEditingCommentContent('');
+                                                                }}
+                                                            >
+                                                                {t('cancel')}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        className={cn(
+                                                            "mt-1 p-3 rounded-lg bg-muted/30",
+                                                            DESCRIPTION_PROSE_CLASS
+                                                        )}
+                                                        dangerouslySetInnerHTML={{ __html: commentItem.content }}
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    ) : (
+                        /* History tab - shows activity log */
+                        <TaskActivityHistory taskId={task.$id} />
+                    )}
                 </div>
             </div>
 
@@ -454,9 +672,9 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                 return IconComponent ? <IconComponent className="size-4" /> : null;
                             })()}
                             <span>
-                                {currentStatusData?.translationKey
-                                    ? t(currentStatusData.translationKey)
-                                    : currentStatusData?.label || t('select-status')}
+                                {currentStatusData
+                                    ? getStatusDisplayName(currentStatusData)
+                                    : t('select-status')}
                             </span>
                         </div>
                     ) : (
@@ -475,9 +693,9 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                         return IconComponent ? <IconComponent className="size-4" /> : null;
                                     })()}
                                     <span>
-                                        {currentStatusData?.translationKey
-                                            ? t(currentStatusData.translationKey)
-                                            : currentStatusData?.label || t('select-status')}
+                                        {currentStatusData
+                                            ? getStatusDisplayName(currentStatusData)
+                                            : t('select-status')}
                                     </span>
                                 </div>
                             </SelectTrigger>
@@ -494,7 +712,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                         >
                                             <div className="flex items-center gap-2">
                                                 {IconComponent && <IconComponent className="size-4" style={{ color: status.color }} />}
-                                                {status.translationKey ? t(status.translationKey) : status.label}
+                                                {getStatusDisplayName(status)}
                                                 {isBlocked && (
                                                     <span className="text-xs text-muted-foreground ml-1">
                                                         ({t('limit-reached')})
@@ -576,19 +794,33 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         <span className="text-xs font-medium text-muted-foreground w-24">
                             {t('due-date')}
                         </span>
-                        <div>
+                        <div className="flex items-center gap-1">
                             {readOnly ? (
                                 <span className="text-sm px-1.5 py-1">
                                     {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : t('not-defined')}
                                 </span>
                             ) : (
-                                <CustomDatePicker
-                                    value={task.dueDate ? new Date(task.dueDate) : undefined}
-                                    onChange={handleDueDateChange}
-                                    placeholder='not-defined'
-                                    className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
-                                    hideIcon
-                                />
+                                <>
+                                    <CustomDatePicker
+                                        value={task.dueDate ? new Date(task.dueDate) : undefined}
+                                        onChange={handleDueDateChange}
+                                        placeholder='not-defined'
+                                        className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
+                                        hideIcon
+                                    />
+                                    {task.dueDate && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8"
+                                            onClick={() => handleDueDateChange(undefined)}
+                                            disabled={isPending}
+                                        >
+                                            <X className="size-4" />
+                                        </Button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>

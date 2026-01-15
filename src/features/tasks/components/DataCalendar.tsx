@@ -68,7 +68,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
             date={value}
             toolbar
             showAllEvents
-            className="h-full"
+            className="h-full bg-background p-4 rounded-lg"
             culture={locale}
             max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
             formats={{
