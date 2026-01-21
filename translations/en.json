@@ -334,7 +334,8 @@
 
             "success-title": "Message Sent Successfully!",
             "success-description": "Thank you for contacting us. We've received your message and will get back to you within 24 hours.",
-            "success-button": "Got it"
+            "success-button": "Got it",
+            "form-error": "Error sending message. Please try again."
         },
 
         "getting-started": {

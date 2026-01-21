@@ -3,7 +3,7 @@ import LandingFooter from '@/features/landing/components/LandingFooter';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Clock, MessageSquare } from 'lucide-react';
+import { Mail, MessageSquare } from 'lucide-react'; //Clock,
 import { Separator } from '@/components/ui/separator';
 import ContactForm from './ContactForm';
 import Link from 'next/link';
@@ -45,9 +45,9 @@ const ContactView = async () => {
             <div className='bg-gradient-to-br from-slate-50 to-blue-50 w-full flex-grow py-16'>
                 <div className="max-w-6xl mx-auto px-6">
 
-                    <div className="grid lg:grid-cols-3 gap-8">
+                    <div className="grid lg:grid-cols-2 gap-8"> {/* grid-cols-3 when uncomment content below */}
                         {/* Contact Information */}
-                        <div className="lg:col-span-1 space-y-6">
+                        {/* <div className="lg:col-span-1 space-y-6">
                             <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-slate-800">
@@ -83,7 +83,7 @@ const ContactView = async () => {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </div>
+                        </div> */}
 
                         {/* Contact Form */}
                         <div className="lg:col-span-2">

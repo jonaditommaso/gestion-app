@@ -335,7 +335,8 @@
 
             "success-title": "¡Mensaje Enviado Exitosamente!",
             "success-description": "Gracias por contactarnos. Hemos recibido tu mensaje y te responderemos dentro de 24 horas.",
-            "success-button": "Entendido"
+            "success-button": "Entendido",
+            "form-error": "Error al enviar el mensaje. Por favor, inténtalo de nuevo."
         },
 
         "getting-started": {
