@@ -19,12 +19,6 @@ const OperationStats = ({ type }: OperationStatsProps) => {
         </div>
     )
 
-    if (data?.total === 0) return (
-        <div className="w-[800px]">
-            <NoData title="no-billing-data" description="add-operation" />
-        </div>
-    )
-
     const result = data && Object.groupBy(data?.documents, ({ type }) =>
         type === 'income' ? "incomes" : "expenses",
     ) || {};
@@ -37,6 +31,15 @@ const OperationStats = ({ type }: OperationStatsProps) => {
         }
     });
 
+    // Show NoData if there are no operations for this specific type
+    if (stats.length === 0) return (
+        <div className="w-full max-w-[800px]">
+            <NoData
+                title={type === 'incomes' ? "no-incomes-data" : "no-expenses-data"}
+                description={type === 'incomes' ? "add-income-operation" : "add-expense-operation"}
+            />
+        </div>
+    )
 
     return (
         <div className="flex flex-col lg:flex-row gap-5 justify-around sm:flex-col">
