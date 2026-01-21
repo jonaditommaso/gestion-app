@@ -17,7 +17,9 @@ const app = new Hono()
 
             const { account, category, date, import: importValue, type, note } = ctx.req.valid('json');
 
-            if(!user) {
+            const teamId = user?.prefs.teamId;
+
+            if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -32,7 +34,8 @@ const app = new Hono()
                     import: Number(importValue),
                     type,
                     note,
-                    userId: user.$id
+                    teamId: teamId,
+                    lastModifiedBy: user.$id
                 }
             )
 
@@ -40,16 +43,16 @@ const app = new Hono()
                 DATABASE_ID,
                 BILLING_OPTIONS_ID,
                 [
-                    Query.equal('userId', user.$id),
+                    Query.equal('teamId', teamId),
                     Query.contains(`${type}Categories`, [category])
                 ]
             );
 
-            if(billingOptions.total === 0) {
+            if (billingOptions.total === 0) {
                 const payload = {
                     [`${type}Categories`]: [category],
                     [`${type === 'expense' ? 'income' : 'expense'}Categories`]: [],
-                    userId: user.$id,
+                    teamId: teamId,
                 }
 
                 await databases.createDocument(
@@ -71,7 +74,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            if(!user) {
+            if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -80,7 +83,7 @@ const app = new Hono()
                     DATABASE_ID,
                     BILLINGS_ID,
                     [
-                        Query.equal('userId', user.$id),
+                        Query.equal('teamId', user.prefs.teamId),
                         Query.orderDesc('$createdAt'),
                     ]
                 );
@@ -100,17 +103,17 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            if(!user) {
+            if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
             const billingOptions = await databases.listDocuments(
                 DATABASE_ID,
                 BILLING_OPTIONS_ID,
-                [Query.equal('userId', user.$id)]
+                [Query.equal('teamId', user.prefs.teamId)]
             );
 
-            if(billingOptions.total === 0) {
+            if (billingOptions.total === 0) {
                 return ctx.json({ data: { documents: [], total: 0 } })
             }
 
@@ -129,7 +132,7 @@ const app = new Hono()
 
             const { incomeCategories, expenseCategories } = ctx.req.valid('json');
 
-            if(!user) {
+            if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -140,7 +143,7 @@ const app = new Hono()
                 {
                     incomeCategories,
                     expenseCategories,
-                    userId: user.$id,
+                    teamId: user.prefs.teamId,
                 }
             )
 
@@ -160,7 +163,7 @@ const app = new Hono()
 
             const { billingOptionId } = ctx.req.param()
 
-            if(!user) {
+            if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
