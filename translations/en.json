@@ -788,6 +788,7 @@
         "button-signin": "Login",
         "button-see-prices": "Check pricing",
         "enter-valid-email": "Enter a valid email",
+        "email-placeholder": "Enter your email",
 
         "navbar-start": "Get started",
         "navbar-gestionate": "The web application that allows you to manage your business more efficiently. Everything you need, in one place.",

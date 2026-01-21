@@ -794,6 +794,7 @@
         "button-signin": "Iniciar sesión",
         "button-see-prices": "Ver precios",
         "enter-valid-email": "Ingresa un email válido",
+        "email-placeholder": "Ingresa tu email",
 
         "navbar-start": "Comienza",
         "navbar-gestionate": "La aplicación web que te permite gestionar tu empresa de manera más eficiente. Todo lo que necesitas, en un solo sitio.",
