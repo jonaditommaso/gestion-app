@@ -133,7 +133,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                             </SheetDescription>
                         </SheetHeader>
 
-                        <Separator className="mt-2" />
+                        <Separator className="my-2" />
 
                         <div className="overflow-auto h-[600px] pr-2">
                             {recordData.map((data, index) => (
@@ -144,6 +144,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                                     data={data}
                                     headersUsed={recordData.map(data => data.field)}
                                     isLastItem={recordData.length - 1 === index}
+                                    totalRecords={recordData.length}
                                 />
                             ))}
                         </div>
