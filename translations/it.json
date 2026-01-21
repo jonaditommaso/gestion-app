@@ -1034,6 +1034,10 @@
         "no-records": "Non hai registri in questa tabella. Aggiungine almeno uno per vedere un risultato.",
         "no-billing-data": "Nessun dato disponibile",
         "add-operation": "Aggiungi una nuova operazione per vedere i risultati.",
+        "no-incomes-data": "Non hai entrate registrate",
+        "add-income-operation": "Aggiungi un'operazione di entrata per vedere il grafico e l'elenco delle tue entrate.",
+        "no-expenses-data": "Non hai spese registrate",
+        "add-expense-operation": "Aggiungi un'operazione di spesa per vedere il grafico e l'elenco delle tue spese.",
         "working": "Ci stiamo lavorando"
     },
     "billing": {
@@ -1078,7 +1082,17 @@
         "failed-update-options": "Errore durante l'aggiornamento delle opzioni",
         "operation-created": "Operazione creata",
         "failed-create-operation": "Errore durante la creazione dell'operazione",
-        "total": "Totale"
+        "total": "Totale",
+        "alert-details-title": "Pannello Dettagli",
+        "alert-details-description": "Qui troverai un riepilogo di tutte le tue operazioni finanziarie. Visualizza le tue entrate, spese e il saldo totale. Aggiungi nuove operazioni per mantenere i tuoi registri aggiornati.",
+        "alert-calendar-title": "Vista Calendario",
+        "alert-calendar-description": "Organizza e visualizza le tue operazioni per data. Il calendario ti permette di vedere facilmente quando sono state registrate le tue entrate e spese, aiutandoti a pianificare meglio le tue finanze.",
+        "alert-categories-title": "Gestione Categorie",
+        "alert-categories-description": "Crea e gestisci categorie personalizzate per classificare le tue entrate e spese. Le categorie che definisci qui saranno disponibili quando creerai nuove operazioni finanziarie.",
+        "alert-incomes-title": "Statistiche Entrate",
+        "alert-incomes-description": "Visualizza una ripartizione dettagliata di tutte le tue entrate organizzate per categoria. Il grafico ti mostra la proporzione di ogni fonte di reddito nel tuo saldo totale.",
+        "alert-expenses-title": "Statistiche Spese",
+        "alert-expenses-description": "Analizza la distribuzione delle tue spese per categoria. Identifica facilmente dove stai spendendo di più e ottimizza il tuo budget."
     },
     "records": {
         "create-records-table": "Crea una nuova tabella di registro",

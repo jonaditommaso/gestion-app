@@ -1,4 +1,4 @@
-{
+﻿{
     "landing": {
         "gestionate": "Gestionate",
         "title-1": "Manage",
@@ -1048,6 +1048,10 @@
         "no-records": "You have no records in this table. Add at least one to see a result.",
         "no-billing-data": "No data available",
         "add-operation": "Add a new operation to see results.",
+        "no-incomes-data": "You have no recorded incomes",
+        "add-income-operation": "Add an income operation to see the chart and list of your incomes.",
+        "no-expenses-data": "You have no recorded expenses",
+        "add-expense-operation": "Add an expense operation to see the chart and list of your expenses.",
         "working": "We’re working on it"
     },
     "billing": {
@@ -1092,7 +1096,17 @@
         "failed-update-options": "There was an error updating the options",
         "operation-created": "Operation created",
         "failed-create-operation": "There was an error creating the operation",
-        "total": "Total"
+        "total": "Total",
+        "alert-details-title": "Details Panel",
+        "alert-details-description": "Here you'll find a summary of all your financial operations. View your incomes, expenses, and total balance. Add new operations to keep your records up to date.",
+        "alert-calendar-title": "Calendar View",
+        "alert-calendar-description": "Organize and visualize your operations by date. The calendar allows you to easily see when your incomes and expenses were recorded, helping you plan your finances better.",
+        "alert-categories-title": "Category Management",
+        "alert-categories-description": "Create and manage custom categories to classify your incomes and expenses. The categories you define here will be available when creating new financial operations.",
+        "alert-incomes-title": "Income Statistics",
+        "alert-incomes-description": "View a detailed breakdown of all your incomes organized by category. The chart shows you the proportion of each income source in your total balance.",
+        "alert-expenses-title": "Expense Statistics",
+        "alert-expenses-description": "Analyze the distribution of your expenses by category. Easily identify where you're spending the most and optimize your budget."
     },
     "records": {
         "create-records-table": "Create a new table of records",
