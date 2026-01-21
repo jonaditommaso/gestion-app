@@ -1157,7 +1157,10 @@
         "table-deleted": "Table successfully deleted",
         "failed-delete-table": "There was an error deleting the table",
         "table-name-updated": "Name of the table updated",
-        "failed-update-table-name": "There was an error updating the table name"
+        "failed-update-table-name": "There was an error updating the table name",
+        "validation-error-title": "Validation error",
+        "validation-error-description": "There are values without an assigned field. Please assign a field to each value before saving.",
+        "understood": "Understood"
     },
     "workspaces": {
         "create-workspace": "Create new workspace",

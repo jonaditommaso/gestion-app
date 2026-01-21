@@ -1143,7 +1143,10 @@
         "table-deleted": "Tabella eliminata con successo",
         "failed-delete-table": "Si è verificato un errore durante l'eliminazione della tabella",
         "table-name-updated": "Nome della tabella aggiornato",
-        "failed-update-table-name": "Si è verificato un errore durante l'aggiornamento del nome della tabella"
+        "failed-update-table-name": "Si è verificato un errore durante l'aggiornamento del nome della tabella",
+        "validation-error-title": "Errore di validazione",
+        "validation-error-description": "Ci sono valori senza un campo assegnato. Per favore, assegna un campo a ogni valore prima di salvare.",
+        "understood": "Capito"
     },
     "workspaces": {
         "create-workspace": "Crea nuovo workspace",
