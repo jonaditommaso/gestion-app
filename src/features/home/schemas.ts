@@ -8,7 +8,8 @@ export const notesSchema = zod.object({
 
 export const messagesSchema = zod.object({
     content: zod.string().trim().min(1, 'Required'),
-    to: zod.string().trim().min(1, 'Required'),
+    toTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).min(1, 'At least one recipient is required'),
+    teamId: zod.string().trim().min(1, 'Required'),
 })
 
 export const unreadMessagesSchema = zod.object({
@@ -16,7 +17,7 @@ export const unreadMessagesSchema = zod.object({
         zod.object({
             $id: zod.string(),
             content: zod.string().trim().min(1, 'Required'),
-            to: zod.string().trim().min(1, 'Required'),
+            toTeamMemberId: zod.string().trim().min(1, 'Required'),
             read: zod.boolean(),
             $collectionId: zod.string(),
             $databaseId: zod.string(),
