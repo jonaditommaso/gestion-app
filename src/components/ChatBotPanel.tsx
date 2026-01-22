@@ -3,10 +3,12 @@ import { useChatBot } from "@/context/ChatBotContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { X, Send, BotMessageSquare, Plus, History } from "lucide-react";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { X, Send, BotMessageSquare, Plus, History, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useResizePanel } from "@/hooks/useResizePanel";
+import { useSendMessage } from "@/features/chat/api/use-send-message";
+import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
 
 interface Message {
@@ -80,8 +82,54 @@ const ChatBotPanel = () => {
     setShowHistory(false);
   };
 
+  // Callback para manejar los chunks de streaming
+  const handleChunk = useCallback((chunk: string) => {
+    setChats((prev) =>
+      prev.map((chat) => {
+        if (chat.id !== currentChatId) return chat;
+
+        const lastMessage = chat.messages[chat.messages.length - 1];
+        if (lastMessage?.role === "assistant" && lastMessage.id.startsWith("streaming-")) {
+          // Actualizar el mensaje de streaming existente
+          return {
+            ...chat,
+            messages: chat.messages.map((msg, idx) =>
+              idx === chat.messages.length - 1
+                ? { ...msg, content: msg.content + chunk }
+                : msg
+            ),
+          };
+        }
+        return chat;
+      })
+    );
+  }, [currentChatId]);
+
+  // Callback para cuando se completa la respuesta
+  const handleComplete = useCallback((fullResponse: string) => {
+    setChats((prev) =>
+      prev.map((chat) => {
+        if (chat.id !== currentChatId) return chat;
+
+        return {
+          ...chat,
+          messages: chat.messages.map((msg) =>
+            msg.id.startsWith("streaming-")
+              ? { ...msg, id: Date.now().toString(), content: fullResponse }
+              : msg
+          ),
+        };
+      })
+    );
+  }, [currentChatId]);
+
+  const { mutate: sendMessage, isPending: isLoading } = useSendMessage({
+    onChunk: handleChunk,
+    onComplete: handleComplete,
+  });
+
   const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isLoading) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -90,35 +138,34 @@ const ChatBotPanel = () => {
       timestamp: new Date(),
     };
 
-    // Actualizar el chat actual con el nuevo mensaje
+    // Crear mensaje placeholder para la respuesta del asistente
+    const assistantPlaceholder: Message = {
+      id: `streaming-${Date.now()}`,
+      content: "",
+      role: "assistant",
+      timestamp: new Date(),
+    };
+
+    // Actualizar el chat actual con el nuevo mensaje y el placeholder
     setChats((prev) =>
       prev.map((chat) =>
         chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, newMessage] }
+          ? { ...chat, messages: [...chat.messages, newMessage, assistantPlaceholder] }
           : chat
       )
     );
+
+    // Preparar mensajes para enviar al backend
+    const chatMessages: ChatMessage[] = [
+      ...messages.map((msg) => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })),
+      { role: 'user' as const, content: inputValue },
+    ];
+
     setInputValue("");
-
-    // Aquí puedes agregar la lógica para enviar el mensaje a tu backend
-    // y recibir la respuesta del chatbot
-
-    // Simulación de respuesta (eliminar cuando conectes el backend)
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: t("bot-response"),
-        role: "assistant",
-        timestamp: new Date(),
-      };
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === currentChatId
-            ? { ...chat, messages: [...chat.messages, botResponse] }
-            : chat
-        )
-      );
-    }, 1000);
+    sendMessage(chatMessages);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -287,17 +334,22 @@ const ChatBotPanel = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
+              disabled={isLoading}
               className="auto-resize-textarea flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               rows={1}
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isLoading}
               size="icon"
               className="h-10 w-10 shrink-0"
               title={t("send")}
             >
-              <Send className="h-4 w-4" />
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
