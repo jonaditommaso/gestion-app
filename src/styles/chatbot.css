@@ -49,6 +49,12 @@
   border-radius: 3px;
 }
 
+/* Fix para el historial de conversaciones - evitar overflow por display:table de Radix */
+.chat-history-list > div > div {
+  display: block !important;
+  min-width: 0 !important;
+}
+
 .chat-scrollarea::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--border) / 0.8);
 }

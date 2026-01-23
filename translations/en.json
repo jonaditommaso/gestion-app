@@ -1790,6 +1790,8 @@
         "close": "Close",
         "history-title": "Conversation history",
         "empty-conversation": "Empty conversation",
+        "no-conversations": "No conversations yet",
+        "loading-messages": "Loading messages...",
         "messages": "messages",
         "message": "message",
         "welcome-title": "Gestionate AI Chat",
@@ -1797,7 +1799,6 @@
         "placeholder": "Type your message...",
         "send": "Send",
         "input-hint": "Press Enter to send, Shift+Enter for new line",
-        "model-name": "Ollama",
         "bot-response": "This is an example response. Connect your backend here."
     },
     "common": {

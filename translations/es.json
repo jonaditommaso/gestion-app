@@ -1796,6 +1796,8 @@
         "close": "Cerrar",
         "history-title": "Historial de conversaciones",
         "empty-conversation": "Conversación vacía",
+        "no-conversations": "No hay conversaciones aún",
+        "loading-messages": "Cargando mensajes...",
         "messages": "mensajes",
         "message": "mensaje",
         "welcome-title": "Gestionate IA Chat",
@@ -1803,7 +1805,6 @@
         "placeholder": "Escribe tu mensaje...",
         "send": "Enviar",
         "input-hint": "Presiona Enter para enviar, Shift+Enter para nueva línea",
-        "model-name": "Ollama",
         "bot-response": "Esta es una respuesta de ejemplo. Conecta tu backend aquí."
     },
     "common": {

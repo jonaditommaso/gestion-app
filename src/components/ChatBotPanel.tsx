@@ -3,25 +3,110 @@ import { useChatBot } from "@/context/ChatBotContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { X, Send, BotMessageSquare, Plus, History, Loader2 } from "lucide-react";
+import { X, Send, BotMessageSquare, Plus, History, Loader2, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useResizePanel } from "@/hooks/useResizePanel";
 import { useSendMessage } from "@/features/chat/api/use-send-message";
+import { useGetConversations } from "@/features/chat/api/use-get-conversations";
+import { useDeleteConversation } from "@/features/chat/api/use-delete-conversation";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
+
+// Componente para renderizar markdown básico
+const MarkdownContent = ({ content }: { content: string }) => {
+  const renderMarkdown = (text: string) => {
+    // Procesar el texto línea por línea para mantener estructura
+    const lines = text.split('\n');
+    const elements: React.ReactNode[] = [];
+    let currentIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      // Procesar cada línea
+      const processedLine = line;
+      const lineElements: React.ReactNode[] = [];
+      let lastIndex = 0;
+
+      // Regex para encontrar **texto** (negrita) y `código`
+      const boldRegex = /\*\*(.+?)\*\*/g;
+      const codeRegex = /`([^`]+)`/g;
+
+      // Segmentos encontrados
+      let match;
+      const segments: { start: number; end: number; type: string; content: string }[] = [];
+
+      // Buscar negritas
+      while ((match = boldRegex.exec(processedLine)) !== null) {
+        segments.push({ start: match.index, end: match.index + match[0].length, type: 'bold', content: match[1] });
+      }
+
+      // Buscar código inline
+      while ((match = codeRegex.exec(processedLine)) !== null) {
+        const overlaps = segments.some(s =>
+          (match!.index >= s.start && match!.index < s.end) ||
+          (match!.index + match![0].length > s.start && match!.index + match![0].length <= s.end)
+        );
+        if (!overlaps) {
+          segments.push({ start: match.index, end: match.index + match[0].length, type: 'code', content: match[1] });
+        }
+      }
+
+      // Ordenar por posición
+      segments.sort((a, b) => a.start - b.start);
+
+      if (segments.length === 0) {
+        lineElements.push(line);
+      } else {
+        segments.forEach((seg, idx) => {
+          // Texto antes del segmento
+          if (seg.start > lastIndex) {
+            lineElements.push(processedLine.slice(lastIndex, seg.start));
+          }
+
+          // El segmento formateado
+          if (seg.type === 'bold') {
+            lineElements.push(<strong key={`${lineIndex}-${idx}`} className="font-semibold">{seg.content}</strong>);
+          } else if (seg.type === 'code') {
+            lineElements.push(<code key={`${lineIndex}-${idx}`} className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{seg.content}</code>);
+          }
+
+          lastIndex = seg.end;
+        });
+
+        // Texto después del último segmento
+        if (lastIndex < processedLine.length) {
+          lineElements.push(processedLine.slice(lastIndex));
+        }
+      }
+
+      elements.push(
+        <span key={currentIndex++}>
+          {lineElements}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      );
+    });
+
+    return elements;
+  };
+
+  return <>{renderMarkdown(content)}</>;
+};
 
 interface Message {
   id: string;
   content: string;
   role: "user" | "assistant";
   timestamp: Date;
+  modelName?: string; // Nombre del modelo que generó la respuesta
 }
 
-interface Chat {
+interface LocalChat {
   id: string;
+  title: string;
   messages: Message[];
   createdAt: Date;
+  isNew?: boolean; // true si aún no se ha guardado en la BD
 }
 
 const ChatBotPanel = () => {
@@ -29,24 +114,106 @@ const ChatBotPanel = () => {
   const t = useTranslations("chatbot");
   const [width, setWidth] = useState(450);
   const [isResizing, setIsResizing] = useState(false);
-  const [currentChatId, setCurrentChatId] = useState<string>("1");
-  const [chats, setChats] = useState<Chat[]>([
-    {
-      id: "1",
-      messages: [],
-      createdAt: new Date(),
-    },
-  ]);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [localChats, setLocalChats] = useState<LocalChat[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [showHistory, setShowHistory] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [lastModelName, setLastModelName] = useState<string>("AI");
 
   const resizeRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const currentChat = chats.find((chat) => chat.id === currentChatId);
+  // Obtener conversaciones de la BD
+  const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations();
+
+  // Callback cuando se elimina una conversación exitosamente
+  const handleDeleteSuccess = useCallback((conversationId: string) => {
+    if (currentChatId === conversationId) {
+      setCurrentChatId(null);
+    }
+    setLocalChats(prev => prev.filter(c => c.id !== conversationId));
+  }, [currentChatId]);
+
+  const { mutate: deleteConversation, isPending: isDeletingConversation, variables: deletingConversationId } = useDeleteConversation({
+    onSuccess: handleDeleteSuccess,
+  });
+
+  // Combinar conversaciones del servidor con chats locales nuevos
+  const allChats = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const serverChats: LocalChat[] = (serverConversations || []).map((conv: any) => ({
+      id: conv.$id,
+      title: conv.title || '',
+      messages: [], // Los mensajes se cargan cuando se selecciona
+      createdAt: new Date(conv.$createdAt),
+      isNew: false,
+    }));
+
+    // Agregar chats locales que aún no se han guardado
+    const newLocalChats = localChats.filter(chat => chat.isNew);
+
+    return [...newLocalChats, ...serverChats];
+  }, [serverConversations, localChats]);
+
+  const currentChat = useMemo(() => {
+    if (!currentChatId) return null;
+    return localChats.find(chat => chat.id === currentChatId) ||
+           allChats.find(chat => chat.id === currentChatId);
+  }, [currentChatId, localChats, allChats]);
+
   const messages = useMemo(() => currentChat?.messages || [], [currentChat?.messages]);
   const hasMessages = messages.length > 0;
+
+  // Cargar mensajes cuando se selecciona una conversación existente
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!currentChatId || currentChatId.startsWith('local-')) return;
+
+      const existingChat = localChats.find(c => c.id === currentChatId);
+      if (existingChat && existingChat.messages.length > 0) return; // Ya tiene mensajes
+
+      setIsLoadingMessages(true);
+      try {
+        const response = await fetch(`/api/chat/conversations/${currentChatId}`);
+        if (!response.ok) return;
+
+        const { data } = await response.json();
+        if (data?.messages) {
+          const loadedMessages: Message[] = data.messages.map((msg: { $id: string; content: string; role: string; $createdAt: string; model?: string }) => ({
+            id: msg.$id,
+            content: msg.content,
+            role: msg.role.toLowerCase() as 'user' | 'assistant',
+            timestamp: new Date(msg.$createdAt),
+            modelName: msg.model,
+          }));
+
+          setLocalChats(prev => {
+            const exists = prev.find(c => c.id === currentChatId);
+            if (exists) {
+              return prev.map(c =>
+                c.id === currentChatId ? { ...c, messages: loadedMessages } : c
+              );
+            }
+            return [...prev, {
+              id: currentChatId,
+              title: data.title,
+              messages: loadedMessages,
+              createdAt: new Date(data.$createdAt),
+              isNew: false,
+            }];
+          });
+        }
+      } catch {
+        // Error silencioso, no bloquear la UI
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+
+    loadMessages();
+  }, [currentChatId, localChats]);
 
   // Custom hook para manejar el resize del panel
   useResizePanel({
@@ -72,19 +239,21 @@ const ChatBotPanel = () => {
   }, [inputValue]);
 
   const handleNewChat = () => {
-    const newChat: Chat = {
-      id: Date.now().toString(),
+    const newChat: LocalChat = {
+      id: `local-${Date.now()}`,
+      title: t("new-chat"),
       messages: [],
       createdAt: new Date(),
+      isNew: true,
     };
-    setChats((prev) => [...prev, newChat]);
+    setLocalChats((prev) => [...prev, newChat]);
     setCurrentChatId(newChat.id);
     setShowHistory(false);
   };
 
   // Callback para manejar los chunks de streaming
   const handleChunk = useCallback((chunk: string) => {
-    setChats((prev) =>
+    setLocalChats((prev) =>
       prev.map((chat) => {
         if (chat.id !== currentChatId) return chat;
 
@@ -106,22 +275,37 @@ const ChatBotPanel = () => {
   }, [currentChatId]);
 
   // Callback para cuando se completa la respuesta
-  const handleComplete = useCallback((fullResponse: string) => {
-    setChats((prev) =>
+  const handleComplete = useCallback((fullResponse: string, newConversationId: string, modelName: string) => {
+    setLastModelName(modelName);
+    setLocalChats((prev) =>
       prev.map((chat) => {
         if (chat.id !== currentChatId) return chat;
 
+        // Actualizar el id del chat si era local y ahora tiene un id del servidor
+        const updatedId = chat.isNew ? newConversationId : chat.id;
+
         return {
           ...chat,
+          id: updatedId,
+          isNew: false,
           messages: chat.messages.map((msg) =>
             msg.id.startsWith("streaming-")
-              ? { ...msg, id: Date.now().toString(), content: fullResponse }
+              ? { ...msg, id: Date.now().toString(), content: fullResponse, modelName }
               : msg
           ),
         };
       })
     );
-  }, [currentChatId]);
+
+    // Actualizar el currentChatId si cambió
+    setCurrentChatId((prevId) => {
+      const chat = localChats.find(c => c.id === prevId);
+      if (chat?.isNew) {
+        return newConversationId;
+      }
+      return prevId;
+    });
+  }, [currentChatId, localChats]);
 
   const { mutate: sendMessage, isPending: isLoading } = useSendMessage({
     onChunk: handleChunk,
@@ -146,11 +330,38 @@ const ChatBotPanel = () => {
       timestamp: new Date(),
     };
 
+    // Si no hay chat actual, crear uno nuevo
+    if (!currentChatId) {
+      const newChat: LocalChat = {
+        id: `local-${Date.now()}`,
+        title: inputValue.substring(0, 100),
+        messages: [newMessage, assistantPlaceholder],
+        createdAt: new Date(),
+        isNew: true,
+      };
+      setLocalChats((prev) => [...prev, newChat]);
+      setCurrentChatId(newChat.id);
+      setShowHistory(false);
+
+      // Preparar mensajes para enviar al backend
+      const chatMessages: ChatMessage[] = [
+        { role: 'user' as const, content: inputValue },
+      ];
+
+      setInputValue("");
+      sendMessage({ messages: chatMessages });
+      return;
+    }
+
     // Actualizar el chat actual con el nuevo mensaje y el placeholder
-    setChats((prev) =>
+    setLocalChats((prev) =>
       prev.map((chat) =>
         chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, newMessage, assistantPlaceholder] }
+          ? {
+              ...chat,
+              title: chat.messages.length === 0 ? inputValue.substring(0, 100) : chat.title,
+              messages: [...chat.messages, newMessage, assistantPlaceholder]
+            }
           : chat
       )
     );
@@ -164,8 +375,12 @@ const ChatBotPanel = () => {
       { role: 'user' as const, content: inputValue },
     ];
 
+    // Determinar si enviar conversationId (solo si no es nuevo)
+    const chat = localChats.find(c => c.id === currentChatId);
+    const conversationId = chat?.isNew ? undefined : currentChatId;
+
     setInputValue("");
-    sendMessage(chatMessages);
+    sendMessage({ messages: chatMessages, conversationId });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -246,37 +461,85 @@ const ChatBotPanel = () => {
         </div>
 
         {/* Messages Area */}
-        <ScrollArea className="flex-1 p-4 chat-scrollarea" ref={scrollRef}>
+        <ScrollArea className={`flex-1 p-4 chat-scrollarea ${showHistory ? 'chat-history-list' : ''}`} ref={scrollRef}>
           {showHistory ? (
             /* Historial de conversaciones */
             <div className="space-y-2">
               <h3 className="font-semibold mb-3">{t("history-title")}</h3>
-              {chats.map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => {
-                    setCurrentChatId(chat.id);
-                    setShowHistory(false);
-                  }}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors hover:bg-muted ${
-                    chat.id === currentChatId ? "bg-muted border-primary" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {chat.messages.length > 0
-                        ? chat.messages[0].content.substring(0, 40) + "..."
-                        : t("empty-conversation")}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {chat.createdAt.toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {chat.messages.length} {chat.messages.length !== 1 ? t("messages") : t("message")}
-                  </p>
-                </button>
-              ))}
+              {isLoadingConversations ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : allChats.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  {t("no-conversations")}
+                </p>
+              ) : (
+                allChats.map((chat) => {
+                  const isDeleting = isDeletingConversation && deletingConversationId === chat.id;
+
+                  return (
+                    <div
+                      key={chat.id}
+                      className={`flex items-center gap-2 p-3 rounded-lg border transition-colors overflow-hidden ${isDeleting ? 'opacity-50' : 'hover:bg-muted'} ${
+                        chat.id === currentChatId ? "bg-muted border-primary" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          if (isDeleting) return;
+                          // Si es una conversación del servidor, cargar los mensajes
+                          if (!chat.isNew) {
+                            const existingLocal = localChats.find(c => c.id === chat.id);
+                            if (!existingLocal) {
+                              // Agregar a localChats para manejar los mensajes
+                              setLocalChats(prev => [...prev, { ...chat, messages: [] }]);
+                            }
+                          }
+                          setCurrentChatId(chat.id);
+                          setShowHistory(false);
+                        }}
+                        className={`flex-1 min-w-0 text-left ${isDeleting ? 'pointer-events-none' : ''}`}
+                        disabled={isDeleting}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium truncate">
+                            {chat.title || t("empty-conversation")}
+                          </span>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
+                            {chat.createdAt.toLocaleDateString()}
+                          </span>
+                        </div>
+                      </button>
+                      {!chat.isNew && (
+                        isDeleting ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 flex-shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteConversation(chat.id);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                          </Button>
+                        )
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          ) : isLoadingMessages ? (
+            /* Estado de carga de mensajes */
+            <div className="flex flex-col items-center justify-center h-full text-center px-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+              <p className="text-muted-foreground text-sm">
+                {t("loading-messages")}
+              </p>
             </div>
           ) : hasMessages ? (
             /* Conversación activa */
@@ -298,11 +561,11 @@ const ChatBotPanel = () => {
                   ) : (
                     /* Mensaje de la IA - estilo plano con hover */
                     <div className="w-full">
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                        {message.content}
-                      </p>
+                      <div className="text-sm leading-relaxed">
+                        <MarkdownContent content={message.content} />
+                      </div>
                       <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-2 block">
-                        {t("model-name")}
+                        {message.modelName || lastModelName}
                       </span>
                     </div>
                   )}
