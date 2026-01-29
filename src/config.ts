@@ -39,6 +39,7 @@ export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
 
 export const GROQ_API_KEY = process.env.GROQ_API_KEY!
+export const CEREBRAS_API_KEY = process.env.CEREBRAS_API_KEY!
 
 export const CHAT_CONVERSATIONS_ID = process.env.NEXT_PUBLIC_APPWRITE_CHAT_CONVERSATIONS_ID!
 export const CHAT_MESSAGES_ID = process.env.NEXT_PUBLIC_APPWRITE_CHAT_MESSAGES_ID!

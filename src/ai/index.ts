@@ -1,9 +1,10 @@
+import { cerebrasService } from "./cerebras";
 import { groqService } from "./groq";
 import { AIService } from "./types";
 
 const services: AIService[] = [
     groqService,
-    // other AI services can be added here
+    cerebrasService,
 ];
 
 let currentServiceIndex = 0;
