@@ -249,7 +249,7 @@ const app = new Hono()
                                     conversationId,
                                     content: fullResponse.substring(0, 16384),
                                     role: 'ASSISTANT',
-                                    model: service.name,
+                                    model: service.model,
                                 }
                             );
                         }
@@ -267,7 +267,7 @@ const app = new Hono()
                     'Cache-Control': 'no-cache',
                     'Connection': 'keep-alive',
                     'X-Conversation-Id': conversationId,
-                    'X-Model-Name': service.name,
+                    'X-Model-Name': service.displayName,
                 }
             });
         }
