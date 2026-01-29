@@ -12,86 +12,8 @@ import { useGetConversations } from "@/features/chat/api/use-get-conversations";
 import { useDeleteConversation } from "@/features/chat/api/use-delete-conversation";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
-
-// Componente para renderizar markdown básico
-const MarkdownContent = ({ content }: { content: string }) => {
-  const renderMarkdown = (text: string) => {
-    // Procesar el texto línea por línea para mantener estructura
-    const lines = text.split('\n');
-    const elements: React.ReactNode[] = [];
-    let currentIndex = 0;
-
-    lines.forEach((line, lineIndex) => {
-      // Procesar cada línea
-      const processedLine = line;
-      const lineElements: React.ReactNode[] = [];
-      let lastIndex = 0;
-
-      // Regex para encontrar **texto** (negrita) y `código`
-      const boldRegex = /\*\*(.+?)\*\*/g;
-      const codeRegex = /`([^`]+)`/g;
-
-      // Segmentos encontrados
-      let match;
-      const segments: { start: number; end: number; type: string; content: string }[] = [];
-
-      // Buscar negritas
-      while ((match = boldRegex.exec(processedLine)) !== null) {
-        segments.push({ start: match.index, end: match.index + match[0].length, type: 'bold', content: match[1] });
-      }
-
-      // Buscar código inline
-      while ((match = codeRegex.exec(processedLine)) !== null) {
-        const overlaps = segments.some(s =>
-          (match!.index >= s.start && match!.index < s.end) ||
-          (match!.index + match![0].length > s.start && match!.index + match![0].length <= s.end)
-        );
-        if (!overlaps) {
-          segments.push({ start: match.index, end: match.index + match[0].length, type: 'code', content: match[1] });
-        }
-      }
-
-      // Ordenar por posición
-      segments.sort((a, b) => a.start - b.start);
-
-      if (segments.length === 0) {
-        lineElements.push(line);
-      } else {
-        segments.forEach((seg, idx) => {
-          // Texto antes del segmento
-          if (seg.start > lastIndex) {
-            lineElements.push(processedLine.slice(lastIndex, seg.start));
-          }
-
-          // El segmento formateado
-          if (seg.type === 'bold') {
-            lineElements.push(<strong key={`${lineIndex}-${idx}`} className="font-semibold">{seg.content}</strong>);
-          } else if (seg.type === 'code') {
-            lineElements.push(<code key={`${lineIndex}-${idx}`} className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{seg.content}</code>);
-          }
-
-          lastIndex = seg.end;
-        });
-
-        // Texto después del último segmento
-        if (lastIndex < processedLine.length) {
-          lineElements.push(processedLine.slice(lastIndex));
-        }
-      }
-
-      elements.push(
-        <span key={currentIndex++}>
-          {lineElements}
-          {lineIndex < lines.length - 1 && <br />}
-        </span>
-      );
-    });
-
-    return elements;
-  };
-
-  return <>{renderMarkdown(content)}</>;
-};
+import { MODELS } from "@/ai/config";
+import MarkdownContent from "./MarkdownContent";
 
 interface Message {
   id: string;
@@ -186,7 +108,7 @@ const ChatBotPanel = () => {
             content: msg.content,
             role: msg.role.toLowerCase() as 'user' | 'assistant',
             timestamp: new Date(msg.$createdAt),
-            modelName: msg.model,
+            modelName: MODELS[msg.model as keyof typeof MODELS]?.displayName,
           }));
 
           setLocalChats(prev => {
