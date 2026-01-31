@@ -4,8 +4,9 @@ import { ID, Query } from "node-appwrite";
 import { getNextService } from "@/ai";
 import { ChatMessage } from "@/ai/types";
 import { sessionMiddleware } from "@/lib/session-middleware";
-import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID } from "@/config";
+import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID, NOTES_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
+import { CreateNoteArgs } from "@/ai/tools";
 
 const app = new Hono()
     // Obtener todas las conversaciones del usuario
@@ -173,6 +174,22 @@ const app = new Hono()
     )
 
     // Enviar mensaje y obtener respuesta de IA (con streaming)
+    /**
+     * =============================================================================
+     * ENDPOINT PRINCIPAL DEL CHAT CON FUNCTION CALLING
+     * =============================================================================
+     *
+     * FLUJO DE FUNCTION CALLING:
+     *
+     * 1. Usuario envía mensaje: "Crea una nota que diga que mañana debo trabajar"
+     * 2. Enviamos el mensaje a la IA CON las herramientas disponibles
+     * 3. La IA analiza y decide: "Necesito usar create_note"
+     * 4. La IA devuelve: { type: 'tool_call', toolCalls: [{ name: 'create_note', arguments: {...} }] }
+     * 5. NOSOTROS ejecutamos la función real (crear nota en la BD)
+     * 6. Devolvemos al usuario un mensaje confirmando la acción
+     *
+     * Si la IA no necesita usar herramientas, simplemente responde con texto normal.
+     */
     .post(
         '/',
         zValidator('json', sendChatMessageSchema),
@@ -217,12 +234,116 @@ const app = new Hono()
                 );
             }
 
-            // Obtener respuesta de la IA
+            // Obtener el servicio de IA
             const service = getNextService();
             const aiMessages: ChatMessage[] = messages.map(m => ({
                 role: m.role,
                 content: m.content
             }));
+
+            // =====================================================================
+            // PASO CLAVE: Intentar usar chatWithTools si está disponible
+            // =====================================================================
+            //
+            // Primero intentamos con function calling. Si el servicio no lo soporta
+            // o si la IA decide no usar herramientas, caemos al chat normal.
+
+            if (service.chatWithTools) {
+                try {
+                    const result = await service.chatWithTools(aiMessages);
+
+                    // ¿La IA quiere llamar a una función?
+                    if (result.type === 'tool_call') {
+                        // Procesar cada llamada a función
+                        // (Por ahora solo soportamos una a la vez para mantenerlo simple)
+                        const toolCall = result.toolCalls[0];
+
+                        // =========================================================
+                        // EJECUTAR LA FUNCIÓN: create_note
+                        // =========================================================
+                        if (toolCall.name === 'create_note') {
+                            const args = toolCall.arguments as unknown as CreateNoteArgs;
+
+                            // Crear la nota en la base de datos (igual que el endpoint /notes)
+                            await databases.createDocument(
+                                DATABASE_ID,
+                                NOTES_ID,
+                                ID.unique(),
+                                {
+                                    title: args.title || '',
+                                    content: args.content,
+                                    bgColor: args.bgColor || 'none',
+                                    userId: user.$id,
+                                }
+                            );
+
+                            // Crear mensaje de confirmación para el usuario
+                            const confirmationMessage = `✅ ¡Nota creada exitosamente!\n\n` +
+                                (args.title ? `**${args.title}**\n` : '') +
+                                `${args.content}`;
+
+                            // Guardar la respuesta del asistente en la BD
+                            await databases.createDocument(
+                                DATABASE_ID,
+                                CHAT_MESSAGES_ID,
+                                ID.unique(),
+                                {
+                                    conversationId,
+                                    content: confirmationMessage,
+                                    role: 'ASSISTANT',
+                                    model: service.model,
+                                }
+                            );
+
+                            // Devolver la respuesta (sin streaming, es instantánea)
+                            return new Response(confirmationMessage, {
+                                headers: {
+                                    'Content-Type': 'text/event-stream',
+                                    'Cache-Control': 'no-cache',
+                                    'Connection': 'keep-alive',
+                                    'X-Conversation-Id': conversationId,
+                                    'X-Model-Name': service.displayName,
+                                    // Header especial para indicar que se ejecutó una función
+                                    'X-Function-Called': 'create_note',
+                                }
+                            });
+                        }
+                    }
+
+                    // Si la IA respondió con texto (no tool_call), devolverlo directamente
+                    if (result.type === 'text') {
+                        // Guardar la respuesta
+                        await databases.createDocument(
+                            DATABASE_ID,
+                            CHAT_MESSAGES_ID,
+                            ID.unique(),
+                            {
+                                conversationId,
+                                content: result.content,
+                                role: 'ASSISTANT',
+                                model: service.model,
+                            }
+                        );
+
+                        return new Response(result.content, {
+                            headers: {
+                                'Content-Type': 'text/event-stream',
+                                'Cache-Control': 'no-cache',
+                                'Connection': 'keep-alive',
+                                'X-Conversation-Id': conversationId,
+                                'X-Model-Name': service.displayName,
+                            }
+                        });
+                    }
+                } catch (error) {
+                    // Si falla chatWithTools, caer al método normal de streaming
+                    console.error('chatWithTools failed, falling back to streaming:', error);
+                }
+            }
+
+            // =====================================================================
+            // FALLBACK: Chat normal con streaming (sin function calling)
+            // =====================================================================
             const stream = await service.chat(aiMessages);
 
             // Acumular la respuesta completa para guardarla
