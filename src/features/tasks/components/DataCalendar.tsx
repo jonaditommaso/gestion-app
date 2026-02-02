@@ -47,6 +47,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
         status: task.status,
         id: task.$id,
         featured: task.featured,
+        label: task.label,
     }))
 
     const handleNavigate = (action: 'PREV' | 'NEXT' | 'TODAY') => {
@@ -82,6 +83,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
                         status={event.status}
                         id={event.id}
                         featured={event.featured}
+                        label={event.label}
                     />
                 ),
                 toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} locale={dateLocale} />

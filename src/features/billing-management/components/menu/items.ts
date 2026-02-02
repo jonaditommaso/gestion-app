@@ -1,7 +1,7 @@
 export const items = [
     {
         title: 'transactions',
-        menuItems: ['details', 'calendar', 'accounts'],
+        menuItems: ['details', 'calendar'], //, 'accounts'
         bgColor: 'bg-teal-700',
         id: 'transactions',
     },

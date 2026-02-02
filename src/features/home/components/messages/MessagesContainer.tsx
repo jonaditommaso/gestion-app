@@ -27,7 +27,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const t = useTranslations('home');
 
   const unreadMessages: Message[] = (messages?.documents ?? [])
-  .filter((m): m is Message => 'content' in m && 'to' in m && 'read' in m && !m.read);
+  .filter((m): m is Message => 'content' in m && 'toTeamMemberId' in m && 'read' in m && !m.read);
 
   const handleMarkAsRead = () => {
     if(unreadMessages?.length) {

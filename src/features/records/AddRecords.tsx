@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -22,6 +21,7 @@ import { useTranslations } from "next-intl"
 import { useAddHeaders } from "./api/use-add-headers"
 import { useGetContextRecords } from "./hooks/useGetContextRecords"
 import { useAddRecords } from "./api/use-add-records"
+import { ValidationErrorDialog } from "./components/ValidationErrorDialog"
 
 const INITIAL_RECORDS_STATE = [{ field: '', value: '' }];
 
@@ -34,6 +34,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
     const [recordData, setRecordData] = useState(INITIAL_RECORDS_STATE);
     const [isOpen, setIsOpen] = useState(false);
     const [sheetOpen, setSheetOpen] = useState(false);
+    const [validationErrorOpen, setValidationErrorOpen] = useState(false);
     const { data: dataRecords } = useGetContextRecords();
     const { mutate: addHeaders, isPending: addingRecords } = useAddHeaders();
     const { mutate: addRecords } = useAddRecords(); //todo: should to use isPending from this hook too
@@ -45,14 +46,30 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
     }
 
     const onSave = () => {
-        if (recordData.some(record => record.field.trim() === '' || record.value.trim() === '')) {
+        // Filtrar pares completamente vacíos
+        const validRecords = recordData.filter(record =>
+            record.field.trim() !== '' || record.value.trim() !== ''
+        );
+
+        // Validar que no haya valores sin campo asignado
+        const invalidRecords = validRecords.filter(record =>
+            record.field.trim() === '' && record.value.trim() !== ''
+        );
+
+        if (invalidRecords.length > 0) {
+            setValidationErrorOpen(true);
+            return;
+        }
+
+        // Si no hay registros válidos después de filtrar, no hacer nada
+        if (validRecords.length === 0) {
             return;
         }
 
         const headers: string[] = [];
         const rows: string[] = [];
 
-        recordData.forEach(record => {
+        validRecords.forEach(record => {
             headers.push(record.field);
             rows.push(record.value)
         })
@@ -88,10 +105,17 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                 data: recordToEdit?.rows ? updatedRows : [transformedRow]
             }
         })
+
+        // Cerrar el sheet solo si todo salió bien
+        setSheetOpen(false);
     }
 
     return (
         <>
+            <ValidationErrorDialog
+                isOpen={validationErrorOpen}
+                onClose={() => setValidationErrorOpen(false)}
+            />
             <DialogContainer
                 // description="Carga tu archivo y verás una previsualización de los datos. Podrás ignorar columnas si así lo deseas"
                 title={t('upload-records')}
@@ -133,7 +157,7 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                             </SheetDescription>
                         </SheetHeader>
 
-                        <Separator className="mt-2" />
+                        <Separator className="my-2" />
 
                         <div className="overflow-auto h-[600px] pr-2">
                             {recordData.map((data, index) => (
@@ -144,15 +168,14 @@ export function AddRecords({ currentRecordTable, thereIsTable }: AddRecordsProps
                                     data={data}
                                     headersUsed={recordData.map(data => data.field)}
                                     isLastItem={recordData.length - 1 === index}
+                                    totalRecords={recordData.length}
                                 />
                             ))}
                         </div>
                     </div>
 
                     <SheetFooter className="">
-                        <SheetClose asChild>
-                            <Button type="button" onClick={onSave} disabled={addingRecords}>{t('save-changes')}</Button>
-                        </SheetClose>
+                        <Button type="button" onClick={onSave} disabled={addingRecords}>{t('save-changes')}</Button>
                     </SheetFooter>
                 </SheetContent>
             </Sheet>

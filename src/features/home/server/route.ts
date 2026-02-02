@@ -178,23 +178,39 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { content, to } = ctx.req.valid('json');
+            const { content, toTeamMemberIds, teamId } = ctx.req.valid('json');
 
-            if (!to && !content) {
+            if (!toTeamMemberIds.length || !content) {
                 return ctx.json({ error: 'Cannot create the message' }, 400)
             }
 
-            await databases.createDocument(
-                DATABASE_ID,
-                MESSAGES_ID,
-                ID.unique(),
-                {
-                    read: false,
-                    content,
-                    to,
-                    from: user.$id,
-                    userId: user.$id
-                }
+            // Obtener el fromTeamMemberId del usuario actual
+            const { teams } = await createAdminClient();
+            const { memberships } = await teams.listMemberships(teamId);
+            const currentMembership = memberships.find(m => m.userId === user.$id);
+
+            if (!currentMembership) {
+                return ctx.json({ error: 'User is not a member of this team' }, 403)
+            }
+
+            const fromTeamMemberId = currentMembership.$id;
+
+            // Crear un mensaje para cada destinatario
+            await Promise.all(
+                toTeamMemberIds.map(async (toTeamMemberId) => {
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        MESSAGES_ID,
+                        ID.unique(),
+                        {
+                            read: false,
+                            content,
+                            toTeamMemberId,
+                            fromTeamMemberId,
+                            teamId
+                        }
+                    );
+                })
             );
 
             return ctx.json({ success: true })
@@ -207,11 +223,20 @@ const app = new Hono()
         async ctx => {
             const databases = ctx.get('databases');
             const user = ctx.get('user');
+            const { teams } = await createAdminClient();
+
+            // Obtener el membership ID del usuario actual
+            const { memberships } = await teams.listMemberships(user.prefs.teamId);
+            const currentMembership = memberships.find(m => m.userId === user.$id);
+
+            if (!currentMembership) {
+                return ctx.json({ data: { documents: [], total: 0 } })
+            }
 
             const messages = await databases.listDocuments(
                 DATABASE_ID,
                 MESSAGES_ID,
-                [Query.equal('to', user.$id)]
+                [Query.equal('toTeamMemberId', currentMembership.$id)]
             );
 
             if (messages.total === 0) {

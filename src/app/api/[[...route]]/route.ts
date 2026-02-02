@@ -16,6 +16,7 @@ import landing from '@/features/landing/server/route'
 import pricing from '@/features/pricing/server/route'
 import oauth from '@/features/oauth/server/route'
 import roles from '@/features/roles/server/route'
+import chat from '@/features/chat/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -36,6 +37,7 @@ const routes = app
   .route('/landing', landing)
   .route('/pricing', pricing)
   .route('/oauth', oauth)
+  .route('/chat', chat)
   .route('/', home)
 
 export const GET = handle(app)

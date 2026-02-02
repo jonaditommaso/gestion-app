@@ -1,6 +1,8 @@
 export type Message = {
     content: string;
-    to: string;
+    toTeamMemberId: string;
+    fromTeamMemberId: string;
+    teamId: string;
     read: boolean;
     $createdAt: string;
     $id: string;

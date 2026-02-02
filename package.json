@@ -10,6 +10,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@cerebras/cerebras_cloud_sdk": "^1.64.1",
     "@github/relative-time-element": "4.4.5",
     "@hello-pangea/dnd": "17.0.0",
     "@hono/zod-validator": "0.4.1",
@@ -40,8 +41,9 @@
     "date-fns": "3.6.0",
     "dayjs": "1.11.13",
     "googleapis": "148.0.0",
+    "groq-sdk": "^0.37.0",
     "hono": "^4.10.7",
-    "lucide-react": "0.465.0",
+    "lucide-react": "^0.562.0",
     "motion": "12.23.0",
     "next": "^15.5.9",
     "next-intl": "4.0.2",

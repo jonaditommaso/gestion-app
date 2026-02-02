@@ -14,17 +14,17 @@ export const useCreateMessage = () => {
     const t = useTranslations('home');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({json }) => {
+        mutationFn: async ({ json }) => {
             const response = await client.api.messages['$post']({ json });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to create message')
             }
 
             return await response.json()
         },
         onSuccess: () => {
-            toast.success(t('message-created'))
+            toast.success(t('messages-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['messages'] })
         },

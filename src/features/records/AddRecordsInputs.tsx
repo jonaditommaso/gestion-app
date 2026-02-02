@@ -2,7 +2,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { ChevronsUpDown, List, Plus, X } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useGetContextRecords } from "./hooks/useGetContextRecords";
 import capitalize from "@/utils/capitalize";
@@ -19,10 +19,11 @@ interface AddRecordsInputsProps {
     index: number,
     data: RecordData,
     headersUsed: string[],
-    isLastItem: boolean
+    isLastItem: boolean,
+    totalRecords: number
 }
 
-const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem }: AddRecordsInputsProps) => {
+const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem, totalRecords }: AddRecordsInputsProps) => {
     const { data: dataRecords } = useGetContextRecords();
     const headers = dataRecords?.documents[0]?.headers;
 
@@ -32,6 +33,10 @@ const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem 
     const handleAddData = () => {
         const emptyNewData = {field: '', value: ''}
         setRecordData(prev => ([...prev, emptyNewData]))
+    }
+
+    const handleRemoveData = () => {
+        setRecordData(prev => prev.filter((_, i) => i !== index))
     }
 
     const onChange = (value: string, atr: 'value' | 'field') => {
@@ -46,13 +51,48 @@ const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem 
     }
 
     return (
-        <div className="grid gap-4 py-4">
-            <>
-                {customField
+        <div className="relative pt-6">
+            {totalRecords > 1 && (
+                <button
+                    type="button"
+                    onClick={handleRemoveData}
+                    className="absolute top-0 right-0 p-1 rounded-md hover:bg-destructive/10 cursor-pointer text-destructive z-10"
+                    title={t('delete')}
+                >
+                    <X size={16} />
+                </button>
+            )}
+            <div className="grid gap-4 pb-4">
+                <>
+                    {customField
                 ? (
                     <div className="grid grid-cols-4 items-center gap-4 justify-between">
                         <Label htmlFor={`field-name-${index}`} className="text-center">{t('field')}</Label>
-                        <Input id={`field-name-${index}`} value={data.field} className="col-span-3" onChange={(e) => onChange(e.target.value, 'field')} />
+                        <div className="col-span-3 flex items-center gap-2">
+                            <Input id={`field-name-${index}`} value={data.field} className="flex-1" onChange={(e) => onChange(e.target.value, 'field')} />
+                            {headers?.length > 0 && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger className="p-2 border rounded-md hover:bg-accent cursor-pointer">
+                                        <List size={16} />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        {headers?.map((header: string) => (
+                                            <DropdownMenuItem
+                                                key={header}
+                                                className="min-w-60 flex items-center justify-center p-2 cursor-pointer"
+                                                onClick={() => {
+                                                    onChange(header, 'field');
+                                                    setCustomField(false);
+                                                }}
+                                                disabled={headersUsed.includes(header)}
+                                            >
+                                                {capitalize(header)}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
+                        </div>
                     </div>
                 )
                 : (
@@ -65,11 +105,11 @@ const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem 
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {headers?.map((header: string) => (
-                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2" onClick={() => onChange(header, 'field')} disabled={headersUsed.includes(header)}>
+                                <DropdownMenuItem key={header} className="min-w-60 flex items-center justify-center p-2 cursor-pointer" onClick={() => onChange(header, 'field')} disabled={headersUsed.includes(header)}>
                                     {capitalize(header)}
                                 </DropdownMenuItem>
                             ))}
-                            <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2" onClick={() => setCustomField(true)}>
+                            <DropdownMenuItem className="min-w-60 flex items-center justify-center p-2 cursor-pointer" onClick={() => setCustomField(true)}>
                                 <span className="w-40px"><Plus className="border rounded-md p-0.5" size={20} /></span> {t('create-new-field')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -96,6 +136,7 @@ const AddRecordsInputs = ({ data, setRecordData, index, headersUsed, isLastItem 
                         <Separator className="flex-1" />
                     </>
                 )}
+            </div>
             </div>
         </div>
     );

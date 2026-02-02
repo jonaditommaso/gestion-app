@@ -7,6 +7,8 @@ import FormInput from './FormInput';
 import SuccessModal from './SuccessModal';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
+import { useContactUs } from '@/features/landing/api/use-contact-us';
+import { toast } from 'sonner';
 
 interface FormData {
     name: string;
@@ -25,7 +27,6 @@ interface FormErrors {
 }
 
 const ContactForm = () => {
-    const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -37,6 +38,7 @@ const ContactForm = () => {
     const [errors, setErrors] = useState<FormErrors>({});
 
     const t = useTranslations('landing.contact');
+    const { mutate, isPending } = useContactUs();
 
     const emailSchema = z.string().email();
 
@@ -104,28 +106,30 @@ const ContactForm = () => {
             return;
         }
 
-        setIsLoading(true);
-
-        try {
-            // Simulate API call
-            // TODO add real API integration here
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            console.log('Form data:', formData);
-            setShowSuccess(true);
-            setFormData({
-                name: '',
-                email: '',
-                organization: '',
-                subject: '',
-                message: ''
-            });
-            setErrors({});
-        } catch (error) {
-            console.error('Error sending message:', error);
-        } finally {
-            setIsLoading(false);
-        }
+        mutate({
+            json: {
+                responsibleName: formData.name,
+                organizationName: formData.organization,
+                email: formData.email,
+                subject: formData.subject,
+                message: formData.message
+            }
+        }, {
+            onSuccess: () => {
+                setShowSuccess(true);
+                setFormData({
+                    name: '',
+                    email: '',
+                    organization: '',
+                    subject: '',
+                    message: ''
+                });
+                setErrors({});
+            },
+            onError: () => {
+                toast.error(t('form-error'));
+            }
+        });
     };
 
     const closeSuccessModal = () => {
@@ -188,9 +192,9 @@ const ContactForm = () => {
                     type="submit"
                     className="w-full"
                     size="lg"
-                    disabled={isLoading}
+                    disabled={isPending}
                 >
-                    {isLoading ? (
+                    {isPending ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             {t('form-submit')}...
