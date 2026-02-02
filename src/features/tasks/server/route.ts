@@ -118,12 +118,10 @@ const app = new Hono()
             const query = [
                 Query.equal('workspaceId', workspaceId),
                 Query.orderAsc('position'),
+                // Usar el límite especificado o un valor alto por defecto (máximo de Appwrite es 5000)
+                // In future, implement proper way to handle pagination
+                Query.limit(limit || 5000),
             ]
-
-            // Agregar limit si se especificó
-            if (limit) {
-                query.push(Query.limit(limit));
-            }
 
             if (status) {
                 query.push(Query.equal('status', status))
@@ -170,7 +168,7 @@ const app = new Hono()
                 const assigneeTasksResult = await databases.listDocuments<TaskAssignee>(
                     DATABASE_ID,
                     TASK_ASSIGNEES_ID,
-                    [Query.equal('workspaceMemberId', assigneeId)]
+                    [Query.equal('workspaceMemberId', assigneeId), Query.limit(5000)]
                 );
                 const assigneeTaskIds = assigneeTasksResult.documents.map(ta => ta.taskId);
                 // Filtrar taskIds para incluir solo los que están asignados al miembro
@@ -182,7 +180,7 @@ const app = new Hono()
                 ? await databases.listDocuments<TaskAssignee>(
                     DATABASE_ID,
                     TASK_ASSIGNEES_ID,
-                    [Query.contains('taskId', taskIds)]
+                    [Query.contains('taskId', taskIds), Query.limit(5000)]
                 )
                 : { documents: [] };
 
@@ -194,7 +192,7 @@ const app = new Hono()
                 ? await databases.listDocuments<WorkspaceMember>(
                     DATABASE_ID,
                     MEMBERS_ID,
-                    [Query.contains('$id', memberIds)]
+                    [Query.contains('$id', memberIds), Query.limit(5000)]
                 )
                 : { documents: [] };
 
