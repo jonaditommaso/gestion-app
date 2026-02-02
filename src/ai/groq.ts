@@ -2,12 +2,25 @@ import { Groq } from 'groq-sdk';
 import { AIService, ChatMessage } from './types';
 import { GROQ_MODEL } from './config';
 
-const groq = new Groq();
+let groq: Groq | null = null;
+
+function getGroqClient() {
+    if (!groq) {
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey) {
+            throw new Error('GROQ_API_KEY is missing');
+        }
+        groq = new Groq({ apiKey });
+    }
+    return groq;
+}
 
 export const groqService: AIService = {
     model: GROQ_MODEL,
     displayName: 'Groq Moonshotai Kimi K2',
     async chat(messages: ChatMessage[]) {
+        const groq = getGroqClient();
+
         const chatCompletion = await groq.chat.completions.create({
             messages,
             model: GROQ_MODEL,
