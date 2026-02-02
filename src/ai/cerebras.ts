@@ -1,21 +1,28 @@
 import Cerebras from '@cerebras/cerebras_cloud_sdk';
-import { AIService, ChatMessage } from './types';
+import { AIService, ChatMessage, StreamChunk } from './types';
 import { CEREBRAS_MODEL } from './config';
 
-const cerebras = new Cerebras();
+// const cerebras = new Cerebras();
+// Initialize Cerebras client lazily to avoid unnecessary instantiation (e.g., when API key is missing)
+let cerebras: Cerebras | null = null;
 
-type StreamChunk = {
-    choices: Array<{
-        delta?: {
-            content?: string;
-        };
-    }>;
-};
+function getCerebrasClient() {
+    if (!cerebras) {
+        const apiKey = process.env.CEREBRAS_API_KEY;
+        if (!apiKey) {
+            throw new Error('CEREBRAS_API_KEY is missing');
+        }
+        cerebras = new Cerebras({ apiKey });
+    }
+    return cerebras;
+}
 
 export const cerebrasService: AIService = {
     model: CEREBRAS_MODEL,
     displayName: 'Cerebras Zai-GLM 4.7',
     async chat(messages: ChatMessage[]) {
+        const cerebras = getCerebrasClient();
+
         const formattedMessages = messages.map(msg => ({
             role: msg.role,
             content: msg.content

@@ -8,3 +8,11 @@ export interface AIService {
     displayName: string;
     chat: (message: ChatMessage[]) => Promise<AsyncIterable<string>>;
 }
+
+export type StreamChunk = {
+    choices: Array<{
+        delta?: {
+            content?: string;
+        };
+    }>;
+};
