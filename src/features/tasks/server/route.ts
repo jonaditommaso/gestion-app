@@ -229,7 +229,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -282,6 +282,7 @@ const app = new Hono()
                     type: type || 'task',
                     featured: featured || false,
                     metadata: metadata || null,
+                    parentId: parentId || null,
                 }
             )
 
@@ -1290,6 +1291,93 @@ const app = new Hono()
             });
 
             return ctx.json({ success: true });
+        }
+    )
+
+    // Get subtasks for an epic task
+    .get(
+        '/subtasks/:parentId',
+        sessionMiddleware,
+        zValidator('query', zod.object({
+            workspaceId: zod.string()
+        })),
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { parentId } = ctx.req.param();
+            const { workspaceId } = ctx.req.valid('query');
+
+            const member = await getMember({
+                databases,
+                workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Get all subtasks for this parent
+            const subtasks = await databases.listDocuments<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                [
+                    Query.equal('parentId', parentId),
+                    Query.equal('workspaceId', workspaceId),
+                    Query.orderAsc('position'),
+                    Query.limit(100)
+                ]
+            );
+
+            // Get assignees for all subtasks
+            const subtaskIds = subtasks.documents.map(t => t.$id);
+
+            const taskAssignees = subtaskIds.length > 0
+                ? await databases.listDocuments<TaskAssignee>(
+                    DATABASE_ID,
+                    TASK_ASSIGNEES_ID,
+                    [Query.contains('taskId', subtaskIds), Query.limit(500)]
+                )
+                : { documents: [] };
+
+            // Get unique member IDs from assignees
+            const memberIds = [...new Set(taskAssignees.documents.map(ta => ta.workspaceMemberId))];
+
+            // Get member data
+            const members = memberIds.length > 0
+                ? await databases.listDocuments<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            // Create a map of memberId to member data
+            const memberMap = new Map(members.documents.map(m => [m.$id, m]));
+
+            // Populate subtasks with assignees
+            const populatedSubtasks = subtasks.documents.map(task => {
+                const taskAssigneeIds = taskAssignees.documents
+                    .filter(ta => ta.taskId === task.$id)
+                    .map(ta => ta.workspaceMemberId);
+
+                const assignees = taskAssigneeIds
+                    .map(id => memberMap.get(id))
+                    .filter(Boolean) as WorkspaceMember[];
+
+                return {
+                    ...task,
+                    assignees
+                };
+            });
+
+            return ctx.json({
+                data: {
+                    documents: populatedSubtasks,
+                    total: subtasks.total
+                }
+            });
         }
     )
 

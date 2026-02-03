@@ -63,9 +63,9 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
         const newCompletedState = !isCompleted;
         // Update optimistically
         setOptimisticCompleted(newCompletedState);
-        const newCompletedAt = newCompletedState ? new Date() : null;
+        const newCompletedAt = newCompletedState ? new Date().toISOString() : null;
         updateTask({
-            json: { completedAt: newCompletedAt },
+            json: { completedAt: newCompletedAt as unknown as Date },
             param: { taskId: task.$id }
         });
     };

@@ -31,8 +31,10 @@ import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
 import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
+import { EpicSubtasks } from "./epic-subtasks";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
-import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig } from "lucide-react";
+import { useGetTask } from "../api/use-get-task";
+import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
 
@@ -167,8 +169,23 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
+
+    // State for managing the current task being viewed
+    const [currentTaskId, setCurrentTaskId] = useState<string>(task.$id);
+    const [isLoadingTask, setIsLoadingTask] = useState(false);
+
+    // Fetch the current task (could be different from the initial prop if user navigated)
+    const { data: fetchedTask, isLoading: isFetchingTask } = useGetTask({
+        taskId: currentTaskId,
+        enabled: currentTaskId !== task.$id
+    });
+
+    // Use fetched task if available, otherwise use the prop
+    const displayTask = fetchedTask || task;
+    const isTaskLoading = isLoadingTask || isFetchingTask;
+
     const [isEditingDescription, setIsEditingDescription] = useState(false);
-    const [description, setDescription] = useState(task.description || '');
+    const [description, setDescription] = useState(displayTask.description || '');
     const [activeTab, setActiveTab] = useState<'comments' | 'history'>('comments');
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
@@ -183,15 +200,27 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const config = useWorkspaceConfig();
     const { data: tasksData } = useGetTasks({ workspaceId });
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
-    const prevCompletedAt = useRef(task.completedAt);
+    const prevCompletedAt = useRef(displayTask.completedAt);
+
+    // Fetch parent epic task if this task has a parentId
+    const { data: parentTask } = useGetTask({
+        taskId: displayTask.parentId || '',
+        enabled: !!displayTask.parentId
+    });
+
+    // Update description when displayTask changes
+    useEffect(() => {
+        setDescription(displayTask.description || '');
+        setIsEditingDescription(false);
+    }, [displayTask.$id, displayTask.description]);
 
     // Reset optimistic state when server value changes
     useEffect(() => {
-        if (task.completedAt !== prevCompletedAt.current) {
-            prevCompletedAt.current = task.completedAt;
+        if (displayTask.completedAt !== prevCompletedAt.current) {
+            prevCompletedAt.current = displayTask.completedAt;
             setOptimisticCompleted(null);
         }
-    }, [task.completedAt]);
+    }, [displayTask.completedAt]);
 
     // Get current member for comment authorship check (moved before hooks that need it)
     const currentMember = useMemo(() => {
@@ -199,21 +228,21 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     }, [membersData?.documents, user?.$id]);
 
     // Comments hooks with optimistic updates
-    const { data: commentsData, isLoading: isLoadingComments } = useGetTaskComments({ taskId: task.$id });
+    const { data: commentsData, isLoading: isLoadingComments } = useGetTaskComments({ taskId: displayTask.$id });
     const { mutate: createComment } = useCreateTaskComment(
         currentMember ? { $id: currentMember.$id, name: currentMember.name, email: currentMember.email } : undefined
     );
-    const { mutate: updateComment } = useUpdateTaskComment(task.$id);
-    const { mutate: deleteComment } = useDeleteTaskComment(task.$id);
+    const { mutate: updateComment } = useUpdateTaskComment(displayTask.$id);
+    const { mutate: deleteComment } = useDeleteTaskComment(displayTask.$id);
 
     const comments = (commentsData?.documents || []) as TaskComment[];
 
     const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
 
     // Obtener el valor efectivo del status para el selector
-    const effectiveStatusValue = task.status === TaskStatus.CUSTOM && task.statusCustomId
-        ? task.statusCustomId
-        : task.status;
+    const effectiveStatusValue = displayTask.status === TaskStatus.CUSTOM && displayTask.statusCustomId
+        ? displayTask.statusCustomId
+        : displayTask.status;
 
     // Calculate which statuses have reached their rigid limit
     const statusesWithRigidLimitReached = useMemo(() => {
@@ -274,7 +303,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                 status: finalStatus as Task['status'],
                 statusCustomId
             },
-            param: { taskId: task.$id }
+            param: { taskId: displayTask.$id }
         });
     };
 
@@ -282,7 +311,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
         if (readOnly) return;
         updateTask({
             json: { priority: parseInt(priority) },
-            param: { taskId: task.$id }
+            param: { taskId: displayTask.$id }
         });
     };
 
@@ -290,7 +319,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
         if (readOnly) return;
         updateTask({
             json: { dueDate: date ?? null },
-            param: { taskId: task.$id }
+            param: { taskId: displayTask.$id }
         });
     };
 
@@ -298,7 +327,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
         if (readOnly) return;
         updateTask({
             json: { label: labelId || null },
-            param: { taskId: task.$id }
+            param: { taskId: displayTask.$id }
         });
     };
 
@@ -306,7 +335,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
         if (readOnly) return;
         // Procesar imágenes en la descripción si existen
         let processedDescription = description;
-        const currentImageIds = getImageIds(task);
+        const currentImageIds = getImageIds(displayTask);
         const imageIds: string[] = [...currentImageIds];
 
         if (description && pendingImages.size > 0) {
@@ -320,7 +349,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                 description: checkEmptyContent(processedDescription) ? null : processedDescription,
                 metadata: imageIds.length > 0 ? stringifyTaskMetadata({ imageIds }) : undefined
             },
-            param: { taskId: task.$id }
+            param: { taskId: displayTask.$id }
         }, {
             onSuccess: () => {
                 setIsEditingDescription(false);
@@ -331,21 +360,73 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
 
     const handleToggleComplete = () => {
         if (readOnly) return;
-        const currentCompleted = optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt;
+        const currentCompleted = optimisticCompleted !== null ? optimisticCompleted : !!displayTask.completedAt;
         const newCompletedState = !currentCompleted;
         // Update optimistically
         setOptimisticCompleted(newCompletedState);
-        const newCompletedAt = newCompletedState ? new Date() : null;
+        const newCompletedAt = newCompletedState ? new Date().toISOString() : null;
         updateTask({
-            json: { completedAt: newCompletedAt },
-            param: { taskId: task.$id }
+            json: { completedAt: newCompletedAt as unknown as Date },
+            param: { taskId: displayTask.$id }
         });
+    };
+
+    const handleNavigateToParent = () => {
+        if (parentTask) {
+            setIsLoadingTask(true);
+            setCurrentTaskId(parentTask.$id);
+            // Reset states
+            setIsEditingDescription(false);
+            setActiveTab('comments');
+            setIsAddingComment(false);
+            setComment('');
+            setEditingCommentId(null);
+            setEditingCommentContent('');
+            // Loading will be handled by the query
+            setTimeout(() => setIsLoadingTask(false), 100);
+        }
+    };
+
+    const handleNavigateToSubtask = (subtaskId: string) => {
+        setIsLoadingTask(true);
+        setCurrentTaskId(subtaskId);
+        // Reset states
+        setIsEditingDescription(false);
+        setActiveTab('comments');
+        setIsAddingComment(false);
+        setComment('');
+        setEditingCommentId(null);
+        setEditingCommentContent('');
+        // Loading will be handled by the query
+        setTimeout(() => setIsLoadingTask(false), 100);
     };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
+            {isTaskLoading && (
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="size-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                </div>
+            )}
             {/* Main content - 2/3 width */}
             <div className="lg:col-span-2 space-y-8">
+                {/* Parent Epic Breadcrumb */}
+                {displayTask.parentId && parentTask && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Layers className="size-4" />
+                        <span>{t('subtask-of')}</span>
+                        <button
+                            onClick={handleNavigateToParent}
+                            disabled={isTaskLoading}
+                            className="flex items-center gap-1 text-primary hover:underline font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {parentTask.name}
+                        </button>
+                    </div>
+                )}
+
                 {/* Description section */}
                 <div>
                     <h3 className="text-base font-semibold mb-2">{t('description')}</h3>
@@ -371,7 +452,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                     variant="outline"
                                     onClick={() => {
                                         setIsEditingDescription(false);
-                                        setDescription(task.description || '');
+                                        setDescription(displayTask.description || '');
                                     }}
                                     disabled={isPending}
                                 >
@@ -384,7 +465,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             className={cn(
                                 "p-4 rounded-lg transition-all",
                                 !readOnly && "cursor-pointer",
-                                task.description
+                                displayTask.description
                                     ? (!readOnly && 'hover:bg-muted/30')
                                     : (!readOnly ? 'border bg-muted/30 hover:bg-muted/50' : ''),
                                 descriptionHasImage ? "min-h-[400px]" : "min-h-[60px]"
@@ -398,11 +479,11 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                     <Skeleton className="h-48 w-full" />
                                     <Skeleton className="h-4 w-2/3" />
                                 </div>
-                            ) : task.description ? (
+                            ) : displayTask.description ? (
                                 <div
                                     ref={descriptionContainerRef}
                                     className={DESCRIPTION_PROSE_CLASS}
-                                    dangerouslySetInnerHTML={{ __html: task.description }}
+                                    dangerouslySetInnerHTML={{ __html: displayTask.description }}
                                 />
                             ) : (
                                 <p className="text-muted-foreground text-sm">
@@ -413,28 +494,36 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                     )}
 
                     {/* Hidden real content to measure and load images */}
-                    {descriptionHasImage && !imagesLoadedCache && task.description && (
+                    {descriptionHasImage && !imagesLoadedCache && displayTask.description && (
                         <div className="hidden">
-                            <div ref={descriptionContainerRef} dangerouslySetInnerHTML={{ __html: task.description }} />
+                            <div ref={descriptionContainerRef} dangerouslySetInnerHTML={{ __html: displayTask.description }} />
                         </div>
                     )}
                 </div>
 
-                {/* Checklist section */}
-                <Checklist
-                    taskId={task.$id}
-                    workspaceId={task.workspaceId}
-                    members={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
-                    readOnly={readOnly}
-                    checklistCount={task.checklistCount || 0}
-                    savedChecklistTitle={task.checklistTitle}
-                    onTitleChange={(newTitle) => {
-                        updateTask({
-                            json: { checklistTitle: newTitle },
-                            param: { taskId: task.$id }
-                        });
-                    }}
-                />
+                {/* Checklist section or Epic Subtasks */}
+                {displayTask.type === 'epic' ? (
+                    <EpicSubtasks
+                        epic={displayTask}
+                        onNavigate={handleNavigateToSubtask}
+                        availableMembers={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
+                    />
+                ) : (
+                    <Checklist
+                        taskId={displayTask.$id}
+                        workspaceId={displayTask.workspaceId}
+                        members={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
+                        readOnly={readOnly}
+                        checklistCount={displayTask.checklistCount || 0}
+                        savedChecklistTitle={displayTask.checklistTitle}
+                        onTitleChange={(newTitle) => {
+                            updateTask({
+                                json: { checklistTitle: newTitle },
+                                param: { taskId: displayTask.$id }
+                            });
+                        }}
+                    />
+                )}
 
                 {/* Activity section with tabs */}
                 <div>
@@ -502,7 +591,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                                                             setIsAddingComment(false);
                                                             createComment({
                                                                 json: {
-                                                                    taskId: task.$id,
+                                                                    taskId: displayTask.$id,
                                                                     content: contentToSave
                                                                 }
                                                             });
@@ -676,7 +765,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         </div>
                     ) : (
                         /* History tab - shows activity log */
-                        <TaskActivityHistory taskId={task.$id} />
+                        <TaskActivityHistory taskId={displayTask.$id} />
                     )}
                 </div>
             </div>
@@ -758,7 +847,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             {t('label')}
                         </span>
                         <LabelSelector
-                            value={task.label || undefined}
+                            value={displayTask.label || undefined}
                             onChange={handleLabelChange}
                             disabled={isPending}
                             variant="inline"
@@ -774,7 +863,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         </span>
                         {readOnly ? (
                             (() => {
-                                const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3));
+                                const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (displayTask.priority || 3));
                                 const Icon = priorityOption?.icon;
                                 return (
                                     <div className="flex items-center gap-x-2 px-1.5 py-1">
@@ -785,7 +874,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             })()
                         ) : (
                             <Select
-                                value={String(task.priority || 3)}
+                                value={String(displayTask.priority || 3)}
                                 onValueChange={handlePriorityChange}
                                 disabled={isPending}
                             >
@@ -820,18 +909,18 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         <div className="flex items-center gap-1">
                             {readOnly ? (
                                 <span className="text-sm px-1.5 py-1">
-                                    {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : t('not-defined')}
+                                    {displayTask.dueDate ? format(new Date(displayTask.dueDate), 'MMM d, yyyy') : t('not-defined')}
                                 </span>
                             ) : (
                                 <>
                                     <CustomDatePicker
-                                        value={task.dueDate ? new Date(task.dueDate) : undefined}
+                                        value={displayTask.dueDate ? new Date(displayTask.dueDate) : undefined}
                                         onChange={handleDueDateChange}
                                         placeholder='not-defined'
                                         className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
                                         hideIcon
                                     />
-                                    {task.dueDate && (
+                                    {displayTask.dueDate && (
                                         <Button
                                             type="button"
                                             variant="ghost"
@@ -854,8 +943,8 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             {t('assignees')}
                         </span>
                         <TaskAssigneesManager
-                            taskId={task.$id}
-                            assignees={task.assignees || []}
+                            taskId={displayTask.$id}
+                            assignees={displayTask.assignees || []}
                             availableMembers={availableMembers}
                             readOnly={readOnly}
                         />
@@ -870,17 +959,17 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             <CircleCheckBig
                                 className={cn(
                                     "size-4 flex-shrink-0 transition-colors",
-                                    (optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt)
+                                    (optimisticCompleted !== null ? optimisticCompleted : !!displayTask.completedAt)
                                         ? "text-green-600 dark:text-green-400 fill-green-100 dark:fill-green-950/30"
                                         : "text-muted-foreground",
                                     !readOnly && "cursor-pointer hover:text-green-600 dark:hover:text-green-400"
                                 )}
                                 onClick={!readOnly ? handleToggleComplete : undefined}
                             />
-                            {(optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt) ? (
+                            {(optimisticCompleted !== null ? optimisticCompleted : !!displayTask.completedAt) ? (
                                 <>
                                     <span className="text-sm px-1.5 py-1">
-                                        {format(new Date(task.completedAt || new Date()), 'PPP', { locale: DATE_LOCALES[locale] })}
+                                        {format(new Date(displayTask.completedAt || new Date()), 'PPP', { locale: DATE_LOCALES[locale] })}
                                     </span>
                                     {!readOnly && (
                                         <Button
@@ -907,11 +996,11 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                     <div className="text-xs text-muted-foreground space-y-2">
                         <div>
                             <span className="font-medium">{t('created')}:</span>{' '}
-                            {format(new Date(task.$createdAt), 'MMM d, yyyy')}
+                            {format(new Date(displayTask.$createdAt), 'MMM d, yyyy')}
                         </div>
                         <div>
                             <span className="font-medium">{t('updated')}:</span>{' '}
-                            {format(new Date(task.$updatedAt), 'MMM d, yyyy')}
+                            {format(new Date(displayTask.$updatedAt), 'MMM d, yyyy')}
                         </div>
                     </div>
                 </div>
