@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useWorkspaceId } from '@/app/workspaces/hooks/use-workspace-id';
 
 import { cn } from '@/lib/utils';
-import { CircleCheckBig, MoreHorizontal, ExternalLink, Trash2, Calendar as CalendarIcon, Users, Clock } from 'lucide-react';
+import { CircleCheckBig, MoreHorizontal, ExternalLink, Trash2, Calendar as CalendarIcon, Users, Clock, FlagIcon, FlagOffIcon, CopyIcon, Share2Icon } from 'lucide-react';
 import { TASK_PRIORITY_OPTIONS } from '../../constants/priority';
 import { useCustomLabels } from '@/app/workspaces/hooks/use-custom-labels';
 import { useConfirm } from '@/hooks/use-confirm';
@@ -27,6 +27,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useUpdateTask } from '../../api/use-update-task';
 import { useAssignTask } from '../../api/use-assign-task';
 import { useUnassignTask } from '../../api/use-unassign-task';
+import { useDuplicateTask } from '../../api/use-duplicate-task';
+import { ShareTaskModal } from '../ShareTaskModal';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, differenceInDays } from 'date-fns';
 import { es, enUS, it } from 'date-fns/locale';
@@ -82,11 +84,13 @@ export const EpicSubtaskRow = ({
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showAssignees, setShowAssignees] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
     const prevCompletedAt = useRef(subtask.completedAt);
     const { mutate: updateTask } = useUpdateTask();
     const { mutate: assignTask } = useAssignTask();
     const { mutate: unassignTask } = useUnassignTask();
+    const { mutate: duplicateTask } = useDuplicateTask();
     const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const [DeleteDialog, confirmDelete] = useConfirm(
@@ -161,6 +165,26 @@ export const EpicSubtaskRow = ({
         setShowDropdown(false);
     };
 
+    const handleToggleFeatured = () => {
+        if (isOptimistic) return;
+        updateTask({
+            json: { featured: !subtask.featured },
+            param: { taskId: subtask.$id }
+        });
+        setShowDropdown(false);
+    };
+
+    const handleDuplicate = () => {
+        if (isOptimistic) return;
+        duplicateTask({ task: subtask });
+        setShowDropdown(false);
+    };
+
+    const handleShare = () => {
+        setIsShareModalOpen(true);
+        setShowDropdown(false);
+    };
+
     const handleRowClick = () => {
         if (onNavigate && !isOptimistic) {
             onNavigate(subtask.$id);
@@ -202,17 +226,25 @@ export const EpicSubtaskRow = ({
     };
 
     // Keep hover state visible when any popover/dropdown is open
-    const isInteracting = showDatePicker || showAssignees || showDropdown || showPriorityMenu;
+    const isInteracting = showDatePicker || showAssignees || showDropdown || showPriorityMenu || isShareModalOpen;
 
     return (
         <>
             <DeleteDialog />
+            <ShareTaskModal
+                taskId={subtask.$id}
+                taskName={subtask.name}
+                taskType={subtask.type}
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+            />
             <div
                 className={cn(
                     "group flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer",
+                    subtask.featured && "bg-yellow-50/80 dark:bg-yellow-950/20 hover:bg-yellow-50 dark:hover:bg-yellow-950/30",
                     isCompleted && "opacity-60",
                     isOptimistic && "opacity-50 cursor-default",
-                    isInteracting && "bg-muted/50"
+                    isInteracting && !subtask.featured && "bg-muted/50"
                 )}
                 onClick={handleRowClick}
                 onMouseEnter={() => setIsHovered(true)}
@@ -468,11 +500,34 @@ export const EpicSubtaskRow = ({
                                     <MoreHorizontal className="size-3.5" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-fit">
+                            <DropdownMenuContent align="end" className="w-56">
                                 <DropdownMenuItem onClick={handleOpenInNewTab}>
                                     <ExternalLink className="size-4 mr-2" />
-                                    {t('open-in-new-tab')}
+                                    {t('task-details')}
                                 </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleShare}>
+                                    <Share2Icon className="size-4 mr-2" />
+                                    {t('share-task')}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleToggleFeatured}>
+                                    {subtask.featured ? (
+                                        <>
+                                            <FlagOffIcon className="size-4 mr-2" />
+                                            {t('unfeature-task')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FlagIcon className="size-4 mr-2" />
+                                            {t('feature-task')}
+                                        </>
+                                    )}
+                                </DropdownMenuItem>
+                                {subtask.type !== 'epic' && (
+                                    <DropdownMenuItem onClick={handleDuplicate}>
+                                        <CopyIcon className="size-4 mr-2" />
+                                        {t('duplicate-task')}
+                                    </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem
                                     onClick={handleDelete}
                                     className="text-destructive focus:text-destructive"
