@@ -1384,6 +1384,8 @@
         "task-unassigned-success": "Assegnazione rimossa con successo",
         "task-unassigned-error": "Errore nella rimozione dell'assegnazione",
         "assignees": "Assegnatari",
+        "completed": "Completato",
+        "not-completed": "Non completato",
         "create-custom-status": "Crea colonna personalizzata",
         "create-custom-status-description": "Aggiungi una nuova colonna alla bacheca Kanban",
         "status-name": "Nome dello stato",

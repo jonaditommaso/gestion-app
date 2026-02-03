@@ -21,6 +21,7 @@ export const createTaskSchema = zod.object({
     type: zod.string().optional(),
     metadata: zod.string().optional(), // JSON stringified
     checklistTitle: zod.string().optional().nullable(), // Title of the checklist
+    completedAt: zod.coerce.date().optional().nullable(), // Date when task was completed
 })
 
 export const getTaskSchema = zod.object({

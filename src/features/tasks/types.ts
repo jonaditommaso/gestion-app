@@ -47,6 +47,7 @@ export type Task = Models.Document & {
     checklistCount?: number, // Total checklist items
     checklistCompletedCount?: number, // Completed checklist items
     checklistTitle?: string, // Title of the checklist
+    completedAt?: string, // Date when task was completed
 }
 
 export type TaskShare = Models.Document & {

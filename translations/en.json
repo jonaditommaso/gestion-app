@@ -1398,6 +1398,8 @@
         "task-unassigned-success": "Assignment removed successfully",
         "task-unassigned-error": "Error removing assignment",
         "assignees": "Assignees",
+        "completed": "Completed",
+        "not-completed": "Not completed",
         "create-custom-status": "Create custom column",
         "create-custom-status-description": "Add a new column to the Kanban board",
         "status-name": "Status name",

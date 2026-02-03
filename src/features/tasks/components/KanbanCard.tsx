@@ -1,4 +1,4 @@
-import { MoreHorizontalIcon, TextIcon, Clock, ListChecks } from "lucide-react";
+import { MoreHorizontalIcon, TextIcon, Clock, ListChecks, CircleCheckBig } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,9 @@ import { differenceInDays } from "date-fns";
 import { useLocale, useTranslations } from "next-intl";
 import '@github/relative-time-element';
 import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels";
+import { useUpdateTask } from "../api/use-update-task";
+import { motion, AnimatePresence } from "motion/react";
+import { useState, useEffect, useRef } from "react";
 
 interface KanbanCardProps {
     task: Task
@@ -24,6 +27,10 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     const locale = useLocale();
     const { getLabelById, getLabelColor } = useCustomLabels();
     const t = useTranslations('workspaces')
+    const { mutate: updateTask } = useUpdateTask();
+    const [isHovered, setIsHovered] = useState(false);
+    const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
+    const prevCompletedAt = useRef(task.completedAt);
     const isCompact = config[WorkspaceConfigKey.COMPACT_CARDS];
     const dateFormat = config[WorkspaceConfigKey.DATE_FORMAT];
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
@@ -39,6 +46,29 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     // Get label data if it's a custom label (starts with LABEL_)
     const customLabel = task.label?.startsWith('LABEL_') ? getLabelById(task.label) : null;
     const labelColorData = customLabel ? getLabelColor(customLabel.color) : null;
+
+    // Use optimistic state if available, otherwise use server state
+    const isCompleted = optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt;
+
+    // Reset optimistic state when server value changes
+    useEffect(() => {
+        if (task.completedAt !== prevCompletedAt.current) {
+            prevCompletedAt.current = task.completedAt;
+            setOptimisticCompleted(null);
+        }
+    }, [task.completedAt]);
+
+    const handleToggleComplete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const newCompletedState = !isCompleted;
+        // Update optimistically
+        setOptimisticCompleted(newCompletedState);
+        const newCompletedAt = newCompletedState ? new Date() : null;
+        updateTask({
+            json: { completedAt: newCompletedAt },
+            param: { taskId: task.$id }
+        });
+    };
 
     // Calcular color del badge de fecha
     const getDateBadgeColor = () => {
@@ -65,6 +95,8 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                 task.featured ? 'bg-yellow-50/80 dark:bg-yellow-950/20' : 'bg-card'
             }`}
             onClick={() => onOpenTask?.(task.$id)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
             <div>
                 <div className="flex items-start justify-between">
@@ -76,19 +108,46 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                     </div>
                 </div>
                 <div className="flex items-start justify-between gap-x-2">
-                    <div className="flex items-center gap-2">
-                        {task.description && <TextIcon className="size-4 text-neutral-500" />}
-                        {hasChecklist && (
-                            <div className={cn(
-                                "flex items-center gap-1 text-xs",
-                                checklistCompleted === checklistTotal
-                                    ? "text-green-600 dark:text-green-400"
-                                    : "text-muted-foreground"
-                            )}>
-                                <ListChecks className="size-3.5" />
-                                <span>{checklistCompleted}/{checklistTotal}</span>
-                            </div>
-                        )}
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <AnimatePresence mode="wait">
+                            {(isHovered || isCompleted) && (
+                                <motion.div
+                                    initial={{ width: 0, opacity: 0 }}
+                                    animate={{ width: "auto", opacity: 1 }}
+                                    exit={{ width: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                                    onClick={handleToggleComplete}
+                                    className="cursor-pointer flex-shrink-0"
+                                >
+                                    <CircleCheckBig
+                                        className={cn(
+                                            "size-4 transition-colors",
+                                            isCompleted
+                                                ? "text-green-600 dark:text-green-400 fill-green-100 dark:fill-green-950/30"
+                                                : "text-neutral-400 hover:text-green-600 dark:hover:text-green-400"
+                                        )}
+                                    />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <motion.div
+                            layout
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            className="flex items-center gap-2"
+                        >
+                            {task.description && <TextIcon className="size-4 text-neutral-500" />}
+                            {hasChecklist && (
+                                <div className={cn(
+                                    "flex items-center gap-1 text-xs",
+                                    checklistCompleted === checklistTotal
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-muted-foreground"
+                                )}>
+                                    <ListChecks className="size-3.5" />
+                                    <span>{checklistCompleted}/{checklistTotal}</span>
+                                </div>
+                            )}
+                        </motion.div>
                     </div>
                     <PriorityIcon
                         className="size-4"

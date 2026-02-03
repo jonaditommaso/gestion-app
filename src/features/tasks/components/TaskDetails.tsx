@@ -1,6 +1,6 @@
 'use client'
 import { Task, TaskStatus, TaskComment } from "../types";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
@@ -32,7 +32,7 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
-import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X } from "lucide-react";
+import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
 
@@ -182,6 +182,16 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const config = useWorkspaceConfig();
     const { data: tasksData } = useGetTasks({ workspaceId });
+    const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
+    const prevCompletedAt = useRef(task.completedAt);
+
+    // Reset optimistic state when server value changes
+    useEffect(() => {
+        if (task.completedAt !== prevCompletedAt.current) {
+            prevCompletedAt.current = task.completedAt;
+            setOptimisticCompleted(null);
+        }
+    }, [task.completedAt]);
 
     // Get current member for comment authorship check (moved before hooks that need it)
     const currentMember = useMemo(() => {
@@ -316,6 +326,19 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                 setIsEditingDescription(false);
                 setPendingImages(new Map());
             }
+        });
+    };
+
+    const handleToggleComplete = () => {
+        if (readOnly) return;
+        const currentCompleted = optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt;
+        const newCompletedState = !currentCompleted;
+        // Update optimistically
+        setOptimisticCompleted(newCompletedState);
+        const newCompletedAt = newCompletedState ? new Date() : null;
+        updateTask({
+            json: { completedAt: newCompletedAt },
+            param: { taskId: task.$id }
         });
     };
 
@@ -836,6 +859,46 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                             availableMembers={availableMembers}
                             readOnly={readOnly}
                         />
+                    </div>
+
+                    {/* Completed At */}
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-24">
+                            {t('completed')}
+                        </span>
+                        <div className="flex items-center gap-1">
+                            <CircleCheckBig
+                                className={cn(
+                                    "size-4 flex-shrink-0 transition-colors",
+                                    (optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt)
+                                        ? "text-green-600 dark:text-green-400 fill-green-100 dark:fill-green-950/30"
+                                        : "text-muted-foreground",
+                                    !readOnly && "cursor-pointer hover:text-green-600 dark:hover:text-green-400"
+                                )}
+                                onClick={!readOnly ? handleToggleComplete : undefined}
+                            />
+                            {(optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt) ? (
+                                <>
+                                    <span className="text-sm px-1.5 py-1">
+                                        {format(new Date(task.completedAt || new Date()), 'PPP', { locale: DATE_LOCALES[locale] })}
+                                    </span>
+                                    {!readOnly && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8"
+                                            onClick={handleToggleComplete}
+                                            disabled={isPending}
+                                        >
+                                            <X className="size-4" />
+                                        </Button>
+                                    )}
+                                </>
+                            ) : (
+                                <span className="text-sm text-muted-foreground px-1.5 py-1">{t('not-completed')}</span>
+                            )}
+                        </div>
                     </div>
                 </div>
 
