@@ -34,6 +34,8 @@ export const getTaskSchema = zod.object({
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish(),
     label: zod.string().nullish(),
+    type: zod.string().nullish(),
+    completed: zod.string().nullish(),
     limit: zod.coerce.number().int().min(1).max(100).nullish() // Límite de resultados
 })
 

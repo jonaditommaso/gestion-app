@@ -2,8 +2,9 @@
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, Check, ChevronsUpDown, X } from "lucide-react";
+import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, X, ChevronsUpDown, CircleDotIcon, CheckCircle2Icon, CircleIcon, Check } from "lucide-react";
 import { TaskStatus } from "../types";
+import { TASK_TYPE_OPTIONS } from '../constants/type'
 import { useTaskFilters } from "../hooks/use-task-filters";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
@@ -44,11 +45,13 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
         assigneeId,
         dueDate,
         priority,
-        label
+        label,
+        type,
+        completed
     }, setFilters] = useTaskFilters();
 
     // Check if any filter is active
-    const hasActiveFilters = status || assigneeId || dueDate || priority || (label && label.length > 0);
+    const hasActiveFilters = status || assigneeId || dueDate || priority || (label && label.length > 0) || type || completed;
 
     const clearAllFilters = () => {
         setFilters({
@@ -56,7 +59,9 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
             assigneeId: null,
             dueDate: null,
             priority: null,
-            label: null
+            label: null,
+            type: null,
+            completed: null
         });
     };
 
@@ -82,6 +87,14 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
 
     const onMultiLabelChange = (values: string[]) => {
         setFilters({ label: values.length > 0 ? values : null })
+    }
+
+    const onTypeChange = (value: string) => {
+        setFilters({ type: value === 'all' ? null : value })
+    }
+
+    const onCompletedChange = (value: string) => {
+        setFilters({ completed: value === 'all' ? null : value })
     }
 
     if (isLoading) return null;
@@ -294,6 +307,59 @@ const DataFilters = ({ hideStatusFilter = false }: DataFiltersProps) => {
                     </SelectContent>
                 </Select>
             )}
+            <Select
+                value={type ?? 'all'}
+                onValueChange={(value) => onTypeChange(value)}
+            >
+                <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
+                    <div className="flex items-center pr-2">
+                        <CircleDotIcon className="size-4 mr-2" />
+                        <SelectValue placeholder={t('all-types')} />
+                    </div>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{t('all-types')}</SelectItem>
+                    <SelectSeparator />
+                    {TASK_TYPE_OPTIONS.map(typeOption => {
+                        const TypeIcon = typeOption.icon;
+                        return (
+                            <SelectItem key={typeOption.value} value={typeOption.value}>
+                                <div className="flex items-center gap-x-2">
+                                    <TypeIcon className={cn("size-4", typeOption.textColor)} />
+                                    {t(typeOption.translationKey)}
+                                </div>
+                            </SelectItem>
+                        );
+                    })}
+                </SelectContent>
+            </Select>
+            <Select
+                value={completed ?? 'all'}
+                onValueChange={(value) => onCompletedChange(value)}
+            >
+                <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
+                    <div className="flex items-center pr-2">
+                        <CheckCircle2Icon className="size-4 mr-2" />
+                        <SelectValue placeholder={t('all-completed')} />
+                    </div>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{t('all-completed')}</SelectItem>
+                    <SelectSeparator />
+                    <SelectItem value="completed">
+                        <div className="flex items-center gap-x-2">
+                            <CheckCircle2Icon className="size-4 text-green-600" />
+                            {t('completed')}
+                        </div>
+                    </SelectItem>
+                    <SelectItem value="incomplete">
+                        <div className="flex items-center gap-x-2">
+                            <CircleIcon className="size-4 text-muted-foreground" />
+                            {t('incomplete')}
+                        </div>
+                    </SelectItem>
+                </SelectContent>
+            </Select>
             <CustomDatePicker
                 placeholder={'due-date'}
                 className="h-8 w-full lg:w-auto"

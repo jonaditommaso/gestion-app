@@ -11,6 +11,8 @@ interface UseGetTasksProps {
     search?: string | null,
     priority?: number | null,
     label?: string[] | null,
+    type?: string | null,
+    completed?: string | null,
     limit?: number | null, // Límite de resultados
     enabled?: boolean
 }
@@ -24,6 +26,8 @@ export const useGetTasks = ({
     search,
     priority,
     label,
+    type,
+    completed,
     limit,
     enabled = true
 }: UseGetTasksProps) => {
@@ -38,6 +42,8 @@ export const useGetTasks = ({
             search,
             priority,
             label,
+            type,
+            completed,
             limit
         ],
         queryFn: async () => {
@@ -52,6 +58,8 @@ export const useGetTasks = ({
                         search: search ?? undefined,
                         priority: priority ? String(priority) : undefined,
                         label: label && label.length > 0 ? label.join(',') : undefined,
+                        type: type ?? undefined,
+                        completed: completed ?? undefined,
                         limit: limit ? String(limit) : undefined
                     }
                 }

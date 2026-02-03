@@ -103,7 +103,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, limit } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, type, completed, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -152,6 +152,19 @@ const app = new Hono()
                 } else if (labels.length > 1) {
                     query.push(Query.contains('label', labels));
                 }
+            }
+
+            if (type) {
+                query.push(Query.equal('type', type));
+            }
+
+            if (completed) {
+                if (completed === 'completed') {
+                    query.push(Query.isNotNull('completedAt'));
+                } else if (completed === 'incomplete') {
+                    query.push(Query.isNull('completedAt'));
+                }
+                // Si es 'all' no agregamos filtro
             }
 
             const tasks = await databases.listDocuments<Task>(
