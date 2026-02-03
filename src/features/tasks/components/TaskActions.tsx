@@ -1,9 +1,11 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ExternalLinkIcon, FlagIcon, FlagOffIcon, MoreHorizontalIcon, Share2Icon, TrashIcon, XIcon } from "lucide-react";
+import { ExternalLinkIcon, FlagIcon, FlagOffIcon, MoreHorizontalIcon, Share2Icon, TrashIcon, XIcon, CopyIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useUpdateTask } from "../api/use-update-task";
+import { useDuplicateTask } from "../api/use-duplicate-task";
+import { useGetTask } from "../api/use-get-task";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -46,6 +48,8 @@ const TaskActions = ({
 
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
     const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
+    const { mutate: duplicateTask, isPending: isDuplicatingTask } = useDuplicateTask();
+    const { data: taskData } = useGetTask({ taskId });
 
     const [ConfirmDialog, confirm] = useConfirm(
         t('delete-task'),
@@ -53,7 +57,8 @@ const TaskActions = ({
         'destructive'
     );
 
-    const isPending = isDeletingTask || isUpdatingTask;
+    const isPending = isDeletingTask || isUpdatingTask || isDuplicatingTask;
+    const isEpic = taskType === 'epic';
 
     const onOpenInNewTab = () => {
         window.open(`/workspaces/${workspaceId}/tasks/${taskId}`, '_blank');
@@ -86,6 +91,11 @@ const TaskActions = ({
             json: { featured: !isFeatured },
             param: { taskId }
         });
+    };
+
+    const onDuplicate = () => {
+        if (!taskData) return;
+        duplicateTask({ task: taskData });
     };
 
     const triggerButton = children || (
@@ -153,6 +163,16 @@ const TaskActions = ({
                             </>
                         )}
                     </DropdownMenuItem>
+                    {!isEpic && (
+                        <DropdownMenuItem
+                            onClick={onDuplicate}
+                            disabled={isPending || !taskData}
+                            className="font-medium p-[10px] cursor-pointer"
+                        >
+                            <CopyIcon className="size-4 mr-2 stroke-2" />
+                            {t('duplicate-task')}
+                        </DropdownMenuItem>
+                    )}
 
                     <Separator />
                     <DropdownMenuItem
