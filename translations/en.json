@@ -1305,6 +1305,8 @@
         "no-labels-available": "No labels available",
         "multi-select-labels": "Multi-select labels",
         "multi-select-labels-description": "Allow selecting multiple labels to filter tasks",
+        "hide-epic-progress-bar": "Hide epic progress bar",
+        "hide-epic-progress-bar-description": "Hide the progress bar that shows the number of completed subtasks in epic tasks",
         "no-results": "No results found.",
         "prev": "Previous",
         "next": "Next",

@@ -18,6 +18,7 @@ interface EpicSubtasksProps {
     epic: Task;
     onNavigate?: (subtaskId: string) => void;
     availableMembers?: { $id: string; name: string }[];
+    hideProgressBar?: boolean;
 }
 
 // Optimistic subtask type for pending items
@@ -34,7 +35,7 @@ interface OptimisticSubtask {
 
 type SubtaskItem = Task | OptimisticSubtask;
 
-export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [] }: EpicSubtasksProps) => {
+export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProgressBar = false }: EpicSubtasksProps) => {
     const t = useTranslations('workspaces');
     const [newTaskName, setNewTaskName] = useState('');
     const [isInputVisible, setIsInputVisible] = useState(false);
@@ -204,7 +205,7 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [] }: EpicSu
             <DeleteAllDialog />
             <div className="space-y-3">
                 {/* Progress bar with delete all button */}
-                {progress.total > 0 && (
+                {!hideProgressBar && progress.total > 0 && (
                     <div className="flex items-center gap-2">
                         <Progress
                             value={progress.percentage}

@@ -1291,6 +1291,8 @@
         "no-labels-available": "Nessuna etichetta disponibile",
         "multi-select-labels": "Selezione multipla etichette",
         "multi-select-labels-description": "Consenti la selezione di più etichette per filtrare le attività",
+        "hide-epic-progress-bar": "Nascondi barra di progresso nelle epiche",
+        "hide-epic-progress-bar-description": "Nasconde la barra di progresso che mostra il numero di sottoattività completate nelle attività epiche",
         "no-results": "Nessun risultato trovato.",
         "prev": "Precedente",
         "next": "Successivo",

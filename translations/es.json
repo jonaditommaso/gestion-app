@@ -1311,6 +1311,8 @@
         "no-labels-available": "No hay etiquetas disponibles",
         "multi-select-labels": "Selección múltiple de etiquetas",
         "multi-select-labels-description": "Permitir seleccionar varias etiquetas para filtrar tareas",
+        "hide-epic-progress-bar": "Ocultar barra de progreso en épicas",
+        "hide-epic-progress-bar-description": "Oculta la barra de progreso que muestra el número de subtareas completadas en las tareas épicas",
         "no-results": "No se encontraron resultados.",
         "prev": "Anterior",
         "next": "Siguiente",

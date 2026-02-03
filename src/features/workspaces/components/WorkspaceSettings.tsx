@@ -16,7 +16,7 @@ import { useUpdateWorkspace } from "../api/use-update-workspace";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
-import { useMemo, useState, useOptimistic } from "react";
+import { useMemo, useState, useOptimistic, startTransition } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
 
@@ -158,7 +158,9 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         const customConfig = getCustomConfig();
 
         // Optimistic update
-        setOptimisticConfig({ [key]: value });
+        startTransition(() => {
+            setOptimisticConfig({ [key]: value });
+        });
 
         // Only update if value is different from default
         if (DEFAULT_WORKSPACE_CONFIG[key] === value) {
@@ -243,7 +245,9 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         permissionKeys.forEach(key => {
             optimisticUpdates[key] = enabled;
         });
-        setOptimisticConfig(optimisticUpdates);
+        startTransition(() => {
+            setOptimisticConfig(optimisticUpdates);
+        });
 
         permissionKeys.forEach(key => {
             if (enabled) {
@@ -682,6 +686,22 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 <SelectItem value="0">{t('expiration-unlimited')}</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('hide-epic-progress-bar')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('hide-epic-progress-bar-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={!!displayConfig[WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR, checked)}
+                            disabled={isConfigPending(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR)}
+                        />
                     </div>
                 </CardContent>
             </Card>

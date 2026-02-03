@@ -507,6 +507,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
                         epic={displayTask}
                         onNavigate={handleNavigateToSubtask}
                         availableMembers={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
+                        hideProgressBar={config.hideEpicProgressBar}
                     />
                 ) : (
                     <Checklist
