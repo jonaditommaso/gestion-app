@@ -1302,6 +1302,7 @@
         "all-types": "Todos los tipos",
         "all-completed": "Todos los estados",
         "incomplete": "Incompleto",
+        "search-by-name": "Buscar por nombre...",
         "clear-filters": "Limpiar filtros",
         "no-labels-available": "No hay etiquetas disponibles",
         "multi-select-labels": "Selección múltiple de etiquetas",

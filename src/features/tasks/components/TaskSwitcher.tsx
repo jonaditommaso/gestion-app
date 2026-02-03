@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader, PlusIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import CreateTaskFormWrapper from "./CreateTaskFormWrapper";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetTasks } from "../api/use-get-tasks";
@@ -29,6 +29,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
     const [initialStatusCustomId, setInitialStatusCustomId] = useState<string | undefined>(undefined);
     const [currentTab, setCurrentTab] = useState('kanban') // I can use useQueryState from nuqs in order to keep the tab selected if I refresh
+    const [localSearch, setLocalSearch] = useState('');
     const t = useTranslations('workspaces');
     const { canCreateTask } = useWorkspacePermissions();
 
@@ -43,6 +44,17 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     }] = useTaskFilters();
 
     const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate, priority, label, type, completed });
+
+    // Filtro local por nombre
+    const filteredTasks = useMemo(() => {
+        if (!tasks?.documents) return [];
+        if (!localSearch.trim()) return tasks.documents;
+
+        const searchLower = localSearch.toLowerCase();
+        return tasks.documents.filter(task =>
+            task.name.toLowerCase().includes(searchLower)
+        );
+    }, [tasks?.documents, localSearch]);
 
     const { mutate: bulkUpdate  } = useBulkUpdateTasks()
 
@@ -101,7 +113,10 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
 
                     <Separator className="my-4" />
                         {/* <DataFilters hideStatusFilter={currentTab === 'kanban'} /> */}
-                        <DataFilters />
+                        <DataFilters
+                            localSearch={localSearch}
+                            onLocalSearchChange={setLocalSearch}
+                        />
                     <Separator className="my-4" />
 
                     {isLoadingTasks ? (
@@ -111,18 +126,18 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                     ) : (
                         <>
                             <TabsContent value="table" className="mt-0 overflow-auto">
-                                <DataTable columns={columns} data={(tasks?.documents ?? []) as Task[]} />
+                                <DataTable columns={columns} data={filteredTasks as Task[]} />
                             </TabsContent>
                             <TabsContent value="kanban" className="mt-0 max-h-[40rem]">
                                 <DataKanban
-                                    data={(tasks?.documents ?? []) as Task[]}
+                                    data={filteredTasks as Task[]}
                                     addTask={handleNewTask}
                                     onChangeTasks={onKanbanChange}
                                     openSettings={openSettings}
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
-                                <DataCalendar data={((tasks?.documents ?? []) as Task[]).filter(task => task.dueDate)} />
+                                <DataCalendar data={(filteredTasks as Task[]).filter(task => task.dueDate)} />
                             </TabsContent>
                         </>
 

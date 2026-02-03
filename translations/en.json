@@ -1296,6 +1296,7 @@
         "all-types": "All types",
         "all-completed": "All status",
         "incomplete": "Incomplete",
+        "search-by-name": "Search by name...",
         "clear-filters": "Clear filters",
         "no-labels-available": "No labels available",
         "multi-select-labels": "Multi-select labels",

@@ -1282,6 +1282,7 @@
         "all-types": "Tutti i tipi",
         "all-completed": "Tutti gli stati",
         "incomplete": "Incompleto",
+        "search-by-name": "Cerca per nome...",
         "clear-filters": "Cancella filtri",
         "no-labels-available": "Nessuna etichetta disponibile",
         "multi-select-labels": "Selezione multipla etichette",
