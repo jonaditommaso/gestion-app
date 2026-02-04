@@ -39,7 +39,8 @@ export const getTaskSchema = zod.object({
     label: zod.string().nullish(),
     type: zod.string().nullish(),
     completed: zod.string().nullish(),
-    limit: zod.coerce.number().int().min(1).max(100).nullish() // Límite de resultados
+    archived: zod.enum(['true', 'false', 'all']).nullish(), // Filtrar por estado de archivado
+    limit: zod.coerce.number().int().min(1).max(5000).nullish() // Límite de resultados
 })
 
 export const createTaskShareSchema = zod.object({

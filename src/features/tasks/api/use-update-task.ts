@@ -43,43 +43,76 @@ export const useUpdateTask = () => {
             const previousTask = queryClient.getQueryData<{ data: Task }>(['task', taskId]);
             const previousTasks = queryClient.getQueryData<{ data: { documents: Task[] } }>(['tasks']);
 
-            // Optimistically update task
-            if (previousTask) {
-                queryClient.setQueryData(['task', taskId], {
-                    ...previousTask,
-                    data: { ...previousTask.data, ...json }
-                });
-            }
+            // Buscar la tarea en previousTasks si no está en previousTask
+            const taskFromList = previousTasks?.data?.documents?.find(t => t.$id === taskId);
+            const parentId = previousTask?.data?.parentId || taskFromList?.parentId;
 
-            // Optimistically update tasks list
-            if (previousTasks) {
-                queryClient.setQueryData(['tasks'], {
-                    ...previousTasks,
-                    data: {
-                        ...previousTasks.data,
-                        documents: previousTasks.data.documents.map(task =>
-                            task.$id === taskId ? { ...task, ...json } : task
-                        )
-                    }
-                });
-            }
-
-            // Optimistically update subtasks if this is a subtask
-            if (previousTask?.data.parentId) {
-                const parentId = previousTask.data.parentId;
-                await queryClient.cancelQueries({ queryKey: ['subtasks', parentId] });
-                const previousSubtasks = queryClient.getQueryData<{ data: { documents: Task[] } }>(['subtasks', parentId]);
-
-                if (previousSubtasks) {
-                    queryClient.setQueryData(['subtasks', parentId], {
-                        ...previousSubtasks,
+            // Si se está archivando, remover de la lista optimistamente
+            if (json.archived === true) {
+                // Optimistically remove from tasks list
+                if (previousTasks?.data?.documents) {
+                    queryClient.setQueryData(['tasks'], {
+                        ...previousTasks,
                         data: {
-                            ...previousSubtasks.data,
-                            documents: previousSubtasks.data.documents.map(task =>
+                            ...previousTasks.data,
+                            documents: previousTasks.data.documents.filter(task => task.$id !== taskId)
+                        }
+                    });
+                }
+
+                // Optimistically remove from subtasks if this is a subtask
+                if (parentId) {
+                    await queryClient.cancelQueries({ queryKey: ['subtasks', parentId] });
+                    const previousSubtasks = queryClient.getQueryData<{ data: { documents: Task[] } }>(['subtasks', parentId]);
+
+                    if (previousSubtasks?.data?.documents) {
+                        queryClient.setQueryData(['subtasks', parentId], {
+                            ...previousSubtasks,
+                            data: {
+                                ...previousSubtasks.data,
+                                documents: previousSubtasks.data.documents.filter(task => task.$id !== taskId)
+                            }
+                        });
+                    }
+                }
+            } else {
+                // Normal update: actualizar la tarea optimistamente
+                if (previousTask?.data) {
+                    queryClient.setQueryData(['task', taskId], {
+                        ...previousTask,
+                        data: { ...previousTask.data, ...json }
+                    });
+                }
+
+                // Optimistically update tasks list
+                if (previousTasks?.data?.documents) {
+                    queryClient.setQueryData(['tasks'], {
+                        ...previousTasks,
+                        data: {
+                            ...previousTasks.data,
+                            documents: previousTasks.data.documents.map(task =>
                                 task.$id === taskId ? { ...task, ...json } : task
                             )
                         }
                     });
+                }
+
+                // Optimistically update subtasks if this is a subtask
+                if (parentId) {
+                    await queryClient.cancelQueries({ queryKey: ['subtasks', parentId] });
+                    const previousSubtasks = queryClient.getQueryData<{ data: { documents: Task[] } }>(['subtasks', parentId]);
+
+                    if (previousSubtasks?.data?.documents) {
+                        queryClient.setQueryData(['subtasks', parentId], {
+                            ...previousSubtasks,
+                            data: {
+                                ...previousSubtasks.data,
+                                documents: previousSubtasks.data.documents.map(task =>
+                                    task.$id === taskId ? { ...task, ...json } : task
+                                )
+                            }
+                        });
+                    }
                 }
             }
 

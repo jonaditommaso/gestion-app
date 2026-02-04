@@ -19,6 +19,7 @@ import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STA
 import { useMemo, useState, useOptimistic, startTransition } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
+import { ArchivedTasksModal } from "@/features/tasks/components/ArchivedTasksModal";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -34,6 +35,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
     const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null); // Track which config key is currently being updated
+    const [isArchivedTasksModalOpen, setIsArchivedTasksModalOpen] = useState(false);
 
     // Parse current config from metadata
     const currentConfig = useMemo(() => {
@@ -706,6 +708,33 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                 </CardContent>
             </Card>
 
+            {/* Maintenance Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('maintenance')}</CardTitle>
+                    <CardDescription>
+                        {t('maintenance-description')}
+                    </CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-6 pt-6">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('archived-tasks')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('archived-tasks-description')}
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsArchivedTasksModalOpen(true)}
+                        >
+                            {t('view-archived-tasks')}
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Notifications Section */}
             {/* <Card>
                 <CardHeader>
@@ -951,6 +980,10 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
             <ArchiveDialog />
             <DeleteDialog />
+            <ArchivedTasksModal
+                isOpen={isArchivedTasksModalOpen}
+                onClose={() => setIsArchivedTasksModalOpen(false)}
+            />
         </div>
     );
 }

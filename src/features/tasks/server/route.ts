@@ -103,7 +103,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, type, completed, limit } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, type, completed, archived, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -173,8 +173,21 @@ const app = new Hono()
                 query
             )
 
+            // Filtrar tareas según el parámetro archived
+            let filteredTasks = tasks.documents;
+            if (archived === 'true') {
+                // Solo tareas archivadas
+                filteredTasks = tasks.documents.filter(task => task.archived === true);
+            } else if (archived === 'all') {
+                // Todas las tareas (archivadas y no archivadas)
+                filteredTasks = tasks.documents;
+            } else {
+                // Por defecto: excluir tareas archivadas
+                filteredTasks = tasks.documents.filter(task => task.archived !== true);
+            }
+
             // Obtener todos los task IDs
-            let taskIds = tasks.documents.map(task => task.$id);
+            let taskIds = filteredTasks.map(task => task.$id);
 
             // Si hay filtro por assigneeId, obtener solo las tareas asignadas a ese miembro
             if (assigneeId) {
@@ -210,7 +223,7 @@ const app = new Hono()
                 : { documents: [] };
 
             // Mapear las tareas con sus assignees
-            const populatedTasks = tasks.documents
+            const populatedTasks = filteredTasks
                 .filter(task => taskIds.includes(task.$id)) // Filtrar por taskIds (incluye filtro de assigneeId si aplica)
                 .map(task => {
                     // Encontrar todas las asignaciones para esta tarea
@@ -1332,7 +1345,7 @@ const app = new Hono()
             }
 
             // Get all subtasks for this parent
-            const subtasks = await databases.listDocuments<Task>(
+            const allSubtasks = await databases.listDocuments<Task>(
                 DATABASE_ID,
                 TASKS_ID,
                 [
@@ -1342,6 +1355,12 @@ const app = new Hono()
                     Query.limit(100)
                 ]
             );
+
+            // Filtrar subtasks archivadas (excluir solo las que tienen archived === true)
+            const subtasks = {
+                ...allSubtasks,
+                documents: allSubtasks.documents.filter(task => task.archived !== true)
+            };
 
             // Get assignees for all subtasks
             const subtaskIds = subtasks.documents.map(t => t.$id);
