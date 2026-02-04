@@ -16,9 +16,10 @@ import { useUpdateWorkspace } from "../api/use-update-workspace";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
-import { useMemo, useState, useOptimistic } from "react";
+import { useMemo, useState, useOptimistic, startTransition } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
+import { ArchivedTasksModal } from "@/features/tasks/components/ArchivedTasksModal";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -34,6 +35,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
     const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null); // Track which config key is currently being updated
+    const [isArchivedTasksModalOpen, setIsArchivedTasksModalOpen] = useState(false);
 
     // Parse current config from metadata
     const currentConfig = useMemo(() => {
@@ -158,7 +160,9 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         const customConfig = getCustomConfig();
 
         // Optimistic update
-        setOptimisticConfig({ [key]: value });
+        startTransition(() => {
+            setOptimisticConfig({ [key]: value });
+        });
 
         // Only update if value is different from default
         if (DEFAULT_WORKSPACE_CONFIG[key] === value) {
@@ -243,7 +247,9 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         permissionKeys.forEach(key => {
             optimisticUpdates[key] = enabled;
         });
-        setOptimisticConfig(optimisticUpdates);
+        startTransition(() => {
+            setOptimisticConfig(optimisticUpdates);
+        });
 
         permissionKeys.forEach(key => {
             if (enabled) {
@@ -683,6 +689,49 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('hide-epic-progress-bar')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('hide-epic-progress-bar-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={!!displayConfig[WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR, checked)}
+                            disabled={isConfigPending(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR)}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Maintenance Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('maintenance')}</CardTitle>
+                    <CardDescription>
+                        {t('maintenance-description')}
+                    </CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-6 pt-6">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('archived-tasks')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('archived-tasks-description')}
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsArchivedTasksModalOpen(true)}
+                        >
+                            {t('view-archived-tasks')}
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -931,6 +980,10 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
             <ArchiveDialog />
             <DeleteDialog />
+            <ArchivedTasksModal
+                isOpen={isArchivedTasksModalOpen}
+                onClose={() => setIsArchivedTasksModalOpen(false)}
+            />
         </div>
     );
 }

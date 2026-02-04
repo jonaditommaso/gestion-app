@@ -197,7 +197,7 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                         </Button>
                     )}
                 </PopoverTrigger>
-                <PopoverContent className="w-56 p-1.5" align="start">
+                <PopoverContent className="w-64 p-1.5" align="start">
                     <div className="space-y-1 w-full">
                         {LABEL_COLORS.map((color) => {
                             const existingLabel = getLabelByColor(color.value);
@@ -237,7 +237,7 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                                             onKeyDown={(e) => handleInputKeyDown(e, color.value)}
                                             onBlur={() => handleInputBlur(color.value)}
                                             maxLength={MAX_LABEL_NAME_LENGTH}
-                                            className="w-44 h-8 px-3 rounded-md text-sm font-medium border-0 outline-none focus:ring-2 focus:ring-primary/50"
+                                            className="flex-1 h-8 px-3 rounded-md text-sm font-medium border-0 outline-none focus:ring-2 focus:ring-primary/50"
                                             style={{
                                                 backgroundColor: color.value,
                                                 color: color.textColor,
@@ -251,7 +251,7 @@ export const LabelSelector = ({ value, onChange, disabled, className, showClear 
                                                 : canEdit ? handleStartEditing(color.value) : undefined
                                             }
                                             className={cn(
-                                                "w-44 h-8 px-3 rounded-md text-sm font-medium text-left transition-opacity",
+                                                "flex-1 h-8 px-3 rounded-md text-sm font-medium text-left transition-opacity truncate",
                                                 existingLabel || canEdit ? "hover:opacity-80" : "cursor-default"
                                             )}
                                             style={{

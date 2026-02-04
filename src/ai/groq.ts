@@ -4,7 +4,18 @@ import { GROQ_MODEL } from './config';
 import { ALL_TOOLS } from './tools';
 import type { ChatCompletionTool } from 'groq-sdk/resources/chat/completions';
 
-const groq = new Groq();
+let groq: Groq | null = null;
+
+function getGroqClient() {
+    if (!groq) {
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey) {
+            throw new Error('GROQ_API_KEY is missing');
+        }
+        groq = new Groq({ apiKey });
+    }
+    return groq;
+}
 
 /**
  * =============================================================================
@@ -28,6 +39,8 @@ export const groqService: AIService = {
 
     // Método original - streaming sin tools
     async chat(messages: ChatMessage[]) {
+        const groq = getGroqClient();
+
         const chatCompletion = await groq.chat.completions.create({
             messages,
             model: GROQ_MODEL,

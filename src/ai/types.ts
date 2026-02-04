@@ -35,3 +35,11 @@ export interface AIService {
     // Nuevo método opcional para function calling
     chatWithTools?: (messages: ChatMessage[]) => Promise<ChatWithToolsResult>;
 }
+
+export type StreamChunk = {
+    choices: Array<{
+        delta?: {
+            content?: string;
+        };
+    }>;
+};

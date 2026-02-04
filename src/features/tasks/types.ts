@@ -47,6 +47,12 @@ export type Task = Models.Document & {
     checklistCount?: number, // Total checklist items
     checklistCompletedCount?: number, // Completed checklist items
     checklistTitle?: string, // Title of the checklist
+    completedAt?: string, // Date when task was completed
+    parentId?: string, // ID of the parent task (for subtasks of epics)
+    priority?: number, // Task priority (1-5)
+    archived?: boolean, // Whether the task is archived
+    archivedBy?: string, // ID of the member who archived the task
+    archivedAt?: string, // Date when task was archived
 }
 
 export type TaskShare = Models.Document & {
