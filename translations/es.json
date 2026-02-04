@@ -1565,6 +1565,9 @@
         "delete-all-subtasks-confirm": "¿Estás seguro de eliminar todas las subtareas? Esta acción no se puede deshacer.",
         "open-in-new-tab": "Abrir en nueva pestaña",
         "subtask-of": "Subtarea de",
+        "archive-task": "Archivar tarea",
+        "task-archived": "Tarea archivada",
+        "failed-archive-task": "Error al archivar la tarea",
         "activity": {
             "changed-status": "cambió el estado",
             "changed-status-from": "cambió el estado de",

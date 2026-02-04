@@ -1559,6 +1559,9 @@
         "delete-all-subtasks-confirm": "Are you sure you want to delete all subtasks? This action cannot be undone.",
         "open-in-new-tab": "Open in new tab",
         "subtask-of": "Subtask of",
+        "archive-task": "Archive task",
+        "task-archived": "Task archived",
+        "failed-archive-task": "Failed to archive task",
         "activity": {
             "changed-status": "changed the status",
             "changed-status-from": "changed status from",

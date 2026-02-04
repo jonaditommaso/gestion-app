@@ -1,10 +1,11 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ExternalLinkIcon, FlagIcon, FlagOffIcon, MoreHorizontalIcon, Share2Icon, TrashIcon, XIcon, CopyIcon } from "lucide-react";
+import { ExternalLinkIcon, FlagIcon, FlagOffIcon, MoreHorizontalIcon, Share2Icon, TrashIcon, XIcon, CopyIcon, ArchiveIcon } from "lucide-react";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useUpdateTask } from "../api/use-update-task";
 import { useDuplicateTask } from "../api/use-duplicate-task";
+import { useArchiveTask } from "../api/use-archive-task";
 import { useGetTask } from "../api/use-get-task";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useTranslations } from "next-intl";
@@ -49,6 +50,7 @@ const TaskActions = ({
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
     const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
     const { mutate: duplicateTask, isPending: isDuplicatingTask } = useDuplicateTask();
+    const { archiveTask, isPending: isArchivingTask } = useArchiveTask();
     const { data: taskData } = useGetTask({ taskId });
 
     const [ConfirmDialog, confirm] = useConfirm(
@@ -57,7 +59,7 @@ const TaskActions = ({
         'destructive'
     );
 
-    const isPending = isDeletingTask || isUpdatingTask || isDuplicatingTask;
+    const isPending = isDeletingTask || isUpdatingTask || isDuplicatingTask || isArchivingTask;
     const isEpic = taskType === 'epic';
 
     const onOpenInNewTab = () => {
@@ -96,6 +98,10 @@ const TaskActions = ({
     const onDuplicate = () => {
         if (!taskData) return;
         duplicateTask({ task: taskData });
+    };
+
+    const onArchive = () => {
+        archiveTask(taskId);
     };
 
     const triggerButton = children || (
@@ -175,6 +181,14 @@ const TaskActions = ({
                     )}
 
                     <Separator />
+                    <DropdownMenuItem
+                        onClick={onArchive}
+                        disabled={isPending}
+                        className="font-medium p-[10px] cursor-pointer"
+                    >
+                        <ArchiveIcon className="size-4 mr-2 stroke-2" />
+                        {t('archive-task')}
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={onDelete}
                         disabled={isPending}

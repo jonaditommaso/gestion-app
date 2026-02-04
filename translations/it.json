@@ -1545,6 +1545,9 @@
         "delete-all-subtasks-confirm": "Sei sicuro di voler eliminare tutte le sottoattività? Questa azione non può essere annullata.",
         "open-in-new-tab": "Apri in una nuova scheda",
         "subtask-of": "Sottoattività di",
+        "archive-task": "Archivia attività",
+        "task-archived": "Attività archiviata",
+        "failed-archive-task": "Impossibile archiviare l'attività",
         "activity": {
             "changed-status": "ha cambiato lo stato in",
             "changed-status-from": "da",

@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useWorkspaceId } from '@/app/workspaces/hooks/use-workspace-id';
 
 import { cn } from '@/lib/utils';
-import { CircleCheckBig, MoreHorizontal, ExternalLink, Trash2, Calendar as CalendarIcon, Users, Clock, FlagIcon, FlagOffIcon, CopyIcon, Share2Icon } from 'lucide-react';
+import { CircleCheckBig, MoreHorizontal, ExternalLink, Trash2, Calendar as CalendarIcon, Users, Clock, FlagIcon, FlagOffIcon, CopyIcon, Share2Icon, ArchiveIcon } from 'lucide-react';
 import { TASK_PRIORITY_OPTIONS } from '../../constants/priority';
 import { useCustomLabels } from '@/app/workspaces/hooks/use-custom-labels';
 import { useConfirm } from '@/hooks/use-confirm';
@@ -28,6 +28,7 @@ import { useUpdateTask } from '../../api/use-update-task';
 import { useAssignTask } from '../../api/use-assign-task';
 import { useUnassignTask } from '../../api/use-unassign-task';
 import { useDuplicateTask } from '../../api/use-duplicate-task';
+import { useArchiveTask } from '../../api/use-archive-task';
 import { ShareTaskModal } from '../ShareTaskModal';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, differenceInDays } from 'date-fns';
@@ -91,6 +92,7 @@ export const EpicSubtaskRow = ({
     const { mutate: assignTask } = useAssignTask();
     const { mutate: unassignTask } = useUnassignTask();
     const { mutate: duplicateTask } = useDuplicateTask();
+    const { archiveTask } = useArchiveTask();
     const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const [DeleteDialog, confirmDelete] = useConfirm(
@@ -182,6 +184,12 @@ export const EpicSubtaskRow = ({
 
     const handleShare = () => {
         setIsShareModalOpen(true);
+        setShowDropdown(false);
+    };
+
+    const handleArchive = () => {
+        if (isOptimistic) return;
+        archiveTask(subtask.$id);
         setShowDropdown(false);
     };
 
@@ -527,8 +535,10 @@ export const EpicSubtaskRow = ({
                                         <CopyIcon className="size-4 mr-2" />
                                         {t('duplicate-task')}
                                     </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem
+                                )}                                <DropdownMenuItem onClick={handleArchive}>
+                                    <ArchiveIcon className="size-4 mr-2" />
+                                    {t('archive-task')}
+                                </DropdownMenuItem>                                <DropdownMenuItem
                                     onClick={handleDelete}
                                     className="text-destructive focus:text-destructive"
                                 >
