@@ -1212,6 +1212,8 @@
         "create-task": "Crea attività",
         "delete-task": "Elimina attività",
         "action-cannot-be-undone": "Questa azione non può essere annullata",
+        "archive-task-confirm": "Archiviare attività?",
+        "archive-task-confirm-message": "Questa attività verrà archiviata e non sarà visibile nelle viste principali. Puoi ripristinarla dalla sezione manutenzione.",
         "task-details": "Dettagli dell'attività",
         "edit-task": "Modifica attività",
         "share-task": "Condividi attività",

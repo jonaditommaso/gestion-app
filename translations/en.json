@@ -1226,6 +1226,8 @@
         "create-task": "Create task",
         "delete-task": "Delete task",
         "action-cannot-be-undone": "This action cannot be undone",
+        "archive-task-confirm": "Archive task?",
+        "archive-task-confirm-message": "This task will be archived and won't be visible in main views. You can restore it from the maintenance section.",
         "task-details": "Task details",
         "edit-task": "Edit task",
         "share-task": "Share task",

@@ -101,6 +101,12 @@ export const EpicSubtaskRow = ({
         'destructive'
     );
 
+    const [ArchiveDialog, confirmArchive] = useConfirm(
+        t('archive-task-confirm'),
+        t('archive-task-confirm-message'),
+        'default'
+    );
+
     // Get priority icon and color
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (subtask.priority || 3));
     const PriorityIcon = priorityOption?.icon;
@@ -187,8 +193,11 @@ export const EpicSubtaskRow = ({
         setShowDropdown(false);
     };
 
-    const handleArchive = () => {
+    const handleArchive = async () => {
         if (isOptimistic) return;
+        const ok = await confirmArchive();
+        if (!ok) return;
+
         archiveTask(subtask.$id);
         setShowDropdown(false);
     };
@@ -239,6 +248,7 @@ export const EpicSubtaskRow = ({
     return (
         <>
             <DeleteDialog />
+            <ArchiveDialog />
             <ShareTaskModal
                 taskId={subtask.$id}
                 taskName={subtask.name}

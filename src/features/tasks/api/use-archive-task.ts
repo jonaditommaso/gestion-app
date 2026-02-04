@@ -14,7 +14,7 @@ export const useArchiveTask = () => {
     const { data: membersData } = useGetMembers({ workspaceId });
     const queryClient = useQueryClient();
 
-    const archiveTask = (taskId: string) => {
+    const archiveTask = (taskId: string, onSuccess?: () => void) => {
         // Validación: asegurarse de que los datos necesarios están disponibles
         if (!user || !membersData) {
             console.warn('Cannot archive task: user or members data not available', { user: !!user, membersData: !!membersData });
@@ -48,6 +48,8 @@ export const useArchiveTask = () => {
                     // Invalida inmediatamente todas las queries relacionadas
                     queryClient.invalidateQueries({ queryKey: ['tasks'] });
                     queryClient.invalidateQueries({ queryKey: ['subtasks'] });
+                    // Ejecutar callback adicional si existe
+                    onSuccess?.();
                     queryClient.invalidateQueries({ queryKey: ['archived-tasks'] });
                 },
                 onError: (error) => {

@@ -1232,6 +1232,8 @@
         "create-task": "Crear tarea",
         "delete-task": "Eliminar tarea",
         "action-cannot-be-undone": "Esta acción no puede ser deshecha",
+        "archive-task-confirm": "¿Archivar tarea?",
+        "archive-task-confirm-message": "Esta tarea se archivará y no será visible en las vistas principales. Podrás restaurarla desde la sección de mantenimiento.",
         "task-details": "Detalles de tarea",
         "edit-task": "Editar tarea",
         "share-task": "Compartir tarea",

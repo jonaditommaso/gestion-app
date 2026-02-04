@@ -53,10 +53,16 @@ const TaskActions = ({
     const { archiveTask, isPending: isArchivingTask } = useArchiveTask();
     const { data: taskData } = useGetTask({ taskId });
 
-    const [ConfirmDialog, confirm] = useConfirm(
+    const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-task'),
         t('action-cannot-be-undone'),
         'destructive'
+    );
+
+    const [ConfirmArchiveDialog, confirmArchive] = useConfirm(
+        t('archive-task-confirm'),
+        t('archive-task-confirm-message'),
+        'default'
     );
 
     const isPending = isDeletingTask || isUpdatingTask || isDuplicatingTask || isArchivingTask;
@@ -71,7 +77,7 @@ const TaskActions = ({
     };
 
     const onDelete = async () => {
-        const ok = await confirm();
+        const ok = await confirmDelete();
         if (!ok) return;
 
         deleteTask(
@@ -100,8 +106,18 @@ const TaskActions = ({
         duplicateTask({ task: taskData });
     };
 
-    const onArchive = () => {
-        archiveTask(taskId);
+    const onArchive = async () => {
+        const ok = await confirmArchive();
+        if (!ok) return;
+
+        archiveTask(taskId, () => {
+            // Cerrar modal o redirigir según el contexto
+            if (variant === 'modal' && onClose) {
+                onClose();
+            } else if (variant === 'page') {
+                router.push(`/workspaces/${workspaceId}`);
+            }
+        });
     };
 
     const triggerButton = children || (
@@ -112,7 +128,8 @@ const TaskActions = ({
 
     return (
         <div className={variant === 'kanban' ? "flex justify-end" : "flex items-center gap-2"}>
-            <ConfirmDialog />
+            <ConfirmDeleteDialog />
+            <ConfirmArchiveDialog />
             <ShareTaskModal
                 taskId={taskId}
                 taskName={taskName}
