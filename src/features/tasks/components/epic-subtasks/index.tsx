@@ -13,6 +13,7 @@ import { Plus, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EpicSubtaskRow } from './EpicSubtaskRow';
 import { useConfirm } from '@/hooks/use-confirm';
+import { useArchiveTask } from '../../api/use-archive-task';
 
 interface EpicSubtasksProps {
     epic: Task;
@@ -46,6 +47,19 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProg
     const { data, isLoading } = useGetSubtasks({ parentId: epic.$id, workspaceId: epic.workspaceId });
     const { mutate: createTask, isPending: isCreating } = useCreateTask();
     const { mutate: deleteTask } = useDeleteTask();
+    const { archiveTask } = useArchiveTask();
+
+    const [DeleteSubtaskDialog, confirmDeleteSubtask] = useConfirm(
+        t('delete-subtask'),
+        t('delete-subtask-confirm'),
+        'destructive'
+    );
+
+    const [ArchiveSubtaskDialog, confirmArchiveSubtask] = useConfirm(
+        t('archive-task-confirm'),
+        t('archive-task-confirm-message'),
+        'default'
+    );
 
     const [DeleteAllDialog, confirmDeleteAll] = useConfirm(
         t('delete-all-subtasks'),
@@ -155,8 +169,16 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProg
         }
     };
 
-    const handleDeleteSubtask = (subtaskId: string) => {
+    const handleDeleteSubtask = async (subtaskId: string) => {
+        const ok = await confirmDeleteSubtask();
+        if (!ok) return;
         deleteTask({ param: { taskId: subtaskId } });
+    };
+
+    const handleArchiveSubtask = async (subtaskId: string) => {
+        const ok = await confirmArchiveSubtask();
+        if (!ok) return;
+        archiveTask(subtaskId);
     };
 
     const handleCompletionUpdate = (isUpdating: boolean) => {
@@ -202,6 +224,8 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProg
 
     return (
         <>
+            <DeleteSubtaskDialog />
+            <ArchiveSubtaskDialog />
             <DeleteAllDialog />
             <div className="space-y-3">
                 {/* Progress bar with delete all button */}
@@ -247,6 +271,7 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProg
                                 key={subtask.$id}
                                 subtask={subtask as Task}
                                 onDelete={handleDeleteSubtask}
+                                onArchive={handleArchiveSubtask}
                                 isOptimistic={'isOptimistic' in subtask}
                                 onNavigate={onNavigate}
                                 availableMembers={availableMembers}

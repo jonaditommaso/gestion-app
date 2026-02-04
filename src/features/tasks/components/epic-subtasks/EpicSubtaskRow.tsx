@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 import { CircleCheckBig, MoreHorizontal, ExternalLink, Trash2, Calendar as CalendarIcon, Users, Clock, FlagIcon, FlagOffIcon, CopyIcon, Share2Icon, ArchiveIcon } from 'lucide-react';
 import { TASK_PRIORITY_OPTIONS } from '../../constants/priority';
 import { useCustomLabels } from '@/app/workspaces/hooks/use-custom-labels';
-import { useConfirm } from '@/hooks/use-confirm';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,7 +27,6 @@ import { useUpdateTask } from '../../api/use-update-task';
 import { useAssignTask } from '../../api/use-assign-task';
 import { useUnassignTask } from '../../api/use-unassign-task';
 import { useDuplicateTask } from '../../api/use-duplicate-task';
-import { useArchiveTask } from '../../api/use-archive-task';
 import { ShareTaskModal } from '../ShareTaskModal';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, differenceInDays } from 'date-fns';
@@ -38,6 +36,7 @@ import type { Locale as DateLocale } from 'date-fns';
 interface EpicSubtaskRowProps {
     subtask: Task;
     onDelete: (subtaskId: string) => void;
+    onArchive: (subtaskId: string) => void;
     isOptimistic?: boolean;
     onNavigate?: (subtaskId: string) => void;
     availableMembers?: { $id: string; name: string }[];
@@ -70,6 +69,7 @@ const getDueDateColor = (dueDate: string, completed: boolean) => {
 export const EpicSubtaskRow = ({
     subtask,
     onDelete,
+    onArchive,
     isOptimistic = false,
     onNavigate,
     availableMembers = [],
@@ -92,20 +92,7 @@ export const EpicSubtaskRow = ({
     const { mutate: assignTask } = useAssignTask();
     const { mutate: unassignTask } = useUnassignTask();
     const { mutate: duplicateTask } = useDuplicateTask();
-    const { archiveTask } = useArchiveTask();
     const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const [DeleteDialog, confirmDelete] = useConfirm(
-        t('delete-subtask'),
-        t('delete-subtask-confirm'),
-        'destructive'
-    );
-
-    const [ArchiveDialog, confirmArchive] = useConfirm(
-        t('archive-task-confirm'),
-        t('archive-task-confirm-message'),
-        'default'
-    );
 
     // Get priority icon and color
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (subtask.priority || 3));
@@ -162,9 +149,8 @@ export const EpicSubtaskRow = ({
         });
     };
 
-    const handleDelete = async () => {
-        const ok = await confirmDelete();
-        if (!ok) return;
+    const handleDelete = () => {
+        setShowDropdown(false);
         onDelete(subtask.$id);
     };
 
@@ -193,13 +179,10 @@ export const EpicSubtaskRow = ({
         setShowDropdown(false);
     };
 
-    const handleArchive = async () => {
+    const handleArchive = () => {
         if (isOptimistic) return;
-        const ok = await confirmArchive();
-        if (!ok) return;
-
-        archiveTask(subtask.$id);
         setShowDropdown(false);
+        onArchive(subtask.$id);
     };
 
     const handleRowClick = () => {
@@ -247,8 +230,6 @@ export const EpicSubtaskRow = ({
 
     return (
         <>
-            <DeleteDialog />
-            <ArchiveDialog />
             <ShareTaskModal
                 taskId={subtask.$id}
                 taskName={subtask.name}
@@ -364,14 +345,15 @@ export const EpicSubtaskRow = ({
                     </Popover>
                 )}
 
-                {/* Due date - always visible when set, clickable to edit */}
+                {/* Due date - visible on hover when set, clickable to edit */}
                 {subtask.dueDate && !isOptimistic && (
                     <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
                         <PopoverTrigger asChild>
                             <button
                                 className={cn(
-                                    "flex items-center gap-1 text-xs px-1.5 py-1 rounded hover:bg-muted transition-colors cursor-pointer",
-                                    getDueDateColor(subtask.dueDate, isCompleted)
+                                    "flex items-center gap-1 text-xs px-1.5 py-1 rounded hover:bg-muted transition-all cursor-pointer",
+                                    getDueDateColor(subtask.dueDate, isCompleted),
+                                    (isHovered || isInteracting) ? "opacity-100" : "opacity-0"
                                 )}
                                 onClick={(e) => e.stopPropagation()}
                             >
@@ -395,7 +377,7 @@ export const EpicSubtaskRow = ({
 
                 {/* Priority icon - clickable with dropdown */}
                 {PriorityIcon && !isOptimistic && (
-                    <DropdownMenu open={showPriorityMenu} onOpenChange={setShowPriorityMenu}>
+                    <DropdownMenu modal={false} open={showPriorityMenu} onOpenChange={setShowPriorityMenu}>
                         <DropdownMenuTrigger asChild>
                             <button
                                 className={cn(
@@ -431,7 +413,10 @@ export const EpicSubtaskRow = ({
                 {/* Label badge */}
                 {customLabel && (
                     <span
-                        className="px-1.5 py-0.5 text-[10px] font-medium rounded flex-shrink-0"
+                        className={cn(
+                            "px-1.5 py-0.5 text-[10px] font-medium rounded flex-shrink-0 transition-opacity",
+                            (isHovered || isInteracting) ? "opacity-100" : "opacity-0"
+                        )}
                         style={{
                             backgroundColor: customLabel.color,
                             color: labelColorData?.textColor || '#000'
@@ -443,7 +428,10 @@ export const EpicSubtaskRow = ({
 
                 {/* Legacy label badge */}
                 {subtask.label && !subtask.label.startsWith('LABEL_') && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 flex-shrink-0">
+                    <span className={cn(
+                        "px-1.5 py-0.5 text-[10px] font-medium rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 flex-shrink-0 transition-opacity",
+                        (isHovered || isInteracting) ? "opacity-100" : "opacity-0"
+                    )}>
                         {subtask.label}
                     </span>
                 )}
@@ -512,7 +500,7 @@ export const EpicSubtaskRow = ({
                         )}
 
                         {/* More actions dropdown */}
-                        <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
+                        <DropdownMenu modal={false} open={showDropdown} onOpenChange={setShowDropdown}>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="size-7">
                                     <MoreHorizontal className="size-3.5" />
@@ -545,10 +533,12 @@ export const EpicSubtaskRow = ({
                                         <CopyIcon className="size-4 mr-2" />
                                         {t('duplicate-task')}
                                     </DropdownMenuItem>
-                                )}                                <DropdownMenuItem onClick={handleArchive}>
+                                )}
+                                <DropdownMenuItem onClick={handleArchive}>
                                     <ArchiveIcon className="size-4 mr-2" />
                                     {t('archive-task')}
-                                </DropdownMenuItem>                                <DropdownMenuItem
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
                                     onClick={handleDelete}
                                     className="text-destructive focus:text-destructive"
                                 >
