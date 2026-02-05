@@ -261,6 +261,8 @@ const app = new Hono()
                     const actionResult = await executeAction(toolCall.name, {
                         userId: user.$id,
                         userEmail: user.email,
+                        cookie: ctx.req.header('cookie') || '',
+                        baseUrl: new URL(ctx.req.url).origin,
                         args: toolCall.arguments,
                     });
 

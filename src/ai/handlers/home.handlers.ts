@@ -12,7 +12,6 @@
  * Cada handler llama al endpoint/servicio existente.
  */
 
-import { client } from '@/lib/rpc';
 import type { CreateNoteArgs } from '../tools/home.tools';
 import type { ActionContext, ActionResult } from './types';
 
@@ -24,18 +23,24 @@ import type { ActionContext, ActionResult } from './types';
  * Handler: create_note
  * --------------------
  * Crea una nota personal para el usuario.
- * Llama al endpoint POST /api/notes que ya existe.
+ * Llama al endpoint POST /api/notes que ya existe, reenviando las cookies del usuario.
  */
 export async function handleCreateNote(ctx: ActionContext): Promise<ActionResult> {
     const args = ctx.args as unknown as CreateNoteArgs;
 
     try {
-        const response = await client.api.notes.$post({
-            json: {
+        // Llamar al endpoint existente reenviando la cookie del usuario
+        const response = await fetch(`${ctx.baseUrl}/api/notes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': ctx.cookie || '',
+            },
+            body: JSON.stringify({
                 title: args.title || '',
                 content: args.content,
                 bgColor: args.bgColor || 'none',
-            }
+            }),
         });
 
         if (!response.ok) {
