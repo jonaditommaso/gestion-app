@@ -3,10 +3,11 @@ import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
 import { getNextService } from "@/ai";
 import { ChatMessage } from "@/ai/types";
+import { chatWithTools } from "@/ai/function-calling";
+import { executeAction } from "@/ai/handlers";
 import { sessionMiddleware } from "@/lib/session-middleware";
-import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID, NOTES_ID } from "@/config";
+import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
-import { CreateNoteArgs } from "@/ai/tools";
 
 const app = new Hono()
     // Obtener todas las conversaciones del usuario
@@ -242,103 +243,80 @@ const app = new Hono()
             }));
 
             // =====================================================================
-            // PASO CLAVE: Intentar usar chatWithTools si está disponible
+            // FUNCTION CALLING: Intentar interpretar acciones
             // =====================================================================
             //
-            // Primero intentamos con function calling. Si el servicio no lo soporta
-            // o si la IA decide no usar herramientas, caemos al chat normal.
+            // Usamos chatWithTools centralizado (en function-calling.ts) para
+            // detectar si el usuario quiere ejecutar una acción.
+            // Si la IA detecta una acción, ejecutamos el handler correspondiente.
 
-            if (service.chatWithTools) {
-                try {
-                    const result = await service.chatWithTools(aiMessages);
+            try {
+                const result = await chatWithTools(aiMessages);
 
-                    // ¿La IA quiere llamar a una función?
-                    if (result.type === 'tool_call') {
-                        // Procesar cada llamada a función
-                        // (Por ahora solo soportamos una a la vez para mantenerlo simple)
-                        const toolCall = result.toolCalls[0];
+                // ¿La IA quiere ejecutar una acción?
+                if (result.type === 'tool_call') {
+                    const toolCall = result.toolCalls[0];
 
-                        // =========================================================
-                        // EJECUTAR LA FUNCIÓN: create_note
-                        // =========================================================
-                        if (toolCall.name === 'create_note') {
-                            const args = toolCall.arguments as unknown as CreateNoteArgs;
+                    // Ejecutar la acción usando el sistema de handlers
+                    const actionResult = await executeAction(toolCall.name, {
+                        userId: user.$id,
+                        userEmail: user.email,
+                        args: toolCall.arguments,
+                    });
 
-                            // Crear la nota en la base de datos (igual que el endpoint /notes)
-                            await databases.createDocument(
-                                DATABASE_ID,
-                                NOTES_ID,
-                                ID.unique(),
-                                {
-                                    title: args.title || '',
-                                    content: args.content,
-                                    bgColor: args.bgColor || 'none',
-                                    userId: user.$id,
-                                }
-                            );
-
-                            // Crear mensaje de confirmación para el usuario
-                            const confirmationMessage = `✅ ¡Nota creada exitosamente!\n\n` +
-                                (args.title ? `**${args.title}**\n` : '') +
-                                `${args.content}`;
-
-                            // Guardar la respuesta del asistente en la BD
-                            await databases.createDocument(
-                                DATABASE_ID,
-                                CHAT_MESSAGES_ID,
-                                ID.unique(),
-                                {
-                                    conversationId,
-                                    content: confirmationMessage,
-                                    role: 'ASSISTANT',
-                                    model: service.model,
-                                }
-                            );
-
-                            // Devolver la respuesta (sin streaming, es instantánea)
-                            return new Response(confirmationMessage, {
-                                headers: {
-                                    'Content-Type': 'text/event-stream',
-                                    'Cache-Control': 'no-cache',
-                                    'Connection': 'keep-alive',
-                                    'X-Conversation-Id': conversationId,
-                                    'X-Model-Name': service.displayName,
-                                    // Header especial para indicar que se ejecutó una función
-                                    'X-Function-Called': 'create_note',
-                                }
-                            });
+                    // Guardar la respuesta del asistente en la BD
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        CHAT_MESSAGES_ID,
+                        ID.unique(),
+                        {
+                            conversationId,
+                            content: actionResult.message,
+                            role: 'ASSISTANT',
+                            model: service.model,
                         }
-                    }
+                    );
 
-                    // Si la IA respondió con texto (no tool_call), devolverlo directamente
-                    if (result.type === 'text') {
-                        // Guardar la respuesta
-                        await databases.createDocument(
-                            DATABASE_ID,
-                            CHAT_MESSAGES_ID,
-                            ID.unique(),
-                            {
-                                conversationId,
-                                content: result.content,
-                                role: 'ASSISTANT',
-                                model: service.model,
-                            }
-                        );
-
-                        return new Response(result.content, {
-                            headers: {
-                                'Content-Type': 'text/event-stream',
-                                'Cache-Control': 'no-cache',
-                                'Connection': 'keep-alive',
-                                'X-Conversation-Id': conversationId,
-                                'X-Model-Name': service.displayName,
-                            }
-                        });
-                    }
-                } catch (error) {
-                    // Si falla chatWithTools, caer al método normal de streaming
-                    console.error('chatWithTools failed, falling back to streaming:', error);
+                    // Devolver la respuesta
+                    return new Response(actionResult.message, {
+                        headers: {
+                            'Content-Type': 'text/event-stream',
+                            'Cache-Control': 'no-cache',
+                            'Connection': 'keep-alive',
+                            'X-Conversation-Id': conversationId,
+                            'X-Model-Name': service.displayName,
+                            'X-Function-Called': actionResult.actionName,
+                        }
+                    });
                 }
+
+                // Si la IA respondió con texto (no tool_call), devolverlo directamente
+                if (result.type === 'text') {
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        CHAT_MESSAGES_ID,
+                        ID.unique(),
+                        {
+                            conversationId,
+                            content: result.content,
+                            role: 'ASSISTANT',
+                            model: service.model,
+                        }
+                    );
+
+                    return new Response(result.content, {
+                        headers: {
+                            'Content-Type': 'text/event-stream',
+                            'Cache-Control': 'no-cache',
+                            'Connection': 'keep-alive',
+                            'X-Conversation-Id': conversationId,
+                            'X-Model-Name': service.displayName,
+                        }
+                    });
+                }
+            } catch (error) {
+                // Si falla function calling, caer al chat normal con streaming
+                console.error('Function calling failed, falling back to streaming:', error);
             }
 
             // =====================================================================

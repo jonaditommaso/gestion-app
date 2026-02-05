@@ -28,12 +28,14 @@ export interface TextResult {
  */
 export type ChatWithToolsResult = ToolCallResult | TextResult;
 
+/**
+ * Servicio de IA para chat conversacional (streaming).
+ * Function calling está separado en function-calling.ts
+ */
 export interface AIService {
     model: string;
     displayName: string;
     chat: (message: ChatMessage[]) => Promise<AsyncIterable<string>>;
-    // Nuevo método opcional para function calling
-    chatWithTools?: (messages: ChatMessage[]) => Promise<ChatWithToolsResult>;
 }
 
 export type StreamChunk = {
