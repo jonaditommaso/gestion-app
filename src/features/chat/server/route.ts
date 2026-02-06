@@ -3,6 +3,8 @@ import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
 import { getNextService } from "@/ai";
 import { ChatMessage } from "@/ai/types";
+import { chatWithTools } from "@/ai/function-calling";
+import { executeAction } from "@/ai/handlers";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
@@ -173,6 +175,22 @@ const app = new Hono()
     )
 
     // Enviar mensaje y obtener respuesta de IA (con streaming)
+    /**
+     * =============================================================================
+     * ENDPOINT PRINCIPAL DEL CHAT CON FUNCTION CALLING
+     * =============================================================================
+     *
+     * FLUJO DE FUNCTION CALLING:
+     *
+     * 1. Usuario envía mensaje: "Crea una nota que diga que mañana debo trabajar"
+     * 2. Enviamos el mensaje a la IA CON las herramientas disponibles
+     * 3. La IA analiza y decide: "Necesito usar create_note"
+     * 4. La IA devuelve: { type: 'tool_call', toolCalls: [{ name: 'create_note', arguments: {...} }] }
+     * 5. NOSOTROS ejecutamos la función real (crear nota en la BD)
+     * 6. Devolvemos al usuario un mensaje confirmando la acción
+     *
+     * Si la IA no necesita usar herramientas, simplemente responde con texto normal.
+     */
     .post(
         '/',
         zValidator('json', sendChatMessageSchema),
@@ -217,12 +235,112 @@ const app = new Hono()
                 );
             }
 
-            // Obtener respuesta de la IA
+            // Obtener el servicio de IA
             const service = getNextService();
             const aiMessages: ChatMessage[] = messages.map(m => ({
                 role: m.role,
                 content: m.content
             }));
+
+            // =====================================================================
+            // FUNCTION CALLING: Intentar interpretar acciones
+            // =====================================================================
+            //
+            // Usamos chatWithTools centralizado (en function-calling.ts) para
+            // detectar si el usuario quiere ejecutar una acción.
+            // Si la IA detecta una acción, ejecutamos el handler correspondiente.
+
+            console.log('[CHAT] Starting function calling attempt...');
+
+            try {
+                const result = await chatWithTools(aiMessages);
+
+                console.log('[CHAT] Function calling result type:', result.type);
+
+                // ¿La IA quiere ejecutar una acción?
+                if (result.type === 'tool_call') {
+                    const toolCall = result.toolCalls[0];
+
+                    const actionContext = {
+                        userId: user.$id,
+                        userEmail: user.email,
+                        cookie: ctx.req.header('cookie') || '',
+                        baseUrl: new URL(ctx.req.url).origin,
+                        args: toolCall.arguments,
+                    };
+
+                    console.log('[CHAT] Executing action:', {
+                        actionName: toolCall.name,
+                        userId: actionContext.userId,
+                        baseUrl: actionContext.baseUrl,
+                        hasCookie: !!actionContext.cookie,
+                        cookieLength: actionContext.cookie.length,
+                        args: actionContext.args,
+                    });
+
+                    // Ejecutar la acción usando el sistema de handlers
+                    const actionResult = await executeAction(toolCall.name, actionContext);
+
+                    // Guardar la respuesta del asistente en la BD
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        CHAT_MESSAGES_ID,
+                        ID.unique(),
+                        {
+                            conversationId,
+                            content: actionResult.message,
+                            role: 'ASSISTANT',
+                            model: service.model,
+                        }
+                    );
+
+                    // Devolver la respuesta
+                    return new Response(actionResult.message, {
+                        headers: {
+                            'Content-Type': 'text/event-stream',
+                            'Cache-Control': 'no-cache',
+                            'Connection': 'keep-alive',
+                            'X-Conversation-Id': conversationId,
+                            'X-Model-Name': service.displayName,
+                            'X-Function-Called': actionResult.actionName,
+                        }
+                    });
+                }
+
+                // Si la IA respondió con texto (no tool_call), devolverlo directamente
+                if (result.type === 'text') {
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        CHAT_MESSAGES_ID,
+                        ID.unique(),
+                        {
+                            conversationId,
+                            content: result.content,
+                            role: 'ASSISTANT',
+                            model: service.model,
+                        }
+                    );
+
+                    return new Response(result.content, {
+                        headers: {
+                            'Content-Type': 'text/event-stream',
+                            'Cache-Control': 'no-cache',
+                            'Connection': 'keep-alive',
+                            'X-Conversation-Id': conversationId,
+                            'X-Model-Name': service.displayName,
+                        }
+                    });
+                }
+            } catch (error) {
+                // Si falla function calling, caer al chat normal con streaming
+                console.error('[CHAT] Function calling failed, falling back to streaming:', error);
+            }
+
+            console.log('[CHAT] Falling back to streaming chat (no function call detected)');
+
+            // =====================================================================
+            // FALLBACK: Chat normal con streaming (sin function calling)
+            // =====================================================================
             const stream = await service.chat(aiMessages);
 
             // Acumular la respuesta completa para guardarla
