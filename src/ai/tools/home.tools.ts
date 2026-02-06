@@ -33,7 +33,7 @@ export const CREATE_NOTE_TOOL = {
     type: "function" as const,
     function: {
         name: "create_note",
-        description: "Crea una nota personal para el usuario. Usa esta función cuando el usuario pida crear, agregar o guardar una nota, recordatorio o algo que quiera recordar.",
+        description: "SIEMPRE usa esta función cuando el usuario pida crear, agregar o guardar una nota, recordatorio, o algo que quiera recordar. NO simules crear la nota, debes EJECUTAR esta función para que la nota se cree realmente en la base de datos.",
         parameters: {
             type: "object",
             properties: {

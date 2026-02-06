@@ -250,21 +250,36 @@ const app = new Hono()
             // detectar si el usuario quiere ejecutar una acción.
             // Si la IA detecta una acción, ejecutamos el handler correspondiente.
 
+            console.log('[CHAT] Starting function calling attempt...');
+
             try {
                 const result = await chatWithTools(aiMessages);
+
+                console.log('[CHAT] Function calling result type:', result.type);
 
                 // ¿La IA quiere ejecutar una acción?
                 if (result.type === 'tool_call') {
                     const toolCall = result.toolCalls[0];
 
-                    // Ejecutar la acción usando el sistema de handlers
-                    const actionResult = await executeAction(toolCall.name, {
+                    const actionContext = {
                         userId: user.$id,
                         userEmail: user.email,
                         cookie: ctx.req.header('cookie') || '',
                         baseUrl: new URL(ctx.req.url).origin,
                         args: toolCall.arguments,
+                    };
+
+                    console.log('[CHAT] Executing action:', {
+                        actionName: toolCall.name,
+                        userId: actionContext.userId,
+                        baseUrl: actionContext.baseUrl,
+                        hasCookie: !!actionContext.cookie,
+                        cookieLength: actionContext.cookie.length,
+                        args: actionContext.args,
                     });
+
+                    // Ejecutar la acción usando el sistema de handlers
+                    const actionResult = await executeAction(toolCall.name, actionContext);
 
                     // Guardar la respuesta del asistente en la BD
                     await databases.createDocument(
@@ -318,8 +333,10 @@ const app = new Hono()
                 }
             } catch (error) {
                 // Si falla function calling, caer al chat normal con streaming
-                console.error('Function calling failed, falling back to streaming:', error);
+                console.error('[CHAT] Function calling failed, falling back to streaming:', error);
             }
+
+            console.log('[CHAT] Falling back to streaming chat (no function call detected)');
 
             // =====================================================================
             // FALLBACK: Chat normal con streaming (sin function calling)
