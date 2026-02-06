@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { NoteData } from "../../types";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 
 const ColorNoteSelector = dynamic(() => import('./ColorNoteSelector'))
 
@@ -21,6 +22,9 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
     const { title, content, bgColor, $id } = note;
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const t = useTranslations('home');
+    const { theme } = useTheme();
+
+    const iconClass = `h-4 w-4 ${theme !== 'dark' && bgColor === 'none' ? 'text-slate-900' : 'text-slate-50'}`;
 
     return (
         <motion.div
@@ -48,7 +52,7 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                             className="h-8 w-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
                             title={t('change-color')}
                         >
-                            <Palette className="h-4 w-4 text-slate-50" />
+                            <Palette className={iconClass} />
                         </Button>
                     </PopoverTrigger>
                     <ColorNoteSelector onChange={(val) => {
@@ -64,7 +68,7 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                     onClick={() => onEdit(note)}
                     title={t('edit-note')}
                 >
-                    <Pencil className="h-4 w-4 text-slate-50" />
+                    <Pencil className={iconClass} />
                 </Button>
 
                 <Button
@@ -74,7 +78,7 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                     onClick={() => onDelete($id)}
                     title={t('delete-note')}
                 >
-                    <Trash2 className="h-4 w-4 text-slate-50" />
+                    <Trash2 className={iconClass} />
                 </Button>
             </div>
         </motion.div>

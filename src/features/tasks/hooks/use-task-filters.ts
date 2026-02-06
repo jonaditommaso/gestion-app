@@ -51,6 +51,8 @@ export const useTaskFilters = () => {
         dueDate: parseAsString,
         priority: parseAsInteger,
         label: parseAsArrayOf(parseAsString),
+        type: parseAsString,
+        completed: parseAsString,
     });
 
     // Convertir el status de la URL (label) a status key
@@ -78,6 +80,8 @@ export const useTaskFilters = () => {
         dueDate: string | null;
         priority: number | null;
         label: string[] | null;
+        type: string | null;
+        completed: string | null;
     }>) => {
         const modifiedFilters: Partial<{
             status: string | null;
@@ -86,6 +90,8 @@ export const useTaskFilters = () => {
             dueDate: string | null;
             priority: number | null;
             label: string[] | null;
+            type: string | null;
+            completed: string | null;
         }> = { ...newFilters };
 
         if ('status' in modifiedFilters && modifiedFilters.status !== undefined) {

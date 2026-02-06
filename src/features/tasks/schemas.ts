@@ -21,6 +21,11 @@ export const createTaskSchema = zod.object({
     type: zod.string().optional(),
     metadata: zod.string().optional(), // JSON stringified
     checklistTitle: zod.string().optional().nullable(), // Title of the checklist
+    completedAt: zod.coerce.date().optional().nullable(), // Date when task was completed
+    parentId: zod.string().optional().nullable(), // ID of the parent task (for subtasks of epics)
+    archived: zod.boolean().optional(),
+    archivedBy: zod.string().optional().nullable(),
+    archivedAt: zod.coerce.date().optional().nullable(),
 })
 
 export const getTaskSchema = zod.object({
@@ -32,7 +37,10 @@ export const getTaskSchema = zod.object({
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish(),
     label: zod.string().nullish(),
-    limit: zod.coerce.number().int().min(1).max(100).nullish() // Límite de resultados
+    type: zod.string().nullish(),
+    completed: zod.string().nullish(),
+    archived: zod.enum(['true', 'false', 'all']).nullish(), // Filtrar por estado de archivado
+    limit: zod.coerce.number().int().min(1).max(5000).nullish() // Límite de resultados
 })
 
 export const createTaskShareSchema = zod.object({

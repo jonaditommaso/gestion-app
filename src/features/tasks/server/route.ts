@@ -103,7 +103,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, limit } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, type, completed, archived, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -154,14 +154,40 @@ const app = new Hono()
                 }
             }
 
+            if (type) {
+                query.push(Query.equal('type', type));
+            }
+
+            if (completed) {
+                if (completed === 'completed') {
+                    query.push(Query.isNotNull('completedAt'));
+                } else if (completed === 'incomplete') {
+                    query.push(Query.isNull('completedAt'));
+                }
+                // Si es 'all' no agregamos filtro
+            }
+
             const tasks = await databases.listDocuments<Task>(
                 DATABASE_ID,
                 TASKS_ID,
                 query
             )
 
+            // Filtrar tareas según el parámetro archived
+            let filteredTasks = tasks.documents;
+            if (archived === 'true') {
+                // Solo tareas archivadas
+                filteredTasks = tasks.documents.filter(task => task.archived === true);
+            } else if (archived === 'all') {
+                // Todas las tareas (archivadas y no archivadas)
+                filteredTasks = tasks.documents;
+            } else {
+                // Por defecto: excluir tareas archivadas
+                filteredTasks = tasks.documents.filter(task => task.archived !== true);
+            }
+
             // Obtener todos los task IDs
-            let taskIds = tasks.documents.map(task => task.$id);
+            let taskIds = filteredTasks.map(task => task.$id);
 
             // Si hay filtro por assigneeId, obtener solo las tareas asignadas a ese miembro
             if (assigneeId) {
@@ -197,7 +223,7 @@ const app = new Hono()
                 : { documents: [] };
 
             // Mapear las tareas con sus assignees
-            const populatedTasks = tasks.documents
+            const populatedTasks = filteredTasks
                 .filter(task => taskIds.includes(task.$id)) // Filtrar por taskIds (incluye filtro de assigneeId si aplica)
                 .map(task => {
                     // Encontrar todas las asignaciones para esta tarea
@@ -229,7 +255,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -282,6 +308,7 @@ const app = new Hono()
                     type: type || 'task',
                     featured: featured || false,
                     metadata: metadata || null,
+                    parentId: parentId || null,
                 }
             )
 
@@ -1290,6 +1317,99 @@ const app = new Hono()
             });
 
             return ctx.json({ success: true });
+        }
+    )
+
+    // Get subtasks for an epic task
+    .get(
+        '/subtasks/:parentId',
+        sessionMiddleware,
+        zValidator('query', zod.object({
+            workspaceId: zod.string()
+        })),
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { parentId } = ctx.req.param();
+            const { workspaceId } = ctx.req.valid('query');
+
+            const member = await getMember({
+                databases,
+                workspaceId,
+                userId: user.$id
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            // Get all subtasks for this parent
+            const allSubtasks = await databases.listDocuments<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                [
+                    Query.equal('parentId', parentId),
+                    Query.equal('workspaceId', workspaceId),
+                    Query.orderAsc('position'),
+                    Query.limit(100)
+                ]
+            );
+
+            // Filtrar subtasks archivadas (excluir solo las que tienen archived === true)
+            const subtasks = {
+                ...allSubtasks,
+                documents: allSubtasks.documents.filter(task => task.archived !== true)
+            };
+
+            // Get assignees for all subtasks
+            const subtaskIds = subtasks.documents.map(t => t.$id);
+
+            const taskAssignees = subtaskIds.length > 0
+                ? await databases.listDocuments<TaskAssignee>(
+                    DATABASE_ID,
+                    TASK_ASSIGNEES_ID,
+                    [Query.contains('taskId', subtaskIds), Query.limit(500)]
+                )
+                : { documents: [] };
+
+            // Get unique member IDs from assignees
+            const memberIds = [...new Set(taskAssignees.documents.map(ta => ta.workspaceMemberId))];
+
+            // Get member data
+            const members = memberIds.length > 0
+                ? await databases.listDocuments<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    [Query.contains('$id', memberIds)]
+                )
+                : { documents: [] };
+
+            // Create a map of memberId to member data
+            const memberMap = new Map(members.documents.map(m => [m.$id, m]));
+
+            // Populate subtasks with assignees
+            const populatedSubtasks = subtasks.documents.map(task => {
+                const taskAssigneeIds = taskAssignees.documents
+                    .filter(ta => ta.taskId === task.$id)
+                    .map(ta => ta.workspaceMemberId);
+
+                const assignees = taskAssigneeIds
+                    .map(id => memberMap.get(id))
+                    .filter(Boolean) as WorkspaceMember[];
+
+                return {
+                    ...task,
+                    assignees
+                };
+            });
+
+            return ctx.json({
+                data: {
+                    documents: populatedSubtasks,
+                    total: subtasks.total
+                }
+            });
         }
     )
 
