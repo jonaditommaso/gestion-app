@@ -22,11 +22,18 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
+} from "@/components/ui/tooltip";
 
 const LoginCard = () => {
     const { mutate, isPending } = useLogin();
     const t = useTranslations('auth');
     const isMobile = useIsMobile();
+    const googleSignInWarning = t('google-signin-test-warning');
 
     const form = useForm<zod.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -105,10 +112,27 @@ const LoginCard = () => {
                 </CardContent>
                 <Separator />
                 <CardContent className="p-7 flex flex-col gap-y-4">
-                <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
-                    <FcGoogle className="mr-2 size-5" />
-                    {t('login-with')} Google
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button size={isMobile ? 'sm' : 'lg'} className="flex-1" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle()}>
+                        <FcGoogle className="mr-2 size-5" />
+                        {t('login-with')} Google
+                    </Button>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <span
+                                    className="text-amber-500 text-lg leading-none cursor-help"
+                                    aria-label={googleSignInWarning}
+                                >
+                                    ⚠️
+                                </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                                <p>{googleSignInWarning}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
                 <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
                     <FaGithub className="mr-2 size-5" />
                     {t('login-with')} Github

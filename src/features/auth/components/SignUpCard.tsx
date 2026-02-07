@@ -24,6 +24,12 @@ import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import Image from "next/image";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
+} from "@/components/ui/tooltip";
 
 const SignUpCard = () => {
     const { mutate, isPending } = useRegister();
@@ -31,6 +37,7 @@ const SignUpCard = () => {
     const plan = searchParams.get("plan") || 'free';
     const t = useTranslations('auth');
     const isMobile = useIsMobile();
+    const googleSignUpWarning = t('google-signup-test-warning');
 
     const [planSelected, setPlanSelected] = useState<null | string>(null);
 
@@ -171,10 +178,27 @@ const SignUpCard = () => {
                 </CardContent>
                 <Separator />
                 <CardContent className="p-7 flex flex-col gap-y-4">
-                <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle(plan)}>
-                    <FcGoogle className="mr-2 size-5" />
-                    {t('register-with')} Google
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button size={isMobile ? 'sm' : 'lg'} className="flex-1" variant='outline' disabled={isPending} onClick={() => signUpWithGoogle(plan)}>
+                        <FcGoogle className="mr-2 size-5" />
+                        {t('register-with')} Google
+                    </Button>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <span
+                                    className="text-amber-500 text-lg leading-none cursor-help"
+                                    aria-label={googleSignUpWarning}
+                                >
+                                    ⚠️
+                                </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                                <p>{googleSignUpWarning}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
                 <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub(plan)}>
                     <FaGithub className="mr-2 size-5" />
                     {t('register-with')} Github
