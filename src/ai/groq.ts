@@ -15,9 +15,16 @@ function getGroqClient() {
     return groq;
 }
 
+/**
+ * Servicio de Groq para CHAT CONVERSACIONAL (streaming).
+ *
+ * Function calling está centralizado en function-calling.ts
+ * para evitar duplicación y permitir usar cualquier proveedor.
+ */
 export const groqService: AIService = {
     model: GROQ_MODEL,
     displayName: 'Groq Moonshotai Kimi K2',
+
     async chat(messages: ChatMessage[]) {
         const groq = getGroqClient();
 
