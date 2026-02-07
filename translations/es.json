@@ -1026,6 +1026,8 @@
         "logging-in": "Iniciando sesión...",
         "login-with": "Iniciar sesión con",
         "register-with": "Registrarse con",
+        "google-signin-test-warning": "El inicio de sesión con Google está limitado a usuarios de prueba en la demo pública debido a los requisitos de verificación de OAuth.",
+        "google-signup-test-warning": "El registro con Google está limitado a usuarios de prueba en la demo pública debido a los requisitos de verificación de OAuth.",
         "password": "Contraseña",
         "back-home": "Regresar al Inicio",
         "signup-button": "Registrarse",

@@ -1006,6 +1006,8 @@
         "logging-in": "Accesso in corso...",
         "login-with": "Accedi con",
         "register-with": "Registrati con",
+        "google-signin-test-warning": "L'accesso con Google è limitato agli utenti di test nella demo pubblica a causa dei requisiti di verifica OAuth.",
+        "google-signup-test-warning": "La registrazione con Google è limitata agli utenti di test nella demo pubblica a causa dei requisiti di verifica OAuth.",
         "password": "Password",
         "back-home": "Torna alla Home",
         "signup-button": "Registrati",

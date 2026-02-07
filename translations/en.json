@@ -1020,6 +1020,8 @@
         "logging-in": "Logging in...",
         "login-with": "Login with",
         "register-with": "Register with",
+        "google-signin-test-warning": "Google Sign-In is limited to test users in the public demo due to OAuth verification requirements.",
+        "google-signup-test-warning": "Google Sign-Up is limited to test users in the public demo due to OAuth verification requirements.",
         "password": "Password",
         "back-home": "Back to Home",
         "signup-button": "Sign up",

@@ -104,8 +104,8 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
     if (isLoading) return null;
 
     return (
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-2 items-center">
-            <div className="flex flex-col lg:flex-row gap-2 flex-1 lg:flex-initial">
+        <div className="flex flex-wrap gap-2 items-start justify-between max-[928px]:justify-start">
+            <div className="flex flex-wrap gap-2 flex-1 min-w-0 max-[928px]:w-full">
             {!hideStatusFilter && (
                 <Select
                     value={status ?? 'all'}
@@ -371,7 +371,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                 onChange={date => { setFilters({ dueDate: date ? date.toISOString() : null }) }}
             />
             </div>
-            <div className="flex items-center gap-2 w-full lg:w-auto">
+            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto max-[928px]:w-full">
                 {hasActiveFilters && (
                     <Button
                         variant="ghost"
@@ -383,7 +383,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                         {t('clear-filters')}
                     </Button>
                 )}
-                <div className="relative w-full lg:w-[250px]">
+                <div className="relative w-full sm:w-[250px]">
                     <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         placeholder={t('search-by-name')}
