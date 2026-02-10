@@ -414,15 +414,15 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
             <div className="lg:col-span-2 space-y-8">
                 {/* Parent Epic Breadcrumb */}
                 {displayTask.parentId && parentTask && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Layers className="size-4" />
-                        <span>{t('subtask-of')}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">{t('subtask-of')}</span>
                         <button
                             onClick={handleNavigateToParent}
                             disabled={isTaskLoading}
-                            className="flex items-center gap-1 text-primary hover:underline font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {parentTask.name}
+                            <Layers className="size-4 flex-shrink-0" />
+                            <span className="truncate">{parentTask.name}</span>
                         </button>
                     </div>
                 )}
