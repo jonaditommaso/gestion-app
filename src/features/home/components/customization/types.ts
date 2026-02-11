@@ -46,6 +46,7 @@ export interface HomeConfigDocument {
     $id: string;
     userId: string;
     widgets: string; // JSON stringified HomeConfig
+    noteGlobalPinOnboarded?: boolean;
     $collectionId: string;
     $databaseId: string;
     $createdAt: string;

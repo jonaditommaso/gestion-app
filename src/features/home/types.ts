@@ -3,6 +3,10 @@ export interface NoteData {
     title?: string;
     content: string;
     bgColor: string;
+    isPinned?: boolean;
+    pinnedAt?: string | null;
+    isGlobal?: boolean;
+    globalAt?: string | null;
     userId: string;
     $collectionId: string;
     $databaseId: string;

@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import { HomeConfig, DEFAULT_HOME_CONFIG, WidgetId, IntegrationId, configToOverrides, mergeConfigWithOverrides } from './types';
 import { useGetHomeConfig } from '../../api/use-get-home-config';
+import { useCreateHomeConfig } from '../../api/use-create-home-config';
 import { useUpdateHomeConfig } from '../../api/use-update-home-config';
 
 interface HomeCustomizationContextType {
@@ -38,6 +39,7 @@ interface HomeCustomizationProviderProps {
 
 export const HomeCustomizationProvider = ({ children }: HomeCustomizationProviderProps) => {
     const { data: savedConfig, isLoading } = useGetHomeConfig();
+    const { mutate: createConfig } = useCreateHomeConfig();
     const { mutate: updateConfig, isPending: isSaving } = useUpdateHomeConfig();
 
     const [isEditMode, setIsEditMode] = useState(false);
@@ -124,23 +126,34 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
 
         // Guardar en la base de datos
         const overrides = configToOverrides(newConfig);
-        updateConfig({
-            json: { widgets: JSON.stringify(overrides) }
-        }, {
+        const payload = { widgets: JSON.stringify(overrides) };
+
+        if (savedConfig?.$id) {
+            updateConfig({ json: payload }, {
+                onSettled: () => {
+                    // Limpiar local config después de que se complete
+                    setLocalConfig(null);
+                }
+            });
+            return;
+        }
+
+        createConfig({ json: payload }, {
             onSettled: () => {
-                // Limpiar local config después de que se complete
                 setLocalConfig(null);
             }
         });
-    }, [localConfig, parsedSavedConfig, updateConfig]);
+    }, [createConfig, localConfig, parsedSavedConfig, savedConfig?.$id, updateConfig]);
 
     const saveChanges = useCallback(() => {
         // Convertir el config completo a overrides (solo cambios respecto al default)
         const overrides = configToOverrides(config);
 
-        updateConfig({
-            json: { widgets: JSON.stringify(overrides) }
-        }, {
+        const payload = { widgets: JSON.stringify(overrides) };
+
+        const mutateConfig = savedConfig?.$id ? updateConfig : createConfig;
+
+        mutateConfig({ json: payload }, {
             onSuccess: () => {
                 setIsEditMode(false);
                 // Don't clear localConfig here - the optimistic update already handled it
@@ -151,7 +164,7 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
                 setLocalConfig(null);
             }
         });
-    }, [config, updateConfig]);
+    }, [config, createConfig, savedConfig?.$id, updateConfig]);
 
     const cancelChanges = useCallback(() => {
         setLocalConfig(null);

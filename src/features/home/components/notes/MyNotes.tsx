@@ -17,6 +17,7 @@ import { useUpdateNote } from "../../api/use-update-note";
 import { useDeleteNote } from "../../api/use-delete-note";
 import { AnimatePresence } from "motion/react";
 import { NoteData } from "../../types";
+import { Separator } from "@/components/ui/separator";
 
 const ColorNoteSelector = dynamic(() => import('./ColorNoteSelector'))
 
@@ -38,6 +39,19 @@ const MyNotes = () => {
 
     const t = useTranslations('home')
 
+    const filteredNotes = data?.documents.filter(note => !note.isGlobal) || [];
+
+    const pinnedNotes = filteredNotes
+        .filter(note => note.isPinned)
+        .sort((a, b) => {
+            if (a.pinnedAt && b.pinnedAt) {
+                return new Date(b.pinnedAt).getTime() - new Date(a.pinnedAt).getTime();
+            }
+            return 0;
+        });
+
+    const unpinnedNotes = filteredNotes.filter(note => !note.isPinned);
+
     const onChange = (value: string, field: 'title' | 'content' | 'bgColor') => {
         setNewNote(prev => {
             return {
@@ -54,17 +68,12 @@ const MyNotes = () => {
     }
 
     const handleUpdateColor = (id: string, color: string) => {
-        const note = data?.documents.find(n => n.$id === id);
-        if (note) {
-            updateNote({
-                param: { noteId: id },
-                json: {
-                    title: note.title,
-                    content: note.content,
-                    bgColor: color
-                }
-            });
-        }
+        updateNote({
+            param: { noteId: id },
+            json: {
+                bgColor: color
+            }
+        });
     }
 
     return (
@@ -114,18 +123,40 @@ const MyNotes = () => {
                                 </Button>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 justify-center">
-                            <AnimatePresence>
-                                {data?.documents.map(note => (
-                                    <Note
-                                        key={note.$id}
-                                        note={note as NoteData}
-                                        onEdit={setSelectedNote}
-                                        onDelete={(id) => deleteNote({ param: { noteId: id } })}
-                                        onUpdateColor={handleUpdateColor}
-                                    />
-                                ))}
-                            </AnimatePresence>
+                        <div className="flex flex-col gap-4">
+                            {pinnedNotes.length > 0 && (
+                                <div className="grid grid-cols-2 gap-2 justify-center">
+                                    <AnimatePresence>
+                                        {pinnedNotes.map(note => (
+                                            <Note
+                                                key={note.$id}
+                                                note={note as NoteData}
+                                                onEdit={setSelectedNote}
+                                                onDelete={(id) => deleteNote({ param: { noteId: id } })}
+                                                onUpdateColor={handleUpdateColor}
+                                            />
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+                            )}
+                            {pinnedNotes.length > 0 && unpinnedNotes.length > 0 && (
+                                <Separator />
+                            )}
+                            {unpinnedNotes.length > 0 && (
+                                <div className="grid grid-cols-2 gap-2 justify-center">
+                                    <AnimatePresence>
+                                        {unpinnedNotes.map(note => (
+                                            <Note
+                                                key={note.$id}
+                                                note={note as NoteData}
+                                                onEdit={setSelectedNote}
+                                                onDelete={(id) => deleteNote({ param: { noteId: id } })}
+                                                onUpdateColor={handleUpdateColor}
+                                            />
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+                            )}
                         </div>
                     </>
                 )

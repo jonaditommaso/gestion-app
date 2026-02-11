@@ -5,13 +5,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useRef } from "react";
 import { useUpdateNote } from "../../api/use-update-note";
 import { useDeleteNote } from "../../api/use-delete-note";
-import { Palette, Trash2 } from "lucide-react";
+import { BookmarkX, Palette, Pin, PinOff, Trash2 } from "lucide-react";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { NoteData } from "../../types";
+import { cn } from "@/lib/utils";
 
 const ColorNoteSelector = dynamic(() => import('./ColorNoteSelector'))
 
@@ -25,6 +26,8 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
     const [title, setTitle] = useState(note.title || '');
     const [content, setContent] = useState(note.content);
     const [bgColor, setBgColor] = useState(note.bgColor);
+    const [isPinned, setIsPinned] = useState(note.isPinned || false);
+    const [isGlobal, setIsGlobal] = useState(note.isGlobal || false);
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
 
     const titleInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +42,8 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
             setTitle(note.title || '');
             setContent(note.content);
             setBgColor(note.bgColor);
+            setIsPinned(note.isPinned || false);
+            setIsGlobal(note.isGlobal || false);
 
             // Enfocar el input correcto después de que el modal se abra
             setTimeout(() => {
@@ -87,12 +92,56 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
         }
     };
 
+    const handlePinNote = () => {
+        setIsPinned(true);
+        updateNote({
+            param: { noteId: note.$id },
+            json: {
+                isPinned: true,
+                pinnedAt: new Date().toISOString()
+            }
+        });
+    };
+
+    const handleUnpinNote = () => {
+        setIsPinned(false);
+        updateNote({
+            param: { noteId: note.$id },
+            json: {
+                isPinned: false,
+                pinnedAt: null
+            }
+        });
+    };
+
+    const handleRemoveGlobal = () => {
+        setIsGlobal(false);
+        updateNote({
+            param: { noteId: note.$id },
+            json: {
+                isGlobal: false,
+                globalAt: null
+            }
+        });
+    };
+
     if (!isOpen) return null;
+
+    const isNoneColor = bgColor === 'none';
+    const textColorClass = isNoneColor ? '' : 'text-white';
+    const placeholderColorClass = isNoneColor ? 'placeholder:text-muted-foreground' : 'placeholder:text-white/60';
+    const iconColorClass = isNoneColor ? '' : 'text-white';
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent
-                className="p-0 border-none shadow-none bg-transparent max-w-lg overflow-hidden [&>button]:text-white [&>button]:hover:bg-white/20 [&>button]:border-none [&>button]:shadow-none"
+                className={cn(
+                  "p-0 border-none shadow-none bg-transparent max-w-lg overflow-hidden",
+                  isNoneColor
+                    ? "[&>button]:text-foreground [&>button]:hover:bg-accent"
+                    : "[&>button]:text-white [&>button]:hover:bg-white/20",
+                  "[&>button]:border-none [&>button]:shadow-none"
+                )}
             >
                 <DialogTitle className="sr-only">{t('edit-note')}</DialogTitle>
                 <motion.div
@@ -109,7 +158,11 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
                             onChange={(e) => setTitle(e.target.value)}
                             onBlur={handleBlur}
                             placeholder={t('title')}
-                            className="text-base font-semibold border-none shadow-none focus-visible:ring-0 bg-transparent px-0 text-white placeholder:text-white/60"
+                            className={cn(
+                              "text-base font-semibold border-none shadow-none focus-visible:ring-0 bg-transparent px-0",
+                              textColorClass,
+                              placeholderColorClass
+                            )}
                         />
                         <Textarea
                             ref={contentTextareaRef}
@@ -117,11 +170,46 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
                             onChange={(e) => setContent(e.target.value)}
                             onBlur={handleBlur}
                             placeholder={t('remember-placeholder')}
-                            className="resize-none min-h-[120px] max-h-[300px] border-none shadow-none focus-visible:ring-0 bg-transparent px-0 text-sm text-white placeholder:text-white/60"
+                            className={cn(
+                              "resize-none min-h-[120px] max-h-[300px] border-none shadow-none focus-visible:ring-0 bg-transparent px-0 text-sm",
+                              textColorClass,
+                              placeholderColorClass
+                            )}
                         />
                     </div>
 
                     <div className="px-2 pb-2 flex justify-end items-center gap-1">
+                        {isGlobal ? (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleRemoveGlobal}
+                                className="rounded-full hover:bg-black/20 dark:hover:bg-white/20"
+                                title={t('remove-global')}
+                            >
+                                <BookmarkX className={cn("h-4 w-4", iconColorClass)} />
+                            </Button>
+                        ) : isPinned ? (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleUnpinNote}
+                                className="rounded-full hover:bg-black/20 dark:hover:bg-white/20"
+                                title={t('unpin-note')}
+                            >
+                                <PinOff className={cn("h-4 w-4", iconColorClass)} />
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handlePinNote}
+                                className="rounded-full hover:bg-black/20 dark:hover:bg-white/20"
+                                title={t('pin-note')}
+                            >
+                                <Pin className={cn("h-4 w-4", iconColorClass)} />
+                            </Button>
+                        )}
                         <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
                             <PopoverTrigger asChild>
                                 <Button
@@ -130,7 +218,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
                                     className="rounded-full hover:bg-black/20 dark:hover:bg-white/20"
                                     title={t('change-color')}
                                 >
-                                    <Palette className="h-4 w-4 text-white" />
+                                    <Palette className={cn("h-4 w-4", iconColorClass)} />
                                 </Button>
                             </PopoverTrigger>
                             <ColorNoteSelector onChange={(val) => handleColorChange(val)} />
@@ -143,7 +231,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
                             className="rounded-full hover:bg-black/20 dark:hover:bg-white/20"
                             title={t('delete-note')}
                         >
-                            <Trash2 className="h-4 w-4 text-white" />
+                            <Trash2 className={cn("h-4 w-4", iconColorClass)} />
                         </Button>
                     </div>
                 </motion.div>
