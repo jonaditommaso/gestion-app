@@ -45,6 +45,7 @@ export enum WorkspaceConfigKey {
     PUBLIC_LINK_EXPIRATION_DAYS = 'publicLinkExpirationDays',
     MULTI_SELECT_LABELS = 'multiSelectLabels',
     HIDE_EPIC_PROGRESS_BAR = 'hideEpicProgressBar',
+    TABLE_PAGE_SIZE = 'tablePageSize',
 
     // Notifications
     NOTIFY_TASK_ASSIGNMENT = 'notifyTaskAssignment',
@@ -132,6 +133,7 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS]: 5, // 5 days by default
     [WorkspaceConfigKey.MULTI_SELECT_LABELS]: false, // single select by default
     [WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]: false, // show progress bar by default
+    [WorkspaceConfigKey.TABLE_PAGE_SIZE]: 10, // 10 items per page by default
 
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,

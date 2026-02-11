@@ -16,19 +16,27 @@ import {
 import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels"
 import { TASK_TYPE_OPTIONS } from "../constants/type"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
 import { useState } from "react"
 
 interface DataTableBulkActionsProps<TData> {
   selectedTasks: TData[]
   selectedCount: number
   onClearSelection: () => void
+  isAllPageRowsSelected?: boolean
+  totalFilteredRows?: number
+  currentPageRowCount?: number
+  onSelectAllPages?: () => void
 }
 
 export function DataTableBulkActions<TData extends Record<string, unknown>>({
   selectedTasks,
   selectedCount,
   onClearSelection,
+  isAllPageRowsSelected = false,
+  totalFilteredRows = 0,
+  currentPageRowCount = 0,
+  onSelectAllPages,
 }: DataTableBulkActionsProps<TData>) {
   const t = useTranslations('workspaces')
   const { mutate: updateTask } = useUpdateTask()
@@ -164,21 +172,16 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
     <>
       <DeleteDialog />
       <ArchiveDialog />
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.2 }}
-          className="mb-3 overflow-hidden"
-        >
-          <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/50 rounded-md border">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {t('selected-count', { count: selectedCount })}
-              </span>
-              <div className="h-4 w-px bg-border" />
-
+      <motion.div
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: 'auto' }}
+        exit={{ opacity: 0, height: 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="mb-3 overflow-hidden"
+      >
+          <div className="rounded-md border bg-muted/50">
+            {/* Primera fila: Solo acciones */}
+            <div className="flex items-center gap-2 px-3 py-2 border-b">
               {/* Feature / Unfeature */}
               <Button
                 variant="ghost"
@@ -269,19 +272,41 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
               </Button>
             </div>
 
-            {/* Clear Selection */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClearSelection}
-              className="h-8"
-            >
-              <X className="size-4 mr-1" />
-              {t('clear-selection')}
-            </Button>
+            {/* Segunda fila: Contador inteligente y limpiar selección */}
+            <div className="flex items-center justify-between px-3 py-2">
+              <div className="flex items-baseline gap-2">
+                {isAllPageRowsSelected && totalFilteredRows > currentPageRowCount && selectedCount < totalFilteredRows && onSelectAllPages ? (
+                  <>
+                    <span className="text-sm text-muted-foreground">
+                      {t('selected-count', { count: selectedCount })} {t('on-this-page')}
+                    </span>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={onSelectAllPages}
+                      className="h-auto p-0 text-blue-600 dark:text-blue-400"
+                    >
+                      {t('select-all-count', { count: totalFilteredRows })}
+                    </Button>
+                  </>
+                ) : (
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t('selected-count', { count: selectedCount })}
+                  </span>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClearSelection}
+                className="h-8"
+              >
+                <X className="size-4 mr-1" />
+                {t('clear-selection')}
+              </Button>
+            </div>
           </div>
         </motion.div>
-      </AnimatePresence>
     </>
   )
 }
