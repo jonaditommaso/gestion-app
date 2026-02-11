@@ -5,6 +5,7 @@ import {
   ColumnDef,
   SortingState,
   ColumnFiltersState,
+  RowSelectionState,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { useTranslations } from "next-intl"
+import { DataTableBulkActions } from "./DataTableBulkActions"
 
 interface DataTableProps<TData extends Record<string, unknown>, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -37,6 +39,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
   const table = useReactTable({
     data,
@@ -47,14 +50,28 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      columnFilters
+      columnFilters,
+      rowSelection,
     },
   })
 
+  const selectedRows = table.getFilteredSelectedRowModel().rows
+  const selectedCount = selectedRows.length
+
   return (
     <div className="bg-background p-4 rounded-lg">
+      {/* Bulk Actions Bar - Appears only when rows are selected */}
+      {selectedCount > 0 && (
+        <DataTableBulkActions
+          selectedTasks={selectedRows.map(row => row.original as TData)}
+          selectedCount={selectedCount}
+          onClearSelection={() => table.resetRowSelection()}
+        />
+      )}
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>

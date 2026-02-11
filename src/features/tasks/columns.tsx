@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl"
 import { TASK_PRIORITY_OPTIONS } from "./constants/priority"
 import { TASK_TYPE_OPTIONS } from "./constants/type"
 import { cn } from "@/lib/utils"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const SortableHeader = ({ column, translationKey }: { column: { toggleSorting: (asc: boolean) => void; getIsSorted: () => false | 'asc' | 'desc' }; translationKey: string }) => {
   const t = useTranslations('workspaces');
@@ -101,6 +102,28 @@ const CompletionCell = ({ completedAt }: { completedAt?: string | null }) => {
 };
 
 export const columns: ColumnDef<Task>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'name',
     header: ({ column }) => <SortableHeader column={column} translationKey="task-name" />,
