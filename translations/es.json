@@ -1420,6 +1420,7 @@
         "assignees": "Asignados",
         "completed": "Completado",
         "not-completed": "Sin completar",
+        "completion": "Completitud",
         "create-custom-status": "Crear columna personalizada",
         "create-custom-status-description": "Agrega una nueva columna al tablero Kanban",
         "status-name": "Nombre del estado",

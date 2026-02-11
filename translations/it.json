@@ -1400,6 +1400,7 @@
         "assignees": "Assegnatari",
         "completed": "Completato",
         "not-completed": "Non completato",
+        "completion": "Completamento",
         "create-custom-status": "Crea colonna personalizzata",
         "create-custom-status-description": "Aggiungi una nuova colonna alla bacheca Kanban",
         "status-name": "Nome dello stato",

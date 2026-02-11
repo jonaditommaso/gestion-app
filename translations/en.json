@@ -1414,6 +1414,7 @@
         "assignees": "Assignees",
         "completed": "Completed",
         "not-completed": "Not completed",
+        "completion": "Completion",
         "create-custom-status": "Create custom column",
         "create-custom-status-description": "Add a new column to the Kanban board",
         "status-name": "Status name",
