@@ -36,7 +36,7 @@ const TaskIdClient = () => {
                 </div>
 
                 {/* Content */}
-                <TaskDetails task={data} />
+                <TaskDetails task={data} variant="page" />
             </div>
         </div>
     );

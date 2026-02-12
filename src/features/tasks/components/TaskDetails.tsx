@@ -10,6 +10,7 @@ import { es, enUS, it } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import RichTextArea from "@/components/RichTextArea";
 import { useUpdateTask } from "../api/use-update-task";
 import CustomDatePicker from "@/components/CustomDatePicker";
@@ -29,7 +30,7 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { LabelSelector } from "./LabelSelector";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
-import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
+import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType, WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
 import { EpicSubtasks } from "./epic-subtasks";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
@@ -43,6 +44,10 @@ const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_
 interface TaskDetailsProps {
     task: Task;
     readOnly?: boolean;
+    /** Where TaskDetails is rendered, used for navigation after auto-archive */
+    variant?: 'modal' | 'page';
+    /** Only for variant='modal' */
+    onClose?: () => void;
 }
 
 export const TaskTitleEditor = ({
@@ -162,10 +167,11 @@ export const TaskTitleEditor = ({
 
 const DATE_LOCALES = { es, en: enUS, it };
 
-const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
+const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
     const locale = useLocale() as 'es' | 'en' | 'it';
     const { data: user } = useCurrent();
+    const router = useRouter();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
@@ -198,6 +204,7 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const config = useWorkspaceConfig();
+    const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
     const { data: tasksData } = useGetTasks({ workspaceId });
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
     const prevCompletedAt = useRef(displayTask.completedAt);
@@ -293,6 +300,11 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
 
     const handleStatusChange = (statusValue: string) => {
         if (readOnly) return;
+        const shouldAutoArchive =
+            !!autoArchiveOnStatusId &&
+            statusValue === autoArchiveOnStatusId &&
+            displayTask.archived !== true;
+
         // Detectar si es un custom status
         const isCustomStatus = statusValue.startsWith('CUSTOM_');
         const finalStatus = isCustomStatus ? TaskStatus.CUSTOM : statusValue;
@@ -301,9 +313,26 @@ const TaskDetails = ({ task, readOnly = false }: TaskDetailsProps) => {
         updateTask({
             json: {
                 status: finalStatus as Task['status'],
-                statusCustomId
+                statusCustomId,
+                ...(shouldAutoArchive && {
+                    archived: true,
+                    archivedAt: new Date(),
+                    archivedBy: currentMember?.$id ?? null,
+                })
             },
             param: { taskId: displayTask.$id }
+        }, {
+            onSuccess: () => {
+                if (!shouldAutoArchive) return;
+
+                if (variant === 'modal' && onClose) {
+                    onClose();
+                    return;
+                }
+
+                // Page view (and fallback)
+                router.push(`/workspaces/${workspaceId}`);
+            }
         });
     };
 

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import '@github/relative-time-element';
-import { Info } from "lucide-react";
+import { Ban, Info } from "lucide-react";
 import { WorkspaceType } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
@@ -20,6 +20,8 @@ import { useMemo, useState, useOptimistic, startTransition } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
 import { ArchivedTasksModal } from "@/features/tasks/components/ArchivedTasksModal";
+import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
+import { TaskStatus } from "@/features/tasks/types";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -32,6 +34,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
     const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
     const { getStatusDisplayName } = useStatusDisplayName();
+    const { allStatuses } = useCustomStatuses();
 
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
     const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null); // Track which config key is currently being updated
@@ -60,6 +63,11 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
             ...updates
         })
     );
+
+    const autoArchiveOnStatusId = displayConfig[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
+    const defaultTaskStatusId = displayConfig[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as string;
+
+    const AUTO_ARCHIVE_DISABLED_VALUE = '__DISABLED__';
 
     // Fecha de ejemplo: 2 días en el futuro
     const exampleDate = new Date();
@@ -306,7 +314,12 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         </div>
                         <Select
                             value={displayConfig[WorkspaceConfigKey.DEFAULT_TASK_STATUS]}
-                            onValueChange={(value) => updateConfig(WorkspaceConfigKey.DEFAULT_TASK_STATUS, value)}
+                            onValueChange={(value) => {
+                                updateConfig(WorkspaceConfigKey.DEFAULT_TASK_STATUS, value);
+                                if (autoArchiveOnStatusId && value === autoArchiveOnStatusId) {
+                                    updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID, null);
+                                }
+                            }}
                             disabled={isConfigPending(WorkspaceConfigKey.DEFAULT_TASK_STATUS)}
                         >
                             <SelectTrigger className="w-48">
@@ -314,7 +327,14 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </SelectTrigger>
                             <SelectContent>
                                 {TASK_STATUS_OPTIONS.map((status) => (
-                                    <SelectItem key={status.value} value={status.value}>
+                                        <SelectItem
+                                            key={status.value}
+                                            value={status.value}
+                                            disabled={autoArchiveOnStatusId === status.value}
+                                            className={cn(
+                                                autoArchiveOnStatusId === status.value && "opacity-50 cursor-not-allowed"
+                                            )}
+                                        >
                                         <div className="flex items-center gap-x-2">
                                             <div className={cn("size-3 rounded-full", status.color)} />
                                             {getStatusDisplayName(status.value)}
@@ -528,6 +548,67 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 );
                             })}
                         </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('auto-archive-on-status')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('auto-archive-on-status-description')}
+                            </p>
+                        </div>
+                        <Select
+                            value={autoArchiveOnStatusId ?? AUTO_ARCHIVE_DISABLED_VALUE}
+                            onValueChange={(value) => {
+                                if (value === AUTO_ARCHIVE_DISABLED_VALUE) {
+                                    updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID, null);
+                                    return;
+                                }
+                                updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID, value);
+                            }}
+                            disabled={isConfigPending(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID)}
+                        >
+                            <SelectTrigger className="w-48">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={AUTO_ARCHIVE_DISABLED_VALUE}>
+                                    <div className="flex items-center gap-x-2">
+                                        <Ban className="size-4 text-muted-foreground" />
+                                        {t('disabled')}
+                                    </div>
+                                </SelectItem>
+                                {allStatuses.map((status) => {
+                                    const label = status.isDefault
+                                        ? getStatusDisplayName(status.id as TaskStatus)
+                                        : status.label;
+
+                                    const isDisabled = status.id === defaultTaskStatusId;
+
+                                    const defaultStatusColorClass = TASK_STATUS_OPTIONS.find(s => s.value === status.id)?.color;
+
+                                    return (
+                                        <SelectItem
+                                            key={status.id}
+                                            value={status.id}
+                                            disabled={isDisabled}
+                                            className={cn(isDisabled && "opacity-50 cursor-not-allowed")}
+                                        >
+                                            <div className="flex items-center gap-x-2">
+                                                {status.isDefault && defaultStatusColorClass ? (
+                                                    <div className={cn("size-3 rounded-full", defaultStatusColorClass)} />
+                                                ) : (
+                                                    <div className="size-3 rounded-full" style={{ backgroundColor: status.color }} />
+                                                )}
+                                                {label}
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </CardContent>
             </Card>

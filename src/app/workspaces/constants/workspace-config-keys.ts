@@ -6,6 +6,7 @@ export enum WorkspaceConfigKey {
     // Workflow
     DEFAULT_TASK_STATUS = 'defaultTaskStatus',
     AUTO_ARCHIVE_COMPLETED = 'autoArchiveCompleted',
+    AUTO_ARCHIVE_ON_STATUS_ID = 'autoArchiveOnStatusId',
     SHOW_CARD_COUNT = 'showCardCount',
 
     // Column Limits - per status
@@ -94,6 +95,7 @@ export enum ShowCardCountType {
 export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.DEFAULT_TASK_STATUS]: 'BACKLOG',
     [WorkspaceConfigKey.AUTO_ARCHIVE_COMPLETED]: false,
+    [WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID]: null,
     [WorkspaceConfigKey.SHOW_CARD_COUNT]: ShowCardCountType.ALWAYS,
 
     // Column limits defaults - all set to no limit
