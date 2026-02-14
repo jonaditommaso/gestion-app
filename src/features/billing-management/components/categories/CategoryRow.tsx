@@ -11,6 +11,7 @@ import { useGetBillingOptions } from "../../api/use-get-billing-options";
 import { useUpdateBillingOptions } from "../../api/use-update-billing-options";
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 interface CategoryRowProps {
     category: string,
@@ -33,9 +34,45 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
     const incomeCategories = useMemo(() => data?.documents[0]?.incomeCategories || [], [data])
     const expenseCategories = useMemo(() => data?.documents[0]?.expenseCategories || [], [data])
 
+    const normalizeCategory = (value: string) => value.trim().toLowerCase();
+
+    const toUniqueCategories = (list: string[]) => {
+        const seen = new Set<string>();
+
+        return list.filter((item) => {
+            const normalizedItem = normalizeCategory(item);
+
+            if (!normalizedItem || seen.has(normalizedItem)) {
+                return false;
+            }
+
+            seen.add(normalizedItem);
+            return true;
+        });
+    }
+
     const handleClick = () => {
         if (editingCategory === index) {
-            const newCategories = (type === 'income' ? incomeCategories : expenseCategories).with(index, newCategory)
+            const trimmedCategory = newCategory.trim();
+
+            if (!trimmedCategory) {
+                toast.error(t('category-required'));
+                return;
+            }
+
+            const currentTypeCategories = type === 'income' ? incomeCategories : expenseCategories;
+
+            const alreadyExists = currentTypeCategories.some((currentCategory: string, currentIndex: number) => {
+                if (currentIndex === index) return false;
+                return normalizeCategory(currentCategory) === normalizeCategory(trimmedCategory);
+            });
+
+            if (alreadyExists) {
+                toast.error(t('category-duplicate-error'));
+                return;
+            }
+
+            const newCategories = toUniqueCategories(currentTypeCategories.with(index, trimmedCategory))
 
             const payload = {
                 incomeCategories,
@@ -53,7 +90,9 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
     }
 
     const handleDelete = () => {
-        const newCategories = (type === 'income' ? incomeCategories : expenseCategories).filter((typeCategory: string) => typeCategory !== category)
+        const newCategories = toUniqueCategories(
+            (type === 'income' ? incomeCategories : expenseCategories).filter((typeCategory: string) => typeCategory !== category)
+        )
 
         const payload = {
             incomeCategories,

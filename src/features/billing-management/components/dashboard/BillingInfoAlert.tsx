@@ -6,6 +6,7 @@ import {
     TrendingUp,
     TrendingDown,
     LayoutList,
+    ClockAlert,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ViewConfig, ViewType } from "../../types";
@@ -22,6 +23,12 @@ const viewConfigs: Record<ViewType, ViewConfig> = {
         titleKey: "alert-calendar-title",
         descriptionKey: "alert-calendar-description",
         colorClass: "border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950"
+    },
+    followup: {
+        icon: ClockAlert,
+        titleKey: "alert-followup-title",
+        descriptionKey: "alert-followup-description",
+        colorClass: "border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950"
     },
     categories: {
         icon: Tags,

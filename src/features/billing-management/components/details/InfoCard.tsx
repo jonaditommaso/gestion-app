@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { CircleIcon } from "./CircleIcon";
-import { Scale, TrendingDown, TrendingUp } from "lucide-react";
+import { ChartLine, Scale, TrendingDown, TrendingUp } from "lucide-react";
 import { useDataBillingTable } from "../../hooks/useDataBillingTable";
 import { billingServiceObserver } from "@/utils/billingServiceObserver";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 
 interface InfoCardProps {
     numberMoney: number,
-    type: 'incomes' | 'expenses' | 'total'
+    type: 'incomes' | 'expenses' | 'total' | 'projection'
 }
 
 const types = {
@@ -30,6 +30,12 @@ const types = {
         color: '#3f51b5',
         id: 'total',
         message: 'see-total'
+    },
+    projection: {
+        icon: ChartLine,
+        color: '#7c3aed',
+        id: 'projection',
+        message: 'see-projection'
     }
 }
 
@@ -44,6 +50,7 @@ const InfoCard = ({ numberMoney, type }: InfoCardProps) => {
     }, [selectedData])
 
     const handleChangeDataView = () => {
+        if (type === 'projection') return;
         billingServiceObserver.sendData(types[type].id)
     }
 
@@ -58,7 +65,13 @@ const InfoCard = ({ numberMoney, type }: InfoCardProps) => {
                 </p>
             </CardContent>
             <CardFooter className="justify-center">
-                <Button variant='link' size='sm' className={dataType === types[type].id ? 'text-blue-600' : ''} onClick={handleChangeDataView}>
+                <Button
+                    variant='link'
+                    size='sm'
+                    className={dataType === types[type].id ? 'text-blue-600' : ''}
+                    onClick={handleChangeDataView}
+                    disabled={type === 'projection'}
+                >
                     {t(types[type].message)}
                 </Button>
             </CardFooter>
