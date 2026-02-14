@@ -10,6 +10,7 @@ import { ToggleThemeMode } from "./ToggleThemeMode";
 import { useCurrent } from "@/features/auth/api/use-current";
 import NoTeamWarningIcon from "@/features/team/components/NoTeamWarningIcon";
 import ToggleChatBot from "./ToggleChatBot";
+import HomeCustomizationTrigger from "./HomeCustomizationTrigger";
 
 const AppNavbar = () => {
   const pathname = usePathname();
@@ -32,6 +33,8 @@ const AppNavbar = () => {
 
       <SearchCommand />
       <div className="flex items-center justify-end p-1 mr-5 gap-4">
+
+        <HomeCustomizationTrigger />
 
         <ToggleChatBot />
 
