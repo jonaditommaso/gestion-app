@@ -165,9 +165,9 @@ const MyNotes = () => {
     }
 
     return (
-        <Card className="col-span-1 row-span-2 flex flex-col justify-start items-center bg-sidebar-accent">
+        <Card className="col-span-1 row-span-2 flex flex-col justify-start items-center bg-sidebar-accent max-h-[700px] overflow-hidden">
             <CardTitle className="p-4">{t('my-notes')}</CardTitle>
-            <CardContent className="flex flex-col gap-y-4 w-full mt-2">
+            <CardContent className="flex flex-col gap-y-4 w-full mt-2 overflow-y-auto">
                 {isPending ? (
                         <div className="w-full flex justify-center">
                             <FadeLoader color="#999" width={3} className="mt-5" />
