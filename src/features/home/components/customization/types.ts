@@ -24,10 +24,27 @@ export interface IntegrationConfig {
     enabled: boolean;
 }
 
+export type GlobalNoteViewId =
+    | 'home'
+    | 'activities'
+    | 'records'
+    | 'billing'
+    | 'team'
+    | 'roles'
+    | 'settings'
+    | 'meets';
+
+export interface NotesSettings {
+    hiddenGlobalNoteViews: GlobalNoteViewId[];
+    defaultNewNoteModern: boolean;
+    defaultNewNoteLines: boolean;
+}
+
 export interface HomeConfig {
     smartWidgets: boolean;
     widgets: WidgetConfig[];
     integrations: IntegrationConfig[];
+    notesSettings: NotesSettings;
     taskWidgetStatusId?: string; // ID del status para el widget de tareas (default: TODO)
 }
 
@@ -39,6 +56,7 @@ export interface HomeConfigOverrides {
     smartWidgets?: boolean;
     widgets?: Record<WidgetId, PartialWidgetConfig>;
     integrations?: Record<IntegrationId, PartialIntegrationConfig>;
+    notesSettings?: Partial<NotesSettings>;
     taskWidgetStatusId?: string; // ID del status para el widget de tareas
 }
 
@@ -71,10 +89,17 @@ export const DEFAULT_INTEGRATIONS: IntegrationConfig[] = [
     { id: 'google-drive', enabled: false },
 ];
 
+export const DEFAULT_NOTES_SETTINGS: NotesSettings = {
+    hiddenGlobalNoteViews: [],
+    defaultNewNoteModern: false,
+    defaultNewNoteLines: false,
+};
+
 export const DEFAULT_HOME_CONFIG: HomeConfig = {
     smartWidgets: false,
     widgets: DEFAULT_WIDGETS,
     integrations: DEFAULT_INTEGRATIONS,
+    notesSettings: DEFAULT_NOTES_SETTINGS,
 };
 
 export const WIDGET_LABELS: Record<WidgetId, { en: string; es: string; it: string }> = {
@@ -99,6 +124,7 @@ export const INTEGRATION_LABELS: Record<IntegrationId, { en: string; es: string;
  */
 export function configToOverrides(config: HomeConfig): HomeConfigOverrides {
     const overrides: HomeConfigOverrides = {};
+    const currentNotesSettings = config.notesSettings ?? DEFAULT_NOTES_SETTINGS;
 
     // Solo guardamos smartWidgets si difiere del default
     if (config.smartWidgets !== DEFAULT_HOME_CONFIG.smartWidgets) {
@@ -141,6 +167,20 @@ export function configToOverrides(config: HomeConfig): HomeConfigOverrides {
         overrides.integrations = integrationOverrides as Record<IntegrationId, PartialIntegrationConfig>;
     }
 
+    const noteSettingsChanges: Partial<NotesSettings> = {};
+    if (JSON.stringify(currentNotesSettings.hiddenGlobalNoteViews) !== JSON.stringify(DEFAULT_NOTES_SETTINGS.hiddenGlobalNoteViews)) {
+        noteSettingsChanges.hiddenGlobalNoteViews = currentNotesSettings.hiddenGlobalNoteViews;
+    }
+    if (currentNotesSettings.defaultNewNoteModern !== DEFAULT_NOTES_SETTINGS.defaultNewNoteModern) {
+        noteSettingsChanges.defaultNewNoteModern = currentNotesSettings.defaultNewNoteModern;
+    }
+    if (currentNotesSettings.defaultNewNoteLines !== DEFAULT_NOTES_SETTINGS.defaultNewNoteLines) {
+        noteSettingsChanges.defaultNewNoteLines = currentNotesSettings.defaultNewNoteLines;
+    }
+    if (Object.keys(noteSettingsChanges).length > 0) {
+        overrides.notesSettings = noteSettingsChanges;
+    }
+
     // Solo guardamos taskWidgetStatusId si difiere del default (TODO)
     if (config.taskWidgetStatusId && config.taskWidgetStatusId !== 'TODO') {
         overrides.taskWidgetStatusId = config.taskWidgetStatusId;
@@ -169,6 +209,13 @@ export function mergeConfigWithOverrides(overrides: HomeConfigOverrides): HomeCo
                 ...override,
             };
         }),
+        notesSettings: {
+            ...DEFAULT_NOTES_SETTINGS,
+            ...overrides.notesSettings,
+            hiddenGlobalNoteViews: overrides.notesSettings?.hiddenGlobalNoteViews ?? DEFAULT_NOTES_SETTINGS.hiddenGlobalNoteViews,
+            defaultNewNoteModern: overrides.notesSettings?.defaultNewNoteModern ?? DEFAULT_NOTES_SETTINGS.defaultNewNoteModern,
+            defaultNewNoteLines: overrides.notesSettings?.defaultNewNoteLines ?? DEFAULT_NOTES_SETTINGS.defaultNewNoteLines,
+        },
         taskWidgetStatusId: overrides.taskWidgetStatusId, // undefined usará TODO por defecto
     };
 

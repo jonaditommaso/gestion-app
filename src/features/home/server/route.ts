@@ -133,7 +133,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { title, content, bgColor } = ctx.req.valid('json');
+            const { title, content, bgColor, isModern, hasLines } = ctx.req.valid('json');
 
             if (!title && !content) {
                 return ctx.json({ error: 'Cannot create an empty note' }, 400)
@@ -147,6 +147,8 @@ const app = new Hono()
                     title,
                     content,
                     bgColor,
+                    isModern,
+                    hasLines,
                     userId: user.$id,
                 }
             );
@@ -184,13 +186,15 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { noteId } = ctx.req.param();
 
-            const { title, content, bgColor, isPinned, pinnedAt, isGlobal, globalAt } = ctx.req.valid('json');
+            const { title, content, bgColor, isModern, hasLines, isPinned, pinnedAt, isGlobal, globalAt } = ctx.req.valid('json');
 
-            const updateData: { title?: string; content?: string; bgColor?: string; isPinned?: boolean; pinnedAt?: string | null; isGlobal?: boolean; globalAt?: string | null } = {};
+            const updateData: { title?: string; content?: string; bgColor?: string; isModern?: boolean; hasLines?: boolean; isPinned?: boolean; pinnedAt?: string | null; isGlobal?: boolean; globalAt?: string | null } = {};
 
             if (title !== undefined) updateData.title = title;
             if (content !== undefined) updateData.content = content;
             if (bgColor !== undefined) updateData.bgColor = bgColor;
+            if (isModern !== undefined) updateData.isModern = isModern;
+            if (hasLines !== undefined) updateData.hasLines = hasLines;
             if (isPinned !== undefined) updateData.isPinned = isPinned;
             if (pinnedAt !== undefined) updateData.pinnedAt = pinnedAt;
             if (isGlobal !== undefined) updateData.isGlobal = isGlobal;

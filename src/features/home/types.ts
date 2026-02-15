@@ -3,6 +3,8 @@ export interface NoteData {
     title?: string;
     content: string;
     bgColor: string;
+    isModern?: boolean;
+    hasLines?: boolean;
     isPinned?: boolean;
     pinnedAt?: string | null;
     isGlobal?: boolean;
