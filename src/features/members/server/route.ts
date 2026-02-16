@@ -1,6 +1,7 @@
-import { DATABASE_ID, MEMBERS_ID } from "@/config";
+import { DATABASE_ID, MEMBERS_ID, NOTIFICATIONS_ID } from "@/config";
 import { MemberRole } from "@/features/workspaces/members/types";
 import { getMember } from "@/features/workspaces/members/utils";
+import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
@@ -107,6 +108,27 @@ const app = new Hono()
             );
 
             const validMembers = createdMembers.filter(m => m !== null);
+
+            if (validMembers.length > 0) {
+                await Promise.all(
+                    validMembers.map(async (validMember) => {
+                        await databases.createDocument(
+                            DATABASE_ID,
+                            NOTIFICATIONS_ID,
+                            ID.unique(),
+                            {
+                                userId: validMember.userId,
+                                triggeredBy: user.$id,
+                                title: NotificationI18nKey.NEW_WORKSPACE_MEMBER_TITLE,
+                                read: false,
+                                type: NotificationType.RECURRING,
+                                entityType: NotificationEntityType.NEW_WORKSPACE_MEMBER,
+                                body: `${NotificationI18nKey.VIEW_WORKSPACE_LINK}${NotificationBodySeparator}/${NotificationEntity.WORKSPACES}/${workspaceId}`,
+                            }
+                        );
+                    })
+                );
+            }
 
             return ctx.json({
                 data: validMembers,

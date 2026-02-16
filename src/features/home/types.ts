@@ -16,3 +16,19 @@ export interface NoteData {
     $updatedAt: string;
     $permissions: string[];
 }
+
+export interface NotificationData {
+    $id: string;
+    userId: string;
+    triggeredBy: string;
+    title: string;
+    read: boolean;
+    type: string;
+    entityType: string;
+    body?: string;
+    $collectionId: string;
+    $databaseId: string;
+    $createdAt: string;
+    $updatedAt: string;
+    $permissions: string[];
+}

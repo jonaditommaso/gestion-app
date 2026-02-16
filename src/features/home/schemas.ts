@@ -33,6 +33,16 @@ export const unreadMessagesSchema = zod.object({
         }))
 });
 
+export const notificationsSchema = zod.object({
+    userId: zod.string().trim().min(1, 'Required').optional(),
+    triggeredBy: zod.string().trim().min(1, 'Required').optional(),
+    title: zod.string().trim().min(1, 'Required'),
+    read: zod.boolean().optional(),
+    type: zod.string().trim().min(1, 'Required'),
+    entityType: zod.string().trim().min(1, 'Required'),
+    body: zod.string().trim().optional(),
+})
+
 export const shortcutSchema = zod.object({
     text: zod.string().trim().min(1, 'Required'),
     link: zod.string().trim().min(1, 'Required'),

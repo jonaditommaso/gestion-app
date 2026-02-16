@@ -817,7 +817,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
             </Card>
 
             {/* Notifications Section */}
-            {/* <Card>
+            <Card>
                 <CardHeader>
                     <CardTitle>{t('notifications')}</CardTitle>
                     <CardDescription>
@@ -888,7 +888,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         />
                     </div>
                 </CardContent>
-            </Card> */}
+            </Card>
 
             {/* Permissions Section */}
             <Card>

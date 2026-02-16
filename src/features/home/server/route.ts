@@ -2,8 +2,8 @@ import { Hono } from "hono";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { Client, Databases, ID, Query } from "node-appwrite";
-import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MESSAGES_ID, NOTES_ID, USER_HOME_CONFIG_ID } from "@/config";
-import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
+import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MESSAGES_ID, NOTES_ID, NOTIFICATIONS_ID, USER_HOME_CONFIG_ID } from "@/config";
+import { meetSchema, messagesSchema, notesSchema, notificationsSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
 import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
 import { google } from 'googleapis';
@@ -229,6 +229,96 @@ const app = new Hono()
             );
 
             return ctx.json({ success: true })
+        }
+    )
+
+    .post(
+        '/notifications',
+        zValidator('json', notificationsSchema),
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { userId, triggeredBy, title, read, type, entityType, body } = ctx.req.valid('json');
+
+            const notification = await databases.createDocument(
+                DATABASE_ID,
+                NOTIFICATIONS_ID,
+                ID.unique(),
+                {
+                    userId,
+                    triggeredBy: triggeredBy ?? user.$id,
+                    title,
+                    read: read ?? false,
+                    type,
+                    entityType,
+                    body,
+                }
+            );
+
+            return ctx.json({ data: notification })
+        }
+    )
+
+    .get(
+        '/notifications',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const notifications = await databases.listDocuments(
+                DATABASE_ID,
+                NOTIFICATIONS_ID,
+                [
+                    Query.equal('userId', user.$id),
+                    Query.orderDesc('$createdAt')
+                ]
+            );
+
+            if (notifications.total === 0) {
+                return ctx.json({ data: { documents: [], total: 0 } })
+            }
+
+            return ctx.json({ data: notifications })
+        }
+    )
+
+    .post(
+        '/notifications/read-all',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const unreadNotifications = await databases.listDocuments(
+                DATABASE_ID,
+                NOTIFICATIONS_ID,
+                [
+                    Query.equal('userId', user.$id),
+                    Query.equal('read', false)
+                ]
+            );
+
+            if (unreadNotifications.total === 0) {
+                return ctx.json({ data: [] })
+            }
+
+            const updatedNotifications = await Promise.all(
+                unreadNotifications.documents.map((notification) =>
+                    databases.updateDocument(
+                        DATABASE_ID,
+                        NOTIFICATIONS_ID,
+                        notification.$id,
+                        {
+                            read: true
+                        }
+                    )
+                )
+            );
+
+            return ctx.json({ data: updatedNotifications })
         }
     )
 
