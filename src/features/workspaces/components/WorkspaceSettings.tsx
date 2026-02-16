@@ -860,6 +860,38 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
+                            <Label>{t('notify-task-priority-change')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('notify-task-priority-change-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE, checked)}
+                            disabled={isPending}
+                        />
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('notify-task-completed')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('notify-task-completed-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_COMPLETED]}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_COMPLETED, checked)}
+                            disabled={isPending}
+                        />
+                    </div>
+
+                    {/* <Separator /> */}
+
+                    {/* <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
                             <Label>{t('notify-task-no-movement')}</Label>
                             <p className="text-sm text-muted-foreground">
                                 {t('notify-task-no-movement-description')}
@@ -870,11 +902,11 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_NO_MOVEMENT, checked)}
                             disabled={isPending}
                         />
-                    </div>
+                    </div> */}
 
-                    <Separator />
+                    {/* <Separator /> */}
 
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
                             <Label>{t('notify-member-no-tasks')}</Label>
                             <p className="text-sm text-muted-foreground">
@@ -886,7 +918,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_MEMBER_NO_TASKS, checked)}
                             disabled={isPending}
                         />
-                    </div>
+                    </div> */}
                 </CardContent>
             </Card>
 

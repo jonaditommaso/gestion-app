@@ -1562,6 +1562,10 @@
         "notify-task-assignment-description": "Invia notifica quando un'attività viene assegnata a un membro",
         "notify-due-date-reminder": "Promemoria di scadenza",
         "notify-due-date-reminder-description": "Invia promemoria automatico prima della scadenza delle attività",
+        "notify-task-priority-change": "Notifica cambi di priorità",
+        "notify-task-priority-change-description": "Invia notifica quando cambia la priorità di un'attività",
+        "notify-task-completed": "Notifica attività completata",
+        "notify-task-completed-description": "Invia notifica quando un'attività assegnata viene segnata come completata",
         "notify-task-no-movement": "Notifica attività inattive",
         "notify-task-no-movement-description": "Invia notifica se un'attività rimane 7 giorni senza aggiornamenti",
         "notify-member-no-tasks": "Notifica membro inattivo",
@@ -1827,6 +1831,12 @@
         "failed-create-notification": "Ci dispiace, si è verificato un errore durante la creazione della notifica",
         "notification-new-workspace-member-title": "Sei membro di un nuovo workspace",
         "notification-view-workspace-link": "Visualizza il workspace",
+        "notification-task-assigned-title": "Ti è stata assegnata un'attività",
+        "notification-checklist-item-assigned-title": "Ti è stato assegnato un elemento della checklist",
+        "notification-task-due-date-reminder-title": "Un'attività assegnata a te sta per scadere",
+        "notification-task-priority-changed-title": "La priorità di un'attività assegnata è cambiata",
+        "notification-task-completed-title": "Un'attività assegnata è stata segnata come completata",
+        "notification-view-task-link": "Visualizza l'attività",
         "note-created": "Nota creata con successo",
         "failed-create-note": "Ci dispiace, si è verificato un errore durante la creazione della nota",
         "set-up-metting": "Organizzare un incontro",
@@ -1985,6 +1995,11 @@
     "common": {
         "cancel": "Annulla",
         "confirm": "Conferma"
+    },
+    "task-not-found": {
+        "title": "Attività non trovata",
+        "description": "Questa attività non esiste o non è più disponibile in questo workspace.",
+        "button-workspace": "Torna al workspace"
     },
     "not-found": {
         "title": "Pagina non trovata",

@@ -51,6 +51,8 @@ export enum WorkspaceConfigKey {
     // Notifications
     NOTIFY_TASK_ASSIGNMENT = 'notifyTaskAssignment',
     NOTIFY_DUE_DATE_REMINDER = 'notifyDueDateReminder',
+    NOTIFY_TASK_PRIORITY_CHANGE = 'notifyTaskPriorityChange',
+    NOTIFY_TASK_COMPLETED = 'notifyTaskCompleted',
     NOTIFY_TASK_NO_MOVEMENT = 'notifyTaskNoMovement',
     NOTIFY_MEMBER_NO_TASKS = 'notifyMemberNoTasks',
 
@@ -140,6 +142,8 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,
     [WorkspaceConfigKey.NOTIFY_DUE_DATE_REMINDER]: true,
+    [WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE]: true,
+    [WorkspaceConfigKey.NOTIFY_TASK_COMPLETED]: true,
     [WorkspaceConfigKey.NOTIFY_TASK_NO_MOVEMENT]: false,
     [WorkspaceConfigKey.NOTIFY_MEMBER_NO_TASKS]: false,
 

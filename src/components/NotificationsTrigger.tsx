@@ -35,30 +35,17 @@ const NotificationsTrigger = () => {
   const unreadCount = unreadNotifications.length;
   const totalCount = notifications.length;
 
-  let baseNotifications: NotificationData[] = [];
-  let canLoadMore = false;
+  const minVisible = 5;
+  const readNeededToFill = Math.max(0, minVisible - unreadNotifications.length);
+  const initialReadChunk = readNotifications.slice(0, readNeededToFill);
 
-  if (totalCount <= 1) {
-    baseNotifications = notifications.slice(0, totalCount);
-    canLoadMore = false;
-  } else if (unreadCount > 5) {
-    baseNotifications = unreadNotifications;
-    canLoadMore = readNotifications.length > olderLoaded;
-  } else if (unreadCount === 1) {
-    baseNotifications = notifications.slice(0, Math.min(5, totalCount));
-    canLoadMore = totalCount > baseNotifications.length + olderLoaded;
-  } else if (unreadCount === 0) {
-    baseNotifications = notifications.slice(0, Math.min(5, totalCount));
-    canLoadMore = totalCount > baseNotifications.length + olderLoaded;
-  } else {
-    baseNotifications = unreadNotifications;
-    canLoadMore = readNotifications.length > olderLoaded;
-  }
+  const visibleNotifications = [
+    ...unreadNotifications,
+    ...initialReadChunk,
+    ...readNotifications.slice(readNeededToFill, readNeededToFill + olderLoaded),
+  ];
 
-  const visibleNotifications =
-    unreadCount > 5 || (unreadCount > 1 && unreadCount <= 5)
-      ? [...baseNotifications, ...readNotifications.slice(0, olderLoaded)]
-      : notifications.slice(0, Math.min(totalCount, baseNotifications.length + olderLoaded));
+  const canLoadMore = readNotifications.length > readNeededToFill + olderLoaded;
 
   const badgeCount = unreadCount > 99 ? "99+" : String(unreadCount);
 
@@ -78,6 +65,13 @@ const NotificationsTrigger = () => {
       return (
         <Link
           href={href}
+          onClick={() => {
+            if (unreadCount > 0 && !isReadingAll) {
+              readAllNotifications();
+            }
+
+            setOpen(false);
+          }}
           className="text-xs text-primary underline underline-offset-2 leading-5"
         >
           {linkLabel}
@@ -100,10 +94,11 @@ const NotificationsTrigger = () => {
 
         if (nextOpen) {
           setOlderLoaded(0);
+          return;
+        }
 
-          if (unreadCount > 0 && !isReadingAll) {
-            readAllNotifications();
-          }
+        if (unreadCount > 0 && !isReadingAll) {
+          readAllNotifications();
         }
       }}
     >

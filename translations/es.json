@@ -1582,6 +1582,10 @@
         "notify-task-assignment-description": "Enviar notificación cuando se asigne una tarea a un miembro",
         "notify-due-date-reminder": "Recordatorio de vencimiento",
         "notify-due-date-reminder-description": "Enviar recordatorio automático antes de que venzan las tareas",
+        "notify-task-priority-change": "Avisar cambios de prioridad",
+        "notify-task-priority-change-description": "Enviar notificación cuando cambie la prioridad de una tarea",
+        "notify-task-completed": "Avisar tarea completada",
+        "notify-task-completed-description": "Enviar notificación cuando una tarea asignada se marque como completada",
         "notify-task-no-movement": "Avisar tareas sin movimiento",
         "notify-task-no-movement-description": "Enviar notificación si una tarea permanece 7 días sin actualizaciones",
         "notify-member-no-tasks": "Avisar miembro sin tareas",
@@ -1843,6 +1847,12 @@
         "failed-create-notification": "Lo sentimos, hubo un error creando la notificación",
         "notification-new-workspace-member-title": "Eres miembro de un nuevo workspace",
         "notification-view-workspace-link": "Ver el workspace",
+        "notification-task-assigned-title": "Se te asignó una tarea",
+        "notification-checklist-item-assigned-title": "Se te asignó un item de checklist",
+        "notification-task-due-date-reminder-title": "Una tarea asignada a ti está próxima a vencer",
+        "notification-task-priority-changed-title": "Cambió la prioridad de una tarea asignada",
+        "notification-task-completed-title": "Una tarea asignada fue marcada como completada",
+        "notification-view-task-link": "Ver la tarea",
         "note-created": "Nota creada con éxito",
         "failed-create-note": "Lo sentimos, hubo un error creando la nota",
         "note-updated": "Nota actualizada con éxito",
@@ -2005,6 +2015,11 @@
     "common": {
         "cancel": "Cancelar",
         "confirm": "Confirmar"
+    },
+    "task-not-found": {
+        "title": "Tarea no encontrada",
+        "description": "Esta tarea no existe o ya no está disponible en este workspace.",
+        "button-workspace": "Volver al workspace"
     },
     "not-found": {
         "title": "Página no encontrada",

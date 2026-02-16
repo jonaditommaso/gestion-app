@@ -1576,6 +1576,10 @@
         "notify-task-assignment-description": "Send notification when a task is assigned to a member",
         "notify-due-date-reminder": "Due date reminder",
         "notify-due-date-reminder-description": "Send automatic reminder before tasks are due",
+        "notify-task-priority-change": "Notify on priority changes",
+        "notify-task-priority-change-description": "Send notification when a task priority changes",
+        "notify-task-completed": "Notify on task completion",
+        "notify-task-completed-description": "Send notification when an assigned task is marked as completed",
         "notify-task-no-movement": "Notify stale tasks",
         "notify-task-no-movement-description": "Send notification if a task has no updates for 7 days",
         "notify-member-no-tasks": "Notify idle members",
@@ -1837,6 +1841,12 @@
         "failed-create-notification": "Sorry, there was an error creating the notification",
         "notification-new-workspace-member-title": "You are a member of a new workspace",
         "notification-view-workspace-link": "View the workspace",
+        "notification-task-assigned-title": "You were assigned a task",
+        "notification-checklist-item-assigned-title": "You were assigned a checklist item",
+        "notification-task-due-date-reminder-title": "A task assigned to you is due soon",
+        "notification-task-priority-changed-title": "The priority of an assigned task changed",
+        "notification-task-completed-title": "An assigned task was marked as completed",
+        "notification-view-task-link": "View the task",
         "note-created": "Note successfully created",
         "failed-create-note": "Sorry, there was an error creating the note",
         "note-updated": "Note updated successfully",
@@ -1999,6 +2009,11 @@
     "common": {
         "cancel": "Cancel",
         "confirm": "Confirm"
+    },
+    "task-not-found": {
+        "title": "Task not found",
+        "description": "This task does not exist or is no longer available in this workspace.",
+        "button-workspace": "Back to workspace"
     },
     "not-found": {
         "title": "Page not found",

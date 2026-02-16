@@ -3,16 +3,19 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskShare, TaskShareType, TaskStatus, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
-import { Models, Databases } from "node-appwrite";
+import { Databases, Models } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
 import { createActivityLog } from "../utils/create-activity-log";
 import { ActivityAction } from "../types/activity-log";
 import { WorkspaceType } from "@/features/workspaces/types";
+import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
+import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
+import { chunkArray, getWorkspaceNotificationSetting, notifyTaskAssignees } from "@/features/notifications/helpers";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
@@ -202,36 +205,52 @@ const app = new Hono()
             }
 
             // Obtener todas las asignaciones de tareas
-            const taskAssignees = taskIds.length > 0
-                ? await databases.listDocuments<TaskAssignee>(
-                    DATABASE_ID,
-                    TASK_ASSIGNEES_ID,
-                    [Query.contains('taskId', taskIds), Query.limit(5000)]
-                )
-                : { documents: [] };
+            const taskAssigneesDocuments: TaskAssignee[] = [];
+
+            if (taskIds.length > 0) {
+                const taskIdChunks = chunkArray(taskIds, 100);
+
+                for (const taskIdChunk of taskIdChunks) {
+                    const taskAssigneesChunk = await databases.listDocuments<TaskAssignee>(
+                        DATABASE_ID,
+                        TASK_ASSIGNEES_ID,
+                        [Query.contains('taskId', taskIdChunk), Query.limit(5000)]
+                    );
+
+                    taskAssigneesDocuments.push(...taskAssigneesChunk.documents);
+                }
+            }
 
             // Obtener los IDs únicos de workspace members
-            const memberIds = [...new Set(taskAssignees.documents.map(ta => ta.workspaceMemberId))];
+            const memberIds = [...new Set(taskAssigneesDocuments.map(ta => ta.workspaceMemberId))];
 
             // Obtener los datos de los members desde la colección
-            const members = memberIds.length > 0
-                ? await databases.listDocuments<WorkspaceMember>(
-                    DATABASE_ID,
-                    MEMBERS_ID,
-                    [Query.contains('$id', memberIds), Query.limit(5000)]
-                )
-                : { documents: [] };
+            const memberDocuments: WorkspaceMember[] = [];
+
+            if (memberIds.length > 0) {
+                const memberIdChunks = chunkArray(memberIds, 100);
+
+                for (const memberIdChunk of memberIdChunks) {
+                    const membersChunk = await databases.listDocuments<WorkspaceMember>(
+                        DATABASE_ID,
+                        MEMBERS_ID,
+                        [Query.equal('$id', memberIdChunk), Query.limit(5000)]
+                    );
+
+                    memberDocuments.push(...membersChunk.documents);
+                }
+            }
 
             // Mapear las tareas con sus assignees
             const populatedTasks = filteredTasks
                 .filter(task => taskIds.includes(task.$id)) // Filtrar por taskIds (incluye filtro de assigneeId si aplica)
                 .map(task => {
                     // Encontrar todas las asignaciones para esta tarea
-                    const taskAssignments = taskAssignees.documents.filter(ta => ta.taskId === task.$id);
+                    const taskAssignments = taskAssigneesDocuments.filter(ta => ta.taskId === task.$id);
 
                     // Obtener los miembros asignados a esta tarea
                     const assignees = taskAssignments.map(ta => {
-                        return members.documents.find(m => m.$id === ta.workspaceMemberId);
+                        return memberDocuments.find(m => m.$id === ta.workspaceMemberId);
                     }).filter(Boolean); // Eliminar valores undefined
 
                     return {
@@ -290,7 +309,7 @@ const app = new Hono()
                 ? highestPositionTask.documents[0].position + 1000
                 : 1000
 
-            const task = await databases.createDocument(
+            const task = await databases.createDocument<Task>(
                 DATABASE_ID,
                 TASKS_ID,
                 ID.unique(),
@@ -337,6 +356,22 @@ const app = new Hono()
                     [Query.contains('$id', assigneesIds)]
                 )
                 : { documents: [] };
+
+            const notifyAssignment = await getWorkspaceNotificationSetting(
+                databases,
+                workspaceId,
+                WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT
+            );
+
+            if (notifyAssignment && assignees.documents.length > 0) {
+                await notifyTaskAssignees({
+                    databases,
+                    task,
+                    actorUserId: user.$id,
+                    title: NotificationI18nKey.TASK_ASSIGNED_TITLE,
+                    entityType: NotificationEntityType.TASK_ASSIGNED,
+                });
+            }
 
             return ctx.json({
                 data: {
@@ -655,6 +690,46 @@ const app = new Hono()
                 console.error('Error creating activity logs:', err);
             });
 
+            const priorityChanged = updates.priority !== undefined && updates.priority !== existingTask.priority;
+
+            if (priorityChanged) {
+                const notifyPriorityChange = await getWorkspaceNotificationSetting(
+                    databases,
+                    existingTask.workspaceId,
+                    WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE
+                );
+
+                if (notifyPriorityChange) {
+                    await notifyTaskAssignees({
+                        databases,
+                        task,
+                        actorUserId: user.$id,
+                        title: NotificationI18nKey.TASK_PRIORITY_CHANGED_TITLE,
+                        entityType: NotificationEntityType.TASK_PRIORITY_CHANGED,
+                    });
+                }
+            }
+
+            const completedChangedToTrue = updates.completedAt !== undefined && !existingTask.completedAt && !!task.completedAt;
+
+            if (completedChangedToTrue) {
+                const notifyTaskCompleted = await getWorkspaceNotificationSetting(
+                    databases,
+                    existingTask.workspaceId,
+                    WorkspaceConfigKey.NOTIFY_TASK_COMPLETED
+                );
+
+                if (notifyTaskCompleted) {
+                    await notifyTaskAssignees({
+                        databases,
+                        task,
+                        actorUserId: user.$id,
+                        title: NotificationI18nKey.TASK_COMPLETED_TITLE,
+                        entityType: NotificationEntityType.TASK_COMPLETED,
+                    });
+                }
+            }
+
             // Obtener las asignaciones de esta tarea
             const taskAssignees = await databases.listDocuments<TaskAssignee>(
                 DATABASE_ID,
@@ -862,6 +937,29 @@ const app = new Hono()
                 MEMBERS_ID,
                 workspaceMemberId
             );
+
+            const notifyAssignment = await getWorkspaceNotificationSetting(
+                databases,
+                task.workspaceId,
+                WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT
+            );
+
+            if (notifyAssignment && assignedMember.userId && assignedMember.userId !== user.$id) {
+                await databases.createDocument(
+                    DATABASE_ID,
+                    NOTIFICATIONS_ID,
+                    ID.unique(),
+                    {
+                        userId: assignedMember.userId,
+                        triggeredBy: user.$id,
+                        title: NotificationI18nKey.TASK_ASSIGNED_TITLE,
+                        read: false,
+                        type: NotificationType.RECURRING,
+                        entityType: NotificationEntityType.TASK_ASSIGNED,
+                        body: `${NotificationI18nKey.VIEW_TASK_LINK}${NotificationBodySeparator}/${NotificationEntity.WORKSPACES}/${task.workspaceId}/${NotificationEntity.TASKS}/${task.$id}`,
+                    }
+                );
+            }
 
             // Create activity log for assignment (non-blocking)
             createActivityLog({
