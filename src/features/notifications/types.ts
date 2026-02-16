@@ -11,6 +11,7 @@ export const NotificationEntityType = {
     TASK_DUE_DATE_REMINDER: 'task_due_date_reminder',
     TASK_PRIORITY_CHANGED: 'task_priority_changed',
     TASK_COMPLETED: 'task_completed',
+    TASK_MENTIONED: 'task_mentioned',
 } as const;
 
 export type NotificationEntityTypeValue = typeof NotificationEntityType[keyof typeof NotificationEntityType];
@@ -30,6 +31,7 @@ export const NotificationI18nKey = {
     TASK_DUE_DATE_REMINDER_TITLE: 'notification-task-due-date-reminder-title',
     TASK_PRIORITY_CHANGED_TITLE: 'notification-task-priority-changed-title',
     TASK_COMPLETED_TITLE: 'notification-task-completed-title',
+    TASK_MENTIONED_TITLE: 'notification-task-mentioned-title',
     VIEW_TASK_LINK: 'notification-view-task-link',
 } as const;
 

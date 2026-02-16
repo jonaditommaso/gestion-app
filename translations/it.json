@@ -1836,6 +1836,7 @@
         "notification-task-due-date-reminder-title": "Un'attività assegnata a te sta per scadere",
         "notification-task-priority-changed-title": "La priorità di un'attività assegnata è cambiata",
         "notification-task-completed-title": "Un'attività assegnata è stata segnata come completata",
+        "notification-task-mentioned-title": "Sei stato menzionato in un'attività",
         "notification-view-task-link": "Visualizza l'attività",
         "note-created": "Nota creata con successo",
         "failed-create-note": "Ci dispiace, si è verificato un errore durante la creazione della nota",

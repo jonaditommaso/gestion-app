@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { BellIcon } from "lucide-react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { enUS, es, it } from "date-fns/locale";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -11,15 +13,19 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ScrollArea } from "./ui/scroll-area";
+import { Separator } from "./ui/separator";
 import { useGetNotifications } from "@/features/notifications/api/use-get-notifications";
 import { useReadAllNotifications } from "@/features/notifications/api/use-read-all-notifications";
 import { NotificationData } from "@/features/home/types";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { NotificationBodySeparator } from "@/features/notifications/types";
 
+const DATE_LOCALES = { es, en: enUS, it };
+
 const NotificationsTrigger = () => {
   const t = useTranslations("home");
+  const locale = useLocale() as "es" | "en" | "it";
   const [open, setOpen] = useState<boolean>(false);
   const [olderLoaded, setOlderLoaded] = useState<number>(0);
 
@@ -53,6 +59,19 @@ const NotificationsTrigger = () => {
     if (t.has(value))return t(value);
 
     return value;
+  };
+
+  const getRelativeTime = (date: string): string => {
+    const createdAt = new Date(date);
+
+    if (Number.isNaN(createdAt.getTime())) {
+      return "";
+    }
+
+    return formatDistanceToNow(createdAt, {
+      addSuffix: true,
+      locale: DATE_LOCALES[locale] || DATE_LOCALES.en,
+    });
   };
 
   const getBodyContent = (body: string) => {
@@ -137,23 +156,33 @@ const NotificationsTrigger = () => {
           </div>
         ) : (
           <>
-            <ScrollArea className="max-h-96">
+            <ScrollArea className="h-96">
               <div className="p-1">
-                {visibleNotifications.map((notification) => (
-                  <div
-                    key={notification.$id}
-                    className={cn(
-                      "rounded-md px-3 py-2 mb-1",
-                      !notification.read && "bg-accent"
+                {visibleNotifications.map((notification, index) => (
+                  <Fragment key={notification.$id}>
+                    <div
+                      className={cn(
+                        "rounded-md px-3 py-2 transition-colors",
+                        !notification.read
+                          ? "bg-accent hover:bg-accent/80"
+                          : "hover:bg-muted/60"
+                      )}
+                    >
+                      <p className="text-sm font-medium leading-5">
+                        {getTranslatedText(notification.title)}
+                      </p>
+                      {notification.body && (
+                        getBodyContent(notification.body)
+                      )}
+                      <p className="text-[11px] text-muted-foreground leading-4 mt-0.5 mb-1">
+                        {getRelativeTime(notification.$createdAt)}
+                      </p>
+                    </div>
+
+                    {index < visibleNotifications.length - 1 && (
+                      <Separator className="my-1" />
                     )}
-                  >
-                    <p className="text-sm font-medium leading-5">
-                      {getTranslatedText(notification.title)}
-                    </p>
-                    {notification.body && (
-                      getBodyContent(notification.body)
-                    )}
-                  </div>
+                  </Fragment>
                 ))}
               </div>
             </ScrollArea>

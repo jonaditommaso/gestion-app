@@ -1852,6 +1852,7 @@
         "notification-task-due-date-reminder-title": "Una tarea asignada a ti está próxima a vencer",
         "notification-task-priority-changed-title": "Cambió la prioridad de una tarea asignada",
         "notification-task-completed-title": "Una tarea asignada fue marcada como completada",
+        "notification-task-mentioned-title": "Te mencionaron en una tarea",
         "notification-view-task-link": "Ver la tarea",
         "note-created": "Nota creada con éxito",
         "failed-create-note": "Lo sentimos, hubo un error creando la nota",

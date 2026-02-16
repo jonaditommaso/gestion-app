@@ -113,3 +113,82 @@ export const notifyTaskAssignees = async ({
         )
     );
 };
+
+export const extractMentionedMemberIds = (content: string | null | undefined): string[] => {
+    if (!content) {
+        return [];
+    }
+
+    const mentionRegex = /data-mention-id=["']([^"']+)["']/g;
+    const memberIds = new Set<string>();
+    let match = mentionRegex.exec(content);
+
+    while (match) {
+        const memberId = match[1]?.trim();
+        if (memberId) {
+            memberIds.add(memberId);
+        }
+        match = mentionRegex.exec(content);
+    }
+
+    return [...memberIds];
+};
+
+export const notifyMentionedMembers = async ({
+    databases,
+    workspaceId,
+    taskId,
+    actorUserId,
+    memberIds,
+    title,
+    entityType,
+}: {
+    databases: Databases;
+    workspaceId: string;
+    taskId: string;
+    actorUserId: string;
+    memberIds: string[];
+    title: string;
+    entityType: string;
+}) => {
+    const uniqueMemberIds = [...new Set(memberIds.filter(Boolean))];
+
+    if (uniqueMemberIds.length === 0) {
+        return;
+    }
+
+    const members = await databases.listDocuments<WorkspaceMember>(
+        DATABASE_ID,
+        MEMBERS_ID,
+        [
+            Query.equal('workspaceId', workspaceId),
+            Query.contains('$id', uniqueMemberIds),
+            Query.limit(5000),
+        ]
+    );
+
+    const recipients = members.documents.filter((member) => member.userId && member.userId !== actorUserId);
+
+    if (recipients.length === 0) {
+        return;
+    }
+
+    await Promise.all(
+        recipients.map((recipient) =>
+            databases.createDocument(
+                DATABASE_ID,
+                NOTIFICATIONS_ID,
+                ID.unique(),
+                {
+                    userId: recipient.userId,
+                    triggeredBy: actorUserId,
+                    title,
+                    read: false,
+                    type: NotificationType.RECURRING,
+                    entityType,
+                    body: `${NotificationI18nKey.VIEW_TASK_LINK}${NotificationBodySeparator}/${NotificationEntity.WORKSPACES}/${workspaceId}/${NotificationEntity.TASKS}/${taskId}`,
+                }
+            )
+        )
+    );
+};

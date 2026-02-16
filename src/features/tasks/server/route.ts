@@ -15,7 +15,7 @@ import { ActivityAction } from "../types/activity-log";
 import { WorkspaceType } from "@/features/workspaces/types";
 import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
-import { chunkArray, getWorkspaceNotificationSetting, notifyTaskAssignees } from "@/features/notifications/helpers";
+import { chunkArray, extractMentionedMemberIds, getWorkspaceNotificationSetting, notifyMentionedMembers, notifyTaskAssignees } from "@/features/notifications/helpers";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
@@ -373,6 +373,20 @@ const app = new Hono()
                 });
             }
 
+            const mentionedMemberIds = extractMentionedMemberIds(description);
+
+            if (mentionedMemberIds.length > 0) {
+                await notifyMentionedMembers({
+                    databases,
+                    workspaceId,
+                    taskId: task.$id,
+                    actorUserId: user.$id,
+                    memberIds: mentionedMemberIds,
+                    title: NotificationI18nKey.TASK_MENTIONED_TITLE,
+                    entityType: NotificationEntityType.TASK_MENTIONED,
+                });
+            }
+
             return ctx.json({
                 data: {
                     ...task,
@@ -562,6 +576,22 @@ const app = new Hono()
                         }
                     })
                 );
+
+                const previousMentionIds = extractMentionedMemberIds(existingTask.description);
+                const newMentionIds = extractMentionedMemberIds(updates.description);
+                const addedMentionIds = newMentionIds.filter((mentionId) => !previousMentionIds.includes(mentionId));
+
+                if (addedMentionIds.length > 0) {
+                    await notifyMentionedMembers({
+                        databases,
+                        workspaceId: existingTask.workspaceId,
+                        taskId,
+                        actorUserId: user.$id,
+                        memberIds: addedMentionIds,
+                        title: NotificationI18nKey.TASK_MENTIONED_TITLE,
+                        entityType: NotificationEntityType.TASK_MENTIONED,
+                    });
+                }
             }
 
             // Label change

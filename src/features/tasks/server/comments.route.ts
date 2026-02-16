@@ -8,6 +8,8 @@ import { ID, Query } from "node-appwrite";
 import { Task, TaskComment, WorkspaceMember } from "../types";
 import { createActivityLog } from "../utils/create-activity-log";
 import { ActivityAction } from "../types/activity-log";
+import { NotificationEntityType, NotificationI18nKey } from "@/features/notifications/types";
+import { extractMentionedMemberIds, notifyMentionedMembers } from "@/features/notifications/helpers";
 
 const app = new Hono()
 
@@ -130,6 +132,20 @@ const app = new Hono()
                 }
             }).catch(err => console.error('Error creating activity log:', err));
 
+            const mentionedMemberIds = extractMentionedMemberIds(content);
+
+            if (mentionedMemberIds.length > 0) {
+                await notifyMentionedMembers({
+                    databases,
+                    workspaceId: task.workspaceId,
+                    taskId,
+                    actorUserId: user.$id,
+                    memberIds: mentionedMemberIds,
+                    title: NotificationI18nKey.TASK_MENTIONED_TITLE,
+                    entityType: NotificationEntityType.TASK_MENTIONED,
+                });
+            }
+
             return ctx.json({
                 data: {
                     ...comment,
@@ -207,6 +223,22 @@ const app = new Hono()
                     commentId
                 }
             }).catch(err => console.error('Error creating activity log:', err));
+
+            const previousMentionIds = extractMentionedMemberIds(existingComment.content);
+            const newMentionIds = extractMentionedMemberIds(content);
+            const addedMentionIds = newMentionIds.filter((mentionId) => !previousMentionIds.includes(mentionId));
+
+            if (addedMentionIds.length > 0) {
+                await notifyMentionedMembers({
+                    databases,
+                    workspaceId: task.workspaceId,
+                    taskId: existingComment.taskId,
+                    actorUserId: user.$id,
+                    memberIds: addedMentionIds,
+                    title: NotificationI18nKey.TASK_MENTIONED_TITLE,
+                    entityType: NotificationEntityType.TASK_MENTIONED,
+                });
+            }
 
             return ctx.json({
                 data: {

@@ -1846,6 +1846,7 @@
         "notification-task-due-date-reminder-title": "A task assigned to you is due soon",
         "notification-task-priority-changed-title": "The priority of an assigned task changed",
         "notification-task-completed-title": "An assigned task was marked as completed",
+        "notification-task-mentioned-title": "You were mentioned in a task",
         "notification-view-task-link": "View the task",
         "note-created": "Note successfully created",
         "failed-create-note": "Sorry, there was an error creating the note",
