@@ -6,21 +6,21 @@ import { ReactNode } from 'react'
 
 interface MediaActionsProps {
     linkComponent: ReactNode
+    mentionComponent: ReactNode
     onImage: () => void
     onDivider: () => void
-    // onMention: () => void
 }
 
-const MediaActions = ({ linkComponent, onImage, onDivider }: MediaActionsProps) => {
+const MediaActions = ({ linkComponent, mentionComponent, onImage, onDivider }: MediaActionsProps) => {
     const actions = [
         { icon: ImageIcon, translationKey: 'image' as const, onClick: onImage },
         { icon: Minus, translationKey: 'divider' as const, onClick: onDivider },
-        // { icon: AtSign, translationKey: 'mention' as const, onClick: onMention },
     ]
 
     return (
         <>
             {linkComponent}
+            {mentionComponent}
             {actions.map((action) => (
                 <EditorButton
                     key={action.translationKey}

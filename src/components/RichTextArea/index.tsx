@@ -7,6 +7,7 @@ import TextFormatting from './TextFormatting'
 import ListActions from './ListActions'
 import MediaActions from './MediaActions'
 import LinkDialog from './LinkDialog'
+import MentionDialog from './MentionDialog'
 
 interface RichTextAreaProps {
     value?: string | null
@@ -23,7 +24,7 @@ const RichTextArea = ({
     placeholder = 'Add description...',
     className,
     onImageUpload,
-    // memberOptions = []
+    memberOptions = []
 }: RichTextAreaProps) => {
     const editorRef = useRef<HTMLDivElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -109,6 +110,50 @@ const RichTextArea = ({
             const isEmpty = html === '' || html === '<br>' || html === '<div><br></div>'
             onChange(isEmpty ? '' : html)
         }
+    }
+
+    const insertMention = (member: { id: string, name: string }, savedRange?: Range) => {
+        const selection = window.getSelection()
+        if (!selection) return
+
+        let range: Range | null = null
+        if (savedRange) {
+            range = savedRange
+            selection.removeAllRanges()
+            selection.addRange(range)
+        } else if (selection.rangeCount > 0) {
+            range = selection.getRangeAt(0)
+        }
+
+        if (!range) return
+
+        range.deleteContents()
+
+        const mentionElement = document.createElement('span')
+        mentionElement.setAttribute('data-mention-id', member.id)
+        mentionElement.setAttribute('data-mention-name', member.name)
+        mentionElement.setAttribute('contenteditable', 'false')
+        mentionElement.className = 'inline-flex items-center rounded-sm bg-primary/10 px-1 py-0.5 text-primary'
+        mentionElement.textContent = `@${member.name}`
+
+        range.insertNode(mentionElement)
+
+        const space = document.createTextNode('\u00A0')
+        if (mentionElement.nextSibling) {
+            mentionElement.parentNode?.insertBefore(space, mentionElement.nextSibling)
+        } else {
+            mentionElement.parentNode?.appendChild(space)
+        }
+
+        const cursorRange = document.createRange()
+        cursorRange.setStart(space, 1)
+        cursorRange.setEnd(space, 1)
+
+        selection.removeAllRanges()
+        selection.addRange(cursorRange)
+
+        editorRef.current?.focus()
+        updateContent()
     }
 
     const handleBold = () => applyFormat('bold')
@@ -383,39 +428,6 @@ const RichTextArea = ({
         }, 0)
     }
 
-    // const handleMention = () => {
-    //     if (memberOptions.length === 0) {
-    //         document.execCommand('insertText', false, '@')
-    //         editorRef.current?.focus()
-    //         return
-    //     }
-
-    //     const names = memberOptions.map((m, i) => `${i + 1}. ${m.name}`).join('\n')
-    //     const selection = window.prompt(`Mencionar a:\n${names}\n\nEscribe el número:`)
-
-    //     if (selection) {
-    //         const index = parseInt(selection) - 1
-    //         if (index >= 0 && index < memberOptions.length) {
-    //             const mention = document.createElement('span')
-    //             mention.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
-    //             mention.style.color = '#3b82f6'
-    //             mention.style.padding = '2px 4px'
-    //             mention.style.borderRadius = '3px'
-    //             mention.textContent = `@${memberOptions[index].name}`
-
-    //             const sel = window.getSelection()
-    //             if (sel && sel.rangeCount > 0) {
-    //                 const range = sel.getRangeAt(0)
-    //                 range.insertNode(mention)
-    //                 range.setStartAfter(mention)
-    //                 range.setEndAfter(mention)
-    //                 updateContent()
-    //             }
-    //         }
-    //     }
-    //     editorRef.current?.focus()
-    // }
-
     return (
         <div className={cn('border rounded-md overflow-hidden', className)}>
             {/* Hidden file input */}
@@ -449,9 +461,9 @@ const RichTextArea = ({
 
                 <MediaActions
                     linkComponent={<LinkDialog onInsertLink={handleLink} />}
+                    mentionComponent={<MentionDialog memberOptions={memberOptions} onInsertMention={insertMention} />}
                     onImage={handleImage}
                     onDivider={handleDivider}
-                    // onMention={handleMention}
                 />
             </div>
 
@@ -471,7 +483,8 @@ const RichTextArea = ({
                     '[&_hr]:my-4',
                     '[&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-2',
                     '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-2',
-                    '[&_li]:my-1'
+                    '[&_li]:my-1',
+                    '[&_span[data-mention-id]]:inline-flex [&_span[data-mention-id]]:items-center [&_span[data-mention-id]]:rounded-sm [&_span[data-mention-id]]:bg-primary/10 [&_span[data-mention-id]]:px-1 [&_span[data-mention-id]]:py-0.5 [&_span[data-mention-id]]:text-primary'
                 )}
                 data-placeholder={placeholder}
             />

@@ -466,6 +466,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                                 value={description}
                                 onChange={setDescription}
                                 placeholder={t('add-description')}
+                                memberOptions={availableMembers.map((member) => ({ id: member.$id, name: member.name }))}
                                 onImageUpload={handleImageUpload}
                             />
                             <div className="flex items-center gap-x-2">
@@ -607,6 +608,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                                                 value={comment}
                                                 onChange={setComment}
                                                 placeholder={t('write-comment')}
+                                                memberOptions={availableMembers.map((member) => ({ id: member.$id, name: member.name }))}
                                                 className="min-h-[100px]"
                                             />
                                             <div className="flex items-center gap-2">
@@ -745,6 +747,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                                                             value={editingCommentContent}
                                                             onChange={setEditingCommentContent}
                                                             placeholder={t('write-comment')}
+                                                            memberOptions={availableMembers.map((member) => ({ id: member.$id, name: member.name }))}
                                                             className="min-h-[80px]"
                                                         />
                                                         <div className="flex items-center gap-2">
