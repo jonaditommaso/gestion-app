@@ -1,5 +1,4 @@
-import { cookies } from "next/headers";
-import { ID } from "node-appwrite";
+import { Account, AppwriteException, AuthenticationFactor, Client, ID } from "node-appwrite";
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
@@ -15,14 +14,58 @@ export async function GET(request: NextRequest) {
 
     const { account, users, teams, storage } = await createAdminClient();
     const session = await account.createSession(userId, secret);
+    const isSecure = process.env.NODE_ENV === 'production';
 
-    const cookieStore = await cookies();
-    cookieStore.set(AUTH_COOKIE, session.secret, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "strict",
-        secure: true,
-    });
+    const createRedirectResponse = (pathname: string, mfaToken?: string) => {
+        const response = NextResponse.redirect(`${request.nextUrl.origin}${pathname}`);
+
+        response.cookies.set(AUTH_COOKIE, session.secret, {
+            path: "/",
+            httpOnly: true,
+            sameSite: "strict",
+            secure: isSecure,
+            maxAge: 60 * 60 * 24 * 30,
+        });
+
+        if (mfaToken) {
+            response.cookies.set('mfa_token', mfaToken, {
+                path: "/",
+                httpOnly: true,
+                sameSite: "lax",
+                secure: isSecure,
+                maxAge: 60 * 10,
+            });
+        }
+
+        return response;
+    };
+
+    const sessionClient = new Client()
+        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+        .setSession(session.secret);
+
+    const sessionAccount = new Account(sessionClient);
+
+    try {
+        const current = await sessionAccount.get();
+
+        if (current.mfa === true) {
+            const challenge = await sessionAccount.createMfaChallenge(AuthenticationFactor.Totp);
+            const token = crypto.randomUUID();
+
+            return createRedirectResponse(`/mfa?token=${token}&challengeId=${challenge.$id}`, token);
+        }
+    } catch (error) {
+        if (error instanceof AppwriteException && error.type === 'user_more_factors_required') {
+            const challenge = await sessionAccount.createMfaChallenge(AuthenticationFactor.Totp);
+            const token = crypto.randomUUID();
+
+            return createRedirectResponse(`/mfa?token=${token}&challengeId=${challenge.$id}`, token);
+        }
+
+        throw error;
+    }
 
     const user = await users.get(userId);
 
@@ -131,8 +174,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (provider === 'google') {
-        return NextResponse.redirect(`${request.nextUrl.origin}/oauth/loading`);
+        return createRedirectResponse('/oauth/loading');
     }
 
-    return NextResponse.redirect(`${request.nextUrl.origin}/`);
+    return createRedirectResponse('/');
 }

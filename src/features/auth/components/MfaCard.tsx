@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { KeyRound } from "lucide-react";
+import { CircleX, KeyRound } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMfa } from "../api/use-mfa";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const MfaCard = ({ challengeId }: { challengeId: string }) => {
     const t = useTranslations('auth');
@@ -15,30 +16,43 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
     const [code, setCode] = useState(Array(6).fill(""));
     const inputRefs = useRef<HTMLInputElement[]>([]);
     const [isVerifying, setIsVerifying] = useState(false);
-    const { mutate: verifyMfa, isSuccess } = useMfa();
+    const submittedRef = useRef(false);
+    const { mutate: verifyMfa, isError: thereIsError, reset: resetMfaError } = useMfa();
 
 
     useEffect(() => {
         inputRefs.current[0]?.focus();
       }, []);
 
-    useEffect(() => {
-        if (code.every((char) => char !== "")) {
-            setIsVerifying(true)
-            const finalCode = code.join("");
-            verifyMfa({
-                json: {
-                    mfaCode: finalCode,
-                    challengeId
-                }
-            });
+    const submitCode = useCallback((digits: string[]) => {
+        if (submittedRef.current) return;
+        if (!digits.every((char) => char !== "")) return;
 
-            if (isSuccess) setIsVerifying(false)
-        }
-    }, [code, challengeId, isSuccess, verifyMfa]);
+        submittedRef.current = true;
+        setIsVerifying(true);
+
+        const finalCode = digits.join("");
+        verifyMfa({
+            json: {
+                mfaCode: finalCode,
+                challengeId
+            }
+        }, {
+            onError: () => {
+                submittedRef.current = false;
+                setIsVerifying(false);
+                setCode(Array(6).fill(""));
+                inputRefs.current[0]?.focus();
+            }
+        });
+    }, [challengeId, verifyMfa]);
 
     const handleChange = (value: string, index: number) => {
         if (!/^\d?$/.test(value)) return; // solo nums o vacío
+
+        if (thereIsError) {
+            resetMfaError();
+        }
 
         const newCode = [...code];
         newCode[index] = value;
@@ -46,6 +60,10 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
 
         if (value && index < 5) {
           inputRefs.current[index + 1]?.focus();
+        }
+
+        if (value && newCode.every((char) => char !== "")) {
+          submitCode(newCode);
         }
       };
 
@@ -64,7 +82,7 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
                     <span><KeyRound size={24} /></span>
                 </CardHeader>
                 <Separator />
-                <CardContent className="p-7 flex flex-col items-center gap-2 h-[250px]">
+                <CardContent className="p-7 flex flex-col items-center gap-2 min-h-[250px]">
                     <div className="flex gap-2">
                         {code.map((char, index) => (
                         // also exist InputOTP component, check it out
@@ -89,6 +107,15 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
                     <Button disabled={isVerifying} className="w-[300px]">
                         {t(`authentication-code-${isVerifying ? 'verifying' : 'verify'}-button`)}
                     </Button>
+
+                    {thereIsError && (
+                        <Alert variant="destructive" className="w-full border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 mt-4 flex flex-col items-center text-center">
+                            <div className="mb-2">
+                                <CircleX size={20} className="text-red-500" />
+                            </div>
+                            <AlertDescription className="whitespace-pre-line text-balance text-center">{t('authentication-code-invalid-error')}</AlertDescription>
+                        </Alert>
+                    )}
 
                     <Label className="text-muted-foreground text-center balance w-[290px] mt-4">{t('authentication-code-info')}</Label>
                 </CardContent>
