@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ScrollArea } from "./ui/scroll-area";
-import { useGetNotifications } from "@/features/home/api/use-get-notifications";
-import { useReadAllNotifications } from "@/features/home/api/use-read-all-notifications";
+import { useGetNotifications } from "@/features/notifications/api/use-get-notifications";
+import { useReadAllNotifications } from "@/features/notifications/api/use-read-all-notifications";
 import { NotificationData } from "@/features/home/types";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
