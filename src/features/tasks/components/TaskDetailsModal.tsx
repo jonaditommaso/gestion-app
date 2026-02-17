@@ -47,7 +47,7 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
                         </div>
 
                         {/* Content */}
-                        <TaskDetailsContent task={task} />
+                        <TaskDetailsContent task={task} variant="modal" onClose={onClose} />
                     </>
                 ) : (
                     <div className="flex items-center justify-center py-20">

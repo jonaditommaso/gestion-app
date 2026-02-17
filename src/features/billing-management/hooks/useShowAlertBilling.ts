@@ -23,9 +23,14 @@ export const useShowAlertBilling = (currentView: string) => {
         return incomeCategories.length > 0 || expenseCategories.length > 0;
     }, [categoriesData]);
 
+    const hasFollowupData = useMemo(() =>
+        operationsData?.documents?.some(op => op.status === 'PENDING' || op.status === 'OVERDUE' || op.status === 'PAID') ?? false
+        , [operationsData]);
+
     const shouldShowAlert: Record<ViewType, boolean> = {
         details: !hasOperations,
         calendar: !hasOperations,
+        followup: !hasFollowupData,
         categories: !hasCategories,
         incomes: !hasIncomes,
         expenses: !hasExpenses

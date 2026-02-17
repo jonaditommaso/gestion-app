@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, XIcon } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
@@ -21,10 +21,24 @@ interface CustomDatePickerProps {
     onChange: (date: Date) => void,
     className?: string,
     placeholder?: string,
-    hideIcon?: boolean
+    hideIcon?: boolean,
+    label?: string,
+    onClear?: () => void,
+    clearButtonTitle?: string,
+    placeholderText?: string,
 }
 
-const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-date', hideIcon = false }: CustomDatePickerProps) => {
+const CustomDatePicker = ({
+    value,
+    onChange,
+    className,
+    placeholder = 'select-date',
+    hideIcon = false,
+    label,
+    onClear,
+    clearButtonTitle,
+    placeholderText,
+}: CustomDatePickerProps) => {
     const [pickerIsOpen, setPickerIsOpen] = useState(false);
     const t = useTranslations('general');
     const locale = useLocale() as keyof typeof localeMap;
@@ -33,6 +47,15 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-da
     const handleSelect = (date: Date) => {
         onChange(date);
         setPickerIsOpen(false);
+    }
+
+    const formattedValue = value ? format(value, 'PPP', { locale: dateLocale }) : (placeholderText || t(placeholder));
+    const displayValue = label ? `${label}: ${formattedValue}` : formattedValue;
+
+    const handleClear = (event: { preventDefault: () => void; stopPropagation: () => void; }) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClear?.();
     }
 
     return (
@@ -48,7 +71,30 @@ const CustomDatePicker = ({ value, onChange, className, placeholder = 'select-da
                     )}
                 >
                     {!hideIcon && <CalendarIcon className="mr-2 h-4 w-4" />}
-                    { value ? <span className="first-letter:uppercase">{format(value, 'PPP', { locale: dateLocale })}</span> : <span>{t(placeholder)}</span> }
+                    <span className="first-letter:uppercase line-clamp-1">{displayValue}</span>
+                    {value && onClear && (
+                        <span className="ml-auto pl-2">
+                            <span
+                                className="inline-flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }}
+                                onClick={handleClear}
+                                aria-label={clearButtonTitle || t('clear-date')}
+                                title={clearButtonTitle || t('clear-date')}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        handleClear(event);
+                                    }
+                                }}
+                            >
+                                <XIcon className="h-4 w-4" />
+                            </span>
+                        </span>
+                    )}
                 </Button>
             </PopoverTrigger>
             <PopoverContent

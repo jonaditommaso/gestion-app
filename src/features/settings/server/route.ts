@@ -1,9 +1,9 @@
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { Hono } from "hono";
 import { createAdminClient, createSessionClient } from "@/lib/appwrite";
-import { AuthenticatorType, ID } from "node-appwrite";
+import { AppwriteException, AuthenticatorType, ID } from "node-appwrite";
 import { zValidator } from "@hono/zod-validator";
-import { mfaCodeSchema } from "../schemas";
+import { changePasswordSchema, mfaCodeSchema } from "../schemas";
 import { IMAGES_BUCKET_ID } from "@/config";
 import { z } from "zod";
 
@@ -40,6 +40,31 @@ const app = new Hono()
             } catch (err) {
                 console.error("Failed to verify MFA:", err);
                 return ctx.json({ error: "Invalid code or expired challenge" }, 400);
+            }
+        }
+    )
+
+    .post(
+        '/change-password',
+        sessionMiddleware,
+        zValidator('json', changePasswordSchema),
+        async (ctx) => {
+            const account = ctx.get('account');
+            const { currentPassword, newPassword, repeatPassword } = ctx.req.valid('json');
+
+            if (newPassword !== repeatPassword) {
+                return ctx.json({ error: 'Passwords do not match' }, 400);
+            }
+
+            try {
+                await account.updatePassword(newPassword, currentPassword);
+                return ctx.json({ success: true });
+            } catch (error) {
+                if (error instanceof AppwriteException) {
+                    return ctx.json({ error: error.message }, 400);
+                }
+
+                return ctx.json({ error: 'Failed to update password' }, 500);
             }
         }
     )

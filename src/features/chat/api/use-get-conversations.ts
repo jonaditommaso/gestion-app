@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetConversations = () => {
+export const useGetConversations = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: ['chat-conversations'],
         queryFn: async () => {
@@ -14,6 +14,7 @@ export const useGetConversations = () => {
             const { data } = await response.json();
             return data;
         },
+        enabled: options?.enabled ?? true,
     });
 
     return query;

@@ -3,7 +3,13 @@ import { z as zod } from 'zod';
 export const notesSchema = zod.object({
     title: zod.string().optional(),
     content: zod.string().optional(),
-    bgColor: zod.string().trim().min(1, 'Required'),
+    bgColor: zod.string().trim().min(1, 'Required').optional(),
+    isModern: zod.boolean().optional(),
+    hasLines: zod.boolean().optional(),
+    isPinned: zod.boolean().optional(),
+    pinnedAt: zod.string().nullable().optional(),
+    isGlobal: zod.boolean().optional(),
+    globalAt: zod.string().nullable().optional(),
 })
 
 export const messagesSchema = zod.object({

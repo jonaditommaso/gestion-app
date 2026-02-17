@@ -1,11 +1,11 @@
 'use client'
 
-import ErrorPage from "@/app/error";
 import CustomLoader from "@/components/CustomLoader";
 import { useGetTask } from "@/features/tasks/api/use-get-task";
 import { useTaskId } from "@/features/tasks/hooks/use-task-id";
 import TaskDetails, { TaskTitleEditor } from "@/features/tasks/components/TaskDetails";
 import TaskActions from "@/features/tasks/components/TaskActions";
+import { notFound } from "next/navigation";
 
 const TaskIdClient = () => {
     const taskId = useTaskId();
@@ -13,7 +13,7 @@ const TaskIdClient = () => {
 
     if (isLoading) return <CustomLoader />
 
-    if (!data) return <ErrorPage />
+    if (!data) notFound()
 
     return (
         <div className="flex flex-col w-full px-6 py-4">
@@ -36,7 +36,7 @@ const TaskIdClient = () => {
                 </div>
 
                 {/* Content */}
-                <TaskDetails task={data} />
+                <TaskDetails task={data} variant="page" />
             </div>
         </div>
     );

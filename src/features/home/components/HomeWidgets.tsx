@@ -127,8 +127,10 @@ const HomeWidgetsGrid = () => {
 };
 
 const HomeHeader = () => {
+    const { isEditMode } = useHomeCustomization();
+
     return (
-        <div className="flex justify-end mb-4 mr-4">
+        <div className={`flex justify-end mr-4 ${isEditMode ? 'mb-4' : ''}`}>
             <PersonalizeHomeButton />
         </div>
     );

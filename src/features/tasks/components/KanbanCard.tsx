@@ -1,4 +1,4 @@
-import { MoreHorizontalIcon, TextIcon, Clock, ListChecks, CircleCheckBig } from "lucide-react";
+import { MoreHorizontalIcon, TextIcon, Clock, ListChecks, CircleCheckBig, Layers } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +14,7 @@ import { useLocale, useTranslations } from "next-intl";
 import '@github/relative-time-element';
 import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels";
 import { useUpdateTask } from "../api/use-update-task";
+import { useParentTask } from "../hooks/useParentTask";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 
@@ -46,6 +47,9 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     // Get label data if it's a custom label (starts with LABEL_)
     const customLabel = task.label?.startsWith('LABEL_') ? getLabelById(task.label) : null;
     const labelColorData = customLabel ? getLabelColor(customLabel.color) : null;
+
+    // Get parent task if this is a subtask
+    const parentTask = useParentTask(task.parentId);
 
     // Use optimistic state if available, otherwise use server state
     const isCompleted = optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt;
@@ -100,7 +104,14 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
         >
             <div>
                 <div className="flex items-start justify-between">
-                    <p className="text-sm max-w-[200px]" title={t('task-name')}>{task.name}</p>
+                    {task.type === 'epic' ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 text-sm font-medium rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 truncate max-w-[200px]">
+                            <Layers className="size-3 flex-shrink-0" />
+                            <span className="truncate" title={t('task-name')}>{task.name}</span>
+                        </div>
+                    ) : (
+                        <p className="text-sm max-w-[200px]" title={t('task-name')}>{task.name}</p>
+                    )}
                     <div onClick={(e) => e.stopPropagation()}>
                         <TaskActions taskId={task.$id} taskName={task.name} taskType={task.type} isFeatured={task.featured}>
                             <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
@@ -154,6 +165,15 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                         style={{ color: priorityOption.color }}
                     />
                 </div>
+                {/* Parent Epic Badge for Subtasks */}
+                {parentTask && (
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 truncate max-w-full">
+                            <Layers className="size-3 flex-shrink-0" />
+                            <span className="truncate">{parentTask.name}</span>
+                        </span>
+                    </div>
+                )}
                 {task.label && (
                     <div className="flex justify-end mt-2">
                         {customLabel ? (

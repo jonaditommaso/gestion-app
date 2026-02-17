@@ -57,6 +57,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const { canEditLabel } = useWorkspacePermissions();
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
+    const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
     const { getStatusDisplayName } = useStatusDisplayName();
     const { allStatuses, getIconComponent } = useCustomStatuses();
 
@@ -129,13 +130,17 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
         ? initialStatusCustomId as TaskStatus
         : (initialStatus || defaultTaskStatus);
 
+    const sanitizedInitialStatus = autoArchiveOnStatusId && effectiveInitialStatus === autoArchiveOnStatusId
+        ? defaultTaskStatus
+        : effectiveInitialStatus;
+
     const form = useForm<zod.infer<typeof createTaskSchema>>({
         resolver: zodResolver(dynamicSchema),
         defaultValues: {
             workspaceId,
             priority: 3, // default
             type: 'task', // default
-            status: effectiveInitialStatus,
+            status: sanitizedInitialStatus,
             assigneesIds: [],
         }
     })
@@ -396,9 +401,10 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                         {allStatuses.map((status) => {
                                                             const IconComponent = getIconComponent(status.icon);
                                                             const isRigidLimitReached = statusesWithRigidLimitReached.has(status.id);
+                                                            const isArchiveStatus = !!autoArchiveOnStatusId && status.id === autoArchiveOnStatusId;
                                                             // El status seleccionado actualmente NO debe deshabilitarse (para que pueda ver que está seleccionado)
                                                             // pero otros status con límite sí se deshabilitan
-                                                            const shouldDisable = isRigidLimitReached && status.id !== field.value;
+                                                            const shouldDisable = (isRigidLimitReached && status.id !== field.value) || isArchiveStatus;
                                                             return (
                                                                 <SelectItem
                                                                     key={status.id}

@@ -87,7 +87,7 @@ const TaskActions = ({
                     if (variant === 'modal' && onClose) {
                         onClose();
                     } else if (variant === 'page') {
-                        router.push(`/workspaces/${workspaceId}/tasks`);
+                        router.push(`/workspaces/${workspaceId}`);
                     }
                 }
             }

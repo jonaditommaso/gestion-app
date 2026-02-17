@@ -10,6 +10,7 @@ import { useResizePanel } from "@/hooks/useResizePanel";
 import { useSendMessage } from "@/features/chat/api/use-send-message";
 import { useGetConversations } from "@/features/chat/api/use-get-conversations";
 import { useDeleteConversation } from "@/features/chat/api/use-delete-conversation";
+import { useCurrent } from "@/features/auth/api/use-current";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
 import { MODELS } from "@/ai/config";
@@ -46,9 +47,12 @@ const ChatBotPanel = () => {
   const resizeRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { data: currentUser } = useCurrent();
 
   // Obtener conversaciones de la BD
-  const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations();
+  const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations({
+    enabled: Boolean(currentUser),
+  });
 
   // Callback cuando se elimina una conversación exitosamente
   const handleDeleteSuccess = useCallback((conversationId: string) => {
@@ -91,6 +95,7 @@ const ChatBotPanel = () => {
   // Cargar mensajes cuando se selecciona una conversación existente
   useEffect(() => {
     const loadMessages = async () => {
+      if (!currentUser) return;
       if (!currentChatId || currentChatId.startsWith('local-')) return;
 
       const existingChat = localChats.find(c => c.id === currentChatId);
@@ -135,7 +140,7 @@ const ChatBotPanel = () => {
     };
 
     loadMessages();
-  }, [currentChatId, localChats]);
+  }, [currentChatId, localChats, currentUser]);
 
   // Custom hook para manejar el resize del panel
   useResizePanel({

@@ -2,7 +2,7 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, MEMBERS_ID, TASKS_ID, CHECKLIST_ITEMS_ID, CHECKLIST_ITEM_ASSIGNEES_ID, TASK_ASSIGNEES_ID } from "@/config";
+import { DATABASE_ID, MEMBERS_ID, TASKS_ID, CHECKLIST_ITEMS_ID, CHECKLIST_ITEM_ASSIGNEES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskStatus, WorkspaceMember } from "../types";
 import type { ChecklistItem, ChecklistItemAssignee } from "@/features/checklist/types";
@@ -18,6 +18,8 @@ import {
 } from "@/features/checklist/schemas";
 import { createActivityLog } from "../utils/create-activity-log";
 import { ActivityAction } from "../types/activity-log";
+import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
+import { shouldNotifyTaskAssignment } from "@/features/notifications/helpers";
 
 const app = new Hono()
 
@@ -619,6 +621,41 @@ const app = new Hono()
                     createdBy: member.$id
                 }
             );
+
+            const notifyAssignment = await shouldNotifyTaskAssignment(databases, workspaceId);
+
+            if (notifyAssignment) {
+                const assignedMember = await databases.getDocument<WorkspaceMember>(
+                    DATABASE_ID,
+                    MEMBERS_ID,
+                    workspaceMemberId
+                );
+
+                if (assignedMember.userId === user.$id) {
+                    return ctx.json({ data: assignee });
+                }
+
+                const checklistItem = await databases.getDocument<ChecklistItem>(
+                    DATABASE_ID,
+                    CHECKLIST_ITEMS_ID,
+                    itemId
+                );
+
+                await databases.createDocument(
+                    DATABASE_ID,
+                    NOTIFICATIONS_ID,
+                    ID.unique(),
+                    {
+                        userId: assignedMember.userId,
+                        triggeredBy: user.$id,
+                        title: NotificationI18nKey.CHECKLIST_ITEM_ASSIGNED_TITLE,
+                        read: false,
+                        type: NotificationType.RECURRING,
+                        entityType: NotificationEntityType.CHECKLIST_ITEM_ASSIGNED,
+                        body: `${NotificationI18nKey.VIEW_TASK_LINK}${NotificationBodySeparator}/${NotificationEntity.WORKSPACES}/${workspaceId}/${NotificationEntity.TASKS}/${checklistItem.taskId}`,
+                    }
+                );
+            }
 
             return ctx.json({ data: assignee });
         }

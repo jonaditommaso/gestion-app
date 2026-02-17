@@ -41,7 +41,11 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { widgets } = ctx.req.valid('json');
+            const { widgets, noteGlobalPinOnboarded } = ctx.req.valid('json');
+
+            if (widgets === undefined && noteGlobalPinOnboarded === undefined) {
+                return ctx.json({ error: 'At least one field is required' }, 400)
+            }
 
             const existingConfigs = await databases.listDocuments(
                 DATABASE_ID,
@@ -50,26 +54,74 @@ const app = new Hono()
             );
 
             if (existingConfigs.total > 0) {
-                const updated = await databases.updateDocument(
-                    DATABASE_ID,
-                    USER_HOME_CONFIG_ID,
-                    existingConfigs.documents[0].$id,
-                    { widgets }
-                );
-                return ctx.json({ data: updated })
+                return ctx.json({ error: 'Home config already exists' }, 409)
+            }
+
+            const createPayload: { userId: string; widgets?: string; noteGlobalPinOnboarded?: boolean } = {
+                userId: user.$id,
+            };
+
+            if (widgets !== undefined) {
+                createPayload.widgets = widgets;
+            }
+
+            if (noteGlobalPinOnboarded !== undefined) {
+                createPayload.noteGlobalPinOnboarded = noteGlobalPinOnboarded;
             }
 
             const created = await databases.createDocument(
                 DATABASE_ID,
                 USER_HOME_CONFIG_ID,
                 ID.unique(),
-                {
-                    userId: user.$id,
-                    widgets
-                }
+                createPayload
             );
 
             return ctx.json({ data: created })
+        }
+    )
+
+    .patch(
+        '/home-config',
+        zValidator('json', homeConfigSchema),
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const { widgets, noteGlobalPinOnboarded } = ctx.req.valid('json');
+
+            if (widgets === undefined && noteGlobalPinOnboarded === undefined) {
+                return ctx.json({ error: 'At least one field is required' }, 400)
+            }
+
+            const existingConfigs = await databases.listDocuments(
+                DATABASE_ID,
+                USER_HOME_CONFIG_ID,
+                [Query.equal('userId', user.$id)]
+            );
+
+            if (existingConfigs.total === 0) {
+                return ctx.json({ error: 'Home config not found' }, 404)
+            }
+
+            const updatePayload: { widgets?: string; noteGlobalPinOnboarded?: boolean } = {};
+
+            if (widgets !== undefined) {
+                updatePayload.widgets = widgets;
+            }
+
+            if (noteGlobalPinOnboarded !== undefined) {
+                updatePayload.noteGlobalPinOnboarded = noteGlobalPinOnboarded;
+            }
+
+            const updated = await databases.updateDocument(
+                DATABASE_ID,
+                USER_HOME_CONFIG_ID,
+                existingConfigs.documents[0].$id,
+                updatePayload
+            );
+
+            return ctx.json({ data: updated })
         }
     )
 
@@ -81,7 +133,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { title, content, bgColor } = ctx.req.valid('json');
+            const { title, content, bgColor, isModern, hasLines } = ctx.req.valid('json');
 
             if (!title && !content) {
                 return ctx.json({ error: 'Cannot create an empty note' }, 400)
@@ -95,6 +147,8 @@ const app = new Hono()
                     title,
                     content,
                     bgColor,
+                    isModern,
+                    hasLines,
                     userId: user.$id,
                 }
             );
@@ -132,21 +186,29 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { noteId } = ctx.req.param();
 
-            const { title, content, bgColor } = ctx.req.valid('json');
+            const { title, content, bgColor, isModern, hasLines, isPinned, pinnedAt, isGlobal, globalAt } = ctx.req.valid('json');
 
-            if (!title && !content) {
-                return ctx.json({ error: 'Note must have at least a title or content' }, 400)
+            const updateData: { title?: string; content?: string; bgColor?: string; isModern?: boolean; hasLines?: boolean; isPinned?: boolean; pinnedAt?: string | null; isGlobal?: boolean; globalAt?: string | null } = {};
+
+            if (title !== undefined) updateData.title = title;
+            if (content !== undefined) updateData.content = content;
+            if (bgColor !== undefined) updateData.bgColor = bgColor;
+            if (isModern !== undefined) updateData.isModern = isModern;
+            if (hasLines !== undefined) updateData.hasLines = hasLines;
+            if (isPinned !== undefined) updateData.isPinned = isPinned;
+            if (pinnedAt !== undefined) updateData.pinnedAt = pinnedAt;
+            if (isGlobal !== undefined) updateData.isGlobal = isGlobal;
+            if (globalAt !== undefined) updateData.globalAt = globalAt;
+
+            if (Object.keys(updateData).length === 0) {
+                return ctx.json({ error: 'Note must have at least one field to update' }, 400)
             }
 
             const note = await databases.updateDocument(
                 DATABASE_ID,
                 NOTES_ID,
                 noteId,
-                {
-                    title,
-                    content,
-                    bgColor,
-                }
+                updateData
             );
 
             return ctx.json({ data: note })

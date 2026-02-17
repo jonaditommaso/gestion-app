@@ -10,6 +10,8 @@ import { ToggleThemeMode } from "./ToggleThemeMode";
 import { useCurrent } from "@/features/auth/api/use-current";
 import NoTeamWarningIcon from "@/features/team/components/NoTeamWarningIcon";
 import ToggleChatBot from "./ToggleChatBot";
+import HomeCustomizationTrigger from "./HomeCustomizationTrigger";
+import NotificationsTrigger from "./NotificationsTrigger";
 
 const AppNavbar = () => {
   const pathname = usePathname();
@@ -33,20 +35,14 @@ const AppNavbar = () => {
       <SearchCommand />
       <div className="flex items-center justify-end p-1 mr-5 gap-4">
 
+        <HomeCustomizationTrigger />
+
         <ToggleChatBot />
 
         <ToggleThemeMode />
-        {/* <div className="relative cursor-pointer">
-          <Badge className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-800 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
-            17
-          </Badge>
-          <button
-            aria-label="show 17 new notifications"
-            className="p-2 text-gray-600 hover:text-red-600 bg-transparent rounded-full"
-          >
-            <BellIcon size={22} />
-          </button>
-        </div> */}
+
+        <NotificationsTrigger />
+
         <UserButton />
       </div>
     </nav>

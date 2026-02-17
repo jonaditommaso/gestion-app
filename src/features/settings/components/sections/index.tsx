@@ -1,7 +1,7 @@
 import React from "react";
 import Plan from "./plan";
 import RemoveAccount from "./remove-account";
-// import Security from "./security";
+import Security from "./security";
 import General from "./general";
 
 type SettingsSection = {
@@ -26,12 +26,12 @@ export const settingsSections: SettingsSection[] = [
         description: 'Current plan and usage',
         section: <Plan />
     },
-    // {
-    //     id: 'security',
-    //     title: 'Security',
-    //     description: 'Manage your security settings',
-    //     section: <Security />,
-    // },
+    {
+        id: 'security',
+        title: 'security',
+        description: 'Manage your security settings',
+        section: <Security />,
+    },
     {
         id: 'remove-account',
         title: 'destructive',

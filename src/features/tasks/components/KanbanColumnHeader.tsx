@@ -37,6 +37,8 @@ interface KanbanColumnHeaderProps {
     availableStatuses?: CustomStatus[];
     /** Whether the column has reached its rigid limit */
     isRigidLimitReached?: boolean;
+    /** Whether this column archives tasks automatically (disables creating tasks here) */
+    isArchiveColumn?: boolean;
     /** Task count by status ID for calculating move limits */
     taskCountByStatus?: Record<string, number>;
 }
@@ -50,7 +52,7 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.CUSTOM]: <CircleDashedIcon className="size-[18px] text-gray-400" />, // Fallback, custom statuses use their own icon
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, taskCountByStatus = {} }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, isArchiveColumn = false, taskCountByStatus = {} }: KanbanColumnHeaderProps) => {
 
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
@@ -253,7 +255,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>
-                {canCreateTask && !isRigidLimitReached && (
+                {canCreateTask && !isRigidLimitReached && !isArchiveColumn && (
                     <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
                         <PlusIcon className="size-4 text-neutral-500" />
                     </Button>

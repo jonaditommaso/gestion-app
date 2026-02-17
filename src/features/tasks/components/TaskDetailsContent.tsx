@@ -4,10 +4,12 @@ import TaskDetails, { TaskTitleEditor } from "./TaskDetails";
 
 interface TaskDetailsContentProps {
     task: Task;
+    variant?: 'modal' | 'page';
+    onClose?: () => void;
 }
 
-const TaskDetailsContent = ({ task }: TaskDetailsContentProps) => {
-    return <TaskDetails task={task} />;
+const TaskDetailsContent = ({ task, variant, onClose }: TaskDetailsContentProps) => {
+    return <TaskDetails task={task} variant={variant} onClose={onClose} />;
 };
 
 TaskDetailsContent.TitleEditor = TaskTitleEditor;

@@ -27,6 +27,8 @@ import { useDeleteTask } from "../api/use-delete-task";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import TaskDetailsModal from "./TaskDetailsModal";
+import { useUpdateTask } from "../api/use-update-task";
+import { useGetMembers } from "@/features/members/api/use-get-members";
 
 interface DataKanbanProps {
     data: Task[],
@@ -50,6 +52,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const t = useTranslations('workspaces');
     const { data: user } = useCurrent();
     const workspaceId = useWorkspaceId();
+    const { data: membersData } = useGetMembers({ workspaceId });
     const { mutate: updateWorkspace } = useUpdateWorkspace();
     const { data: workspaces } = useGetWorkspaces();
     const { allStatuses } = useCustomStatuses();
@@ -65,6 +68,28 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
 
     const { mutate: deleteTask } = useDeleteTask();
     const { mutate: bulkUpdateTasks } = useBulkUpdateTasks();
+    const { mutate: updateTask } = useUpdateTask();
+
+    const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
+
+    const currentMemberId = useMemo(() => {
+        return membersData?.documents?.find(m => m.userId === user?.$id)?.$id ?? null;
+    }, [membersData?.documents, user?.$id]);
+
+    const archiveTaskIfNeeded = useCallback((task: Task, destinationStatusId: string) => {
+        if (!autoArchiveOnStatusId) return;
+        if (destinationStatusId !== autoArchiveOnStatusId) return;
+        if (task.archived === true) return;
+
+        updateTask({
+            param: { taskId: task.$id },
+            json: {
+                archived: true,
+                archivedAt: new Date(),
+                archivedBy: currentMemberId,
+            }
+        });
+    }, [autoArchiveOnStatusId, currentMemberId, updateTask]);
 
     // Estado local para el orden de columnas (optimistic update)
     const [localColumnOrder, setLocalColumnOrder] = useState<string[]>([]);
@@ -301,6 +326,13 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         bulkUpdateTasks({
             json: { tasks: updates }
         });
+
+        // Auto-archive if the destination column is configured as archive target
+        if (autoArchiveOnStatusId && targetStatusId === autoArchiveOnStatusId) {
+            for (const task of tasksToMove) {
+                archiveTaskIfNeeded(task, targetStatusId);
+            }
+        }
     };
 
     const handleDeleteColumn = async (statusId: string) => {
@@ -596,6 +628,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
 
         const updatesPayload: { $id: string, status: TaskStatus, statusCustomId?: string | null, position: number }[] = []
+        let movedTaskForAutoArchive: Task | null = null;
 
         setTasks(prevTasks => {
             const newTasks = {...prevTasks}
@@ -617,6 +650,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                     statusCustomId: isDestCustom ? destStatusId : undefined
                   }
                 : movedTask
+
+                        movedTaskForAutoArchive = updatedMovedTask;
 
             newTasks[sourceStatusId] = sourceColumn;
 
@@ -666,7 +701,11 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         })
 
         onChangeTasks(updatesPayload)
-    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents, isCustomStatus])
+
+        if (sourceStatusId !== destStatusId && movedTaskForAutoArchive) {
+            archiveTaskIfNeeded(movedTaskForAutoArchive, destStatusId);
+        }
+    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents, isCustomStatus, archiveTaskIfNeeded])
 
     // Determinar si necesitamos scroll (más de 5 columnas)
     const needsScroll = orderedStatuses.length > 5;
@@ -702,6 +741,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                 const isFlexibleWarning = limitType === ColumnLimitType.FLEXIBLE && isLimitExceeded;
                                 // Determine if rigid limit is reached (at or over limit) - blocks adding new tasks
                                 const isRigidLimitReached = limitType === ColumnLimitType.RIGID && limitMax !== null && taskCount >= limitMax;
+                                const isArchiveColumn = !!autoArchiveOnStatusId && statusObj.id === autoArchiveOnStatusId;
 
                                 return (
                                     <Draggable
@@ -779,6 +819,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
                                                             availableStatuses={orderedStatuses}
                                                             isRigidLimitReached={isRigidLimitReached}
+                                                            isArchiveColumn={isArchiveColumn}
                                                             taskCountByStatus={taskCountByStatus}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">

@@ -1,10 +1,11 @@
 'use client'
 import { Button } from "@/components/ui/button";
-import { Settings2, Plus, X, Save, Loader2 } from "lucide-react";
+import { Plus, X, Save, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHomeCustomization } from "./HomeCustomizationContext";
 import AddWidgetModal from "./AddWidgetModal";
+import { START_HOME_CUSTOMIZATION_EVENT } from "@/components/HomeCustomizationTrigger";
 
 const PersonalizeHomeButton = () => {
     const t = useTranslations('home');
@@ -18,17 +19,18 @@ const PersonalizeHomeButton = () => {
         isSaving,
     } = useHomeCustomization();
 
+    useEffect(() => {
+        const startEditMode = () => setIsEditMode(true);
+
+        window.addEventListener(START_HOME_CUSTOMIZATION_EVENT, startEditMode);
+
+        return () => {
+            window.removeEventListener(START_HOME_CUSTOMIZATION_EVENT, startEditMode);
+        };
+    }, [setIsEditMode]);
+
     if (!isEditMode) {
-        return (
-            <Button
-                variant="outline"
-                className="gap-2"
-                onClick={() => setIsEditMode(true)}
-            >
-                <Settings2 className="h-4 w-4" />
-                {t('personalize-home')}
-            </Button>
-        );
+        return null;
     }
 
     return (

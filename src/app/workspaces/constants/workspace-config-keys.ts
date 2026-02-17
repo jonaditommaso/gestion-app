@@ -6,6 +6,7 @@ export enum WorkspaceConfigKey {
     // Workflow
     DEFAULT_TASK_STATUS = 'defaultTaskStatus',
     AUTO_ARCHIVE_COMPLETED = 'autoArchiveCompleted',
+    AUTO_ARCHIVE_ON_STATUS_ID = 'autoArchiveOnStatusId',
     SHOW_CARD_COUNT = 'showCardCount',
 
     // Column Limits - per status
@@ -45,10 +46,13 @@ export enum WorkspaceConfigKey {
     PUBLIC_LINK_EXPIRATION_DAYS = 'publicLinkExpirationDays',
     MULTI_SELECT_LABELS = 'multiSelectLabels',
     HIDE_EPIC_PROGRESS_BAR = 'hideEpicProgressBar',
+    TABLE_PAGE_SIZE = 'tablePageSize',
 
     // Notifications
     NOTIFY_TASK_ASSIGNMENT = 'notifyTaskAssignment',
     NOTIFY_DUE_DATE_REMINDER = 'notifyDueDateReminder',
+    NOTIFY_TASK_PRIORITY_CHANGE = 'notifyTaskPriorityChange',
+    NOTIFY_TASK_COMPLETED = 'notifyTaskCompleted',
     NOTIFY_TASK_NO_MOVEMENT = 'notifyTaskNoMovement',
     NOTIFY_MEMBER_NO_TASKS = 'notifyMemberNoTasks',
 
@@ -93,6 +97,7 @@ export enum ShowCardCountType {
 export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.DEFAULT_TASK_STATUS]: 'BACKLOG',
     [WorkspaceConfigKey.AUTO_ARCHIVE_COMPLETED]: false,
+    [WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID]: null,
     [WorkspaceConfigKey.SHOW_CARD_COUNT]: ShowCardCountType.ALWAYS,
 
     // Column limits defaults - all set to no limit
@@ -132,10 +137,13 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS]: 5, // 5 days by default
     [WorkspaceConfigKey.MULTI_SELECT_LABELS]: false, // single select by default
     [WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]: false, // show progress bar by default
+    [WorkspaceConfigKey.TABLE_PAGE_SIZE]: 10, // 10 items per page by default
 
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,
     [WorkspaceConfigKey.NOTIFY_DUE_DATE_REMINDER]: true,
+    [WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE]: true,
+    [WorkspaceConfigKey.NOTIFY_TASK_COMPLETED]: true,
     [WorkspaceConfigKey.NOTIFY_TASK_NO_MOVEMENT]: false,
     [WorkspaceConfigKey.NOTIFY_MEMBER_NO_TASKS]: false,
 

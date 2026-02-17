@@ -14,15 +14,16 @@ export const useMfa = () => {
         mutationFn: async ({ json }) => {
             const response = await client.api.auth.mfa['$post']({ json });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to login')
             }
 
             return await response.json()
         },
         onSuccess: () => {
-            router.push('/');
-            queryClient.invalidateQueries({ queryKey: ['mfa-code'] })
+            queryClient.invalidateQueries({ queryKey: ['current'] })
+            router.replace('/');
+            router.refresh();
         }
     })
     return mutation

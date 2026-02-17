@@ -2,14 +2,16 @@ import { Hono } from "hono"
 import { zValidator } from '@hono/zod-validator';
 import { loginSchema, mfaSchema, registerSchema, userNameSchema } from "../schemas";
 import { createAdminClient } from "@/lib/appwrite";
-import {  ID } from "node-appwrite"; //Account, AppwriteException, AuthenticationFactor, Client, Models
+import { ID, Account, AppwriteException, AuthenticationFactor, Client } from "node-appwrite"; //Account, AppwriteException, AuthenticationFactor, Client
 import { deleteCookie, setCookie } from 'hono/cookie';
 import { AUTH_COOKIE } from "../constants";
-import { ContextType, sessionMiddleware } from "@/lib/session-middleware";
+import { ContextType, sessionMfaMiddleware, sessionMiddleware } from "@/lib/session-middleware";
 
 // function isErrorResponseWithChallengeId(response: unknown): response is { challengeId: string } {
 //     return typeof response === 'object' && response !== null && 'challengeId' in response;
 // }
+
+const isSecure = process.env.NODE_ENV === 'production';
 
 const app = new Hono<ContextType>()
 
@@ -22,42 +24,52 @@ const app = new Hono<ContextType>()
         }
     )
 
-    // .post(
-    //     '/login',
-    //     zValidator('json', loginSchema), //middleware
-    //     async ctx => {
-    //         const { email, password } = ctx.req.valid('json');
+    .post(
+        '/login',
+        zValidator('json', loginSchema), //middleware
+        async ctx => {
+            const { email, password } = ctx.req.valid('json');
 
-    //         const { account: adminAccount } = await createAdminClient();
-    //         const session = await adminAccount.createEmailPasswordSession(
-    //             email,
-    //             password
-    //         )
+            const { account: adminAccount } = await createAdminClient();
+            const session = await adminAccount.createEmailPasswordSession(
+                email,
+                password
+            )
 
-    //         const client = new Client()
-    //             .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-    //             .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
-    //             .setSession(session.secret);
+            const client = new Client()
+                .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+                .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+                .setSession(session.secret);
 
-    //         const account = new Account(client);
+            const account = new Account(client);
 
-    //         const current = await account.get();
+            setCookie(ctx, AUTH_COOKIE, session.secret, {
+                path: '/',
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 24 * 30
+            })
 
-    //         if (current.mfa === true) {
-    //             const challenge = await account.createMfaChallenge(AuthenticationFactor.Totp);
-    //             return ctx.json({ data: { mfaRequired: true, success: true, challengeId: challenge.$id, } }, 200);
-    //         }
+            try {
+                const current = await account.get();
 
-    //         setCookie(ctx, AUTH_COOKIE, session.secret, {
-    //             path: '/',
-    //             httpOnly: true,
-    //             secure: true,
-    //             sameSite: 'strict',
-    //             maxAge: 60 * 60 * 24 * 30
-    //         })
-    //         return ctx.json({ data: { mfaRequired: false, success: true, challengeId: null } })
-    //     }
-    // ) //! este
+                if (current.mfa === true) {
+                    const challenge = await account.createMfaChallenge(AuthenticationFactor.Totp);
+                    return ctx.json({ data: { mfaRequired: true, success: true, challengeId: challenge.$id, } }, 200);
+                }
+            } catch (error) {
+                if (error instanceof AppwriteException && error.type === 'user_more_factors_required') {
+                    const challenge = await account.createMfaChallenge(AuthenticationFactor.Totp);
+                    return ctx.json({ data: { mfaRequired: true, success: true, challengeId: challenge.$id } }, 200);
+                }
+
+                throw error;
+            }
+
+            return ctx.json({ data: { mfaRequired: false, success: true, challengeId: null } })
+        }
+    ) //! este
 
     // .post('/login', zValidator('json', loginSchema), async ctx => {
     //     const { email, password } = ctx.req.valid('json');
@@ -117,29 +129,29 @@ const app = new Hono<ContextType>()
     //     }
     //   }) //? ultimo que funcionaba pero redireccionaba siempre al mfa
 
-    .post(
-        '/login',
-        zValidator('json', loginSchema), //middleware
-        async ctx => {
+    // .post(
+    //     '/login',
+    //     zValidator('json', loginSchema), //middleware
+    //     async ctx => {
 
-            const { email, password } = ctx.req.valid('json');
+    //         const { email, password } = ctx.req.valid('json');
 
-            const { account } = await createAdminClient();
-            const session = await account.createEmailPasswordSession(
-                email,
-                password
-            )
+    //         const { account } = await createAdminClient();
+    //         const session = await account.createEmailPasswordSession(
+    //             email,
+    //             password
+    //         )
 
-            setCookie(ctx, AUTH_COOKIE, session.secret, {
-                path: '/',
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                maxAge: 60 * 60 * 24 * 30
-            })
-            return ctx.json({ success: true, data: { mfaRequired: false, challengeId: null } })
-        }
-    )
+    //         setCookie(ctx, AUTH_COOKIE, session.secret, {
+    //             path: '/',
+    //             httpOnly: true,
+    //             secure: true,
+    //             sameSite: 'strict',
+    //             maxAge: 60 * 60 * 24 * 30
+    //         })
+    //         return ctx.json({ success: true, data: { mfaRequired: false, challengeId: null } })
+    //     }
+    // )
 
     .post(
         '/register',
@@ -180,12 +192,12 @@ const app = new Hono<ContextType>()
             setCookie(ctx, AUTH_COOKIE, session.secret, {
                 path: '/',
                 httpOnly: true,
-                secure: true,
+                secure: isSecure,
                 sameSite: 'strict',
                 maxAge: 60 * 60 * 24 * 30
             })
 
-            return ctx.json({ success: true})
+            return ctx.json({ success: true })
             // console.log({ email, password, name })
 
         }
@@ -209,52 +221,41 @@ const app = new Hono<ContextType>()
         zValidator('json', userNameSchema),
         sessionMiddleware,
         async (ctx) => {
-          const { userName } = ctx.req.valid('json');
-          const user = ctx.get('user');
+            const { userName } = ctx.req.valid('json');
+            const user = ctx.get('user');
 
-          const { users } = await createAdminClient();
+            const { users } = await createAdminClient();
 
-          await users.updateName(user.$id, userName);
+            await users.updateName(user.$id, userName);
 
-          return ctx.json({ success: true, message: 'Updated username' });
+            return ctx.json({ success: true, message: 'Updated username' });
         }
     )
 
     .post('/mfa',
         zValidator('json', mfaSchema),
-        sessionMiddleware,
+        sessionMfaMiddleware,
         async ctx => {
 
-        const { mfaCode, challengeId } = ctx.req.valid('json');
+            const { mfaCode, challengeId } = ctx.req.valid('json');
 
-        //const { account } = await createAdminClient();
-        const account = ctx.get('account');
+            //const { account } = await createAdminClient();
+            const account = ctx.get('account');
 
-        if (!account) {
-            return ctx.json({ success: false, error: 'Account not found' }, 401);
-        }
+            if (!account) {
+                return ctx.json({ success: false, error: 'Account not found' }, 401);
+            }
 
-        try {
-            // Verificamos el código MFA
-            await account.updateMfaChallenge(challengeId, mfaCode);
+            try {
+                // Verificamos el código MFA
+                await account.updateMfaChallenge(challengeId, mfaCode);
 
-            // Obtenemos la sesión actual
-            const session = await account.getSession('current');
-
-            setCookie(ctx, AUTH_COOKIE, session.secret, {
-                path: '/',
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                maxAge: 60 * 60 * 24 * 30,
-            });
-
-            return ctx.json({ success: true }, 200);
-        } catch (error) {
-            console.error(error);
-            return ctx.json({ success: false, error: 'Invalid MFA code' }, 401);
-        }
-    })
+                return ctx.json({ success: true }, 200);
+            } catch (error) {
+                console.error(error);
+                return ctx.json({ success: false, error: 'Invalid MFA code' }, 401);
+            }
+        })
 
 
     .delete(
