@@ -11,6 +11,8 @@ import { TooltipContainer } from "@/components/TooltipContainer";
 import { useTranslations } from "next-intl";
 import { useDeleteRecordsTable } from "../api/use-delete-records-table";
 import { useUpdateRecordsTable } from "../api/use-update-records-table";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface RecordsTableRowProps {
     tableName: string,
@@ -30,7 +32,10 @@ const RecordsTableRow = ({ tableName, index, actionDisabled, setEditingTable, ed
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const { mutate: updateTableName } = useUpdateRecordsTable();
     const { mutateAsync: deleteTable } = useDeleteRecordsTable();
-    const t =  useTranslations('records');
+    const t = useTranslations('records');
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canDelete = hasPermission(PERMISSIONS.DELETE);
 
     const handleClick = () => {
         if (editingTable === index) {
@@ -73,19 +78,22 @@ const RecordsTableRow = ({ tableName, index, actionDisabled, setEditingTable, ed
                     : <p className="w-full items-center h-4 text-[16px] leading-none">{tableName}</p>
                 }
                 <div className="flex gap-2 items-center">
-                    <TooltipContainer tooltipText={editingTable === index ? t('save') : t('edit')}>
-                        <span
-                            className={cn("cursor-pointer", editingTable === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
-                            onClick={handleClick}
-                        >
-                            {editingTable === index ? <Check className="size-4" /> : <Pencil className="size-4" />}
-                        </span>
-                    </TooltipContainer>
+                    {(canWrite || editingTable === index) && (
+                        <TooltipContainer tooltipText={editingTable === index ? t('save') : t('edit')}>
+                            <span
+                                className={cn("cursor-pointer", editingTable === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
+                                onClick={handleClick}
+                            >
+                                {editingTable === index ? <Check className="size-4" /> : <Pencil className="size-4" />}
+                            </span>
+                        </TooltipContainer>
+                    )}
                     {editingTable === index && (
                         <TooltipContainer tooltipText={t('cancel')}>
                             <span className="cursor-pointer text-red-600" onClick={handleCancel}><XIcon className="size-4" /></span>
                         </TooltipContainer>
                     )}
+                    {canDelete && (
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
                             <TooltipContainer tooltipText={t('delete')}>
                                 <PopoverTrigger asChild>
@@ -101,6 +109,7 @@ const RecordsTableRow = ({ tableName, index, actionDisabled, setEditingTable, ed
                             </div>
                         </PopoverContent>
                     </Popover>
+                    )}
                 </div>
             </TableCell>
         </TableRow>

@@ -1248,7 +1248,8 @@
         "failed-update-table-name": "There was an error updating the table name",
         "validation-error-title": "Validation error",
         "validation-error-description": "There are values without an assigned field. Please assign a field to each value before saving.",
-        "understood": "Understood"
+        "understood": "Understood",
+        "no-records-table": "No records table"
     },
     "workspaces": {
         "create-workspace": "Create new workspace",

@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import AddRecordsTable from "./components/AddRecordsTable";
 import ListTablesModal from "./components/ListTablesModal";
 import { useGetRecords } from "./api/use-get-records";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 const RecordsContent = () => {
     const { data: dataRecords, isPending } = useGetContextRecords()
@@ -25,7 +27,9 @@ const RecordsContent = () => {
     const t = useTranslations('records');
 
     const [currentTab, setCurrentTab] = useState<undefined | string>(undefined);
-    const { data: records, isPending: isGettingRecords } = useGetRecords({tableId: currentTab || ''})
+    const { data: records, isPending: isGettingRecords } = useGetRecords({tableId: currentTab || ''});
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     useEffect(() => {
         if (dataRecords?.documents?.length > 0 && !currentTab) {
@@ -93,12 +97,16 @@ const RecordsContent = () => {
                                     <List className="h-[1.2rem] w-[1.2rem]" />
                                 </Button>
                             </TooltipContainer>
-                            <TooltipContainer tooltipText={t('add-table')}>
-                                <Button variant="outline" size="icon" onClick={() => setCreateTableModalIsOpen(true)} disabled={dataRecords.total >= 3}>
-                                    <Plus className="h-[1.2rem] w-[1.2rem]" />
-                                </Button>
-                            </TooltipContainer>
-                            <AddRecords currentRecordTable={currentTab ?? ''} thereIsTable={dataRecords.total > 0} />
+                            {canWrite && (
+                                <TooltipContainer tooltipText={t('add-table')}>
+                                    <Button variant="outline" size="icon" onClick={() => setCreateTableModalIsOpen(true)} disabled={dataRecords.total >= 3}>
+                                        <Plus className="h-[1.2rem] w-[1.2rem]" />
+                                    </Button>
+                                </TooltipContainer>
+                            )}
+                            {canWrite && (
+                                <AddRecords currentRecordTable={currentTab ?? ''} thereIsTable={dataRecords.total > 0} />
+                            )}
                         </div>
                     </div>
                     <div className="mt-20">

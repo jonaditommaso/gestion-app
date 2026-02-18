@@ -1234,7 +1234,8 @@
         "failed-update-table-name": "Si è verificato un errore durante l'aggiornamento del nome della tabella",
         "validation-error-title": "Errore di validazione",
         "validation-error-description": "Ci sono valori senza un campo assegnato. Per favore, assegna un campo a ogni valore prima di salvare.",
-        "understood": "Capito"
+        "understood": "Capito",
+        "no-records-table": "Nessuna tabella di record"
     },
     "workspaces": {
         "create-workspace": "Crea nuovo workspace",
