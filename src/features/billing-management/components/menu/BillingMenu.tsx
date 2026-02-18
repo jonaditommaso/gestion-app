@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AddOperationModal from "../AddOperationModal";
 import { useTranslations } from "next-intl";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 const BillingMenu = () => {
     const [activeView, setActiveView] = useState('transactions');
     const [isOpen, setIsOpen] = useState(false);
-    const t = useTranslations('billing')
+    const t = useTranslations('billing');
+    const { hasPermission } = useCurrentUserPermissions();
 
     return (
         <div className="flex flex-col items-center gap-4 mr-5">
@@ -19,13 +22,14 @@ const BillingMenu = () => {
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
             />
-            <Button
-                //variant='destructive'
-                className="w-56"
-                onClick={() => setIsOpen(true)}
-            >
-                {t('add-operation')} <Plus />
-            </Button>
+            {hasPermission(PERMISSIONS.WRITE) && (
+                <Button
+                    className="w-56"
+                    onClick={() => setIsOpen(true)}
+                >
+                    {t('add-operation')} <Plus />
+                </Button>
+            )}
             {items.map(item => (
                 <MenuCard
                     key={item.id}

@@ -65,6 +65,7 @@ const AllCategoriesTable = () => {
 
     return (
         <div className="flex gap-2">
+            {/* move this dialog to split it according to permissions */}
             <DialogContainer
                 title={t('add-category')}
                 isOpen={modalIsOpen}
