@@ -27,7 +27,7 @@ export const useUpdateUserRole = () => {
             toast.success(t('role-updated'))
 
             router.refresh();
-            queryClient.invalidateQueries({ queryKey: ['roles'] })
+            queryClient.invalidateQueries({ queryKey: ['team', 'member-tag'] })
             // queryClient.invalidateQueries({ queryKey: ['role', data.$id] })
         },
         onError: () => {
