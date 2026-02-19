@@ -1,11 +1,13 @@
 'use client'
 
+import { useCurrent } from "@/features/auth/api/use-current";
 import FadeLoader from "react-spinners/FadeLoader";
 import { useGetMembers } from "../api/use-get-members";
 import MemberCard from "./MemberCard";
 
 const TeamList = () => {
     const { data: team, isLoading} = useGetMembers();
+    const { data: currentUser } = useCurrent();
 
     if(isLoading) return (
         <div className="w-full flex justify-center">
@@ -13,9 +15,17 @@ const TeamList = () => {
         </div>
     )
 
+    const sortedTeam = team
+        ? [...team].sort((a, b) => {
+            if (a.userId === currentUser?.$id) return -1;
+            if (b.userId === currentUser?.$id) return 1;
+            return 0;
+        })
+        : [];
+
     return (
         <div className="flex flex-wrap gap-4">
-            {team?.map(member => {
+            {sortedTeam.map(member => {
                 return (
                     //todo pass prefs object directly to avoid multiple passing
                     <MemberCard
