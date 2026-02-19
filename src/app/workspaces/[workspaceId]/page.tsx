@@ -3,7 +3,10 @@ import CreateWorkspaceForm from "@/features/workspaces/components/CreateWorkspac
 import { useWorkspaceId } from "../hooks/use-workspace-id";
 import { Settings2 } from "lucide-react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import WorkspaceSettings from "@/features/workspaces/components/WorkspaceSettings";
@@ -22,7 +25,17 @@ const WorkspaceView = () => {
     const workspaceId = useWorkspaceId();
     const { data: workspaces, isLoading } = useGetWorkspaces();
     const t = useTranslations('workspaces');
-    const { canInviteMembers, isAdminMode } = useWorkspacePermissions();
+    const { canInviteMembers } = useWorkspacePermissions(); //isAdminMode
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (workspaceId === 'create' && !canWrite) {
+            router.replace('/workspaces');
+        }
+    }, [workspaceId, canWrite, router]);
 
     const [optionsView, setOptionsView] = useState<string | null>(null);
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
@@ -32,11 +45,14 @@ const WorkspaceView = () => {
         setOptionsView('general');
     };
 
-    if(workspaceId === 'create') return (
-        <div className="w-[40%] mt-10">
-            <CreateWorkspaceForm />
-        </div>
-    )
+    if (workspaceId === 'create') {
+        if (!canWrite) return null;
+        return (
+            <div className="w-[40%] mt-10">
+                <CreateWorkspaceForm />
+            </div>
+        );
+    }
 
     const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
 
@@ -79,8 +95,10 @@ const WorkspaceView = () => {
                     <DropdownMenuContent align="start" className="min-w-48">
                         {workspaceOptions
                             .filter(option => {
-                                // Ocultar add-member si no tiene permisos o está en admin mode
-                                if (option.key === 'add-member' && (!canInviteMembers || isAdminMode)) {
+                                // ? Resolver prioridad para estos casos. El admin, incluso sin manage_users permission puede agregar miembros?
+                                // if (option.key === 'add-member' && !canInviteMembers || isAdminMode)) {
+                                if (option.key === 'add-member' && !canManageUsers) return false
+                                if(!canInviteMembers) {
                                     return false;
                                 }
                                 return true;

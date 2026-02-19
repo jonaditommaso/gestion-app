@@ -22,6 +22,8 @@ import { useRouter } from "next/navigation";
 import { ArchivedTasksModal } from "@/features/tasks/components/ArchivedTasksModal";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { TaskStatus } from "@/features/tasks/types";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -39,6 +41,10 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
     const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null); // Track which config key is currently being updated
     const [isArchivedTasksModalOpen, setIsArchivedTasksModalOpen] = useState(false);
+
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canDelete = hasPermission(PERMISSIONS.DELETE);
 
     // Parse current config from metadata
     const currentConfig = useMemo(() => {
@@ -320,7 +326,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                     updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID, null);
                                 }
                             }}
-                            disabled={isConfigPending(WorkspaceConfigKey.DEFAULT_TASK_STATUS)}
+                            disabled={isConfigPending(WorkspaceConfigKey.DEFAULT_TASK_STATUS) || !canWrite}
                         >
                             <SelectTrigger className="w-48">
                                 <SelectValue />
@@ -374,7 +380,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Select
                             value={displayConfig[WorkspaceConfigKey.SHOW_CARD_COUNT]}
                             onValueChange={(value) => updateConfig(WorkspaceConfigKey.SHOW_CARD_COUNT, value)}
-                            disabled={isConfigPending(WorkspaceConfigKey.SHOW_CARD_COUNT)}
+                            disabled={isConfigPending(WorkspaceConfigKey.SHOW_CARD_COUNT) || !canWrite}
                         >
                             <SelectTrigger className="w-48">
                                 <SelectValue />
@@ -400,7 +406,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.MULTI_SELECT_LABELS]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.MULTI_SELECT_LABELS, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.MULTI_SELECT_LABELS)}
+                            disabled={isConfigPending(WorkspaceConfigKey.MULTI_SELECT_LABELS) || !canWrite}
                         />
                     </div>
 
@@ -467,7 +473,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                                     }));
                                                     setHasUnsavedLimits(true);
                                                 }}
-                                                disabled={isConfigPending('columnLimits')}
+                                                disabled={isConfigPending('columnLimits') || !canWrite}
                                             >
                                                 <SelectTrigger className="h-9">
                                                     <SelectValue />
@@ -483,7 +489,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                             <Input
                                                 type="number"
                                                 min="1"
-                                                disabled={isMaxDisabled || isConfigPending('columnLimits')}
+                                                disabled={isMaxDisabled || isConfigPending('columnLimits') || !canWrite}
                                                 className="h-9"
                                                 value={limitData.max || ''}
                                                 onChange={(e) => {
@@ -509,7 +515,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                     variant="secondary"
                                     size="sm"
                                     onClick={saveColumnLimits}
-                                    disabled={isConfigPending('columnLimits')}
+                                    disabled={isConfigPending('columnLimits') || !canWrite}
                                 >
                                     {t('save-changes')}
                                 </Button>
@@ -542,7 +548,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                         <Switch
                                             checked={displayConfig[protectedKey]}
                                             onCheckedChange={(checked) => updateConfig(protectedKey, checked)}
-                                            disabled={isConfigPending(protectedKey)}
+                                            disabled={isConfigPending(protectedKey) || !canWrite}
                                         />
                                     </div>
                                 );
@@ -568,7 +574,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 }
                                 updateConfig(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID, value);
                             }}
-                            disabled={isConfigPending(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID)}
+                            disabled={isConfigPending(WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID) || !canWrite}
                         >
                             <SelectTrigger className="w-48">
                                 <SelectValue />
@@ -675,7 +681,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.COMPACT_CARDS]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.COMPACT_CARDS, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.COMPACT_CARDS)}
+                            disabled={isConfigPending(WorkspaceConfigKey.COMPACT_CARDS) || !canWrite}
                         />
                     </div>
 
@@ -691,7 +697,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE, checked)}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                         />
                     </div>
 
@@ -724,7 +730,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Select
                             value={displayConfig[WorkspaceConfigKey.DATE_FORMAT]}
                             onValueChange={(value) => updateConfig(WorkspaceConfigKey.DATE_FORMAT, value)}
-                            disabled={isConfigPending(WorkspaceConfigKey.DATE_FORMAT)}
+                            disabled={isConfigPending(WorkspaceConfigKey.DATE_FORMAT) || !canWrite}
                         >
                             <SelectTrigger className="w-fit">
                                 <SelectValue placeholder={t('date-format-long')} />
@@ -755,7 +761,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Select
                             value={String(displayConfig[WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS])}
                             onValueChange={(value) => updateConfig(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS, value === '0' ? 0 : Number(value))}
-                            disabled={isConfigPending(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS)}
+                            disabled={isConfigPending(WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS) || !canWrite}
                         >
                             <SelectTrigger className="w-fit">
                                 <SelectValue placeholder={t('expiration-5-days')} />
@@ -783,7 +789,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={!!displayConfig[WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR)}
+                            disabled={isConfigPending(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR) || !canWrite}
                         />
                     </div>
                 </CardContent>
@@ -836,7 +842,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT, checked)}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                         />
                     </div>
 
@@ -852,7 +858,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.NOTIFY_DUE_DATE_REMINDER]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_DUE_DATE_REMINDER, checked)}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                         />
                     </div>
 
@@ -868,7 +874,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_PRIORITY_CHANGE, checked)}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                         />
                     </div>
 
@@ -884,11 +890,9 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.NOTIFY_TASK_COMPLETED]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.NOTIFY_TASK_COMPLETED, checked)}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                         />
                     </div>
-
-                    {/* <Separator /> */}
 
                     {/* <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
@@ -940,7 +944,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 id="admin-mode"
                                 checked={isAdminMode}
                                 onCheckedChange={toggleAdminMode}
-                                disabled={isConfigPending('adminMode')}
+                                disabled={isConfigPending('adminMode') || !canWrite}
                             />
                         </div>
                     </div>
@@ -957,7 +961,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY) || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.TASK_CREATION_ADMIN_ONLY) || isAdminMode || !canWrite}
                         />
                     </div>
 
@@ -973,7 +977,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY) || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.DELETE_TASKS_ADMIN_ONLY) || isAdminMode || !canWrite}
                         />
                     </div>
 
@@ -989,7 +993,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={currentConfig[WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.CREATE_COLUMNS_ADMIN_ONLY, checked)}
-                            disabled={isPending || isAdminMode}
+                            disabled={isPending || isAdminMode || !canWrite}
                         />
                     </div>
 
@@ -1005,7 +1009,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY) || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.EDIT_COLUMNS_ADMIN_ONLY) || isAdminMode || !canWrite}
                         />
                     </div>
 
@@ -1021,7 +1025,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY) || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.EDIT_LABELS_ADMIN_ONLY) || isAdminMode || !canWrite}
                         />
                     </div>
 
@@ -1037,13 +1041,14 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         <Switch
                             checked={displayConfig[WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY]}
                             onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY, checked)}
-                            disabled={isConfigPending(WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY) || isAdminMode}
+                            disabled={isConfigPending(WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY) || isAdminMode || !canWrite}
                         />
                     </div>
                 </CardContent>
             </Card>
 
             {/* Danger Zone */}
+            {canDelete && (
             <Card className="border-destructive">
                 <CardHeader>
                     <CardTitle className="text-destructive">{t('danger-zone')}</CardTitle>
@@ -1090,6 +1095,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                     </div>
                 </CardContent>
             </Card>
+            )}
 
             <ArchiveDialog />
             <DeleteDialog />

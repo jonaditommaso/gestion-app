@@ -5,6 +5,8 @@ import { useGetTask } from "../api/use-get-task";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import TaskDetailsContent from "./TaskDetailsContent";
 import TaskActions from "./TaskActions";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface TaskDetailsModalProps {
     taskId: string;
@@ -14,6 +16,8 @@ interface TaskDetailsModalProps {
 
 const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) => {
     const { data: task, isLoading } = useGetTask({ taskId });
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -35,6 +39,7 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
                                 taskId={task.$id}
                                 initialTitle={task.name}
                                 initialType={task.type}
+                                readOnly={!canWrite}
                             />
                             <TaskActions
                                 taskId={task.$id}
@@ -47,7 +52,7 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
                         </div>
 
                         {/* Content */}
-                        <TaskDetailsContent task={task} variant="modal" onClose={onClose} />
+                        <TaskDetailsContent task={task} variant="modal" onClose={onClose} canWrite={canWrite} />
                     </>
                 ) : (
                     <div className="flex items-center justify-center py-20">

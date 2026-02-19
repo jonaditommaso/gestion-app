@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
 import { useLocale } from "next-intl";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface ArchivedTasksModalProps {
     isOpen: boolean;
@@ -26,6 +28,8 @@ export const ArchivedTasksModal = ({ isOpen, onClose }: ArchivedTasksModalProps)
     const { data: archivedTasksData, isLoading } = useGetArchivedTasks({ workspaceId, enabled: isOpen });
     const { mutate: unarchiveTasks, isPending } = useUnarchiveTasks();
     const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     const archivedTasks = archivedTasksData?.documents || [];
 
@@ -38,6 +42,7 @@ export const ArchivedTasksModal = ({ isOpen, onClose }: ArchivedTasksModalProps)
     };
 
     const handleToggleTask = (taskId: string) => {
+        if (!canWrite) return;
         setSelectedTaskIds(prev =>
             prev.includes(taskId)
                 ? prev.filter(id => id !== taskId)
@@ -68,9 +73,9 @@ export const ArchivedTasksModal = ({ isOpen, onClose }: ArchivedTasksModalProps)
             <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>{t('archived-tasks')}</DialogTitle>
-                    <DialogDescription>
+                    {canWrite && <DialogDescription>
                         {t('archived-tasks-description')}
-                    </DialogDescription>
+                    </DialogDescription>}
                 </DialogHeader>
 
                 <div className="flex-1 overflow-y-auto">
@@ -85,15 +90,17 @@ export const ArchivedTasksModal = ({ isOpen, onClose }: ArchivedTasksModalProps)
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            <div className="flex items-center gap-2 pb-2 border-b">
-                                <Checkbox
-                                    checked={selectedTaskIds.length === archivedTasks.length && archivedTasks.length > 0}
-                                    onCheckedChange={handleSelectAll}
-                                />
-                                <span className="text-sm font-medium">
-                                    {t('select-all')} ({archivedTasks.length})
-                                </span>
-                            </div>
+                            {canWrite && (
+                                <div className="flex items-center gap-2 pb-2 border-b">
+                                    <Checkbox
+                                        checked={selectedTaskIds.length === archivedTasks.length && archivedTasks.length > 0}
+                                        onCheckedChange={handleSelectAll}
+                                    />
+                                    <span className="text-sm font-medium">
+                                        {t('select-all')} ({archivedTasks.length})
+                                    </span>
+                                </div>
+                            )}
 
                             {archivedTasks.map((task) => {
                                 const isSelected = selectedTaskIds.includes(task.$id);
@@ -107,11 +114,11 @@ export const ArchivedTasksModal = ({ isOpen, onClose }: ArchivedTasksModalProps)
                                         )}
                                         onClick={() => handleToggleTask(task.$id)}
                                     >
-                                        <Checkbox
+                                        {canWrite && <Checkbox
                                             checked={isSelected}
                                             onCheckedChange={() => handleToggleTask(task.$id)}
                                             onClick={(e) => e.stopPropagation()}
-                                        />
+                                        />}
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium truncate">{task.name}</p>
                                             {task.archivedAt && (
@@ -127,23 +134,25 @@ export const ArchivedTasksModal = ({ isOpen, onClose }: ArchivedTasksModalProps)
                     )}
                 </div>
 
-                <div className="flex justify-between items-center pt-4 border-t">
-                    <p className="text-sm text-muted-foreground">
-                        {selectedTaskIds.length > 0 && t('selected-count', { count: selectedTaskIds.length })}
-                    </p>
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={handleClose} disabled={isPending}>
-                            {t('cancel')}
-                        </Button>
-                        <Button
-                            onClick={handleUnarchive}
-                            disabled={selectedTaskIds.length === 0 || isPending}
-                        >
-                            {isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
-                            {t('unarchive-selected')} <ArchiveRestore className="size-4" />
-                        </Button>
+                {canWrite && (
+                    <div className="flex justify-between items-center pt-4 border-t">
+                        <p className="text-sm text-muted-foreground">
+                            {selectedTaskIds.length > 0 && t('selected-count', { count: selectedTaskIds.length })}
+                        </p>
+                        <div className="flex gap-2">
+                            <Button variant="outline" onClick={handleClose} disabled={isPending}>
+                                {t('cancel')}
+                            </Button>
+                            <Button
+                                onClick={handleUnarchive}
+                                disabled={selectedTaskIds.length === 0 || isPending}
+                            >
+                                {isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                                {t('unarchive-selected')} <ArchiveRestore className="size-4" />
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                )}
             </DialogContent>
         </Dialog>
     );

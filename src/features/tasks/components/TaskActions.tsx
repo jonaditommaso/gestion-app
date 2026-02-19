@@ -13,6 +13,8 @@ import { useState } from "react";
 import { ShareTaskModal } from "./ShareTaskModal";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 export type TaskActionsVariant = 'kanban' | 'modal' | 'page';
 
@@ -46,6 +48,9 @@ const TaskActions = ({
     const router = useRouter();
     const workspaceId = useWorkspaceId();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canDelete = hasPermission(PERMISSIONS.DELETE);
 
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
     const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
@@ -170,23 +175,25 @@ const TaskActions = ({
                         <Share2Icon className="size-4 mr-2 stroke-2" />
                         {t('share-task')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={onToggleFeatured}
-                        className="font-medium p-[10px] cursor-pointer"
-                    >
-                        {isFeatured ? (
-                            <>
-                                <FlagOffIcon className="size-4 mr-2 stroke-2" />
-                                {t('unfeature-task')}
-                            </>
-                        ) : (
-                            <>
-                                <FlagIcon className="size-4 mr-2 stroke-2" />
-                                {t('feature-task')}
-                            </>
-                        )}
-                    </DropdownMenuItem>
-                    {!isEpic && (
+                    {canWrite && (
+                        <DropdownMenuItem
+                            onClick={onToggleFeatured}
+                            className="font-medium p-[10px] cursor-pointer"
+                        >
+                            {isFeatured ? (
+                                <>
+                                    <FlagOffIcon className="size-4 mr-2 stroke-2" />
+                                    {t('unfeature-task')}
+                                </>
+                            ) : (
+                                <>
+                                    <FlagIcon className="size-4 mr-2 stroke-2" />
+                                    {t('feature-task')}
+                                </>
+                            )}
+                        </DropdownMenuItem>
+                    )}
+                    {canWrite && !isEpic && (
                         <DropdownMenuItem
                             onClick={onDuplicate}
                             disabled={isPending || !taskData}
@@ -197,23 +204,27 @@ const TaskActions = ({
                         </DropdownMenuItem>
                     )}
 
-                    <Separator />
-                    <DropdownMenuItem
-                        onClick={onArchive}
-                        disabled={isPending}
-                        className="font-medium p-[10px] cursor-pointer"
-                    >
-                        <ArchiveIcon className="size-4 mr-2 stroke-2" />
-                        {t('archive-task')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={onDelete}
-                        disabled={isPending}
-                        className="text-amber-700 focus:text-amber-700 font-medium p-[10px] cursor-pointer"
-                    >
-                        <TrashIcon className="size-4 mr-2 stroke-2" />
-                        {t('delete-task')}
-                    </DropdownMenuItem>
+                    {(canWrite || canDelete) && <Separator />}
+                    {canWrite && (
+                        <DropdownMenuItem
+                            onClick={onArchive}
+                            disabled={isPending}
+                            className="font-medium p-[10px] cursor-pointer"
+                        >
+                            <ArchiveIcon className="size-4 mr-2 stroke-2" />
+                            {t('archive-task')}
+                        </DropdownMenuItem>
+                    )}
+                    {canDelete && (
+                        <DropdownMenuItem
+                            onClick={onDelete}
+                            disabled={isPending}
+                            className="text-amber-700 focus:text-amber-700 font-medium p-[10px] cursor-pointer"
+                        >
+                            <TrashIcon className="size-4 mr-2 stroke-2" />
+                            {t('delete-task')}
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
 
