@@ -1952,7 +1952,7 @@
         "admin": "Admin",
         "admin-description": "Accesso completo al sistema",
         "creator": "Creatore",
-        "creator-description": "Può creare e modificare contenuti",
+        "creator-description": "Può creare, modificare ed eliminare contenuti",
         "viewer": "Visualizzatore",
         "viewer-description": "Solo lettura",
         "permissions": "Permessi",

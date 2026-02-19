@@ -1966,7 +1966,7 @@
         "admin": "Admin",
         "admin-description": "Full access to the system",
         "creator": "Creator",
-        "creator-description": "Can create and edit content",
+        "creator-description": "Can create, edit, and delete content",
         "viewer": "Viewer",
         "viewer-description": "Read-only access",
         "permissions": "Permissions",

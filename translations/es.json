@@ -1972,7 +1972,7 @@
         "admin": "Admin",
         "admin-description": "Acceso completo al sistema",
         "creator": "Creador",
-        "creator-description": "Puede crear y editar contenido",
+        "creator-description": "Puede crear, editar y eliminar contenido",
         "viewer": "Visualizador",
         "viewer-description": "Solo lectura",
         "permissions": "Permisos",
