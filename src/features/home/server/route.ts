@@ -402,7 +402,7 @@ const app = new Hono()
 
             const cookieStore = await cookies();
             const accessToken = cookieStore.get('google_access_token')?.value;
-            const expiresAt = parseInt(cookieStore.get('google_token_exp')?.value ?? '0');
+            const expiresAt = parseInt(cookieStore.get('google_access_token_exp')?.value ?? '0');
 
             if ((!accessToken || Date.now() > expiresAt) && !user?.prefs.google_refresh_token) { // escenario 1, no hay ni token ni refresh
 

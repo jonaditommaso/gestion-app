@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { OAuthProvider } from "node-appwrite";
 
-export async function signUpWithGithub( plan?: string) {
+export async function signUpWithGithub(plan?: string) {
 	const { account } = await createAdminClient();
 
-    const headersList = await headers();
-    const origin = headersList.get("origin");
+	const headersList = await headers();
+	const origin = headersList.get("origin");
 
 	const queryParams = new URLSearchParams();
 	if (plan) queryParams.set("plan", plan);
@@ -26,8 +26,8 @@ export async function signUpWithGithub( plan?: string) {
 export async function signUpWithGoogle(plan?: string) {
 	const { account } = await createAdminClient();
 
-    const headersList = await headers();
-    const origin = headersList.get("origin");
+	const headersList = await headers();
+	const origin = headersList.get("origin");
 
 	const queryParams = new URLSearchParams();
 	if (plan) queryParams.set("plan", plan);
@@ -41,7 +41,6 @@ export async function signUpWithGoogle(plan?: string) {
 			'openid',
 			'email',
 			'profile',
-			'https://www.googleapis.com/auth/calendar.events'
 		]
 	);
 
