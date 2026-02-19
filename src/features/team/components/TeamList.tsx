@@ -20,6 +20,7 @@ const TeamList = () => {
                     //todo pass prefs object directly to avoid multiple passing
                     <MemberCard
                         key={member.$id}
+                        memberId={member.$id}
                         userId={member.userId}
                         name={member.name}
                         email={member.email}
@@ -28,6 +29,10 @@ const TeamList = () => {
                         tags={(member.prefs.tags || '').split(',')}
                         role={member.prefs.role}
                         birthday={member.prefs.birthday}
+                        description={member.prefs.description}
+                        linkedin={member.prefs.linkedin}
+                        memberSince={member.prefs.memberSince}
+                        currentProject={member.prefs.currentProject}
                     />
                 )})
             }
