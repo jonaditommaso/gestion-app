@@ -3,7 +3,7 @@ import { Permission, RoleType } from "../constants";
 import { useGetFinalRolesPermissions } from "./useGetFinalRolesPermissions";
 
 export const useCurrentUserPermissions = () => {
-    const { data: user } = useCurrent();
+    const { data: user, isLoading } = useCurrent();
     const finalRolePermissions = useGetFinalRolesPermissions();
 
     const role = (user?.prefs?.role as RoleType) ?? 'VIEWER';
@@ -11,5 +11,5 @@ export const useCurrentUserPermissions = () => {
 
     const hasPermission = (permission: Permission): boolean => permissions.includes(permission);
 
-    return { permissions, hasPermission };
+    return { permissions, hasPermission, isLoading };
 };

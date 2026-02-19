@@ -8,15 +8,20 @@ import { useTranslations } from "next-intl"
 import { useCurrentUserPermissions } from "../hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "../constants"
 import { redirect } from "next/navigation"
+import FadeLoader from "react-spinners/FadeLoader"
 
 export default function PermissionsManagement() {
   const t = useTranslations('roles')
-  const { hasPermission } = useCurrentUserPermissions();
+  const { hasPermission, isLoading } = useCurrentUserPermissions();
   const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
 
-  if (!canManageUsers) {
+  if (!isLoading && !canManageUsers) {
     redirect('/');
   }
+
+  if(isLoading) return <div className="flex items-center justify-center">
+    <FadeLoader color="#999" width={3} className="mt-5" />
+  </div>
 
   return (
     <div>
