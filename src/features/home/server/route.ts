@@ -298,7 +298,10 @@ const app = new Hono()
             const messages = await databases.listDocuments(
                 DATABASE_ID,
                 MESSAGES_ID,
-                [Query.equal('toTeamMemberId', currentMembership.$id)]
+                [
+                    Query.equal('toTeamMemberId', currentMembership.$id),
+                    Query.orderDesc('$createdAt'),
+                ],
             );
 
             if (messages.total === 0) {
