@@ -20,12 +20,16 @@ import { useState } from "react";
 import { usePathname } from 'next/navigation';
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 const AppSidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useTranslations('general')
+    const { hasPermission } = useCurrentUserPermissions();
+    const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
 
     const handleMouseEnter = () => setIsCollapsed(true);
     const handleMouseLeave = () => setIsCollapsed(false);
@@ -90,7 +94,9 @@ const AppSidebar = () => {
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-3">
-                            {sidebarBottomItems.map((item) => (
+                            {sidebarBottomItems.map((item) => {
+                                if (item.key === 'roles' && !canManageUsers) return null;
+                                return (
                                 <SidebarMenuItem key={t(item.title)} >
                                 <SidebarMenuButton asChild>
                                     <Link href={item.url}>
@@ -99,7 +105,7 @@ const AppSidebar = () => {
                                     </Link>
                                 </SidebarMenuButton>
                                 </SidebarMenuItem>
-                            ))}
+                            )})}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>

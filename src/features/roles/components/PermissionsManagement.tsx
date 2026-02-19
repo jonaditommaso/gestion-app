@@ -5,9 +5,18 @@ import { Shield, Users } from "lucide-react"
 import { UsersTab } from "./UsersTab"
 import { RolesTab } from "./RolesTab"
 import { useTranslations } from "next-intl"
+import { useCurrentUserPermissions } from "../hooks/useCurrentUserPermissions"
+import { PERMISSIONS } from "../constants"
+import { redirect } from "next/navigation"
 
 export default function PermissionsManagement() {
   const t = useTranslations('roles')
+  const { hasPermission } = useCurrentUserPermissions();
+  const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
+
+  if (!canManageUsers) {
+    redirect('/');
+  }
 
   return (
     <div>
