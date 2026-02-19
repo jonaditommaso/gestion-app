@@ -9,6 +9,8 @@ import { useGetFinalRolesPermissions } from "../hooks/useGetFinalRolesPermission
 import { useState } from "react"
 import { useUpdateUserRole } from "../api/use-update-user-role"
 import { useTranslations } from "next-intl"
+import { useGetMembers } from "@/features/team/api/use-get-members"
+import { ROLES } from "../constants"
 
 interface UserPermissionsDialogProps {
   onOpenChange: (open: boolean) => void
@@ -21,6 +23,10 @@ export function UserPermissionsModal({ onOpenChange, user }: UserPermissionsDial
   const [roleSelected, setRoleSelected] = useState<string>(user.role.toLowerCase());
 
   const { mutate: updateUserRole, isPending: isUpdating } = useUpdateUserRole();
+  const { data: team } = useGetMembers();
+
+  const adminCount = team?.filter(m => (m.prefs?.role as string)?.toUpperCase() === ROLES.ADMIN).length ?? 0;
+  const isLastAdmin = user.role.toUpperCase() === ROLES.ADMIN && adminCount <= 1;
 
   const permissions = finalRolePermissions.find(({role}) => role.toLowerCase() === roleSelected)?.permissions || [];
 
@@ -45,7 +51,7 @@ export function UserPermissionsModal({ onOpenChange, user }: UserPermissionsDial
         <div className="space-y-6">
           <div>
             <label className="text-sm font-medium mb-2 block">{t('role')}</label>
-            <Select defaultValue={user.role.toLowerCase()} onValueChange={(value) => setRoleSelected(value)}>
+            <Select defaultValue={user.role.toLowerCase()} onValueChange={(value) => setRoleSelected(value)} disabled={isLastAdmin}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
