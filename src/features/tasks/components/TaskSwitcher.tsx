@@ -18,6 +18,8 @@ import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import DataCalendar from "./DataCalendar";
 import { useTranslations } from "next-intl";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface TaskSwitcherProps {
     openSettings: () => void;
@@ -32,6 +34,8 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const [localSearch, setLocalSearch] = useState('');
     const t = useTranslations('workspaces');
     const { canCreateTask } = useWorkspacePermissions();
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     const [{
         status,
@@ -98,7 +102,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                                 {t('calendar')}
                             </TabsTrigger>
                         </TabsList>
-                        {canCreateTask && (
+                        {canWrite && canCreateTask && (
                             <Button
                                 size='sm'
                                 className="w-full lg:w-auto"

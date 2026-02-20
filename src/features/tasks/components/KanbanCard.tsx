@@ -15,6 +15,8 @@ import '@github/relative-time-element';
 import { useCustomLabels } from "@/app/workspaces/hooks/use-custom-labels";
 import { useUpdateTask } from "../api/use-update-task";
 import { useParentTask } from "../hooks/useParentTask";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 
@@ -29,6 +31,8 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     const { getLabelById, getLabelColor } = useCustomLabels();
     const t = useTranslations('workspaces')
     const { mutate: updateTask } = useUpdateTask();
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
     const [isHovered, setIsHovered] = useState(false);
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
     const prevCompletedAt = useRef(task.completedAt);
@@ -121,7 +125,7 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                 <div className="flex items-start justify-between gap-x-2">
                     <div className="flex items-center gap-2 overflow-hidden">
                         <AnimatePresence mode="wait">
-                            {(isHovered || isCompleted) && (
+                            {canWrite && (isHovered || isCompleted) && (
                                 <motion.div
                                     initial={{ width: 0, opacity: 0 }}
                                     animate={{ width: "auto", opacity: 1 }}

@@ -154,14 +154,31 @@ const app = new Hono()
                 return ctx.json({ success: false, message: 'No image found for the user' }, 400);
             }
 
+            const imageValue: string = prefs.image;
 
-            const imageId = prefs.image;
+            // Si es una URL externa (p.ej. Google / GitHub OAuth), la proxeamos server-side
+            if (imageValue.startsWith('http')) {
+                try {
+                    const remoteRes = await fetch(imageValue);
+                    if (!remoteRes.ok) {
+                        return ctx.json({ success: false, message: 'Error fetching remote image' }, 500);
+                    }
+                    const contentType = remoteRes.headers.get('content-type') || 'image/jpeg';
+                    const buffer = await remoteRes.arrayBuffer();
+                    return new Response(buffer, {
+                        headers: { 'Content-Type': contentType }
+                    });
+                } catch (err) {
+                    console.error('Error al obtener imagen remota:', err);
+                    return ctx.json({ success: false, message: 'Error fetching remote image' }, 500);
+                }
+            }
 
             try {
-                const fileMetadata = await storage.getFile(IMAGES_BUCKET_ID, imageId);
+                const fileMetadata = await storage.getFile(IMAGES_BUCKET_ID, imageValue);
                 const mimeType = fileMetadata.mimeType;
 
-                const fileBuffer = await storage.getFileView(IMAGES_BUCKET_ID, imageId);
+                const fileBuffer = await storage.getFileView(IMAGES_BUCKET_ID, imageValue);
 
                 return new Response(fileBuffer, {
                     headers: {
@@ -184,17 +201,18 @@ const app = new Hono()
             const storage = ctx.get('storage');
             const { users } = await createAdminClient();
 
-            const imageId = user?.prefs?.image;
+            const imageValue: string | undefined = user?.prefs?.image;
 
-            if (!imageId) {
+            if (!imageValue) {
                 return ctx.json({ success: false, message: 'No image found for the user' }, 400);
             }
 
             try {
-                // Eliminar el archivo del bucket
-                await storage.deleteFile(IMAGES_BUCKET_ID, imageId);
+                // Solo eliminar del bucket si es un file ID (no una URL externa)
+                if (!imageValue.startsWith('http')) {
+                    await storage.deleteFile(IMAGES_BUCKET_ID, imageValue);
+                }
 
-                // Eliminar el id de la imagen de las preferencias del usuario
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { image: _image, ...restPrefs } = user.prefs ?? {};
                 await users.updatePrefs(user.$id, restPrefs);

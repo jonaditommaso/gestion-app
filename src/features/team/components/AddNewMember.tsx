@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import FadeLoader from "react-spinners/FadeLoader";
 import { Models } from "node-appwrite";
 import NoTeamWarningIcon from "./NoTeamWarningIcon";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface AddNewMemberProps {
     user: Models.User<Models.Preferences>
@@ -20,6 +22,8 @@ const AddNewMember = ({ user }: AddNewMemberProps) => { //we receive the user qu
     const [isOpen, setIsOpen] = useState(false);
     const { mutate: inviteMember, isPending, data, reset } = useInviteMember();
     const t = useTranslations('team');
+    const { hasPermission, isLoading } = useCurrentUserPermissions();
+    const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
 
     const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -55,6 +59,8 @@ const AddNewMember = ({ user }: AddNewMemberProps) => { //we receive the user qu
         }
         setIsOpen(open); // <- luego actualizás el estado original
     };
+
+    if (isLoading || !canManageUsers) return null;
 
     return (
         <div>

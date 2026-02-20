@@ -6,10 +6,14 @@ import { useTaskId } from "@/features/tasks/hooks/use-task-id";
 import TaskDetails, { TaskTitleEditor } from "@/features/tasks/components/TaskDetails";
 import TaskActions from "@/features/tasks/components/TaskActions";
 import { notFound } from "next/navigation";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 const TaskIdClient = () => {
     const taskId = useTaskId();
     const { data, isLoading } = useGetTask({ taskId })
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     if (isLoading) return <CustomLoader />
 
@@ -24,6 +28,7 @@ const TaskIdClient = () => {
                         taskId={data.$id}
                         initialTitle={data.name}
                         initialType={data.type}
+                        readOnly={!canWrite}
                         size="page"
                     />
                     <TaskActions
@@ -36,7 +41,7 @@ const TaskIdClient = () => {
                 </div>
 
                 {/* Content */}
-                <TaskDetails task={data} variant="page" />
+                <TaskDetails task={data} variant="page" readOnly={!canWrite} />
             </div>
         </div>
     );

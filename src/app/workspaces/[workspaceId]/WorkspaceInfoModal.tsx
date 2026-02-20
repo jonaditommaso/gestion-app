@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar, Users } from "lucide-react";
 import { format } from "date-fns";
 import FadeLoader from "react-spinners/FadeLoader";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface WorkspaceInfoModalProps {
     open: boolean;
@@ -36,6 +38,8 @@ const WorkspaceInfoModal = ({
     const [isEditing, setIsEditing] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     const members = membersData?.documents || [];
 
@@ -98,7 +102,7 @@ const WorkspaceInfoModal = ({
                             value={description}
                             onSave={handleDescriptionChange}
                             placeholder={t('add-workspace-description')}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                             size="md"
                             multiline
                             maxLength={2048}

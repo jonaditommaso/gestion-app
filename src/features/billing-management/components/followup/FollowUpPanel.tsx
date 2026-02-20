@@ -7,6 +7,8 @@ import { useMemo } from "react";
 import dayjs from "dayjs";
 import { useGetOperations } from "../../api/use-get-operations";
 import { useUpdateOperation } from "../../api/use-update-operation";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface BillingOperation {
     $id: string;
@@ -22,6 +24,8 @@ const FollowUpPanel = () => {
     const t = useTranslations('billing');
     const { data, isLoading } = useGetOperations();
     const { mutate: updateOperation, isPending } = useUpdateOperation();
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     const operations = useMemo(() => (data?.documents || []) as unknown as BillingOperation[], [data]);
 
@@ -77,14 +81,16 @@ const FollowUpPanel = () => {
                             <p className="text-sm text-muted-foreground">{operation.category}</p>
                             <p className="text-sm">€ {operation.import}</p>
                             <p className="text-xs text-muted-foreground">{dayjs(operation.dueDate).format('DD/MM/YYYY')}</p>
-                            <Button
-                                size="sm"
-                                className="mt-2 w-full"
-                                disabled={isPending}
-                                onClick={() => markAsPaid(operation.$id)}
-                            >
-                                {t('mark-as-paid')}
-                            </Button>
+                            {canWrite && (
+                                <Button
+                                    size="sm"
+                                    className="mt-2 w-full"
+                                    disabled={isPending}
+                                    onClick={() => markAsPaid(operation.$id)}
+                                >
+                                    {t('mark-as-paid')}
+                                </Button>
+                            )}
                         </div>
                     ))}
                 </CardContent>
@@ -102,14 +108,16 @@ const FollowUpPanel = () => {
                             <p className="text-sm text-muted-foreground">{operation.category}</p>
                             <p className="text-sm">€ {operation.import}</p>
                             <p className="text-xs text-muted-foreground">{dayjs(operation.dueDate).format('DD/MM/YYYY')}</p>
-                            <Button
-                                size="sm"
-                                className="mt-2 w-full"
-                                disabled={isPending}
-                                onClick={() => markAsPaid(operation.$id)}
-                            >
-                                {t('mark-as-paid')}
-                            </Button>
+                            {canWrite && (
+                                <Button
+                                    size="sm"
+                                    className="mt-2 w-full"
+                                    disabled={isPending}
+                                    onClick={() => markAsPaid(operation.$id)}
+                                >
+                                    {t('mark-as-paid')}
+                                </Button>
+                            )}
                         </div>
                     ))}
                 </CardContent>

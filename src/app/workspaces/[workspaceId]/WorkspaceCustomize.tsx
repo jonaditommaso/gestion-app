@@ -15,6 +15,8 @@ import { LABEL_COLORS, MAX_LABEL_NAME_LENGTH } from "../constants/label-colors";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface WorkspaceCustomizeProps {
     workspace: WorkspaceType;
@@ -25,6 +27,9 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
     const { mutate: updateWorkspace, isPending } = useUpdateWorkspace();
     const { canEditLabel } = useWorkspacePermissions();
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canDelete = hasPermission(PERMISSIONS.DELETE);
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-label-confirm-title'),
@@ -250,7 +255,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                         <EditableText
                             value={workspace.name}
                             onSave={handleNameSave}
-                            disabled={isPending}
+                            disabled={isPending || !canWrite}
                             size="lg"
                             maxLength={50}
                             className="text-2xl font-bold"
@@ -273,7 +278,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                                     <button
                                         key={preset.value}
                                         onClick={() => handleColorSelect(preset.value)}
-                                        disabled={isPending}
+                                        disabled={isPending || !canWrite}
                                         className={cn(
                                             "relative h-24 rounded-lg transition-all hover:scale-105 border-2 overflow-hidden",
                                             selectedColor === preset.value
@@ -327,6 +332,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                                             ref={(el) => { inputRefs.current[color.value] = el; }}
                                             type="text"
                                             value={inputValue}
+                                            disabled={!canWrite}
                                             onChange={(e) => handleLabelChange(color.value, e.target.value)}
                                             onBlur={() => handleLabelBlur(color.value)}
                                             onKeyDown={(e) => handleKeyDown(e, color.value)}
@@ -341,7 +347,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                                             }}
                                         />
                                         {/* Delete button - only show if label exists */}
-                                        {existingLabel && (
+                                        {existingLabel && canDelete && (
                                             <button
                                                 onClick={() => handleDeleteLabel(color.value)}
                                                 className={cn(

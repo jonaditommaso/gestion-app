@@ -35,6 +35,8 @@ import CustomDatePicker from "@/components/CustomDatePicker"
 import { useConfirm } from "@/hooks/use-confirm"
 import { DialogContainer } from "@/components/DialogContainer"
 import { toast } from "sonner"
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions"
+import { PERMISSIONS } from "@/features/roles/constants"
 
 const headers = ['invoice', 'type', 'date', 'due-date', 'category', 'status', 'account', 'party-name', 'amount', 'actions']
 
@@ -103,6 +105,10 @@ export function BillingTable() {
     t('confirm-archive-operation'),
     'default'
   );
+
+  const { hasPermission } = useCurrentUserPermissions();
+  const canWrite = hasPermission(PERMISSIONS.WRITE);
+  const canDelete = hasPermission(PERMISSIONS.DELETE);
 
   useEffect(() => {
     setDataType(selectedData);
@@ -732,40 +738,48 @@ export function BillingTable() {
                           <Download className="size-4" />
                         </Button>
 
-                        <Button size="icon" variant="outline" onClick={() => handleStartEdit(operation)} title={t('edit')} aria-label={t('edit')}>
-                          <Pencil className="size-4" />
-                        </Button>
+                        {canWrite && (
+                          <Button size="icon" variant="outline" onClick={() => handleStartEdit(operation)} title={t('edit')} aria-label={t('edit')}>
+                            <Pencil className="size-4" />
+                          </Button>
+                        )}
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              disabled={isDeleting || isUpdating}
-                              title={t('more-actions')}
-                              aria-label={t('more-actions')}
-                            >
-                              <MoreVertical className="size-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleArchive(operation)}>
-                              <Archive className="size-4 mr-2" />
-                              {t('archive')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={async () => {
-                                const shouldDelete = await confirmDelete();
-                                if (shouldDelete) {
-                                  deleteOperation({ param: { billingId: operation.$id } })
-                                }
-                              }}
-                            >
-                              <Trash2 className="size-4 mr-2 text-red-600" />
-                              {t('delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {(canWrite || canDelete) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                disabled={isDeleting || isUpdating}
+                                title={t('more-actions')}
+                                aria-label={t('more-actions')}
+                              >
+                                <MoreVertical className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {canWrite && (
+                                <DropdownMenuItem onClick={() => handleArchive(operation)}>
+                                  <Archive className="size-4 mr-2" />
+                                  {t('archive')}
+                                </DropdownMenuItem>
+                              )}
+                              {canDelete && (
+                                <DropdownMenuItem
+                                  onClick={async () => {
+                                    const shouldDelete = await confirmDelete();
+                                    if (shouldDelete) {
+                                      deleteOperation({ param: { billingId: operation.$id } })
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="size-4 mr-2 text-red-600" />
+                                  {t('delete')}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </>
                     )}
                   </div>

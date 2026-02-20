@@ -14,12 +14,16 @@ import { useUploadFile } from "./api/use-upload-file";
 import { useFilePreviewsFromIds } from "./api/use-file-preview";
 import Image from "next/image";
 import PDFPreview from "./components/PDFPreview";
+import { useCurrentUserPermissions } from "../roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "../roles/constants";
 
 const RecordView = () => {
     const { data: record, isPending } = useGetRecord();
     const inputRef = useRef<HTMLInputElement>(null);
     const { mutate: uploadFile } = useUploadFile();
     const t = useTranslations('records');
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     const { previews } = useFilePreviewsFromIds();
 
@@ -71,7 +75,7 @@ const RecordView = () => {
             <div className="mx-5 flex gap-2">
                 <Form {...form}>
                     <form encType='multipart/form-data' className="flex gap-2">
-                        <div className={`border-2 border-dashed rounded-lg text-center flex flex-col justify-evenly items-center focus:outline-none cursor-pointer border-blue-300 h-32 w-32`} onClick={() => inputRef.current?.click()}>
+                        {canWrite && <div className={`border-2 border-dashed rounded-lg text-center flex flex-col justify-evenly items-center focus:outline-none cursor-pointer border-blue-300 h-32 w-32`} onClick={() => inputRef.current?.click()}>
                             <input
                                 className='hidden'
                                 type='file'
@@ -82,7 +86,7 @@ const RecordView = () => {
                             />
                             <CloudUpload className="text-blue-400 h-10 w-10" strokeWidth={1} />
                             <p className="text-[10px] text-muted-foreground">{t('supported-record-files')}</p>
-                        </div>
+                        </div>}
 
                         {previews?.map(({ id, url, type, name }) => (
                             <div key={id}>

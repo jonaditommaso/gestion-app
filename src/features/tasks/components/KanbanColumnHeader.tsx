@@ -18,6 +18,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 
 interface KanbanColumnHeaderProps {
@@ -58,6 +60,9 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
     const config = useWorkspaceConfig();
     const { canCreateTask, canEditLabel } = useWorkspacePermissions();
     const { getIconComponent } = useCustomStatuses();
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canDelete = hasPermission(PERMISSIONS.DELETE);
 
     const [{ assigneeId, search, dueDate, priority }] = useTaskFilters();
 
@@ -144,7 +149,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                             canEditLabel ? 'hover:bg-muted/80' : 'cursor-default'
                         }`}
                         inputClassName="text-sm font-medium w-full"
-                        disabled={!canEditLabel}
+                        disabled={!canWrite || !canEditLabel}
                     />
                 </div>
             </div>
@@ -161,37 +166,43 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         setTimeout(() => setMenuView('main'), 150);
                     }
                 }}>
-                    <DropdownMenuTrigger asChild>
+                    {(!canWrite && !canDelete) ? null : <DropdownMenuTrigger asChild>
                         <Button variant='ghost' size='icon' className="size-5">
                             <MoreHorizontalIcon className="size-4 text-neutral-500" />
                         </Button>
-                    </DropdownMenuTrigger>
+                    </DropdownMenuTrigger>}
                     <DropdownMenuContent align="end" className="w-fit min-w-[180px]">
                         {menuView === 'main' ? (
                             <>
-                                <DropdownMenuItem onClick={onEditColumn} className="cursor-pointer">
-                                    <PencilIcon className="size-4 mr-2" />
-                                    {t('edit-column')}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setMenuView('move');
-                                    }}
-                                    disabled={taskCount === 0}
-                                    className="cursor-pointer whitespace-nowrap"
-                                >
-                                    <ArrowRightIcon className="size-4 mr-2" />
-                                    {t('move-all-cards')}
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={onDeleteColumn}
-                                    className="text-destructive focus:text-destructive cursor-pointer"
-                                >
-                                    <TrashIcon className="size-4 mr-2" />
-                                    {t('delete-column')}
-                                </DropdownMenuItem>
+                                {canWrite && (
+                                    <>
+                                        <DropdownMenuItem onClick={onEditColumn} className="cursor-pointer">
+                                            <PencilIcon className="size-4 mr-2" />
+                                            {t('edit-column')}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setMenuView('move');
+                                            }}
+                                            disabled={taskCount === 0}
+                                            className="cursor-pointer whitespace-nowrap"
+                                        >
+                                            <ArrowRightIcon className="size-4 mr-2" />
+                                            {t('move-all-cards')}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+                                {canDelete && (
+                                    <DropdownMenuItem
+                                        onClick={onDeleteColumn}
+                                        className="text-destructive focus:text-destructive cursor-pointer"
+                                    >
+                                        <TrashIcon className="size-4 mr-2" />
+                                        {t('delete-column')}
+                                    </DropdownMenuItem>
+                                )}
                             </>
                         ) : (
                             <>
@@ -255,7 +266,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>
-                {canCreateTask && !isRigidLimitReached && !isArchiveColumn && (
+                {canWrite && canCreateTask && !isRigidLimitReached && !isArchiveColumn && (
                     <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
                         <PlusIcon className="size-4 text-neutral-500" />
                     </Button>

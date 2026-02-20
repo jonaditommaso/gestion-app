@@ -1,8 +1,46 @@
-import { Account, AppwriteException, AuthenticationFactor, Client, ID } from "node-appwrite";
+import { Account, AppwriteException, AuthenticationFactor, Client, ID, Query, Users } from "node-appwrite";
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
-import { IMAGES_BUCKET_ID } from "@/config";
+
+async function fetchProviderPhotoURL(
+    userId: string,
+    provider: string,
+    users: Users,
+): Promise<string | undefined> {
+    try {
+        const identities = await users.listIdentities([Query.equal('userId', userId)]);
+        const identity = identities.identities.find(i => i.provider === provider);
+        const accessToken = identity?.providerAccessToken;
+
+        if (!accessToken) return undefined;
+
+        if (provider === 'google') {
+            const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                return data.picture ?? undefined;
+            }
+        } else if (provider === 'github') {
+            const res = await fetch('https://api.github.com/user', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                return data.avatar_url ?? undefined;
+            }
+        }
+
+        return undefined;
+    } catch {
+        return undefined;
+    }
+}
 
 export async function GET(request: NextRequest) {
     const userId = request.nextUrl.searchParams.get("userId");
@@ -12,7 +50,7 @@ export async function GET(request: NextRequest) {
 
     if (!userId || !secret) return new NextResponse('Missing fields', { status: 400 })
 
-    const { account, users, teams, storage } = await createAdminClient();
+    const { account, users, teams } = await createAdminClient();
     const session = await account.createSession(userId, secret);
     const isSecure = process.env.NODE_ENV === 'production';
 
@@ -85,83 +123,10 @@ export async function GET(request: NextRequest) {
 
         await teams.updatePrefs(newTeam.$id, { plan })
 
-        // Intentar obtener y guardar la foto de perfil del provider OAuth
         let profileImageId: string | undefined;
 
         if (provider === 'google' || provider === 'github') {
-            try {
-                // Obtener la URL de la foto según el provider
-                let photoURL: string | null = null;
-
-                if (provider === 'google') {
-                    // Google incluye la foto en el objeto user de Appwrite
-                    // Está disponible en user.prefs o podemos obtenerla de la API de Google
-                    const sessions = await account.listSessions();
-                    const currentSession = sessions.sessions.find(s => s.$id === session.$id);
-
-                    if (currentSession?.providerAccessToken) {
-                        const googleUserInfo = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-                            headers: {
-                                'Authorization': `Bearer ${currentSession.providerAccessToken}`
-                            }
-                        });
-
-                        if (googleUserInfo.ok) {
-                            const data = await googleUserInfo.json();
-                            photoURL = data.picture;
-                        }
-                    }
-                } else if (provider === 'github') {
-                    // GitHub proporciona avatar_url directamente
-                    const sessions = await account.listSessions();
-                    const currentSession = sessions.sessions.find(s => s.$id === session.$id);
-
-                    if (currentSession?.providerAccessToken) {
-                        const githubUserInfo = await fetch('https://api.github.com/user', {
-                            headers: {
-                                'Authorization': `Bearer ${currentSession.providerAccessToken}`,
-                                'Accept': 'application/vnd.github.v3+json'
-                            }
-                        });
-
-                        if (githubUserInfo.ok) {
-                            const data = await githubUserInfo.json();
-                            photoURL = data.avatar_url;
-                        }
-                    }
-                }
-
-                // Si obtuvimos una URL, descargar y subir la imagen
-                if (photoURL) {
-                    const imageResponse = await fetch(photoURL);
-
-                    if (imageResponse.ok) {
-                        const imageBuffer = await imageResponse.arrayBuffer();
-                        const imageBlob = new Blob([imageBuffer], {
-                            type: imageResponse.headers.get('content-type') || 'image/jpeg'
-                        });
-
-                        // Crear un File object desde el Blob
-                        const file = new File(
-                            [imageBlob],
-                            `${userId}-profile.jpg`,
-                            { type: imageBlob.type }
-                        );
-
-                        // Subir a Appwrite Storage
-                        const uploadedFile = await storage.createFile(
-                            IMAGES_BUCKET_ID,
-                            ID.unique(),
-                            file
-                        );
-
-                        profileImageId = uploadedFile.$id;
-                    }
-                }
-            } catch (error) {
-                console.error('Error al obtener/guardar foto de perfil de OAuth:', error);
-                // Continuar sin la foto si falla
-            }
+            profileImageId = await fetchProviderPhotoURL(userId, provider, users);
         }
 
         await users.updatePrefs(userId, {
@@ -171,6 +136,17 @@ export async function GET(request: NextRequest) {
             ...(profileImageId && { image: profileImageId }),
             // we don't set company at this time
         });
+    }
+
+    if (!isNewUser && !user.prefs?.image && (provider === 'google' || provider === 'github')) {
+        const photoURL = await fetchProviderPhotoURL(userId, provider, users);
+
+        if (photoURL) {
+            await users.updatePrefs(userId, {
+                ...(user.prefs ?? {}),
+                image: photoURL,
+            });
+        }
     }
 
     if (provider === 'google') {

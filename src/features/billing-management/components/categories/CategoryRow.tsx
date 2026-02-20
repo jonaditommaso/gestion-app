@@ -12,6 +12,8 @@ import { useUpdateBillingOptions } from "../../api/use-update-billing-options";
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
+import { PERMISSIONS } from "@/features/roles/constants";
 
 interface CategoryRowProps {
     category: string,
@@ -29,7 +31,10 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
     const {mutate: updateCategories} = useUpdateBillingOptions();
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const [newCategory, setNewCategory] = useState(category);
-    const t =  useTranslations('billing')
+    const t = useTranslations('billing');
+    const { hasPermission } = useCurrentUserPermissions();
+    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canDelete = hasPermission(PERMISSIONS.DELETE);
 
     const incomeCategories = useMemo(() => data?.documents[0]?.incomeCategories || [], [data])
     const expenseCategories = useMemo(() => data?.documents[0]?.expenseCategories || [], [data])
@@ -126,19 +131,22 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                     : <p>{category}</p>
                 }
                 <div className="flex gap-2 items-center">
-                    <TooltipContainer tooltipText={editingCategory === index ? t('save') : t('edit')}>
-                        <span
-                            className={cn("cursor-pointer", editingCategory === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
-                            onClick={handleClick}
-                        >
-                            {editingCategory === index ? <Check className="size-4" /> : <Pencil className="size-4" />}
-                        </span>
-                    </TooltipContainer>
+                    {(canWrite || editingCategory === index) && (
+                        <TooltipContainer tooltipText={editingCategory === index ? t('save') : t('edit')}>
+                            <span
+                                className={cn("cursor-pointer", editingCategory === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
+                                onClick={handleClick}
+                            >
+                                {editingCategory === index ? <Check className="size-4" /> : <Pencil className="size-4" />}
+                            </span>
+                        </TooltipContainer>
+                    )}
                     {editingCategory === index && (
                         <TooltipContainer tooltipText={t('cancel')}>
                             <span className="cursor-pointer text-red-600" onClick={handleCancel}><XIcon className="size-4" /></span>
                         </TooltipContainer>
                     )}
+                    {canDelete && (
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
                             <TooltipContainer tooltipText={t('delete')}>
                                 <PopoverTrigger asChild>
@@ -154,6 +162,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                             </div>
                         </PopoverContent>
                     </Popover>
+                    )}
                 </div>
             </TableCell>
         </TableRow>

@@ -46,6 +46,8 @@ import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id"
 import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace"
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces"
 import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG } from "@/app/workspaces/constants/workspace-config-keys"
+import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions"
+import { PERMISSIONS } from "@/features/roles/constants"
 
 interface DataTableProps<TData extends Record<string, unknown>, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -61,6 +63,13 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
   const config = useWorkspaceConfig();
   const { data: workspaces } = useGetWorkspaces();
   const { mutate: updateWorkspace } = useUpdateWorkspace();
+  const { hasPermission } = useCurrentUserPermissions();
+  const canWrite = hasPermission(PERMISSIONS.WRITE);
+  const canDelete = hasPermission(PERMISSIONS.DELETE);
+
+  const visibleColumns = (canWrite || canDelete)
+    ? columns
+    : columns.filter(col => ('id' in col ? col.id !== 'select' : true));
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -70,7 +79,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: visibleColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -165,7 +174,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
     <div className="bg-background p-4 rounded-lg">
       {/* Bulk Actions Bar - Appears only when rows are selected */}
       <AnimatePresence mode="wait">
-        {selectedCount > 0 && (
+        {selectedCount > 0 && (canWrite || canDelete) && (
           <DataTableBulkActions
             selectedTasks={selectedRows.map(row => row.original as TData)}
             selectedCount={selectedCount}
