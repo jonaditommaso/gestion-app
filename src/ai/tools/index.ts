@@ -26,4 +26,4 @@ export const ALL_TOOLS = [
 ];
 
 // Re-exportar tipos de tools específicas para conveniencia
-export type { CreateNoteArgs } from './home.tools';
+export type { CreateNoteArgs, UpdateNoteArgs, DeleteNoteArgs, SendMessageArgs } from './home.tools';

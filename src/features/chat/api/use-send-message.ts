@@ -70,9 +70,12 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
                 options?.onFunctionCalled?.(functionCalled);
 
                 // Invalidar queries según la función que se llamó
-                if (functionCalled === 'create_note') {
-                    // Invalidar la query de notas para que se actualice la lista
+                if (functionCalled === 'create_note' || functionCalled === 'update_note' || functionCalled === 'delete_note') {
                     queryClient.invalidateQueries({ queryKey: ['notes'] });
+                }
+
+                if (functionCalled === 'send_message') {
+                    queryClient.invalidateQueries({ queryKey: ['messages'] });
                 }
             }
         },
