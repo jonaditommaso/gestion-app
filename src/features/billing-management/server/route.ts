@@ -5,6 +5,7 @@ import { billingOperationSchema, billingCategoriesSchema, billingOperationUpdate
 import { BILLING_OPTIONS_ID, BILLINGS_ID, DATABASE_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import dayjs from "dayjs";
+import { getActiveContext } from "@/features/team/server/utils";
 
 const app = new Hono()
 
@@ -37,11 +38,14 @@ const app = new Hono()
                 archived,
             } = ctx.req.valid('json');
 
-            const teamId = user?.prefs.teamId;
-
             if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            const teamId = context.org.appwriteTeamId;
 
             const operationData: {
                 account: string | undefined;
@@ -145,12 +149,15 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { total: 0, documents: [] } });
+
             try {
                 const operations = await databases.listDocuments(
                     DATABASE_ID,
                     BILLINGS_ID,
                     [
-                        Query.equal('teamId', user.prefs.teamId),
+                        Query.equal('teamId', context.org.appwriteTeamId),
                         Query.orderDesc('$createdAt'),
                     ]
                 );
@@ -260,10 +267,13 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
+
             const billingOptions = await databases.listDocuments(
                 DATABASE_ID,
                 BILLING_OPTIONS_ID,
-                [Query.equal('teamId', user.prefs.teamId)]
+                [Query.equal('teamId', context.org.appwriteTeamId)]
             );
 
             if (billingOptions.total === 0) {
@@ -289,6 +299,9 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
             const options = await databases.createDocument(
                 DATABASE_ID,
                 BILLING_OPTIONS_ID,
@@ -296,7 +309,7 @@ const app = new Hono()
                 {
                     incomeCategories,
                     expenseCategories,
-                    teamId: user.prefs.teamId,
+                    teamId: context.org.appwriteTeamId,
                 }
             )
 

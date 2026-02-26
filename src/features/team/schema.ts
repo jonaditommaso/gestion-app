@@ -9,7 +9,9 @@ export const birthdaySchema = zod.object({
 })
 
 export const inviteSchema = zod.object({
-    email: zod.string().email()
+    email: zod.string().email(),
+    mode: zod.enum(['url', 'existing']).optional().default('url'),
+    targetRole: zod.enum(['ADMIN', 'CREATOR', 'VIEWER']).optional().default('CREATOR'),
 })
 
 export const profileSchema = zod.object({
@@ -20,4 +22,11 @@ export const profileSchema = zod.object({
     birthday: zod.string().trim().optional(),
     memberSince: zod.string().trim().optional(),
     currentProject: zod.string().trim().max(60).optional(),
+})
+
+export const createTeamSchema = zod.object({
+    company: zod.string().trim().min(1, 'Required'),
+    plan: zod.enum(['free', 'pro', 'pro-plus']).optional().default('free'),
+    billingCycle: zod.enum(['MONTHLY', 'YEARLY']).optional().default('MONTHLY'),
+    stripeSessionId: zod.string().trim().optional(),
 })

@@ -1,8 +1,8 @@
 import React from "react";
-import Plan from "./plan";
 import RemoveAccount from "./remove-account";
 import Security from "./security";
 import General from "./general";
+import Sessions from "./sessions";
 
 type SettingsSection = {
     id: string,
@@ -21,16 +21,16 @@ export const settingsSections: SettingsSection[] = [
         section: <General />
     },
     {
-        id: 'plan',
-        title: 'plan',
-        description: 'Current plan and usage',
-        section: <Plan />
-    },
-    {
         id: 'security',
         title: 'security',
         description: 'Manage your security settings',
         section: <Security />,
+    },
+    {
+        id: 'sessions',
+        title: 'sessions',
+        description: 'Active sessions and connected devices',
+        section: <Sessions />,
     },
     {
         id: 'remove-account',

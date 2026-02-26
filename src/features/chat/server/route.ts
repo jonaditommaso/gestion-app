@@ -8,6 +8,7 @@ import { executeAction } from "@/ai/handlers";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
+import { getActiveContext } from "@/features/team/server/utils";
 
 const app = new Hono()
     // Obtener todas las conversaciones del usuario
@@ -82,6 +83,9 @@ const app = new Hono()
             const user = ctx.get('user');
             const { title } = ctx.req.valid('json');
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
             const conversation = await databases.createDocument(
                 DATABASE_ID,
                 CHAT_CONVERSATIONS_ID,
@@ -89,7 +93,7 @@ const app = new Hono()
                 {
                     title,
                     userId: user.$id,
-                    teamId: user.prefs.teamId,
+                    teamId: context.org.appwriteTeamId,
                 }
             );
 
@@ -207,6 +211,9 @@ const app = new Hono()
                 const firstUserMessage = messages.find(m => m.role === 'user');
                 const title = firstUserMessage?.content.substring(0, 100) || 'New conversation';
 
+                const chatContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                if (!chatContext) return ctx.json({ error: 'No active organization' }, 400);
+
                 const conversation = await databases.createDocument(
                     DATABASE_ID,
                     CHAT_CONVERSATIONS_ID,
@@ -214,7 +221,7 @@ const app = new Hono()
                     {
                         title,
                         userId: user.$id,
-                        teamId: user.prefs.teamId,
+                        teamId: chatContext.org.appwriteTeamId,
                     }
                 );
                 conversationId = conversation.$id;

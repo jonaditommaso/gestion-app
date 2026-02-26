@@ -37,6 +37,8 @@ const WorkspaceView = () => {
         }
     }, [workspaceId, canWrite, router]);
 
+    console.log({canManageUsers})
+
     const [optionsView, setOptionsView] = useState<string | null>(null);
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);

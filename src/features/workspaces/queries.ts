@@ -9,7 +9,11 @@ interface GetWorkspaceProps {
     workspaceId: string
 }
 
-export const getWorkspaces = async () => {
+interface GetWorkspacesOptions {
+    teamId?: string
+}
+
+export const getWorkspaces = async ({ teamId }: GetWorkspacesOptions = {}) => {
 
     try {
         const { databases, account } = await createSessionClient()
@@ -21,19 +25,25 @@ export const getWorkspaces = async () => {
             [Query.equal('userId', user.$id)]
         );
 
-        if(members.total === 0) {
+        if (members.total === 0) {
             return { documents: [], total: 0 }
         }
 
         const workspacesIds = members.documents.map(member => member.workspaceId)
 
+        const filters: ReturnType<typeof Query.orderDesc>[] = [
+            Query.orderDesc('$createdAt'),
+            Query.contains('$id', workspacesIds),
+        ];
+
+        if (teamId) {
+            filters.push(Query.equal('teamId', teamId));
+        }
+
         const workspaces = await databases.listDocuments(
             DATABASE_ID,
             WORKSPACES_ID,
-            [
-                Query.orderDesc('$createdAt'),
-                Query.contains('$id', workspacesIds)
-            ]
+            filters
         );
 
         return workspaces;
@@ -45,7 +55,7 @@ export const getWorkspaces = async () => {
 }
 
 
-export const getWorkspace = async ({ workspaceId}: GetWorkspaceProps) => {
+export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
     try {
         const { databases, account } = await createSessionClient()
         const user = await account.get();
@@ -56,7 +66,7 @@ export const getWorkspace = async ({ workspaceId}: GetWorkspaceProps) => {
             workspaceId
         });
 
-        if(!member) return null;
+        if (!member) return null;
 
         const workspace = await databases.getDocument<WorkspaceType>(
             DATABASE_ID,
@@ -72,7 +82,7 @@ export const getWorkspace = async ({ workspaceId}: GetWorkspaceProps) => {
 
 }
 
-export const getWorkspaceInfo = async ({ workspaceId}: GetWorkspaceProps) => {
+export const getWorkspaceInfo = async ({ workspaceId }: GetWorkspaceProps) => {
     try {
         const { databases } = await createSessionClient()
 

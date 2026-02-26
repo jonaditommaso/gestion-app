@@ -1,5 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { MembershipRole } from "../types";
+
+export type TeamMember = {
+    $id: string;
+    appwriteMembershipId: string | null;
+    userId: string;
+    organizationId: string;
+    appwriteTeamId: string;
+    name: string;
+    email: string;
+    status: boolean;
+    userName: string;
+    userEmail: string;
+    prefs: {
+        image?: string;
+        role: MembershipRole;
+        position: string;
+        description: string;
+        linkedin: string;
+        tags: string;
+        birthday: string;
+        memberSince: string;
+        currentProject: string;
+    };
+};
+
+type TeamMembersResponse = {
+    data: TeamMember[];
+    orgName: string;
+};
 
 export const useGetMembers = () => {
     const query = useQuery({
@@ -7,13 +37,13 @@ export const useGetMembers = () => {
         queryFn: async () => {
             const response = await client.api.team.$get();
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to fetch members')
             }
 
-            const { data } = await response.json();
+            const json = await response.json() as TeamMembersResponse;
 
-            return data;
+            return { members: json.data, orgName: json.orgName as string };
         }
     })
 

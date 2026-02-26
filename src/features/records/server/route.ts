@@ -5,6 +5,7 @@ import { recordSchema, recordsTableSchema, recordsTableNameSchema } from "../sch
 import { DATABASE_ID, FILES_ID, IMAGES_BUCKET_ID, RECORD_TABLES_ID, RECORDS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Record } from "../types";
+import { getActiveContext } from "@/features/team/server/utils";
 
 const app = new Hono()
 
@@ -16,10 +17,13 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
+
             const tables = await databases.listDocuments(
                 DATABASE_ID,
                 RECORD_TABLES_ID,
-                [Query.equal('teamId', user.prefs.teamId)]
+                [Query.equal('teamId', context.org.appwriteTeamId)]
             );
 
             if (tables.total === 0) {
@@ -100,7 +104,8 @@ const app = new Hono()
                 recordId
             );
 
-            if (user.prefs.teamId !== record.teamId) {
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context || context.org.appwriteTeamId !== record.teamId) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
@@ -133,12 +138,15 @@ const app = new Hono()
                     file
                 );
 
+                const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                if (!context) return ctx.json({ success: false, message: 'No active organization' }, 400);
+
                 await databases.createDocument(
                     DATABASE_ID,
                     FILES_ID,
                     ID.unique(),
                     {
-                        teamId: user.prefs.teamId,
+                        teamId: context.org.appwriteTeamId,
                         bucketFileId: newFile.$id,
                         createdBy: user.$id,
                         recordId: recordId
@@ -161,11 +169,14 @@ const app = new Hono()
 
             const { recordId } = ctx.req.param();
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
+
             const files = await databases.listDocuments(
                 DATABASE_ID,
                 FILES_ID,
                 [
-                    Query.equal('teamId', user.prefs.teamId),
+                    Query.equal('teamId', context.org.appwriteTeamId),
                     Query.equal('recordId', recordId)
                 ]
             );
@@ -224,6 +235,9 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
             const records = await databases.createDocument(
                 DATABASE_ID,
                 RECORDS_ID,
@@ -232,7 +246,7 @@ const app = new Hono()
                     data: data.map(record => JSON.stringify(record)),
                     tableId,
                     createdBy: user.$id,
-                    teamId: user.prefs.teamId
+                    teamId: context.org.appwriteTeamId
                 }
             );
 
@@ -248,8 +262,11 @@ const app = new Hono()
         async (ctx) => {
             const { tableName } = ctx.req.valid('json');
 
-            const databases = ctx.get('databases')
+            const databases = ctx.get('databases');
             const user = ctx.get('user');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const recordsTable = await databases.createDocument(
                 DATABASE_ID,
@@ -258,7 +275,7 @@ const app = new Hono()
                 {
                     tableName,
                     createdBy: user.$id,
-                    teamId: user.prefs.teamId
+                    teamId: context.org.appwriteTeamId
                 }
             );
 

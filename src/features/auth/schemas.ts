@@ -6,12 +6,13 @@ export const loginSchema = zod.object({
 })
 
 export const registerSchema = zod.object({
-    company: zod.string().trim().min(1, 'Required'),
+    company: zod.string().trim().optional(),
     name: zod.string().trim().min(1, 'Required'),
     email: zod.string().email(),
     password: zod.string().min(8, 'Minimo de 8 caracteres'),
-    plan: zod.enum(['free', 'pro']),
-    isDemo: zod.boolean().optional().default(false) // Added to obtain demo without registering
+    plan: zod.enum(['free', 'pro', 'pro-plus']),
+    billingCycle: zod.enum(['MONTHLY', 'YEARLY']).optional().default('MONTHLY'),
+    isDemo: zod.boolean().optional().default(false)
 })
 
 export const userNameSchema = zod.object({

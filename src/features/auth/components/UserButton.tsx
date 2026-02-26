@@ -5,21 +5,25 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { useLogout } from "../api/use-logout";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 import { userButtonOptions } from "../userButtonOptions";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useProfilePicture } from "@/hooks/useProfilePicture";
 import { useTranslations } from "next-intl";
+import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 
 const UserButton = () => {
     const { data: user, isLoading } = useCurrent();
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
+    const router = useRouter();
     const { setTheme } = useTheme();
     const { imageUrl, isPending } = useProfilePicture(undefined, !!user?.prefs?.image);
     const t = useTranslations('general')
+    const { data: teamContext } = useGetTeamContext();
+    const organizationRole = teamContext?.membership?.role;
 
     if(isLoading || isPending) {
         return (
@@ -35,16 +39,21 @@ const UserButton = () => {
 
     const avatarFallback = name ? name.charAt(0).toUpperCase() : email.charAt(0).toUpperCase() ?? 'U';
 
-    const handleOptionSelected = (action: 'logout' | (() => void)) => {
+    const handleOptionSelected = (action: 'logout' | 'my-account' | 'organization-settings') => {
         setOpen(false)
 
         if(action === 'logout') {
             logout();
             setTheme('light');
-            redirect('/')
-        } else {
-            action();
+            return;
         }
+
+        if (action === 'my-account') {
+            router.push('/settings');
+            return;
+        }
+
+        router.push('/organization');
     }
 
     return (
@@ -92,9 +101,9 @@ const UserButton = () => {
                         <p className="text-xs text-neutral-500">{email}</p>
                     </div>
                 </div>
-                {userButtonOptions.map(option => {
-                    if(option.permission === 'admin' && user?.prefs.role !== 'ADMIN') return null;
-
+                {userButtonOptions
+                    .filter(option => option.action !== 'organization-settings' || organizationRole === 'OWNER')
+                    .map(option => {
                     return (
                         <Fragment key={option.key}>
                             <Separator className="my-1" />

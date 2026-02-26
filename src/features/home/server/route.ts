@@ -6,6 +6,7 @@ import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_UR
 import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
 import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
+import { getActiveContext } from "@/features/team/server/utils";
 import { google } from 'googleapis';
 import { cookies } from "next/headers";
 import dayjs from "dayjs";
@@ -240,15 +241,19 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { content, toTeamMemberIds, teamId } = ctx.req.valid('json');
+            const { content, toTeamMemberIds } = ctx.req.valid('json');
 
             if (!toTeamMemberIds.length || !content) {
                 return ctx.json({ error: 'Cannot create the message' }, 400)
             }
 
+            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!msgContext) return ctx.json({ error: 'No active organization' }, 400);
+            const resolvedTeamId = msgContext.org.appwriteTeamId;
+
             // Obtener el fromTeamMemberId del usuario actual
             const { teams } = await createAdminClient();
-            const { memberships } = await teams.listMemberships(teamId);
+            const { memberships } = await teams.listMemberships(resolvedTeamId);
             const currentMembership = memberships.find(m => m.userId === user.$id);
 
             if (!currentMembership) {
@@ -269,7 +274,7 @@ const app = new Hono()
                             content,
                             toTeamMemberId,
                             fromTeamMemberId,
-                            teamId
+                            teamId: resolvedTeamId
                         }
                     );
                 })
@@ -288,7 +293,9 @@ const app = new Hono()
             const { teams } = await createAdminClient();
 
             // Obtener el membership ID del usuario actual
-            const { memberships } = await teams.listMemberships(user.prefs.teamId);
+            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!msgContext) return ctx.json({ data: { documents: [], total: 0 } });
+            const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
             const currentMembership = memberships.find(m => m.userId === user.$id);
 
             if (!currentMembership) {

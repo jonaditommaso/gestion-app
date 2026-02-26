@@ -18,12 +18,18 @@ import { useCreateMeet } from "../../api/use-create-meet";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Dispatch, SetStateAction } from "react";
-import { Models } from "node-appwrite";
+
+type TeamMember = {
+    $id: string;
+    name: string;
+    email: string;
+    userId: string;
+};
 
 interface CreateMeetModalProps {
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>>,
-    team: (Models.Membership & Models.User<Models.Preferences>)[] | undefined
+    team: TeamMember[] | undefined
 }
 
 const CreateMeetModal = ({ isOpen, setIsOpen, team }: CreateMeetModalProps) => {

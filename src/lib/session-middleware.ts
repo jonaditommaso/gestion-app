@@ -23,7 +23,8 @@ export type ContextType = {
         databases: DatabasesType,
         storage: StorageType,
         users: UsersType,
-        user: Models.User<Models.Preferences>
+        user: Models.User<Models.Preferences>,
+        activeOrgId: string | undefined
     }
 }
 
@@ -61,6 +62,7 @@ export const sessionMiddleware = createMiddleware<ContextType>(
         ctx.set('databases', databases)
         ctx.set('storage', storage)
         ctx.set('user', user)
+        ctx.set('activeOrgId', getCookie(ctx, 'active-org-id') ?? undefined)
 
         await next();
     }

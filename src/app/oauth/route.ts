@@ -1,7 +1,8 @@
-import { Account, AppwriteException, AuthenticationFactor, Client, ID, Query, Users } from "node-appwrite";
+import { Account, AppwriteException, AuthenticationFactor, Client, Query, Users } from "node-appwrite";
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
+import { DATABASE_ID, MEMBERSHIPS_ID } from "@/config";
 
 async function fetchProviderPhotoURL(
     userId: string,
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     if (!userId || !secret) return new NextResponse('Missing fields', { status: 400 })
 
-    const { account, users, teams } = await createAdminClient();
+    const { account, users } = await createAdminClient();
     const session = await account.createSession(userId, secret);
     const isSecure = process.env.NODE_ENV === 'production';
 
@@ -107,35 +108,31 @@ export async function GET(request: NextRequest) {
 
     const user = await users.get(userId);
 
-    const isNewUser = !user.prefs?.role && !user.prefs?.plan;
+    const { databases } = await createAdminClient();
+    const membershipsResult = await databases.listDocuments(
+        DATABASE_ID,
+        MEMBERSHIPS_ID,
+        [Query.equal('userId', userId), Query.limit(1)]
+    );
+    const isNewUser = membershipsResult.total === 0;
 
     if (isNewUser) {
-        const newTeam = await teams.create(
-            ID.unique(),
-            'not-provided-yet' // create company with generic name, the user doesnt know wigo behind scenes.
-        )
-
-        await teams.createMembership(
-            newTeam.$id,
-            ['OWNER'],
-            user.email,
-        );
-
-        await teams.updatePrefs(newTeam.$id, { plan })
-
         let profileImageId: string | undefined;
 
         if (provider === 'google' || provider === 'github') {
             profileImageId = await fetchProviderPhotoURL(userId, provider, users);
         }
 
-        await users.updatePrefs(userId, {
-            role: "ADMIN",
-            teamId: newTeam.$id,
-            plan,
-            ...(profileImageId && { image: profileImageId }),
-            // we don't set company at this time
-        });
+        if (profileImageId) {
+            await users.updatePrefs(userId, {
+                ...(user.prefs ?? {}),
+                image: profileImageId,
+            });
+        }
+
+        const onboardingUrl = plan ? `/onboarding?plan=${plan}` : '/onboarding';
+
+        return createRedirectResponse(onboardingUrl);
     }
 
     if (!isNewUser && !user.prefs?.image && (provider === 'google' || provider === 'github')) {

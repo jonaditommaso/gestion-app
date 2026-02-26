@@ -2,7 +2,7 @@ import { Hono } from "hono"
 import { zValidator } from '@hono/zod-validator';
 import { loginSchema, mfaSchema, registerSchema, userNameSchema } from "../schemas";
 import { createAdminClient } from "@/lib/appwrite";
-import { ID, Account, AppwriteException, AuthenticationFactor, Client } from "node-appwrite"; //Account, AppwriteException, AuthenticationFactor, Client
+import { ID, Account, AppwriteException, AuthenticationFactor, Client } from "node-appwrite";
 import { deleteCookie, setCookie } from 'hono/cookie';
 import { AUTH_COOKIE } from "../constants";
 import { ContextType, sessionMfaMiddleware, sessionMiddleware } from "@/lib/session-middleware";
@@ -47,7 +47,7 @@ const app = new Hono<ContextType>()
                 path: '/',
                 httpOnly: true,
                 secure: isSecure,
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 30
             })
 
@@ -157,7 +157,7 @@ const app = new Hono<ContextType>()
         '/register',
         zValidator('json', registerSchema),
         async ctx => {
-            const { name, email, password, plan, company, isDemo } = ctx.req.valid('json');
+            const { name, email, password, plan, billingCycle, company, isDemo } = ctx.req.valid('json');
 
             const { account, users, teams } = await createAdminClient();
 
@@ -168,21 +168,28 @@ const app = new Hono<ContextType>()
                 name
             );
 
-            const newTeam = await teams.create(
-                ID.unique(),
-                company
-            )
+            if (isDemo && company) {
 
-            await teams.createMembership(
-                newTeam.$id,
-                ['OWNER'],
-                email,
-            );
+                const newTeam = await teams.create(
+                    ID.unique(),
+                    company
+                );
 
-            await users.updatePrefs(newUser.$id, { plan, company, role: 'ADMIN', teamId: newTeam.$id, isDemo });
+                await teams.createMembership(
+                    newTeam.$id,
+                    ['OWNER'],
+                    email,
+                );
 
-            await teams.updatePrefs(newTeam.$id, { plan, isDemo })
+                await teams.updatePrefs(newTeam.$id, { plan, billingCycle, isDemo });
 
+                await users.updatePrefs(newUser.$id, {
+                    isDemo: true,
+                    image: undefined,
+                });
+            } else {
+                await users.updatePrefs(newUser.$id, { isDemo: !!isDemo });
+            }
 
             const session = await account.createEmailPasswordSession(
                 email,
@@ -193,13 +200,11 @@ const app = new Hono<ContextType>()
                 path: '/',
                 httpOnly: true,
                 secure: isSecure,
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 30
             })
 
-            return ctx.json({ success: true })
-            // console.log({ email, password, name })
-
+            return ctx.json({ success: true, isDemo: !!isDemo })
         }
     )
 
@@ -213,6 +218,51 @@ const app = new Hono<ContextType>()
             await account.deleteSession('current')
 
             return ctx.json({ success: true })
+        }
+    )
+
+    .get(
+        '/sessions',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+            const sessions = await account.listSessions();
+
+            const data = sessions.sessions.map((session) => ({
+                $id: session.$id,
+                current: session.current,
+                clientName: session.clientName,
+                clientType: session.clientType,
+                osName: session.osName,
+                countryName: session.countryName,
+                expire: session.expire,
+            }));
+
+            return ctx.json({ data });
+        }
+    )
+
+    .post(
+        '/close-all-sessions',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+
+            const sessions = await account.listSessions();
+            const currentSession = sessions.sessions.find((session) => session.current);
+            const otherSessions = sessions.sessions.filter((session) => !session.current);
+
+            for (const session of otherSessions) {
+                await account.deleteSession(session.$id);
+            }
+
+            if (currentSession) {
+                await account.deleteSession('current');
+            }
+
+            deleteCookie(ctx, AUTH_COOKIE);
+
+            return ctx.json({ success: true });
         }
     )
 

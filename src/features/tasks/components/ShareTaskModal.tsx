@@ -47,7 +47,7 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
     const workspaceId = useWorkspaceId();
     const { data: currentUser } = useCurrent();
     const { data: workspaceMembers } = useGetMembers({ workspaceId });
-    const { data: teamMembers } = useGetTeamMembers();
+    const { data: teamData } = useGetTeamMembers();
     const { mutateAsync: createTaskShare } = useCreateTaskShare();
     const { mutateAsync: bulkCreateTaskShare } = useBulkCreateTaskShare();
     const workspaceConfig = useWorkspaceConfig();
@@ -180,7 +180,7 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
 
     // Combinar miembros del workspace y del team
     const workspaceMembersList = (workspaceMembers?.documents || []) as unknown as Array<{ $id: string; name: string; email?: string; userId: string }>;
-    const teamMembersList = (teamMembers || []) as unknown as Array<{ $id: string; userName: string; userEmail?: string; userId: string }>;
+    const teamMembersList = (teamData?.members || []) as unknown as Array<{ $id: string; userName: string; userEmail?: string; userId: string }>;
 
     const allMembers: SelectableMember[] = [
         ...workspaceMembersList.map((m) => ({

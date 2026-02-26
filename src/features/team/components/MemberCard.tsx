@@ -15,6 +15,8 @@ import EditMemberModal from "./EditMemberModal";
 import SendDirectMessageModal from "./SendDirectMessageModal";
 import TagsMember from "./TagsMember";
 
+import { MembershipRole } from "../types";
+
 const localeMap = { es, en: enUS, it };
 
 interface MemberCardProps {
@@ -25,12 +27,14 @@ interface MemberCardProps {
     tags: string[],
     userId: string,
     image: string,
-    role: 'SUPERADMIN' | 'ADMIN' | 'CREATOR',
+    role: MembershipRole,
     birthday: string,
     description?: string,
     linkedin?: string,
     memberSince?: string,
     currentProject?: string,
+    orgName?: string,
+    appwriteMembershipId?: string | null,
 }
 
 const ImageMock = ({ name }: { name: string }) => (
@@ -39,7 +43,7 @@ const ImageMock = ({ name }: { name: string }) => (
     </div>
 )
 
-const MemberCard = ({ memberId, name, email, position, tags = [], userId, image, birthday, description, linkedin, memberSince, currentProject }: MemberCardProps) => {
+const MemberCard = ({ memberId, name, email, position, tags = [], userId, image, birthday, description, linkedin, memberSince, currentProject, orgName, appwriteMembershipId }: MemberCardProps) => {
     const { imageUrl, isPending } = useProfilePicture(userId, !!image);
     const { data: currentUser } = useCurrent();
     const t = useTranslations('team');
@@ -50,13 +54,15 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
 
     const isCurrentUser = !!currentUser && currentUser.$id === userId;
     const hasPhoto = !!imageUrl && !isPending;
-    const company: string = (currentUser?.prefs?.company as string) ?? '';
+    const company: string = orgName ?? '';
 
     const sinceData = memberSince
         ? (() => {
-            const [y, m] = memberSince.split('-').map(Number);
-            if (!y || !m) return null;
-            const monthYear = format(new Date(y, m - 1, 1), 'MMM yyyy', { locale: dateLocale });
+            const date = new Date(memberSince);
+            if (isNaN(date.getTime())) return null;
+            const y = date.getFullYear();
+            const m = date.getMonth() + 1;
+            const monthYear = format(date, 'MMM yyyy', { locale: dateLocale });
             const now = new Date();
             const totalMonths = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
             const years = Math.floor(totalMonths / 12);
@@ -71,8 +77,9 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
 
     const birthdayFormatted = birthday
         ? (() => {
-            const [y, m, d] = birthday.split('-').map(Number);
-            return format(new Date(y, m - 1, d), 'dd MMM', { locale: dateLocale });
+            const date = new Date(birthday);
+            if (isNaN(date.getTime())) return null;
+            return format(date, 'dd MMM', { locale: dateLocale });
         })()
         : null;
 
@@ -217,7 +224,7 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                 <SendDirectMessageModal
                     isOpen={messageOpen}
                     setIsOpen={setMessageOpen}
-                    recipientId={memberId}
+                    recipientId={appwriteMembershipId ?? memberId}
                     recipientName={name}
                 />
             )}

@@ -17,7 +17,8 @@ const CreateMeetModal = dynamic(() => import('./CreateMeetModal'), {
 const CreateMeetButton = () => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const { data: team } = useGetMembers();
+    const { data: teamData } = useGetMembers();
+    const team = teamData?.members;
     const t = useTranslations('home');
 
     const searchParams = useSearchParams();

@@ -7,6 +7,9 @@ import { useTranslations } from "next-intl";
 
 type ResponseType = InferResponseType<typeof client.api.team.invite['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.team.invite['$post']>
+type ErrorResponse = {
+    errorCode?: string;
+}
 
 export const useInviteMember = () => {
     const router = useRouter()
@@ -14,11 +17,12 @@ export const useInviteMember = () => {
     const t = useTranslations('team');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({json }) => {
+        mutationFn: async ({ json }) => {
             const response = await client.api.team.invite['$post']({ json });
 
-            if(!response.ok) {
-                throw new Error('Failed to create invitation')
+            if (!response.ok) {
+                const errorResponse = await response.json() as ErrorResponse;
+                throw new Error(errorResponse.errorCode ?? 'invite-unknown-error')
             }
 
             return await response.json()
@@ -28,7 +32,12 @@ export const useInviteMember = () => {
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['team'] })
         },
-        onError: () => {
+        onError: (error) => {
+            if (error.message === 'invite-user-not-found') {
+                toast.error(t('invite-existing-user-not-found'))
+                return;
+            }
+
             toast.error(t('failed-create-invitation'))
         }
     })

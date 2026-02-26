@@ -23,9 +23,9 @@ export function UserPermissionsModal({ onOpenChange, user }: UserPermissionsDial
   const [roleSelected, setRoleSelected] = useState<string>(user.role.toLowerCase());
 
   const { mutate: updateUserRole, isPending: isUpdating } = useUpdateUserRole();
-  const { data: team } = useGetMembers();
+  const { data: membersData } = useGetMembers();
 
-  const adminCount = team?.filter(m => (m.prefs?.role as string)?.toUpperCase() === ROLES.ADMIN).length ?? 0;
+  const adminCount = membersData?.members?.filter(m => (m.prefs?.role as string)?.toUpperCase() === ROLES.ADMIN).length ?? 0;
   const isLastAdmin = user.role.toUpperCase() === ROLES.ADMIN && adminCount <= 1;
 
   const permissions = finalRolePermissions.find(({role}) => role.toLowerCase() === roleSelected)?.permissions || [];

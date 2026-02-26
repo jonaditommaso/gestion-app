@@ -18,7 +18,7 @@ import {
 import { useRegister } from "../api/use-register";
 import { registerSchema } from "../schemas";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import Image from "next/image";
@@ -32,9 +32,10 @@ import {
 } from "@/components/ui/tooltip";
 
 const SignUpCard = () => {
-    const { mutate, isPending } = useRegister();
+    const router = useRouter();
     const searchParams = useSearchParams();
     const plan = searchParams.get("plan") || 'free';
+    const billing = searchParams.get("billing") || 'monthly';
     const t = useTranslations('auth');
     const isMobile = useIsMobile();
     const googleSignUpWarning = t('google-signup-test-warning');
@@ -53,10 +54,19 @@ const SignUpCard = () => {
 
     const storedEmail = typeof window !== "undefined" ? localStorage.getItem("email") || "" : ""
 
+    const safePlan: 'free' | 'pro' | 'pro-plus' =
+        planSelected === 'pro' ? 'pro' :
+        planSelected === 'pro-plus' ? 'pro-plus' : 'free';
+
+    const { mutate, isPending } = useRegister({
+        onSuccess: () => {
+            router.push(`/onboarding?plan=${safePlan}&billing=${billing}`);
+        }
+    });
+
     const form = useForm<zod.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
-            company: '',
             name: '',
             email: storedEmail,
             password: '',
@@ -66,7 +76,7 @@ const SignUpCard = () => {
 
     const onSubmit = (values: zod.infer<typeof registerSchema>) => {
         mutate(
-            { json: {...values, plan: planSelected === 'pro' ? planSelected : 'free'} }
+            { json: { ...values, plan: safePlan } }
         )
     }
 
@@ -82,7 +92,7 @@ const SignUpCard = () => {
                 <CardContent className="p-7">
                     <Form {...form}>
                         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                            <FormField
+                            {/* <FormField
                                 name="company"
                                 control={form.control}
                                 render={({ field }) => (
@@ -99,7 +109,7 @@ const SignUpCard = () => {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
 
                             <FormField
                                 name="name"
@@ -204,7 +214,7 @@ const SignUpCard = () => {
                     {t('register-with')} Github
                 </Button>
                 </CardContent>
-                <CardFooter className="flex items-center gap-2 justify-center mt-2 max-sm:text-sm">
+                <CardFooter className="flex items-center gap-2 justify-center max-sm:text-sm">
                     <p>{t('already-have-account')}</p> <Link href={'/login'} className="underline">{t('login')}</Link>
                 </CardFooter>
             </Card>

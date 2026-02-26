@@ -7,18 +7,16 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useRequestEnterprisePlan } from "../api/use-request-enterprise-plan";
-import { useStripeCheckout } from "@/features/pricing/api/use-stripe-checkout";
 
 interface SelectPricingButtonProps {
     textButton: string,
     type: string,
-    isProChecked: boolean
+    billing?: 'monthly' | 'annual',
 }
 
-const SelectPricingButton = ({ textButton, type, isProChecked }: SelectPricingButtonProps) => {
+const SelectPricingButton = ({ textButton, type, billing }: SelectPricingButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { mutate: sendRequest } = useRequestEnterprisePlan();
-    const { mutate: stripeCheckout, isPending } = useStripeCheckout();
     const t = useTranslations('pricing');
     const router = useRouter();
 
@@ -47,23 +45,13 @@ const SelectPricingButton = ({ textButton, type, isProChecked }: SelectPricingBu
         textInput.value = ''
     }
 
-    const handleClick = async () => {
+    const handleClick = () => {
         if (type === 'enterprise') {
             setIsOpen(true);
             return;
         }
-
-        if (type === 'pro') {
-            stripeCheckout({
-                json: {
-                    plan: `pro${isProChecked ? 'plus' : ''}`
-                }
-            })
-        }
-
-        else {
-            router.push(`/signup?plan=${type}`)
-        }
+        const billingParam = billing === 'annual' ? '&billing=annual' : '';
+        router.push(`/signup?plan=${type}${billingParam}`);
     }
 
     return (
@@ -84,7 +72,7 @@ const SelectPricingButton = ({ textButton, type, isProChecked }: SelectPricingBu
                     </div>
                 </form>
             </DialogContainer>
-            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" onClick={handleClick} disabled={isPending}>{textButton}</Button>
+            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" onClick={handleClick}>{textButton}</Button>
         </>
     );
 }

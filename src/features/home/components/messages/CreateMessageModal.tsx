@@ -16,7 +16,8 @@ interface CreateMessageModalProps {
 }
 
 const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
-    const { data: team, isLoading} = useGetMembers();
+    const { data, isLoading} = useGetMembers();
+    const team = data?.members;
     const { data: user, isLoading: gettingUser } = useCurrent();
     const { mutate: createMessage, isPending: isSending } = useCreateMessage();
     const [membersSelected, setMembersSelected] = useState<string[]>([]);
@@ -41,20 +42,19 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
-            setMembersSelected(availableMembers.map(member => member.$id));
+            setMembersSelected(availableMembers.map(member => member.appwriteMembershipId ?? member.$id));
         } else {
             setMembersSelected([]);
         }
     };
 
     const handleSend = () => {
-        if(!membersSelected.length || !messageContent || !user?.prefs?.teamId) return;
+        if(!membersSelected.length || !messageContent) return;
 
         createMessage({
             json: {
                 toTeamMemberIds: membersSelected,
                 content: messageContent,
-                teamId: user.prefs.teamId,
             }
         });
 
@@ -94,20 +94,23 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
                             </div>
                         )}
                         <div className="flex flex-wrap gap-2 mb-4">
-                            {availableMembers.map(member => (
+                            {availableMembers.map(member => {
+                                const memberId = member.appwriteMembershipId ?? member.$id;
+                                return (
                                 <Button
                                     variant='outline'
-                                    key={member.$id}
+                                    key={memberId}
                                     className={cn(
                                         "cursor-pointer w-[160px] p-6 border rounded-md flex flex-col gap-1",
-                                        membersSelected.includes(member.$id) ? 'border-blue-600' : ''
+                                        membersSelected.includes(memberId) ? 'border-blue-600' : ''
                                     )}
-                                    onClick={() => handleToggleMember(member.$id)}
+                                    onClick={() => handleToggleMember(memberId)}
                                 >
                                     <span className="text-sm">{member.name}</span>
                                     <span className="text-xs text-muted-foreground">{member.name}</span>
                                 </Button>
-                            ))}
+                                );
+                            })}
                         </div>
                         <Textarea
                             placeholder={t('message')}

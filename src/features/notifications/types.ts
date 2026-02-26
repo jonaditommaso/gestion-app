@@ -12,6 +12,7 @@ export const NotificationEntityType = {
     TASK_PRIORITY_CHANGED: 'task_priority_changed',
     TASK_COMPLETED: 'task_completed',
     TASK_MENTIONED: 'task_mentioned',
+    ORGANIZATION_INVITE: 'organization_invite',
 } as const;
 
 export type NotificationEntityTypeValue = typeof NotificationEntityType[keyof typeof NotificationEntityType];
@@ -33,6 +34,8 @@ export const NotificationI18nKey = {
     TASK_COMPLETED_TITLE: 'notification-task-completed-title',
     TASK_MENTIONED_TITLE: 'notification-task-mentioned-title',
     VIEW_TASK_LINK: 'notification-view-task-link',
+    ORGANIZATION_INVITE_TITLE: 'notification-organization-invite-title',
+    ORGANIZATION_INVITE_BODY: 'notification-organization-invite-body',
 } as const;
 
 export const NotificationBodySeparator = '|';

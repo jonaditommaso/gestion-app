@@ -141,8 +141,8 @@ export const enterpriseBenefits = [
         contentText: 'pricing-enterprise-benefit-3-description'
     },
     {
-        triggerText: 'pricing-basic-benefit-7-title',
-        contentText: 'pricing-basic-benefit-7-description'
+        triggerText: 'pricing-enterprise-benefit-7-title',
+        contentText: 'pricing-enterprise-benefit-7-description'
     },
     {
         triggerText: 'pricing-enterprise-benefit-4-title',

@@ -98,6 +98,18 @@ const NotificationsTrigger = () => {
       );
     }
 
+    if (bodyParts.length === 3) {
+      const [bodyKey, organization, token] = bodyParts;
+
+      if (t.has(bodyKey)) {
+        return (
+          <p className="text-xs text-muted-foreground leading-5 line-clamp-3">
+            {t(bodyKey, { organization, token })}
+          </p>
+        );
+      }
+    }
+
     return (
       <p className="text-xs text-muted-foreground leading-5 line-clamp-2">
         {getTranslatedText(body)}

@@ -12,6 +12,7 @@ interface UserCardProps {
   getRoleColor: (roleName: string) => string
   getPermissionBadgeColor: (permission: string) => string
   onViewPermissions: (user: RoleUser) => void
+  showEditButton?: boolean
 }
 
 export function UserCard({
@@ -19,6 +20,7 @@ export function UserCard({
   getRoleColor,
   getPermissionBadgeColor,
   onViewPermissions,
+  showEditButton = true,
 }: UserCardProps) {
 
   return (
@@ -68,9 +70,11 @@ export function UserCard({
             {/* <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
               <Eye className="w-4 h-4" />
             </Button> */}
-            <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
-              <Edit className="w-4 h-4" />
-            </Button>
+            {showEditButton && (
+              <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
             {/* <Button
               variant="outline"
               size="sm"

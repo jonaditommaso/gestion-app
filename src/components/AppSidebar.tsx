@@ -22,21 +22,31 @@ import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+
+const notShowInView = [
+  '/oauth/loading',
+  '/meets/loading',
+  '/onboarding',
+  '/new-org'
+]
 
 const AppSidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useTranslations('general')
+    const { data: teamContext } = useGetTeamContext();
     const { hasPermission } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
+    const hasTeam = !!teamContext?.membership;
 
     const handleMouseEnter = () => setIsCollapsed(true);
     const handleMouseLeave = () => setIsCollapsed(false);
 
     const currentView = `/${pathname.split('/')[1]}`
 
-    if (pathname === '/oauth/loading' || pathname === '/meets/loading') return null
+    if (notShowInView.includes(pathname)) return null;
 
     return (
         <SidebarProvider open={isCollapsed}>
@@ -69,6 +79,8 @@ const AppSidebar = () => {
                         </SidebarGroupContent>
                     </SidebarGroup>
 
+                    {hasTeam && (
+                    <>
                     <SidebarSeparator />
 
                     <SidebarGroup>
@@ -109,6 +121,8 @@ const AppSidebar = () => {
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
+                    </>
+                    )}
                 </SidebarContent>
                 <SidebarFooter />
             </Sidebar>

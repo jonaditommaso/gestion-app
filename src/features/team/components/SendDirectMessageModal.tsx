@@ -2,7 +2,6 @@
 import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useCurrent } from "@/features/auth/api/use-current";
 import { useCreateMessage } from "@/features/home/api/use-create-message";
 import { useTranslations } from "next-intl";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -15,19 +14,17 @@ interface SendDirectMessageModalProps {
 }
 
 const SendDirectMessageModal = ({ isOpen, setIsOpen, recipientId, recipientName }: SendDirectMessageModalProps) => {
-    const { data: user } = useCurrent();
     const { mutate: createMessage, isPending } = useCreateMessage();
     const [messageContent, setMessageContent] = useState('');
     const t = useTranslations('home');
 
     const handleSend = () => {
-        if (!messageContent.trim() || !user?.prefs?.teamId) return;
+        if (!messageContent.trim()) return;
 
         createMessage({
             json: {
                 toTeamMemberIds: [recipientId],
                 content: messageContent,
-                teamId: user.prefs.teamId,
             }
         }, {
             onSuccess: () => {

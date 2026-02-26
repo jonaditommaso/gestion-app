@@ -9,6 +9,7 @@ import { generateInviteCode } from '@/lib/utils';
 import { getMember } from '../members/utils';
 import { z as zod } from 'zod';
 import { WorkspaceType } from '../types';
+import { getActiveContext } from '@/features/team/server/utils';
 
 const app = new Hono()
 
@@ -31,12 +32,15 @@ const app = new Hono()
 
             const workspacesIds = members.documents.map(member => member.workspaceId)
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
+
             const workspaces = await databases.listDocuments(
                 DATABASE_ID,
                 WORKSPACES_ID,
                 [
                     Query.orderDesc('$createdAt'),
-                    Query.contains('teamId', user.prefs.teamId),
+                    Query.equal('teamId', context.org.appwriteTeamId),
                     Query.contains('$id', workspacesIds),
                 ]
             );
@@ -51,10 +55,13 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { count: 0 } });
+
             const workspaces = await databases.listDocuments(
                 DATABASE_ID,
                 WORKSPACES_ID,
-                [Query.equal('teamId', user.prefs.teamId)]
+                [Query.equal('teamId', context.org.appwriteTeamId)]
             );
 
             return ctx.json({ data: { count: workspaces.total } })
@@ -65,10 +72,13 @@ const app = new Hono()
         zValidator('json', createWorkspaceSchema),
         sessionMiddleware,
         async ctx => {
-            const databases = ctx.get('databases') // obtenemos la db del contexto, porque lo seteamos previamente en el session middleware
+            const databases = ctx.get('databases');
             const user = ctx.get('user');
 
             const { name } = ctx.req.valid('json');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const workspace = await databases.createDocument(
                 DATABASE_ID,
@@ -77,7 +87,7 @@ const app = new Hono()
                 {
                     name,
                     createdBy: user.$id,
-                    teamId: user.prefs.teamId,
+                    teamId: context.org.appwriteTeamId,
                     inviteCode: generateInviteCode(6),
                 }
             );

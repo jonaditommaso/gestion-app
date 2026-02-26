@@ -32,7 +32,8 @@ const AddWorkspaceMembersModal = ({
     onOpenChange,
     workspaceId
 }: AddWorkspaceMembersModalProps) => {
-    const { data: teamMembers, isLoading } = useGetMembers();
+    const { data: teamData, isLoading } = useGetMembers();
+    const teamMembers = teamData?.members;
     const { data: workspaceMembers, isLoading: isLoadingWorkspaceMembers } = useGetWorkspaceMembers({ workspaceId });
     const { mutate: addMembers, isPending } = useAddMembers();
     const t = useTranslations('workspaces');
