@@ -3,7 +3,7 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { Client, Databases, ID, Query } from "node-appwrite";
 import { DATABASE_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MESSAGES_ID, NOTES_ID, USER_HOME_CONFIG_ID } from "@/config";
-import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema } from "../schemas";
+import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema, updateMessageSchema } from "../schemas";
 import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
 import { getActiveContext } from "@/features/team/server/utils";
@@ -241,9 +241,9 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { content, toTeamMemberIds } = ctx.req.valid('json');
+            const { subject, content, toTeamMemberIds } = ctx.req.valid('json');
 
-            if (!toTeamMemberIds.length || !content) {
+            if (!toTeamMemberIds.length || !content || !subject) {
                 return ctx.json({ error: 'Cannot create the message' }, 400)
             }
 
@@ -271,6 +271,7 @@ const app = new Hono()
                         ID.unique(),
                         {
                             read: false,
+                            subject,
                             content,
                             toTeamMemberId,
                             fromTeamMemberId,
@@ -348,6 +349,81 @@ const app = new Hono()
 
 
             return ctx.json({ data: updatedMessages })
+        }
+    )
+
+    .get(
+        '/messages/sent',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+            const { teams } = await createAdminClient();
+
+            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!msgContext) return ctx.json({ data: { documents: [], total: 0 } });
+
+            const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
+            const currentMembership = memberships.find(m => m.userId === user.$id);
+            if (!currentMembership) return ctx.json({ data: { documents: [], total: 0 } });
+
+            const messages = await databases.listDocuments(
+                DATABASE_ID,
+                MESSAGES_ID,
+                [
+                    Query.equal('fromTeamMemberId', currentMembership.$id),
+                    Query.orderDesc('$createdAt'),
+                ]
+            );
+
+            return ctx.json({ data: messages });
+        }
+    )
+
+    .patch(
+        '/messages/:messageId',
+        sessionMiddleware,
+        zValidator('json', updateMessageSchema),
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+            const { messageId } = ctx.req.param();
+            const updates = ctx.req.valid('json');
+
+            const message = await databases.getDocument(DATABASE_ID, MESSAGES_ID, messageId);
+
+            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!msgContext) return ctx.json({ error: 'No active organization' }, 400);
+
+            const { teams } = await createAdminClient();
+            const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
+            const currentMembership = memberships.find(m => m.userId === user.$id);
+            if (!currentMembership) return ctx.json({ error: 'Unauthorized' }, 403);
+
+            const isRecipient = message.toTeamMemberId === currentMembership.$id;
+            const isSender = message.fromTeamMemberId === currentMembership.$id;
+
+            if (!isRecipient && !isSender) return ctx.json({ error: 'Forbidden' }, 403);
+
+            const updateData: Record<string, boolean> = {};
+            if (updates.read !== undefined && isRecipient) updateData.read = updates.read;
+            if (updates.featured !== undefined) updateData.featured = updates.featured;
+            if (updates.deletedByRecipient !== undefined && isRecipient) updateData.deletedByRecipient = updates.deletedByRecipient;
+            if (updates.deletedBySender !== undefined && isSender) updateData.deletedBySender = updates.deletedBySender;
+
+            if (Object.keys(updateData).length === 0) return ctx.json({ error: 'No valid fields to update' }, 400);
+
+            const updated = await databases.updateDocument(DATABASE_ID, MESSAGES_ID, messageId, updateData);
+
+            const finalDeletedByRecipient = updates.deletedByRecipient ?? (message.deletedByRecipient as boolean | undefined) ?? false;
+            const finalDeletedBySender = updates.deletedBySender ?? (message.deletedBySender as boolean | undefined) ?? false;
+
+            if (finalDeletedByRecipient && finalDeletedBySender) {
+                await databases.deleteDocument(DATABASE_ID, MESSAGES_ID, messageId);
+                return ctx.json({ data: { deleted: true } });
+            }
+
+            return ctx.json({ data: updated });
         }
     )
 

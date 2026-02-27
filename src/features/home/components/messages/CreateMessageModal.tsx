@@ -1,6 +1,7 @@
 import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrent } from "@/features/auth/api/use-current";
 import { useGetMembers } from "@/features/team/api/use-get-members";
@@ -21,6 +22,7 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
     const { data: user, isLoading: gettingUser } = useCurrent();
     const { mutate: createMessage, isPending: isSending } = useCreateMessage();
     const [membersSelected, setMembersSelected] = useState<string[]>([]);
+    const [subject, setSubject] = useState('');
     const [messageContent, setMessageContent] = useState('');
     const t = useTranslations('home');
 
@@ -49,16 +51,18 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
     };
 
     const handleSend = () => {
-        if(!membersSelected.length || !messageContent) return;
+        if(!membersSelected.length || !subject.trim() || !messageContent.trim()) return;
 
         createMessage({
             json: {
                 toTeamMemberIds: membersSelected,
+                subject: subject.trim(),
                 content: messageContent,
             }
         });
 
         setMembersSelected([]);
+        setSubject('');
         setMessageContent('');
         setIsOpen(false);
     }
@@ -112,6 +116,13 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
                                 );
                             })}
                         </div>
+                        <Input
+                            placeholder={t('subject-placeholder')}
+                            maxLength={100}
+                            className="mb-3"
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                        />
                         <Textarea
                             placeholder={t('message')}
                             maxLength={256}
@@ -121,7 +132,7 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
                         />
                         <div className="flex items-center gap-2 justify-end mt-4">
                             <Button onClick={() => setIsOpen(false)} disabled={isSending} variant='secondary'>{t('cancel')}</Button>
-                            <Button onClick={handleSend} disabled={isSending || !membersSelected.length || !messageContent.trim()}>{t('send-message')}</Button>
+                            <Button onClick={handleSend} disabled={isSending || !membersSelected.length || !subject.trim() || !messageContent.trim()}>{t('send-message')}</Button>
                         </div>
                     </div>
                 )

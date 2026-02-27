@@ -1,4 +1,4 @@
-import {  Home, KeyRound, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Handshake, Target, KeyRound, MessagesSquare,
+import {  Home, KeyRound, Mail, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Handshake, Target, KeyRound, MessagesSquare,
 
 export const initialItem = [
   {
@@ -49,6 +49,12 @@ export const sidebarItems = [
 ]
 
 export const sidebarBottomItems = [
+  {
+    title: "messages",
+    url: "/messages",
+    icon: Mail,
+    key: 'messages'
+  },
   {
     title: "team",
     url: "/team",

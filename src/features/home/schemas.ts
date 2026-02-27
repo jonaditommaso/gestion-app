@@ -13,6 +13,7 @@ export const notesSchema = zod.object({
 })
 
 export const messagesSchema = zod.object({
+    subject: zod.string().trim().min(1, 'Required').max(100, 'Max 100 chars'),
     content: zod.string().trim().min(1, 'Required'),
     toTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).min(1, 'At least one recipient is required'),
 })
@@ -30,6 +31,13 @@ export const unreadMessagesSchema = zod.object({
             $updatedAt: zod.string(),
             $permissions: zod.array(zod.string())
         }))
+});
+
+export const updateMessageSchema = zod.object({
+    read: zod.boolean().optional(),
+    featured: zod.boolean().optional(),
+    deletedByRecipient: zod.boolean().optional(),
+    deletedBySender: zod.boolean().optional(),
 });
 
 export const shortcutSchema = zod.object({

@@ -360,6 +360,10 @@ export async function handleSendMessage(ctx: ActionContext): Promise<ActionResul
         }
 
         // Enviar el mensaje
+        const fallbackSubject = args.content.trim().length > 60
+            ? `${args.content.trim().slice(0, 57)}...`
+            : args.content.trim();
+
         const response = await fetch(`${ctx.baseUrl}/api/messages`, {
             method: 'POST',
             headers: {
@@ -367,6 +371,7 @@ export async function handleSendMessage(ctx: ActionContext): Promise<ActionResul
                 'Cookie': ctx.cookie || '',
             },
             body: JSON.stringify({
+                subject: args.subject?.trim() || fallbackSubject,
                 content: args.content,
                 toTeamMemberIds: resolvedIds,
             }),

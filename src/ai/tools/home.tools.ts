@@ -35,6 +35,7 @@ export interface DeleteNoteArgs {
 
 export interface SendMessageArgs {
     toMemberNames: string[];
+    subject?: string;
     content: string;
 }
 
@@ -172,6 +173,10 @@ export const SEND_MESSAGE_TOOL = {
                 content: {
                     type: "string",
                     description: "Contenido del mensaje a enviar"
+                },
+                subject: {
+                    type: "string",
+                    description: "Asunto del mensaje. Opcional; si se omite, el backend lo genera automáticamente."
                 }
             },
             required: ["toMemberNames", "content"]
