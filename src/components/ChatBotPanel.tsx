@@ -317,11 +317,20 @@ const ChatBotPanel = () => {
     }
   };
 
+  const scrollToBottom = useCallback(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+
+    const viewport = root.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement | null;
+    const target = viewport || root;
+    target.scrollTop = target.scrollHeight;
+  }, []);
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+    if (!isOpen || showHistory) return;
+    const frame = window.requestAnimationFrame(scrollToBottom);
+    return () => window.cancelAnimationFrame(frame);
+  }, [messages, isOpen, showHistory, scrollToBottom]);
 
   if (!isOpen) return null;
 
@@ -488,9 +497,16 @@ const ChatBotPanel = () => {
                   ) : (
                     /* Mensaje de la IA - estilo plano con hover */
                     <div className="w-full">
-                      <div className="text-sm leading-relaxed">
-                        <MarkdownContent content={message.content} />
-                      </div>
+                      {isLoading && !message.content.trim() ? (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>{t("assistant-working")}</span>
+                        </div>
+                      ) : (
+                        <div className="text-sm leading-relaxed">
+                          <MarkdownContent content={message.content} />
+                        </div>
+                      )}
                       <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-2 block">
                         {message.modelName || lastModelName}
                       </span>

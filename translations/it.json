@@ -2171,6 +2171,7 @@
         "welcome-description": "Fai domande o richiedi azioni. Gli errori sono possibili, verifica le informazioni importanti.",
         "placeholder": "Scrivi il tuo messaggio...",
         "send": "Invia",
+        "assistant-working": "Sto pensando ed eseguendo...",
         "input-hint": "Premi Invio per inviare, Shift+Invio per una nuova riga",
         "bot-response": "Questa è una risposta di esempio. Collega il tuo backend qui."
     },

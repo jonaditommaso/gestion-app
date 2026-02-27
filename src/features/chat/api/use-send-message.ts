@@ -77,6 +77,23 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
                 if (functionCalled === 'send_message') {
                     queryClient.invalidateQueries({ queryKey: ['messages'] });
                 }
+
+                if (functionCalled === 'create_task') {
+                    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                }
+
+                if (functionCalled === 'delete_task' || functionCalled === 'update_task' || functionCalled === 'assign_task_member' || functionCalled === 'bulk_move_tasks' || functionCalled === 'archive_task') {
+                    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                }
+
+                if (functionCalled === 'add_task_comment') {
+                    queryClient.invalidateQueries({ queryKey: ['task-comments'] });
+                }
+
+                if (functionCalled === 'add_checklist_item') {
+                    queryClient.invalidateQueries({ queryKey: ['checklist'] });
+                    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                }
             }
         },
         onError: (error) => {

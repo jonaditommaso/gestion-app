@@ -2191,6 +2191,7 @@
         "welcome-description": "Realiza preguntas o solicita acciones. Los errores son posibles, verifica la información importante.",
         "placeholder": "Escribe tu mensaje...",
         "send": "Enviar",
+        "assistant-working": "Pensando y ejecutando...",
         "input-hint": "Presiona Enter para enviar, Shift+Enter para nueva línea",
         "bot-response": "Esta es una respuesta de ejemplo. Conecta tu backend aquí."
     },

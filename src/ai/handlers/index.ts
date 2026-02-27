@@ -12,6 +12,7 @@
  */
 
 import { HOME_HANDLERS } from './home.handlers';
+import { TASKS_HANDLERS } from './tasks.handlers';
 import type { ActionHandler, ActionContext, ActionResult } from './types';
 
 /**
@@ -20,8 +21,8 @@ import type { ActionHandler, ActionContext, ActionResult } from './types';
  */
 export const ACTION_HANDLERS: Record<string, ActionHandler> = {
     ...HOME_HANDLERS,
+    ...TASKS_HANDLERS,
     // Cuando agregues más módulos, impórtalos aquí:
-    // ...TASKS_HANDLERS,
     // ...RECORDS_HANDLERS,
     // ...TEAM_HANDLERS,
 };

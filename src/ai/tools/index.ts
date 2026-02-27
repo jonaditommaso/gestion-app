@@ -12,6 +12,7 @@
  */
 
 import { HOME_TOOLS } from './home.tools';
+import { TASKS_TOOLS } from './tasks.tools';
 
 /**
  * Lista completa de todas las herramientas disponibles.
@@ -19,11 +20,22 @@ import { HOME_TOOLS } from './home.tools';
  */
 export const ALL_TOOLS = [
     ...HOME_TOOLS,
+    ...TASKS_TOOLS,
     // Cuando agregues más módulos, impórtalos aquí:
-    // ...TASKS_TOOLS,
     // ...RECORDS_TOOLS,
     // ...TEAM_TOOLS,
 ];
 
 // Re-exportar tipos de tools específicas para conveniencia
 export type { CreateNoteArgs, UpdateNoteArgs, DeleteNoteArgs, SendMessageArgs } from './home.tools';
+export type {
+    CreateTaskArgs,
+    DeleteTaskArgs,
+    UpdateTaskArgs,
+    AddTaskCommentArgs,
+    AddChecklistItemArgs,
+    AssignTaskMemberArgs,
+    BulkMoveTasksArgs,
+    ArchiveTaskArgs,
+    QueryTasksArgs,
+} from './tasks.tools';

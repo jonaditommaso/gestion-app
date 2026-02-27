@@ -35,6 +35,22 @@ function getGroqClient(): Groq {
 }
 
 /**
+ * Palabras clave que indican que el mensaje del usuario es una solicitud de acción.
+ * Se usan para detectar cuando el modelo evadió llamar a una función y reintentar.
+ */
+const ACTION_KEYWORDS = [
+    'crea', 'crear', 'agrega', 'agreg', 'nueva', 'nuevo',
+    'actualiza', 'actualiz', 'modifica', 'cambia', 'cambi',
+    'sube', 'baja', 'súbele', 'bájale', 'asigna', 'asígna', 'asígname',
+    'elimina', 'borra', 'borrar', 'eliminar',
+    'envía', 'envía', 'manda', 'mandame',
+    'ponla', 'ponle', 'pásala', 'pasala', 'dale', 'marcala',
+    'tarea', 'nota', 'mensaje', 'checklist', 'comentario',
+    'in progress', 'completada', 'prioridad', 'mueve', 'mover', 'move', 'bulk',
+    'dame', 'listar', 'lista', 'mostrame', 'muéstrame', 'filtra', 'consulta',
+];
+
+/**
  * Ejecuta chat con soporte para function calling.
  *
  * Esta función está centralizada aquí para:
@@ -66,6 +82,22 @@ export async function chatWithTools(messages: ChatMessage[]): Promise<ChatWithTo
             - update_note: si el usuario pide modificar, editar, pinear/anclar, despinear, cambiar color, agregar renglones/líneas, activar gradiente, hacer global una nota ya anclada, quitar globalización o cualquier cambio sobre una nota existente.
             - delete_note: si el usuario pide eliminar, borrar o quitar una nota existente.
             - send_message: si el usuario pide enviar un mensaje a un compañero del equipo. SIEMPRE llama a esta función con el nombre tal como lo escribió el usuario, aunque sea un apodo, nombre parcial o en minúsculas. NUNCA preguntes si el nombre es válido antes de llamar a la función — el backend se encarga de resolver el nombre.
+            - create_task: si el usuario pide crear una tarea, actividad, ticket o ítem en un workspace. Pasa el workspaceName solo si el usuario lo especificó explícitamente; de lo contrario omítelo. NUNCA preguntes sobre el workspace antes de llamar a la función — el backend decide.
+            - delete_task: si el usuario pide eliminar o borrar una tarea. Usa el nombre o fragmento de nombre de la tarea como taskSearch.
+            - update_task: si el usuario pide modificar, renombrar, cambiar estado, prioridad, descripción, fecha límite, marcar como completada, asignar o desasignar miembros de una tarea. Reglas críticas:
+              * Para prioridad RELATIVA ("súbele la prioridad", "hazla más importante", "aumenta la prioridad") → usar increasePriority: true. Para bajarla → decreasePriority: true. NUNCA adivines un número absoluto cuando el usuario usa términos relativos.
+              * Para prioridad ABSOLUTA ("prioridad muy alta", "prioridad alta", "prioridad media", "prioridad baja") → usar priority: 1..5 (1=Muy baja, 2=Baja, 3=Media, 4=Alta, 5=Muy alta).
+              * Cuando el usuario dice "asígname la tarea", "asígnalo a mí mismo", "que me la asignes" → usar assignToSelf: true dentro del mismo update_task. NO llames assign_task_member por separado.
+              * Cuando el usuario pide asignar la tarea a otra persona → usar assignMemberName con el nombre tal como lo escribió.
+              * Si el usuario pide múltiples cambios en la misma tarea (estado + prioridad + asignación, etc.) → incorpóralos TODOS en una sola llamada a update_task.
+              * Incluir solo los campos mencionados explícitamente por el usuario.
+              * Para marcar como completada → completedAt con la fecha actual ISO. Para desmarcar → clearCompletedAt: true. Para quitar fecha límite → clearDueDate: true.
+            - add_task_comment: si el usuario pide agregar un comentario a una tarea.
+            - add_checklist_item: si el usuario pide agregar ítems, subtareas o una checklist a una tarea. El campo items debe ser un array de objetos con title.
+            - assign_task_member: usar SOLO cuando la acción sea únicamente asignar/desasignar sin otros cambios. Para auto-asignación pasar memberName: "yo". SIEMPRE pasar el nombre exactamente como lo escribió el usuario — el backend resuelve el nombre.
+            - bulk_move_tasks: si el usuario pide mover varias o todas las tareas de un estado a otro (ej: "mueve todas las tareas de in progress a in review"). Usa fromStatus y toStatus.
+            - archive_task: si el usuario pide archivar o desarchivar una tarea. Usa action 'archive' o 'unarchive'.
+            - query_tasks: si el usuario pide LISTAR, CONSULTAR o FILTRAR tareas (ej: "dame todas las tareas completadas de Jona de este mes"). Cuando el usuario pida datos de tareas, NO respondas de memoria: llama esta función.
 
             NO respondas con texto simulando que lo hiciste. EJECUTA la función correspondiente.`
         },
@@ -89,6 +121,53 @@ export async function chatWithTools(messages: ChatMessage[]): Promise<ChatWithTo
         toolCallsCount: choice.message.tool_calls?.length || 0,
         messageContent: choice.message.content?.substring(0, 200),
     });
+
+    // Si el modelo respondió con texto en lugar de llamar una función,
+    // detectar si claramente debería haber llamado una función y reintentar.
+    if (choice.finish_reason !== 'tool_calls' || !choice.message.tool_calls) {
+        const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+        const looksLikeAction = lastUserMsg && ACTION_KEYWORDS.some(kw =>
+            lastUserMsg.content.toLowerCase().includes(kw)
+        );
+
+        if (looksLikeAction) {
+            console.log('[FUNCTION_CALLING] Model returned text for an action request — retrying with tool_choice: required');
+
+            const retryMessages: ChatMessage[] = [
+                ...messagesWithSystem,
+                {
+                    role: 'user',
+                    content: 'IMPORTANTE: Debes llamar a la función correspondiente ahora. No respondas con texto. Ejecuta la acción solicitada.'
+                }
+            ];
+
+            const retryResponse = await groq.chat.completions.create({
+                messages: retryMessages,
+                model: GROQ_MODEL,
+                temperature: 0.1,
+                max_completion_tokens: 4096,
+                tools: ALL_TOOLS as ChatCompletionTool[],
+                tool_choice: "required",
+            });
+
+            const retryChoice = retryResponse.choices[0];
+            console.log('[FUNCTION_CALLING] Retry response:', {
+                finishReason: retryChoice.finish_reason,
+                hasToolCalls: !!retryChoice.message.tool_calls,
+                toolCallsCount: retryChoice.message.tool_calls?.length || 0,
+            });
+
+            if (retryChoice.message.tool_calls && retryChoice.message.tool_calls.length > 0) {
+                const toolCalls = retryChoice.message.tool_calls.map(tc => ({
+                    id: tc.id,
+                    name: tc.function.name,
+                    arguments: JSON.parse(tc.function.arguments)
+                }));
+                console.log('[FUNCTION_CALLING] Retry tool calls detected:', toolCalls);
+                return { type: 'tool_call', toolCalls };
+            }
+        }
+    }
 
     // ¿La IA decidió llamar a una función?
     if (choice.finish_reason === 'tool_calls' && choice.message.tool_calls) {

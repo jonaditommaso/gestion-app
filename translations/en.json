@@ -2185,6 +2185,7 @@
         "welcome-description": "Ask questions or request actions. Errors are possible, please verify important information.",
         "placeholder": "Type your message...",
         "send": "Send",
+        "assistant-working": "Thinking and working...",
         "input-hint": "Press Enter to send, Shift+Enter for new line",
         "bot-response": "This is an example response. Connect your backend here."
     },
