@@ -18,6 +18,7 @@ import oauth from '@/features/oauth/server/route'
 import roles from '@/features/roles/server/route'
 import chat from '@/features/chat/server/route'
 import notifications from '@/features/notifications/server/route'
+import sells from '@/features/sells/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -40,6 +41,7 @@ const routes = app
   .route('/oauth', oauth)
   .route('/chat', chat)
   .route('/notifications', notifications)
+  .route('/sells', sells)
   .route('/', home)
 
 export const GET = handle(app)

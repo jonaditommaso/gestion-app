@@ -1,4 +1,4 @@
-import {  Home, KeyRound, Mail, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Handshake, Target, KeyRound, MessagesSquare,
+import {  Handshake, Home, KeyRound, Mail, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Target
 
 export const initialItem = [
   {
@@ -22,12 +22,12 @@ export const sidebarItems = [
   //   icon: Archive,
   //   key: 'inventory'
   // },
-  // {
-  //   title: "Ventas",
-  //   url: "/sells",
-  //   icon: Handshake,
-  //   key: 'sells'
-  // },
+  {
+    title: "sells",
+    url: "/sells",
+    icon: Handshake,
+    key: 'sells'
+  },
   // {
   //   title: "Marketing",
   //   url: "/marketing",
@@ -61,12 +61,6 @@ export const sidebarBottomItems = [
     icon: Users,
     key: 'team'
   },
-  // {
-  //   title: "Chat",
-  //   url: "/chat",
-  //   icon: MessagesSquare,
-  //   key: 'chat'
-  // },
   {
     title: "roles",
     url: "/roles",

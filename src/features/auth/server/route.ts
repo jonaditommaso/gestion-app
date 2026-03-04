@@ -36,13 +36,6 @@ const app = new Hono<ContextType>()
                 password
             )
 
-            const client = new Client()
-                .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-                .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
-                .setSession(session.secret);
-
-            const account = new Account(client);
-
             setCookie(ctx, AUTH_COOKIE, session.secret, {
                 path: '/',
                 httpOnly: true,
@@ -50,6 +43,13 @@ const app = new Hono<ContextType>()
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 30
             })
+
+            const client = new Client()
+                .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+                .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
+                .setSession(session.secret);
+
+            const account = new Account(client);
 
             try {
                 const current = await account.get();
