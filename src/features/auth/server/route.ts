@@ -215,6 +215,7 @@ const app = new Hono<ContextType>()
             const account = ctx.get('account') //obtained by set function in sessionMidleware
 
             deleteCookie(ctx, AUTH_COOKIE);
+            deleteCookie(ctx, 'active-org-id');
             await account.deleteSession('current')
 
             return ctx.json({ success: true })

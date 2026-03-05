@@ -30,6 +30,12 @@ export async function getActiveContext(
             membershipId
         );
 
+        // Security: verify the membership belongs to the current user,
+        // since the active-org-id cookie may have been set by a previous session.
+        if (membership.userId !== user.$id) {
+            throw new Error('Membership does not belong to current user');
+        }
+
         const org = await databases.getDocument<Organization>(
             DATABASE_ID,
             ORGANIZATIONS_ID,
