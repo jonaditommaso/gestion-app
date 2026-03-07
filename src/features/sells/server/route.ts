@@ -149,6 +149,75 @@ const app = new Hono()
         return ctx.json({ data: { $id: sellerId } });
     })
 
+    // ── Pipeline Health ──────────────────────────────────────────────────────────
+    .get("/pipeline-health", sessionMiddleware, async (ctx) => {
+        const databases = ctx.get("databases");
+        const user = ctx.get("user");
+
+        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        if (!context) {
+            return ctx.json({ data: { leadsCount: 0, openDealsCount: 0, negotiationCount: 0, wonThisWeek: 0, totalByCurrency: [] } });
+        }
+
+        const dealsResult = await databases.listDocuments<DealDocument>(
+            DATABASE_ID,
+            DEALS_ID,
+            [Query.equal("teamId", context.org.appwriteTeamId), Query.limit(1000)]
+        );
+
+        const deals = dealsResult.documents;
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+
+        const leadsCount = deals.filter((d) => d.status === "LEADS").length;
+        const negotiationCount = deals.filter((d) => d.status === "NEGOTIATION").length;
+        const openDealsCount = deals.filter((d) => d.outcome === "PENDING").length;
+        const wonThisWeek = deals.filter(
+            (d) => d.outcome === "WON" && new Date(d.$updatedAt) >= sevenDaysAgo
+        ).length;
+
+        const stageCoefficients: Record<string, number> = {
+            LEADS: 0.1,
+            QUALIFICATION: 0.3,
+            NEGOTIATION: 0.6,
+            CLOSED: 0.9,
+        };
+
+        const pendingDeals = deals.filter((d) => d.outcome === "PENDING");
+        const currencyMap: Record<string, { totalValue: number; weightedValue: number }> = {};
+
+        for (const deal of pendingDeals) {
+            if (!currencyMap[deal.currency]) {
+                currencyMap[deal.currency] = { totalValue: 0, weightedValue: 0 };
+            }
+            currencyMap[deal.currency].totalValue += deal.amount;
+            currencyMap[deal.currency].weightedValue +=
+                deal.amount * (stageCoefficients[deal.status] ?? 0.1);
+        }
+
+        const totalByCurrency = Object.entries(currencyMap).map(([currency, values]) => ({
+            currency,
+            totalValue: Math.round(values.totalValue),
+            weightedValue: Math.round(values.weightedValue),
+        }));
+
+        const wonThisWeekDeals = deals.filter(
+            (d) => d.outcome === "WON" && new Date(d.$updatedAt) >= sevenDaysAgo
+        );
+        const wonCurrencyMap: Record<string, number> = {};
+        for (const deal of wonThisWeekDeals) {
+            wonCurrencyMap[deal.currency] = (wonCurrencyMap[deal.currency] ?? 0) + deal.amount;
+        }
+        const wonThisWeekByCurrency = Object.entries(wonCurrencyMap).map(([currency, totalValue]) => ({
+            currency,
+            totalValue: Math.round(totalValue),
+        }));
+
+        return ctx.json({ data: { leadsCount, openDealsCount, negotiationCount, wonThisWeek, totalByCurrency, wonThisWeekByCurrency } });
+    })
+
     // ── Deals ────────────────────────────────────────────────────────────────────
     .get("/", sessionMiddleware, async (ctx) => {
         const databases = ctx.get("databases");

@@ -9,10 +9,12 @@ interface CreateTaskFormWrapperProps {
     onCancel: () => void;
     initialStatus?: TaskStatus;
     initialStatusCustomId?: string;
+    workspaceId?: string;
 }
 
-const CreateTaskFormWrapper = ({ onCancel, initialStatus, initialStatusCustomId }: CreateTaskFormWrapperProps) => {
-    const workspaceId = useWorkspaceId()
+const CreateTaskFormWrapper = ({ onCancel, initialStatus, initialStatusCustomId, workspaceId: workspaceIdProp }: CreateTaskFormWrapperProps) => {
+    const urlWorkspaceId = useWorkspaceId();
+    const workspaceId = workspaceIdProp || urlWorkspaceId;
 
     const { data: members, isLoading: isLoadingMembers } = useGetMembers({ workspaceId })
 
@@ -37,6 +39,7 @@ const CreateTaskFormWrapper = ({ onCancel, initialStatus, initialStatusCustomId 
             onCancel={onCancel}
             initialStatus={initialStatus}
             initialStatusCustomId={initialStatusCustomId}
+            workspaceId={workspaceId}
         />
     );
 }

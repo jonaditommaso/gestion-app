@@ -7,11 +7,23 @@ import { MessagesContainer } from "./messages/MessagesContainer";
 import ShortcutButton from "./shortcut/ShortcutButton";
 import CreateMeetButton from "./meets/CreateMeetButton";
 import CalendarEvents from "./CalendarEvents";
+import BillingSnapshotWidget from "./BillingSnapshotWidget";
+import WorkspaceHealthWidget from "./WorkspaceHealthWidget";
+import TeamVelocityWidget from "./TeamVelocityWidget";
+import PipelineHealthWidget from "./PipelineHealthWidget";
+import RecentActivityWidget from "./RecentActivityWidget";
+import UpcomingPaymentsWidget from "./UpcomingPaymentsWidget";
+import CreateDealButton from "./CreateDealButton";
+import CreateTaskButton from "./CreateTaskButton";
+import CreateBillingButton from "./CreateBillingButton";
+import CriticalAlertsBar from "./CriticalAlertsBar";
 import { HomeCustomizationProvider, PersonalizeHomeButton, useHomeCustomization } from "./customization";
 import { useGetMessages } from "../api/use-get-messages";
+import { useGetMeets } from "../api/use-get-meets";
 import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { TaskStatus } from "@/features/tasks/types";
 import { useGetMember } from "@/features/members/api/use-get-member";
+import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 import { WidgetId } from "./customization/types";
 import { MinusCircle } from "lucide-react";
 
@@ -71,7 +83,11 @@ const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWi
 const HomeWidgetsGrid = () => {
     const { data: messages } = useGetMessages();
     const { data: member } = useGetMember();
+    const { data: teamContext } = useGetTeamContext();
     const { config } = useHomeCustomization();
+
+    const organizationRole = teamContext?.membership?.role;
+    const isPrivileged = organizationRole === 'OWNER' || organizationRole === 'ADMIN';
 
     // Obtener el status configurado para el widget de tareas
     const selectedStatusId = config.taskWidgetStatusId || TaskStatus.TODO;
@@ -88,6 +104,9 @@ const HomeWidgetsGrid = () => {
     const hasMessages = (messages?.total ?? 0) > 0;
     const hasTasks = (tasks?.documents?.length ?? 0) > 0;
 
+    const { data: meets } = useGetMeets();
+    const hasMeets = (meets?.length ?? 0) > 0;
+
     return (
         <div className="gap-4 grid grid-cols-3">
             <ConditionalWidget widgetId="my-notes">
@@ -98,7 +117,7 @@ const HomeWidgetsGrid = () => {
                 <MessagesContainer />
             </ConditionalWidget>
 
-            <div className="flex col-span-1 gap-2">
+            <div className="flex col-span-1 gap-2 justify-around">
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
                     <ConditionalWidget widgetId="send-message">
                         <SendMessageButton />
@@ -110,6 +129,22 @@ const HomeWidgetsGrid = () => {
                         <CreateMeetButton />
                     </ConditionalWidget>
                 </div>
+                <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
+                    <ConditionalWidget widgetId="new-task">
+                        <CreateTaskButton />
+                    </ConditionalWidget>
+                    {/* {isPrivileged && ( */}
+                        <ConditionalWidget widgetId="new-deal">
+                            <CreateDealButton />
+                        </ConditionalWidget>
+                    {/* // )} */}
+                    {/* {isPrivileged && ( */}
+                        <ConditionalWidget widgetId="new-billing">
+                            <CreateBillingButton />
+                        </ConditionalWidget>
+                    {/* )} */}
+
+                </div>
                 <ConditionalWidget widgetId="calendar">
                     <CalendarDemo />
                 </ConditionalWidget>
@@ -119,9 +154,45 @@ const HomeWidgetsGrid = () => {
                 <TasksWidget />
             </ConditionalWidget>
 
-            <ConditionalWidget widgetId="calendar-events">
+            <ConditionalWidget widgetId="calendar-events" hasData={hasMeets}>
                 <CalendarEvents />
             </ConditionalWidget>
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="billing-snapshot">
+                    <BillingSnapshotWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="workspace-health">
+                    <WorkspaceHealthWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="team-velocity">
+                    <TeamVelocityWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="pipeline-health">
+                    <PipelineHealthWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="recent-activity">
+                    <RecentActivityWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="upcoming-payments">
+                    <UpcomingPaymentsWidget />
+                </ConditionalWidget>
+            )}
         </div>
     );
 };
@@ -140,6 +211,7 @@ const HomeWidgets = () => {
     return (
         <HomeCustomizationProvider>
             <HomeHeader />
+            <CriticalAlertsBar />
             <HomeWidgetsGrid />
         </HomeCustomizationProvider>
     );

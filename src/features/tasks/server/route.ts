@@ -16,6 +16,7 @@ import { WorkspaceType } from "@/features/workspaces/types";
 import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
 import { chunkArray, extractMentionedMemberIds, getWorkspaceNotificationSetting, notifyMentionedMembers, notifyTaskAssignees } from "@/features/notifications/helpers";
+import { getActiveContext } from "@/features/team/server/utils";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
@@ -97,6 +98,211 @@ const getStatusDisplayName = async (
 };
 
 const app = new Hono()
+
+    .get(
+        '/org-summary',
+        sessionMiddleware,
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) {
+                return ctx.json({ data: { overdueCount: 0, unassignedFeaturedCount: 0, overdueByWorkspace: [], unassignedFeaturedByWorkspace: [] } });
+            }
+
+            // Todos los workspaces de la organización activa
+            const workspacesResult = await databases.listDocuments(
+                DATABASE_ID,
+                WORKSPACES_ID,
+                [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(500)]
+            );
+
+            const workspaceIds = workspacesResult.documents.map((w) => w.$id);
+
+            if (workspaceIds.length === 0) {
+                return ctx.json({ data: { overdueCount: 0, unassignedFeaturedCount: 0, overdueByWorkspace: [], unassignedFeaturedByWorkspace: [] } });
+            }
+
+            // Traer todas las tareas no-DONE de la org, en chunks de 100 (límite de Appwrite para Query.contains)
+            const allTasks: Task[] = [];
+            const workspaceIdChunks = chunkArray(workspaceIds, 100);
+
+            for (const chunk of workspaceIdChunks) {
+                const result = await databases.listDocuments<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    [
+                        Query.contains('workspaceId', chunk),
+                        Query.notEqual('status', TaskStatus.DONE),
+                        Query.limit(5000),
+                    ]
+                );
+                allTasks.push(...result.documents);
+            }
+
+            // Excluir archivadas (igual que el endpoint principal)
+            const activeTasks = allTasks.filter((t) => t.archived !== true);
+
+            // Tareas vencidas: dueDate < hoy
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            const overdueCount = activeTasks.filter(
+                (t) => t.dueDate && new Date(t.dueDate) < todayStart
+            ).length;
+
+            // Tareas destacadas sin asignado
+            const featuredTasks = activeTasks.filter((t) => t.featured);
+            const featuredTaskIds = featuredTasks.map((t) => t.$id);
+
+            const assignedFeaturedTaskIds: string[] = [];
+
+            if (featuredTaskIds.length > 0) {
+                const featuredChunks = chunkArray(featuredTaskIds, 100);
+                for (const chunk of featuredChunks) {
+                    const assigneesResult = await databases.listDocuments(
+                        DATABASE_ID,
+                        TASK_ASSIGNEES_ID,
+                        [Query.contains('taskId', chunk), Query.limit(5000)]
+                    );
+                    assignedFeaturedTaskIds.push(
+                        ...assigneesResult.documents.map((a) => a.taskId as string)
+                    );
+                }
+            }
+
+            const unassignedFeaturedIds = featuredTaskIds.filter(
+                (id) => !assignedFeaturedTaskIds.includes(id)
+            );
+
+            const unassignedFeaturedCount = unassignedFeaturedIds.length;
+
+            // Breakdown por workspace
+            const workspaceNameMap = Object.fromEntries(
+                workspacesResult.documents.map((w) => [w.$id, w.name as string])
+            );
+
+            const overdueByWorkspace: { workspaceId: string; workspaceName: string; count: number }[] = [];
+            const wsIdsWithOverdue = [...new Set(
+                activeTasks
+                    .filter((t) => t.dueDate && new Date(t.dueDate) < todayStart)
+                    .map((t) => t.workspaceId)
+            )];
+            for (const wsId of wsIdsWithOverdue) {
+                const count = activeTasks.filter(
+                    (t) => t.workspaceId === wsId && t.dueDate && new Date(t.dueDate) < todayStart
+                ).length;
+                overdueByWorkspace.push({ workspaceId: wsId, workspaceName: workspaceNameMap[wsId] ?? wsId, count });
+            }
+
+            const unassignedFeaturedByWorkspace: { workspaceId: string; workspaceName: string; count: number }[] = [];
+            const unassignedFeaturedTasks = featuredTasks.filter((t) => unassignedFeaturedIds.includes(t.$id));
+            const wsIdsWithUnassignedFeatured = [...new Set(unassignedFeaturedTasks.map((t) => t.workspaceId))];
+            for (const wsId of wsIdsWithUnassignedFeatured) {
+                const count = unassignedFeaturedTasks.filter((t) => t.workspaceId === wsId).length;
+                unassignedFeaturedByWorkspace.push({ workspaceId: wsId, workspaceName: workspaceNameMap[wsId] ?? wsId, count });
+            }
+
+            return ctx.json({ data: { overdueCount, unassignedFeaturedCount, overdueByWorkspace, unassignedFeaturedByWorkspace } });
+        }
+    )
+
+    .get(
+        '/org-dashboard',
+        sessionMiddleware,
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) {
+                return ctx.json({ data: { workspaceHealth: [], workspaceVelocity: [] } });
+            }
+
+            const workspacesResult = await databases.listDocuments(
+                DATABASE_ID,
+                WORKSPACES_ID,
+                [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(500)]
+            );
+
+            const workspaceIds = workspacesResult.documents.map((w) => w.$id);
+
+            if (workspaceIds.length === 0) {
+                return ctx.json({ data: { workspaceHealth: [], workspaceVelocity: [] } });
+            }
+
+            const workspaceIdChunks = chunkArray(workspaceIds, 100);
+
+            // 1. Tareas activas (no DONE, no archivadas) para workspace health
+            const allActiveTasks: Task[] = [];
+            for (const chunk of workspaceIdChunks) {
+                const result = await databases.listDocuments<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    [
+                        Query.contains('workspaceId', chunk),
+                        Query.notEqual('status', TaskStatus.DONE),
+                        Query.limit(5000),
+                    ]
+                );
+                allActiveTasks.push(...result.documents);
+            }
+            const activeTasks = allActiveTasks.filter((t) => t.archived !== true);
+
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            const workspaceHealth = workspacesResult.documents
+                .map((w) => {
+                    const wsTasks = activeTasks.filter((t) => t.workspaceId === w.$id);
+                    const overdueCount = wsTasks.filter(
+                        (t) => t.dueDate && new Date(t.dueDate) < todayStart
+                    ).length;
+                    return {
+                        workspaceId: w.$id,
+                        workspaceName: w.name as string,
+                        totalActive: wsTasks.length,
+                        overdueCount,
+                    };
+                })
+                .filter((ws) => ws.totalActive > 0);
+
+            // 2. Tareas completadas en los últimos 7 días para velocidad
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            sevenDaysAgo.setHours(0, 0, 0, 0);
+
+            const doneTasks: Task[] = [];
+            for (const chunk of workspaceIdChunks) {
+                const result = await databases.listDocuments<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    [
+                        Query.contains('workspaceId', chunk),
+                        Query.equal('status', TaskStatus.DONE),
+                        Query.limit(2000),
+                    ]
+                );
+                doneTasks.push(...result.documents);
+            }
+
+            const recentDone = doneTasks.filter(
+                (t) => t.completedAt && new Date(t.completedAt) >= sevenDaysAgo
+            );
+
+            const workspaceVelocity = workspacesResult.documents
+                .map((w) => ({
+                    workspaceId: w.$id,
+                    workspaceName: w.name as string,
+                    completedLastWeek: recentDone.filter((t) => t.workspaceId === w.$id).length,
+                }))
+                .filter((ws) => ws.completedLastWeek > 0)
+                .sort((a, b) => b.completedLastWeek - a.completedLastWeek);
+
+            return ctx.json({ data: { workspaceHealth, workspaceVelocity } });
+        }
+    )
 
     .get(
         '/',

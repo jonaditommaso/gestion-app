@@ -40,12 +40,14 @@ interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
     onCancel: () => void,
     initialStatus?: TaskStatus,
-    initialStatusCustomId?: string
+    initialStatusCustomId?: string,
+    workspaceId?: string,
 }
 
-const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusCustomId }: CreateTaskFormProps) => {
+const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusCustomId, workspaceId: workspaceIdProp }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
-    const workspaceId = useWorkspaceId();
+    const urlWorkspaceId = useWorkspaceId();
+    const workspaceId = workspaceIdProp || urlWorkspaceId;
     const t = useTranslations('workspaces');
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
