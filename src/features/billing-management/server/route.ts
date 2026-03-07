@@ -32,9 +32,9 @@ const app = new Hono()
                 currency,
                 taxRate,
                 taxAmount,
-                isRecurring,
+                // isRecurring,
                 recurrenceRule,
-                nextOccurrenceDate,
+                // nextOccurrenceDate,
                 archived,
             } = ctx.req.valid('json');
 
@@ -87,19 +87,19 @@ const app = new Hono()
             operationData.currency = currency || 'EUR';
             if (taxRate !== undefined) operationData.taxRate = taxRate;
             if (taxAmount !== undefined) operationData.taxAmount = taxAmount;
-            operationData.isRecurring = isRecurring ?? false;
+            // operationData.isRecurring = isRecurring ?? false;
             if (recurrenceRule) operationData.recurrenceRule = recurrenceRule;
 
-            const recurringBaseDate = dueDate || date;
-            if (operationData.isRecurring && recurrenceRule) {
-                const calculatedNextOccurrence = recurrenceRule === 'WEEKLY'
-                    ? dayjs(recurringBaseDate).add(1, 'week').toDate()
-                    : dayjs(recurringBaseDate).add(1, 'month').toDate();
+            // const recurringBaseDate = dueDate || date;
+            // if (operationData.isRecurring && recurrenceRule) {
+            //     const calculatedNextOccurrence = recurrenceRule === 'WEEKLY'
+            //         ? dayjs(recurringBaseDate).add(1, 'week').toDate()
+            //         : dayjs(recurringBaseDate).add(1, 'month').toDate();
 
-                operationData.nextOccurrenceDate = nextOccurrenceDate || calculatedNextOccurrence;
-            } else if (nextOccurrenceDate) {
-                operationData.nextOccurrenceDate = nextOccurrenceDate;
-            }
+            //     operationData.nextOccurrenceDate = nextOccurrenceDate || calculatedNextOccurrence;
+            // } else if (nextOccurrenceDate) {
+            //     operationData.nextOccurrenceDate = nextOccurrenceDate;
+            // }
 
             operationData.archived = archived ?? false;
 
