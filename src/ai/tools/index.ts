@@ -13,6 +13,7 @@
 
 import { HOME_TOOLS } from './home.tools';
 import { TASKS_TOOLS } from './tasks.tools';
+import { BILLING_TOOLS } from './billing.tools';
 
 /**
  * Lista completa de todas las herramientas disponibles.
@@ -21,6 +22,7 @@ import { TASKS_TOOLS } from './tasks.tools';
 export const ALL_TOOLS = [
     ...HOME_TOOLS,
     ...TASKS_TOOLS,
+    ...BILLING_TOOLS,
     // Cuando agregues más módulos, impórtalos aquí:
     // ...RECORDS_TOOLS,
     // ...TEAM_TOOLS,
@@ -39,3 +41,10 @@ export type {
     ArchiveTaskArgs,
     QueryTasksArgs,
 } from './tasks.tools';
+export type {
+    CreateBillingOperationArgs,
+    QueryBillingOperationsArgs,
+    UpdateBillingOperationArgs,
+    DeleteBillingOperationArgs,
+    ManageBillingCategoriesArgs,
+} from './billing.tools';

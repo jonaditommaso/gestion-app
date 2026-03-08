@@ -48,6 +48,10 @@ const ACTION_KEYWORDS = [
     'tarea', 'nota', 'mensaje', 'checklist', 'comentario',
     'in progress', 'completada', 'prioridad', 'mueve', 'mover', 'move', 'bulk',
     'dame', 'listar', 'lista', 'mostrame', 'muéstrame', 'filtra', 'consulta',
+    'factura', 'facturas', 'ingreso', 'ingresos', 'gasto', 'gastos',
+    'cobro', 'cobros', 'pago', 'pagos', 'vencida', 'vencidas', 'vencido', 'vencidos',
+    'pendiente', 'pendientes', 'categoria', 'categoría', 'categorias', 'categorías',
+    'billing', 'operacion', 'operación', 'registra', 'registrar',
 ];
 
 /**
@@ -98,6 +102,29 @@ export async function chatWithTools(messages: ChatMessage[]): Promise<ChatWithTo
             - bulk_move_tasks: si el usuario pide mover varias o todas las tareas de un estado a otro (ej: "mueve todas las tareas de in progress a in review"). Usa fromStatus y toStatus.
             - archive_task: si el usuario pide archivar o desarchivar una tarea. Usa action 'archive' o 'unarchive'.
             - query_tasks: si el usuario pide LISTAR, CONSULTAR o FILTRAR tareas (ej: "dame todas las tareas completadas de Jona de este mes"). Cuando el usuario pida datos de tareas, NO respondas de memoria: llama esta función.
+
+            Reglas para facturación (billing):
+            - create_billing_operation: si el usuario pide registrar, crear o agregar una factura, ingreso, gasto, cobro o pago. Infiere 'income' o 'expense' del contexto. Si no dice la fecha, usa hoy. NUNCA simules la creación — EJECUTA la función.
+            - query_billing_operations: si el usuario pide VER, LISTAR, CONSULTAR o FILTRAR facturas u operaciones de facturación. Ejemplos de cuándo llamarla:
+              * "dame los gastos vencidos" → status: 'OVERDUE', type: 'expense'
+              * "facturas vencidas" → status: 'OVERDUE'
+              * "ingresos pendientes" → type: 'income', status: 'PENDING'
+              * "facturas del cliente Juan" → partyName: 'Juan'
+              * "gastos de Marketing" → type: 'expense', category: 'Marketing'
+              * "qué vence en los próximos 30 días" → upcomingDays: 30
+              * "qué vence esta semana" → upcomingDays: 7
+              * "listar todas las facturas" → sin filtros adicionales (source por defecto es 'active')
+              * "dame las archivadas" / "operaciones archivadas" → source: 'archived'
+              * "dame los borradores" / "operaciones en borrador" → source: 'drafts'
+              IMPORTANTE: el parámetro source determina QUÉ conjunto cargar: 'active' (activas, por defecto), 'archived' (SOLO archivadas), 'drafts' (SOLO borradores). NUNCA omitas source si el usuario pidió archivadas o borradores.
+              NO respondas de memoria — SIEMPRE llama esta función.
+            - update_billing_operation: si el usuario pide modificar, editar, cambiar o actualizar una factura u operación. Usa operationSearch con el nombre del cliente o número de factura que mencione el usuario.
+            - delete_billing_operation: si el usuario pide eliminar o borrar una factura u operación. Usa el nombre del cliente o número de factura como operationSearch.
+            - manage_billing_categories: si el usuario pide VER, LISTAR, AGREGAR, RENOMBRAR o ELIMINAR categorías de facturación.
+              * "qué categorías hay" / "lista las categorías" → action: 'list'
+              * "agrega la categoría Consultoría a ingresos" → action: 'add', categoryType: 'income', categoryName: 'Consultoría'
+              * "renombra Marketing a Publicidad en gastos" → action: 'rename', categoryType: 'expense', oldCategoryName: 'Marketing', newCategoryName: 'Publicidad'
+              * "elimina la categoría Varios de gastos" → action: 'remove', categoryType: 'expense', categoryName: 'Varios'
 
             NO respondas con texto simulando que lo hiciste. EJECUTA la función correspondiente.`
         },
