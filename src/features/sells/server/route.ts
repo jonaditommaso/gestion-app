@@ -303,6 +303,7 @@ const app = new Hono()
             lastStageChangedAt: doc.lastStageChangedAt ?? null,
             outcome: doc.outcome ?? "PENDING",
             nextStep: doc.nextStep,
+            linkedDraftId: doc.linkedDraftId ?? null,
             assignees: (assigneesByDealId[doc.$id] ?? []).map((a) => {
                 const seller = sellersById[a.memberId];
                 return {

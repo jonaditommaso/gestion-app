@@ -20,14 +20,19 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
+  FileEdit,
   Pencil,
   Plus,
   Send,
+  Trophy,
+  Undo2,
   X,
+  XCircle,
 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
-import type { ActivityEntry, Deal, DealStage, Seller } from "../types";
+import type { ActivityEntry, Deal, DealOutcome, DealStage, Seller } from "../types";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
 
@@ -40,6 +45,7 @@ interface DealDetailModalProps {
   onMoveToStage: (id: string, stage: DealStage) => void;
   onSaveNextStep: (dealId: string, nextStep: string) => void;
   onAddActivity: (dealId: string, content: string, type?: "step-completed") => void;
+  onMarkOutcome: (id: string, outcome: DealOutcome) => void;
 }
 
 const getPriorityClassName = (priority: Deal["priority"]): string => {
@@ -80,6 +86,7 @@ const DealDetailModal = ({
   onMoveToStage,
   onSaveNextStep,
   onAddActivity,
+  onMarkOutcome,
 }: DealDetailModalProps) => {
   const t = useTranslations("sales");
 
@@ -210,7 +217,23 @@ const DealDetailModal = ({
         <DialogHeader>
           <div className="flex flex-wrap items-center gap-2">
             <DialogTitle className="text-lg">{deal.title}</DialogTitle>
-            <Badge variant="secondary">{t(`stages.${deal.status}`)}</Badge>
+            <Badge
+              variant="secondary"
+              className={cn(deal.status === "CLOSED" && "border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400")}
+            >
+              {t(`stages.${deal.status}`)}
+            </Badge>
+            {deal.linkedDraftId && (
+              <Link href="/billing-management" onClick={() => onOpenChange(false)}>
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 cursor-pointer"
+                >
+                  <FileEdit className="size-3" />
+                  {t("detail.linked-draft")}
+                </Badge>
+              </Link>
+            )}
           </div>
           <p className="text-sm text-muted-foreground font-semibold">{deal.company}</p>
         </DialogHeader>
@@ -249,40 +272,44 @@ const DealDetailModal = ({
               </div>
             </div>
 
-            <div>
-              <p className="text-xs text-muted-foreground">{t("table.health")}</p>
-              <div className="mt-1 flex items-center gap-3">
-                <Progress
-                  className="h-2 flex-1"
-                  indicatorClassName={getHealthIndicatorClassName(deal.healthScore)}
-                  value={deal.healthScore}
-                />
-                <span className={cn("text-sm font-medium tabular-nums", getHealthTextClassName(deal.healthScore))}>
-                  {deal.healthScore}%
-                </span>
-              </div>
-            </div>
+            {deal.outcome === "PENDING" && (
+              <>
+                <div>
+                  <p className="text-xs text-muted-foreground">{t("table.health")}</p>
+                  <div className="mt-1 flex items-center gap-3">
+                    <Progress
+                      className="h-2 flex-1"
+                      indicatorClassName={getHealthIndicatorClassName(deal.healthScore)}
+                      value={deal.healthScore}
+                    />
+                    <span className={cn("text-sm font-medium tabular-nums", getHealthTextClassName(deal.healthScore))}>
+                      {deal.healthScore}%
+                    </span>
+                  </div>
+                </div>
 
-            <Separator />
+                <Separator />
 
-            {/* Close date */}
-            <div className="space-y-1">
-              <Label htmlFor="modal-close-date" className="text-xs">
-                {t("table.close-date")}
-              </Label>
-              <div className="flex gap-2">
-                <CustomDatePicker
-                  value={closeDate}
-                  onChange={(date) => setCloseDate(date)}
-                  onClear={() => setCloseDate(undefined)}
-                />
-                {closeDateChanged && (
-                  <Button size="sm" className="h-8 shrink-0" onClick={handleSaveCloseDate}>
-                    {t("detail.save-changes")}
-                  </Button>
-                )}
-              </div>
-            </div>
+                {/* Close date */}
+                <div className="space-y-1">
+                  <Label htmlFor="modal-close-date" className="text-xs">
+                    {t("table.close-date")}
+                  </Label>
+                  <div className="flex gap-2">
+                    <CustomDatePicker
+                      value={closeDate}
+                      onChange={(date) => setCloseDate(date)}
+                      onClear={() => setCloseDate(undefined)}
+                    />
+                    {closeDateChanged && (
+                      <Button size="sm" className="h-8 shrink-0" onClick={handleSaveCloseDate}>
+                        {t("detail.save-changes")}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Next step card */}
             <div className="space-y-1.5">
@@ -429,8 +456,49 @@ const DealDetailModal = ({
               )}
             </div>
 
+            {/* Outcome */}
+            <Separator />
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">{t("detail.outcome-label")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {deal.outcome !== "WON" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-xs text-emerald-600 border-emerald-500/40 hover:bg-emerald-500/10"
+                    onClick={() => onMarkOutcome(deal.id, "WON")}
+                  >
+                    <Trophy className="size-3" />
+                    {t("menu.mark-won")}
+                  </Button>
+                )}
+                {deal.outcome !== "LOST" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-xs text-destructive border-destructive/40 hover:bg-destructive/10"
+                    onClick={() => onMarkOutcome(deal.id, "LOST")}
+                  >
+                    <XCircle className="size-3" />
+                    {t("menu.mark-lost")}
+                  </Button>
+                )}
+                {deal.outcome !== "PENDING" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-xs"
+                    onClick={() => onMarkOutcome(deal.id, "PENDING")}
+                  >
+                    <Undo2 className="size-3" />
+                    {t("menu.mark-pending")}
+                  </Button>
+                )}
+              </div>
+            </div>
+
             {/* Move to stage */}
-            {otherStages.length > 0 && (
+            {otherStages.length > 0 && !(deal.status === "CLOSED" && deal.outcome !== "PENDING") && (
               <>
                 <Separator />
                 <div className="space-y-2">

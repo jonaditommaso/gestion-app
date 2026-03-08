@@ -127,6 +127,7 @@ type ServerDealDocument = {
   lastStageChangedAt: string | null;
   outcome: string;
   nextStep: string;
+  linkedDraftId: string | null;
   assignees: Array<{ id: string; memberId: string; name: string; email: string; avatarId: string | null }>;
   activities: ActivityEntry[];
 };
@@ -290,6 +291,7 @@ const SalesPipelineView = () => {
       priority: doc.priority,
       nextStep: doc.nextStep,
       outcome: (doc.outcome as DealOutcome) ?? "PENDING",
+      linkedDraftId: doc.linkedDraftId ?? null,
       activities: doc.activities,
     }));
     setBoardDeals(groupDealsByStage(mapped));
@@ -947,36 +949,43 @@ const SalesPipelineView = () => {
                                       </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end" className="w-fit">
                                         <DropdownMenuSub>
-                                          <DropdownMenuSubTrigger>{t("menu.move-to")}</DropdownMenuSubTrigger>
+                                          <DropdownMenuSubTrigger
+                                            disabled={deal.status === "CLOSED" && deal.outcome !== "PENDING"}
+                                            className={cn(deal.status === "CLOSED" && deal.outcome !== "PENDING" && "opacity-50 pointer-events-none")}
+                                          >
+                                            {t("menu.move-to")}
+                                          </DropdownMenuSubTrigger>
                                           <DropdownMenuSubContent>
                                             {STAGE_ORDER.filter((target) => target !== deal.status).map((target) => (
-                                              <DropdownMenuItem key={target} onClick={() => moveDealToStage(deal.id, target)} className="cursor-pointer">
+                                              <DropdownMenuItem key={target} onClick={(e) => { e.stopPropagation(); moveDealToStage(deal.id, target); }} className="cursor-pointer">
                                                 {t(`stages.${target}`)}
                                               </DropdownMenuItem>
                                             ))}
                                           </DropdownMenuSubContent>
                                         </DropdownMenuSub>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                          className="cursor-pointer text-emerald-600 focus:text-emerald-600"
-                                          disabled={deal.outcome === "WON"}
-                                          onClick={() => markDealOutcome(deal.id, "WON")}
-                                        >
-                                          <Trophy className="mr-2 size-4" />
-                                          {t("menu.mark-won")}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                          className="cursor-pointer text-destructive focus:text-destructive"
-                                          disabled={deal.outcome === "LOST"}
-                                          onClick={() => markDealOutcome(deal.id, "LOST")}
-                                        >
-                                          <XCircle className="mr-2 size-4" />
-                                          {t("menu.mark-lost")}
-                                        </DropdownMenuItem>
+                                        {deal.outcome !== "WON" && (
+                                          <DropdownMenuItem
+                                            className="cursor-pointer text-emerald-600 focus:text-emerald-600"
+                                            onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "WON"); }}
+                                          >
+                                            <Trophy className="mr-2 size-4" />
+                                            {t("menu.mark-won")}
+                                          </DropdownMenuItem>
+                                        )}
+                                        {deal.outcome !== "LOST" && (
+                                          <DropdownMenuItem
+                                            className="cursor-pointer text-destructive focus:text-destructive"
+                                            onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "LOST"); }}
+                                          >
+                                            <XCircle className="mr-2 size-4" />
+                                            {t("menu.mark-lost")}
+                                          </DropdownMenuItem>
+                                        )}
                                         {deal.outcome !== "PENDING" && (
                                           <DropdownMenuItem
                                             className="cursor-pointer"
-                                            onClick={() => markDealOutcome(deal.id, "PENDING")}
+                                            onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "PENDING"); }}
                                           >
                                             <Undo2 className="mr-2 size-4" />
                                             {t("menu.mark-pending")}
@@ -985,7 +994,7 @@ const SalesPipelineView = () => {
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem
                                           className="text-destructive focus:text-destructive cursor-pointer"
-                                          onClick={() => deleteDeal(deal.id)}
+                                          onClick={(e) => { e.stopPropagation(); deleteDeal(deal.id); }}
                                         >
                                           <Trash2 className="mr-2 size-4" />
                                           {t("menu.delete")}
@@ -1337,7 +1346,12 @@ const SalesPipelineView = () => {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuSub>
-                              <DropdownMenuSubTrigger>{t("menu.move-to")}</DropdownMenuSubTrigger>
+                              <DropdownMenuSubTrigger
+                                disabled={deal.status === "CLOSED" && deal.outcome !== "PENDING"}
+                                className={cn(deal.status === "CLOSED" && deal.outcome !== "PENDING" && "opacity-50 pointer-events-none")}
+                              >
+                                {t("menu.move-to")}
+                              </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent>
                                 {STAGE_ORDER.filter((target) => target !== deal.status).map((target) => (
                                   <DropdownMenuItem
@@ -1351,22 +1365,24 @@ const SalesPipelineView = () => {
                               </DropdownMenuSubContent>
                             </DropdownMenuSub>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="cursor-pointer text-emerald-600 focus:text-emerald-600"
-                              disabled={deal.outcome === "WON"}
-                              onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "WON"); }}
-                            >
-                              <Trophy className="mr-2 size-4" />
-                              {t("menu.mark-won")}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="cursor-pointer text-destructive focus:text-destructive"
-                              disabled={deal.outcome === "LOST"}
-                              onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "LOST"); }}
-                            >
-                              <XCircle className="mr-2 size-4" />
-                              {t("menu.mark-lost")}
-                            </DropdownMenuItem>
+                            {deal.outcome !== "WON" && (
+                              <DropdownMenuItem
+                                className="cursor-pointer text-emerald-600 focus:text-emerald-600"
+                                onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "WON"); }}
+                              >
+                                <Trophy className="mr-2 size-4" />
+                                {t("menu.mark-won")}
+                              </DropdownMenuItem>
+                            )}
+                            {deal.outcome !== "LOST" && (
+                              <DropdownMenuItem
+                                className="cursor-pointer text-destructive focus:text-destructive"
+                                onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "LOST"); }}
+                              >
+                                <XCircle className="mr-2 size-4" />
+                                {t("menu.mark-lost")}
+                              </DropdownMenuItem>
+                            )}
                             {deal.outcome !== "PENDING" && (
                               <DropdownMenuItem
                                 className="cursor-pointer"
@@ -1470,6 +1486,7 @@ const SalesPipelineView = () => {
         onUpdateDeal={updateDeal}
         sellers={sellers}
         onMoveToStage={moveDealToStage}
+        onMarkOutcome={markDealOutcome}
         onSaveNextStep={(dealId, nextStep) => {
           updateDealMutation({ param: { dealId }, json: { nextStep } });
         }}

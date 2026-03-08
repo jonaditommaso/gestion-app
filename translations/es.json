@@ -2351,6 +2351,7 @@
             "no-activity": "Sin actividad registrada",
             "activity-you": "Tú",
             "save-changes": "Guardar cambios",
+            "outcome-label": "Resultado",
             "linked-draft": "Borrador generado",
             "amount": "Valor",
             "assignees": "Asignados"
