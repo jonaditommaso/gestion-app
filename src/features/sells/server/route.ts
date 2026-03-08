@@ -36,6 +36,7 @@ interface DealDocument extends Models.Document {
     outcome: "PENDING" | "WON" | "LOST";
     nextStep: string;
     teamId: string;
+    linkedDraftId: string | null;
 }
 
 interface DealCommentDocument extends Models.Document {
@@ -412,6 +413,46 @@ const app = new Hono()
 
             if (body.status !== undefined && body.status !== existing.status) {
                 updatePayload.lastStageChangedAt = new Date().toISOString();
+            }
+
+            // Auto-create a draft billing operation when deal reaches CLOSED+WON
+            const finalStatus = (body.status ?? existing.status) as string;
+            const finalOutcome = (body.outcome ?? existing.outcome) as string;
+
+            if (
+                finalStatus === "CLOSED" &&
+                finalOutcome === "WON" &&
+                !existing.linkedDraftId
+            ) {
+                try {
+                    const origin = new URL(ctx.req.raw.url).origin;
+                    const billingResponse = await fetch(`${origin}/api/billing`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Cookie": ctx.req.raw.headers.get("cookie") ?? "",
+                        },
+                        body: JSON.stringify({
+                            type: "income",
+                            import: existing.amount,
+                            currency: existing.currency,
+                            category: existing.title,
+                            partyName: existing.company,
+                            date: new Date().toISOString(),
+                            status: "PENDING",
+                            isDraft: true,
+                        }),
+                    });
+
+                    if (billingResponse.ok) {
+                        const { data: draft } = await billingResponse.json() as { data: { $id: string } };
+                        updatePayload.linkedDraftId = draft.$id;
+                    } else {
+                        console.error("Failed to create draft billing from deal:", await billingResponse.text());
+                    }
+                } catch (err) {
+                    console.error("Failed to create draft billing from deal:", err);
+                }
             }
 
             const doc = await databases.updateDocument<DealDocument>(

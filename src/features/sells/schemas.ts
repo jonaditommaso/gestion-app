@@ -20,7 +20,9 @@ export const createDealSchema = z.object({
     outcome: z.enum(DEAL_OUTCOMES).optional().default("PENDING"),
 });
 
-export const updateDealSchema = createDealSchema.partial();
+export const updateDealSchema = createDealSchema.partial().extend({
+    linkedDraftId: z.string().nullable().optional(),
+});
 
 export const addDealActivitySchema = z.object({
     content: z.string().trim().min(1, "Required"),

@@ -66,4 +66,5 @@ export type Deal = WorkItem & {
   nextStep: string;
   outcome: DealOutcome;
   activities: ActivityEntry[];
+  linkedDraftId?: string | null;
 };
