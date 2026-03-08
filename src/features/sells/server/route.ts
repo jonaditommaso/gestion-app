@@ -9,6 +9,7 @@ import {
     DEAL_ASSIGNEES_ID,
     DEAL_SELLERS_ID,
     DEAL_ACTIVITY_LOGS_ID,
+    BILLING_OPTIONS_ID,
 } from "@/config";
 import { getActiveContext } from "@/features/team/server/utils";
 import {
@@ -427,6 +428,29 @@ const app = new Hono()
             ) {
                 try {
                     const origin = new URL(ctx.req.raw.url).origin;
+                    const draftCategory = existing.title;
+
+                    // Sync the category to existing billing options to avoid
+                    // the billing POST creating a duplicate options document.
+                    const billingOptionsResult = await databases.listDocuments(
+                        DATABASE_ID,
+                        BILLING_OPTIONS_ID,
+                        [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(1)]
+                    );
+                    if (billingOptionsResult.total > 0) {
+                        const optionsDoc = billingOptionsResult.documents[0];
+                        const incomeCategories: string[] = (optionsDoc.incomeCategories as string[]) || [];
+                        const categoryLower = draftCategory.toLowerCase();
+                        if (!incomeCategories.some((c: string) => c.toLowerCase() === categoryLower)) {
+                            await databases.updateDocument(
+                                DATABASE_ID,
+                                BILLING_OPTIONS_ID,
+                                optionsDoc.$id,
+                                { incomeCategories: [...incomeCategories, draftCategory] }
+                            );
+                        }
+                    }
+
                     const billingResponse = await fetch(`${origin}/api/billing`, {
                         method: "POST",
                         headers: {
@@ -437,7 +461,7 @@ const app = new Hono()
                             type: "income",
                             import: existing.amount,
                             currency: existing.currency,
-                            category: existing.title,
+                            category: draftCategory,
                             partyName: existing.company,
                             date: new Date().toISOString(),
                             status: "PENDING",

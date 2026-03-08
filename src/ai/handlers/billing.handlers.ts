@@ -144,7 +144,12 @@ async function findBillingOperation(
     filterType: 'income' | 'expense' | undefined,
     actionName: string,
 ): Promise<FindOperationResult> {
-    const all = await fetchActiveBillingOperations(baseUrl, cookie);
+    const [active, archived, drafts] = await Promise.all([
+        fetchActiveBillingOperations(baseUrl, cookie),
+        fetchArchivedBillingOperations(baseUrl, cookie),
+        fetchDraftBillingOperations(baseUrl, cookie),
+    ]);
+    const all = [...active, ...archived, ...drafts];
     const lower = operationSearch.toLowerCase();
 
     let candidates = all.filter(op => {
@@ -204,6 +209,28 @@ export async function handleCreateBillingOperation(ctx: ActionContext): Promise<
                 actionName: 'create_billing_operation',
                 message: '❌ No tienes permisos para crear operaciones. Tu rol actual es **VIEWER**.',
             };
+        }
+
+        // Sync the category into existing billing options to avoid duplicate option documents.
+        // The billing POST endpoint auto-creates a new options doc if the category is missing,
+        // which would create duplicate documents if one already exists.
+        const existingOptions = await fetchBillingOptions(ctx.baseUrl, ctx.cookie || '');
+        if (existingOptions) {
+            const field = args.type === 'income' ? 'incomeCategories' : 'expenseCategories';
+            const currentCategories: string[] = existingOptions[field] || [];
+            const categoryLower = args.category.toLowerCase();
+            if (!currentCategories.some(c => c.toLowerCase() === categoryLower)) {
+                const patchPayload: Record<string, string[]> = {
+                    incomeCategories: existingOptions.incomeCategories,
+                    expenseCategories: existingOptions.expenseCategories,
+                };
+                patchPayload[field] = [...currentCategories, args.category];
+                await fetch(`${ctx.baseUrl}/api/billing/options/${existingOptions.$id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Cookie': ctx.cookie || '' },
+                    body: JSON.stringify(patchPayload),
+                });
+            }
         }
 
         const today = new Date().toISOString().split('T')[0];

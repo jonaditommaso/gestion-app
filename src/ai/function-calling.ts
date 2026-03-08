@@ -118,7 +118,14 @@ export async function chatWithTools(messages: ChatMessage[]): Promise<ChatWithTo
               * "dame los borradores" / "operaciones en borrador" → source: 'drafts'
               IMPORTANTE: el parámetro source determina QUÉ conjunto cargar: 'active' (activas, por defecto), 'archived' (SOLO archivadas), 'drafts' (SOLO borradores). NUNCA omitas source si el usuario pidió archivadas o borradores.
               NO respondas de memoria — SIEMPRE llama esta función.
-            - update_billing_operation: si el usuario pide modificar, editar, cambiar o actualizar una factura u operación. Usa operationSearch con el nombre del cliente o número de factura que mencione el usuario.
+            - update_billing_operation: si el usuario pide modificar, editar, cambiar o actualizar una factura u operación. Usa operationSearch con el nombre del cliente o número de factura que mencione el usuario. Reglas especiales:
+              * "marcar como pagada" / "marcar pagada" / "pagar" → status: 'PAID'
+              * "marcar como pendiente" → status: 'PENDING'
+              * "marcar como vencida" → status: 'OVERDUE'
+              * "archivar" / "archívala" / "archivar la factura de X" → isArchived: true
+              * "desarchivar" / "desarchívala" → isArchived: false
+              * Si el usuario dice "marca como pagada la factura de [cliente]" → operationSearch: '[cliente]', status: 'PAID'
+              Para estas acciones NO uses ninguna otra herramienta — update_billing_operation es suficiente.
             - delete_billing_operation: si el usuario pide eliminar o borrar una factura u operación. Usa el nombre del cliente o número de factura como operationSearch.
             - manage_billing_categories: si el usuario pide VER, LISTAR, AGREGAR, RENOMBRAR o ELIMINAR categorías de facturación.
               * "qué categorías hay" / "lista las categorías" → action: 'list'
