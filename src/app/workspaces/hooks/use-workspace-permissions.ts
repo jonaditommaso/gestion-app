@@ -23,7 +23,7 @@ type WorkspaceMemberDocument = Models.Document & {
 export const useWorkspacePermissions = () => {
     const { data: user } = useCurrent();
     const workspaceId = useWorkspaceId();
-    const { data: members } = useGetMembers({ workspaceId });
+    const { data: members } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const config = useWorkspaceConfig();
 
     const permissions = useMemo(() => {

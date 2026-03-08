@@ -52,7 +52,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const t = useTranslations('workspaces');
     const { data: user } = useCurrent();
     const workspaceId = useWorkspaceId();
-    const { data: membersData } = useGetMembers({ workspaceId });
+    const { data: membersData } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const { mutate: updateWorkspace } = useUpdateWorkspace();
     const { data: workspaces } = useGetWorkspaces();
     const { allStatuses } = useCustomStatuses();

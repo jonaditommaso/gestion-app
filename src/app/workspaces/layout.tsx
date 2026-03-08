@@ -52,8 +52,8 @@ const WorkspacesLayout = ({ children }: WorkspacesLayoutProps) => {
         </div>
     );
 
-    // Solo envolver con MembersProvider si hay un workspaceId
-    if (workspaceId) {
+    // Solo envolver con MembersProvider si hay un workspaceId real (no 'create')
+    if (workspaceId && workspaceId !== 'create') {
         return (
             <MembersProvider workspaceId={workspaceId}>
                 {content}

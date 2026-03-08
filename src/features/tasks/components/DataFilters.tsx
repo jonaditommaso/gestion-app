@@ -31,7 +31,7 @@ interface DataFiltersProps {
 
 const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearchChange }: DataFiltersProps) => {
     const workspaceId = useWorkspaceId();
-    const { data: members, isLoading } = useGetMembers({ workspaceId });
+    const { data: members, isLoading } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
     const { allStatuses, getIconComponent } = useCustomStatuses();
