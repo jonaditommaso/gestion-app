@@ -19,6 +19,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ChevronsUpDown, Plus, XIcon } from "lucide-react";
 import capitalize from "@/utils/capitalize";
 import { useCreateOperation } from "../api/use-create-operation";
+import { useCreateDraft } from "../api/use-create-draft";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { useGetBillingOptions } from "../api/use-get-billing-options";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +52,7 @@ interface AddOperationModalProps {
 
 const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
     const { mutate, isPending } = useCreateOperation();
+    const { mutate: createDraft, isPending: isSavingDraft } = useCreateDraft();
     const { mutate: createCategory } = useCreateBillingOptions();
     const {mutate: updateCategories} = useUpdateBillingOptions();
     const { data, isLoading: isLoadingCategories } = useGetBillingOptions();
@@ -83,6 +85,26 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
 
     const operationType = form.watch('type');
     // const isRecurring = form.watch('isRecurring');
+
+    const onSaveDraft = () => {
+        const values = form.getValues();
+
+        if (!values.category?.trim()) {
+            form.setError('category', { message: t('category-required') });
+            return;
+        }
+
+        createDraft(
+            { json: { ...values, isDraft: true, import: values.import ?? 0 } },
+            {
+                onSuccess: () => {
+                    form.reset();
+                    setIsOpen(false);
+                    setNewCategoryInput(false);
+                },
+            }
+        );
+    };
 
     const categories = useMemo(() => {
         if (data?.documents[0]) {
@@ -700,18 +722,27 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                     <div className="flex items-center gap-2">
                         <Button
                             size='lg'
-                            className="w-full"
-                            disabled={isPending}
+                            variant='outline'
+                            type="button"
+                            disabled={isPending || isSavingDraft}
+                            onClick={onSaveDraft}
                         >
-                            {t('save')}
+                            {t('save-as-draft')}
                         </Button>
                         <Button
                             size='lg'
                             variant='outline'
-                            disabled={isPending}
+                            disabled={isPending || isSavingDraft}
                             onClick={onCancel}
                         >
                             {t('cancel')}
+                        </Button>
+                        <Button
+                            size='lg'
+                            className="w-full"
+                            disabled={isPending || isSavingDraft}
+                        >
+                            {t('save')}
                         </Button>
                     </div>
                 </form>

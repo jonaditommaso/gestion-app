@@ -1099,6 +1099,10 @@
         "add-income-operation": "Aggiungi un'operazione di entrata per vedere il grafico e l'elenco delle tue entrate.",
         "no-expenses-data": "Non hai spese registrate",
         "add-expense-operation": "Aggiungi un'operazione di spesa per vedere il grafico e l'elenco delle tue spese.",
+        "no-drafts-data": "Non hai bozze salvate",
+        "add-draft-operation": "Salva un'operazione come bozza per vederla qui. Le bozze non influiranno sui tuoi saldi finché non vengono pubblicate.",
+        "no-archived-data": "Non hai operazioni archiviate",
+        "add-archived-description": "Archivia le operazioni dalla tabella principale per conservarle qui. Le operazioni archiviate non influiscono sui tuoi saldi né sulle statistiche.",
         "working": "Ci stiamo lavorando"
     },
     "billing": {
@@ -1238,7 +1242,20 @@
         "alert-incomes-title": "Statistiche Entrate",
         "alert-incomes-description": "Visualizza una ripartizione dettagliata di tutte le tue entrate organizzate per categoria. Il grafico ti mostra la proporzione di ogni fonte di reddito nel tuo saldo totale.",
         "alert-expenses-title": "Statistiche Spese",
-        "alert-expenses-description": "Analizza la distribuzione delle tue spese per categoria. Identifica facilmente dove stai spendendo di più e ottimizza il tuo budget."
+        "alert-expenses-description": "Analizza la distribuzione delle tue spese per categoria. Identifica facilmente dove stai spendendo di più e ottimizza il tuo budget.",
+        "drafts": "Bozze",
+        "save-as-draft": "Salva come bozza",
+        "draft-saved": "Bozza salvata",
+        "failed-save-draft": "Errore durante il salvataggio della bozza",
+        "publish-draft": "Pubblica bozza",
+        "confirm-delete-draft-title": "Elimina bozza",
+        "confirm-delete-draft": "Sei sicuro di voler eliminare questa bozza?",
+        "alert-drafts-title": "Operazioni Bozza",
+        "alert-drafts-description": "Salva operazioni incomplete o in attesa come bozze per rivederle in seguito. Le bozze non influiscono sui saldi né sulle statistiche. Quando sei pronto, puoi pubblicarle come operazioni confermate.",
+        "archived": "Archiviati",
+        "restore": "Ripristina",
+        "alert-archived-title": "Operazioni Archiviate",
+        "alert-archived-description": "Qui troverai tutte le tue operazioni archiviate. Questi record sono conservati come riferimento storico e non influiscono sui saldi o sulle statistiche attuali. Puoi ripristinare qualsiasi operazione per renderla nuovamente attiva."
     },
     "records": {
         "create-records-table": "Crea una nuova tabella di registro",

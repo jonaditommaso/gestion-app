@@ -1113,6 +1113,8 @@
         "add-income-operation": "Add an income operation to see the chart and list of your incomes.",
         "no-expenses-data": "You have no recorded expenses",
         "add-expense-operation": "Add an expense operation to see the chart and list of your expenses.",
+        "no-drafts-data": "You have no saved drafts",
+        "add-draft-operation": "Save an operation as a draft to see it here. Drafts won't affect your balances until published.",
         "working": "We’re working on it"
     },
     "billing": {
@@ -1252,7 +1254,20 @@
         "alert-incomes-title": "Income Statistics",
         "alert-incomes-description": "View a detailed breakdown of all your incomes organized by category. The chart shows you the proportion of each income source in your total balance.",
         "alert-expenses-title": "Expense Statistics",
-        "alert-expenses-description": "Analyze the distribution of your expenses by category. Easily identify where you're spending the most and optimize your budget."
+        "alert-expenses-description": "Analyze the distribution of your expenses by category. Easily identify where you're spending the most and optimize your budget.",
+        "drafts": "Drafts",
+        "save-as-draft": "Save as draft",
+        "draft-saved": "Draft saved",
+        "failed-save-draft": "There was an error saving the draft",
+        "publish-draft": "Publish draft",
+        "confirm-delete-draft-title": "Delete draft",
+        "confirm-delete-draft": "Are you sure you want to delete this draft?",
+        "alert-drafts-title": "Draft Operations",
+        "alert-drafts-description": "Save incomplete or pending operations as drafts to review them later. Drafts do not affect your balances or statistics. Once ready, you can publish them as confirmed operations.",
+        "archived": "Archived",
+        "restore": "Restore",
+        "alert-archived-title": "Archived Operations",
+        "alert-archived-description": "Here you'll find all your archived operations. These records are kept for historical reference and do not impact your current balances or statistics. You can restore any operation to make it active again."
     },
     "records": {
         "create-records-table": "Create a new table of records",

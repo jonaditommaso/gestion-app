@@ -61,7 +61,7 @@ interface BillingOperation {
   isRecurring?: boolean;
   recurrenceRule?: 'WEEKLY' | 'MONTHLY';
   nextOccurrenceDate?: string | Date;
-  archived?: boolean;
+  isArchived?: boolean;
 }
 
 interface EditingOperation {
@@ -120,7 +120,7 @@ export function BillingTable() {
     const currentViewType = selectedData === 'total' ? 'total' : dataType;
 
     const operationsByView = operations.filter((operation) => {
-      if (operation.archived === true) {
+      if (operation.isArchived === true) {
         return false;
       }
 
@@ -142,7 +142,7 @@ export function BillingTable() {
 
   const filteredData = useMemo(() => {
     return operations.filter((operation) => {
-      if (operation.archived === true) {
+      if (operation.isArchived === true) {
         return false;
       }
 
@@ -350,7 +350,7 @@ export function BillingTable() {
 
     updateOperation({
       param: { billingId: operation.$id },
-      json: { archived: true }
+      json: { isArchived: true }
     })
   }
 

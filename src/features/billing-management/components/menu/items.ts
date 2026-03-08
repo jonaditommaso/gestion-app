@@ -1,7 +1,7 @@
 export const items = [
     {
         title: 'transactions',
-        menuItems: ['details', 'calendar', 'followup'], //, 'accounts'
+        menuItems: ['details', 'calendar', 'followup', 'drafts'], //, 'accounts'
         bgColor: 'bg-teal-700',
         id: 'transactions',
     },
@@ -13,7 +13,7 @@ export const items = [
     },
     {
         title: 'options',
-        menuItems: ['categories'], //'export', 'currencies', 'adjust budget'],
+        menuItems: ['categories', 'archived'], //'export', 'currencies', 'adjust budget'],
         bgColor: "bg-sky-700",
         id: 'options',
     },

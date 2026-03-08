@@ -1119,6 +1119,10 @@
         "add-income-operation": "Agrega una operación de tipo ingreso para ver el gráfico y listado de tus ingresos.",
         "no-expenses-data": "No tienes gastos registrados",
         "add-expense-operation": "Agrega una operación de tipo gasto para ver el gráfico y listado de tus gastos.",
+        "no-drafts-data": "No tienes borradores guardados",
+        "add-draft-operation": "Guarda una operación como borrador para verla aquí. Los borradores no afectarán tus saldos hasta que sean publicados.",
+        "no-archived-data": "No tienes operaciones archivadas",
+        "add-archived-description": "Archiva operaciones desde la tabla principal para guardarlas aquí. Las operaciones archivadas no afectan tus saldos ni estadísticas.",
         "working": "Estamos trabajando en ello"
     },
     "billing": {
@@ -1258,7 +1262,20 @@
         "alert-incomes-title": "Estadísticas de Ingresos",
         "alert-incomes-description": "Visualiza un desglose detallado de todos tus ingresos organizados por categoría. El gráfico te muestra la proporción de cada fuente de ingreso en tu balance total.",
         "alert-expenses-title": "Estadísticas de Gastos",
-        "alert-expenses-description": "Analiza la distribución de tus gastos por categoría. Identifica fácilmente en qué áreas estás gastando más y optimiza tu presupuesto."
+        "alert-expenses-description": "Analiza la distribución de tus gastos por categoría. Identifica fácilmente en qué áreas estás gastando más y optimiza tu presupuesto.",
+        "drafts": "Borradores",
+        "save-as-draft": "Guardar como borrador",
+        "draft-saved": "Borrador guardado",
+        "failed-save-draft": "Hubo un error guardando el borrador",
+        "publish-draft": "Publicar borrador",
+        "confirm-delete-draft-title": "Eliminar borrador",
+        "confirm-delete-draft": "¿Estás seguro que quieres eliminar este borrador?",
+        "alert-drafts-title": "Operaciones Borrador",
+        "alert-drafts-description": "Guarda operaciones incompletas o pendientes como borradores para revisarlas más tarde. Los borradores no afectan tus saldos ni estadísticas. Cuando estén listas, puedes publicarlas como operaciones confirmadas.",
+        "archived": "Archivados",
+        "restore": "Restaurar",
+        "alert-archived-title": "Operaciones Archivadas",
+        "alert-archived-description": "Aquí encontrarás todas tus operaciones archivadas. Estos registros se conservan como referencia histórica y no impactan tus saldos ni estadísticas actuales. Puedes restaurar cualquier operación para volver a activarla."
     },
     "records": {
         "create-records-table": "Crear nueva tabla de registros",

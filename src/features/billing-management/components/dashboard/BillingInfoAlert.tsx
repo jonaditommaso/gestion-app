@@ -7,6 +7,8 @@ import {
     TrendingDown,
     LayoutList,
     ClockAlert,
+    FileEdit,
+    Archive,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ViewConfig, ViewType } from "../../types";
@@ -47,6 +49,18 @@ const viewConfigs: Record<ViewType, ViewConfig> = {
         titleKey: "alert-expenses-title",
         descriptionKey: "alert-expenses-description",
         colorClass: "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
+    },
+    drafts: {
+        icon: FileEdit,
+        titleKey: "alert-drafts-title",
+        descriptionKey: "alert-drafts-description",
+        colorClass: "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950"
+    },
+    archived: {
+        icon: Archive,
+        titleKey: "alert-archived-title",
+        descriptionKey: "alert-archived-description",
+        colorClass: "border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950"
     }
 };
 

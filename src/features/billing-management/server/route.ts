@@ -35,7 +35,8 @@ const app = new Hono()
                 // isRecurring,
                 recurrenceRule,
                 // nextOccurrenceDate,
-                archived,
+                isArchived,
+                isDraft,
             } = ctx.req.valid('json');
 
             if (!user) {
@@ -67,7 +68,8 @@ const app = new Hono()
                 isRecurring?: boolean;
                 recurrenceRule?: 'WEEKLY' | 'MONTHLY';
                 nextOccurrenceDate?: Date;
-                archived?: boolean;
+                isArchived?: boolean;
+                isDraft?: boolean;
             } = {
                 account,
                 category,
@@ -101,7 +103,8 @@ const app = new Hono()
             //     operationData.nextOccurrenceDate = nextOccurrenceDate;
             // }
 
-            operationData.archived = archived ?? false;
+            operationData.isArchived = isArchived ?? false;
+            operationData.isDraft = isDraft ?? false;
 
             const newOperation = await databases.createDocument(
                 DATABASE_ID,
@@ -162,7 +165,9 @@ const app = new Hono()
                     ]
                 );
 
-                const filteredDocuments = operations.documents.filter((operation) => operation.archived !== true);
+                const filteredDocuments = operations.documents.filter(
+                    (operation) => operation.isArchived !== true && operation.isDraft !== true
+                );
 
                 const filteredOperations = {
                     ...operations,
@@ -173,6 +178,72 @@ const app = new Hono()
                 return ctx.json({ data: filteredOperations });
             } catch (err) {
                 console.error('Error fetching billing operations:', err);
+                return ctx.json({ data: { total: 0, documents: [] } }, 200);
+            }
+        }
+    )
+
+    .get(
+        '/archived',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            if (!user) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { total: 0, documents: [] } });
+
+            try {
+                const archived = await databases.listDocuments(
+                    DATABASE_ID,
+                    BILLINGS_ID,
+                    [
+                        Query.equal('teamId', context.org.appwriteTeamId),
+                        Query.equal('isArchived', true),
+                        Query.orderDesc('$createdAt'),
+                    ]
+                );
+
+                return ctx.json({ data: archived });
+            } catch (err) {
+                console.error('Error fetching archived operations:', err);
+                return ctx.json({ data: { total: 0, documents: [] } }, 200);
+            }
+        }
+    )
+
+    .get(
+        '/drafts',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            if (!user) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { total: 0, documents: [] } });
+
+            try {
+                const drafts = await databases.listDocuments(
+                    DATABASE_ID,
+                    BILLINGS_ID,
+                    [
+                        Query.equal('teamId', context.org.appwriteTeamId),
+                        Query.equal('isDraft', true),
+                        Query.orderDesc('$createdAt'),
+                    ]
+                );
+
+                return ctx.json({ data: drafts });
+            } catch (err) {
+                console.error('Error fetching drafts:', err);
                 return ctx.json({ data: { total: 0, documents: [] } }, 200);
             }
         }
