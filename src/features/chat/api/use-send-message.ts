@@ -94,6 +94,21 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
                     queryClient.invalidateQueries({ queryKey: ['checklist'] });
                     queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 }
+
+                if (functionCalled === 'create_deal' || functionCalled === 'update_deal' || functionCalled === 'delete_deal' || functionCalled === 'bulk_update_deals' || functionCalled === 'manage_deal_assignees') {
+                    queryClient.invalidateQueries({ queryKey: ['deals'] });
+                }
+
+                if (functionCalled === 'add_deal_comment') {
+                    queryClient.invalidateQueries({ queryKey: ['deals'] });
+                }
+
+                if (functionCalled === 'create_billing_operation' || functionCalled === 'update_billing_operation' || functionCalled === 'delete_billing_operation' || functionCalled === 'manage_billing_categories') {
+                    queryClient.invalidateQueries({ queryKey: ['billing'] });
+                    queryClient.invalidateQueries({ queryKey: ['billing-drafts'] });
+                    queryClient.invalidateQueries({ queryKey: ['billing-archived'] });
+                    queryClient.invalidateQueries({ queryKey: ['billing-options'] });
+                }
             }
         },
         onError: (error) => {

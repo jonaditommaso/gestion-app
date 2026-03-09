@@ -14,6 +14,7 @@
 import { HOME_TOOLS } from './home.tools';
 import { TASKS_TOOLS } from './tasks.tools';
 import { BILLING_TOOLS } from './billing.tools';
+import { DEALS_TOOLS } from './deals.tools';
 
 /**
  * Lista completa de todas las herramientas disponibles.
@@ -23,6 +24,7 @@ export const ALL_TOOLS = [
     ...HOME_TOOLS,
     ...TASKS_TOOLS,
     ...BILLING_TOOLS,
+    ...DEALS_TOOLS,
     // Cuando agregues más módulos, impórtalos aquí:
     // ...RECORDS_TOOLS,
     // ...TEAM_TOOLS,
@@ -48,3 +50,13 @@ export type {
     DeleteBillingOperationArgs,
     ManageBillingCategoriesArgs,
 } from './billing.tools';
+export type {
+    CreateDealArgs,
+    UpdateDealArgs,
+    DeleteDealArgs,
+    QueryDealsArgs,
+    AddDealCommentArgs,
+    ManageDealAssigneesArgs,
+    BulkUpdateDealsArgs,
+    QueryDealGoalsArgs,
+} from './deals.tools';
