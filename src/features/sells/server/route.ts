@@ -10,6 +10,8 @@ import {
     DEAL_SELLERS_ID,
     DEAL_ACTIVITY_LOGS_ID,
     BILLING_OPTIONS_ID,
+    SALES_BOARDS_ID,
+    SALES_GOALS_ID,
 } from "@/config";
 import { getActiveContext } from "@/features/team/server/utils";
 import {
@@ -20,6 +22,12 @@ import {
     updateDealSchema,
 } from "../schemas";
 import boardsApp from "./boards.route";
+import {
+    notifyDealAssignee,
+    notifyDealAssignees,
+    notifyDealTeamSellers,
+} from "@/features/notifications/helpers";
+import { NotificationEntityType, NotificationI18nKey } from "@/features/notifications/types";
 
 interface DealDocument extends Models.Document {
     title: string;
@@ -58,6 +66,18 @@ interface DealSellerDocument extends Models.Document {
 interface DealAssigneeDocument extends Models.Document {
     dealId: string;
     memberId: string;
+}
+
+interface SalesBoardDocument extends Models.Document {
+    teamId: string;
+    activeGoalId: string | null;
+}
+
+interface SalesGoalDocument extends Models.Document {
+    boardId: string;
+    currency: string;
+    targetAmount: number;
+    targetReached: number;
 }
 
 const app = new Hono()
@@ -488,6 +508,88 @@ const app = new Hono()
                 updatePayload
             );
 
+            // Notify assignees when outcome changes to WON or LOST
+            const outcomeChanged = body.outcome !== undefined && body.outcome !== existing.outcome;
+            if (outcomeChanged) {
+                if (finalOutcome === "WON") {
+                    await notifyDealAssignees({
+                        databases,
+                        dealId,
+                        actorUserId: user.$id,
+                        title: NotificationI18nKey.DEAL_WON_TITLE,
+                        entityType: NotificationEntityType.DEAL_WON,
+                    });
+                } else if (finalOutcome === "LOST") {
+                    await notifyDealAssignees({
+                        databases,
+                        dealId,
+                        actorUserId: user.$id,
+                        title: NotificationI18nKey.DEAL_LOST_TITLE,
+                        entityType: NotificationEntityType.DEAL_LOST,
+                    });
+                }
+            }
+
+            // Check if a sales goal is now reached when deal becomes CLOSED
+            const wasNotClosed = existing.status !== "CLOSED";
+            if (finalStatus === "CLOSED" && wasNotClosed) {
+                try {
+                    const boards = await databases.listDocuments<SalesBoardDocument>(
+                        DATABASE_ID,
+                        SALES_BOARDS_ID,
+                        [
+                            Query.equal("teamId", existing.teamId),
+                            Query.isNotNull("activeGoalId"),
+                            Query.limit(100),
+                        ]
+                    );
+
+                    for (const board of boards.documents) {
+                        const goal = await databases.getDocument<SalesGoalDocument>(
+                            DATABASE_ID,
+                            SALES_GOALS_ID,
+                            board.activeGoalId as string
+                        );
+
+                        if (goal.currency !== existing.currency || goal.targetReached > 0) {
+                            continue;
+                        }
+
+                        const closedDeals = await databases.listDocuments<DealDocument>(
+                            DATABASE_ID,
+                            DEALS_ID,
+                            [
+                                Query.equal("teamId", existing.teamId),
+                                Query.equal("currency", existing.currency),
+                                Query.equal("status", "CLOSED"),
+                                Query.limit(5000),
+                            ]
+                        );
+
+                        const wonAmount = closedDeals.documents.reduce(
+                            (sum, d) => sum + (d.amount ?? 0),
+                            0
+                        );
+
+                        if (wonAmount >= goal.targetAmount) {
+                            await databases.updateDocument(DATABASE_ID, SALES_GOALS_ID, goal.$id, {
+                                targetReached: 1,
+                            });
+
+                            await notifyDealTeamSellers({
+                                databases,
+                                teamId: existing.teamId,
+                                actorUserId: user.$id,
+                                title: NotificationI18nKey.DEAL_GOAL_REACHED_TITLE,
+                                entityType: NotificationEntityType.DEAL_GOAL_REACHED,
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to check deal goal reached:", err);
+                }
+            }
+
             return ctx.json({ data: { $id: doc.$id, ...updatePayload } });
         }
     )
@@ -626,6 +728,14 @@ const app = new Hono()
                 ID.unique(),
                 { dealId, memberId }
             );
+
+            await notifyDealAssignee({
+                databases,
+                membershipId: memberId,
+                actorUserId: user.$id,
+                title: NotificationI18nKey.DEAL_ASSIGNED_TITLE,
+                entityType: NotificationEntityType.DEAL_ASSIGNED,
+            });
 
             return ctx.json({ data: doc });
         }

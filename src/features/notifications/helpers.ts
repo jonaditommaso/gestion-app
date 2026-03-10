@@ -1,5 +1,5 @@
 import { DEFAULT_WORKSPACE_CONFIG, WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
-import { DATABASE_ID, MEMBERS_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, DEAL_ASSIGNEES_ID, DEAL_SELLERS_ID, MEMBERS_ID, MEMBERSHIPS_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, WORKSPACES_ID } from "@/config";
 import { Task, WorkspaceMember } from "@/features/tasks/types";
 import { WorkspaceType } from "@/features/workspaces/types";
 import { Databases, ID, Models, Query } from "node-appwrite";
@@ -8,6 +8,20 @@ import { NotificationBodySeparator, NotificationEntity, NotificationI18nKey, Not
 interface TaskAssignee extends Models.Document {
     taskId: string;
     workspaceMemberId: string;
+}
+
+interface DealAssigneeDoc extends Models.Document {
+    dealId: string;
+    memberId: string;
+}
+
+interface DealSellerDoc extends Models.Document {
+    teamId: string;
+    memberId: string;
+}
+
+interface MembershipDoc extends Models.Document {
+    userId: string;
 }
 
 export const chunkArray = <T>(items: T[], chunkSize: number): T[][] => {
@@ -191,4 +205,102 @@ export const notifyMentionedMembers = async ({
             )
         )
     );
+};
+
+const createDealNotifications = async (
+    databases: Databases,
+    membershipIds: string[],
+    actorUserId: string,
+    title: string,
+    entityType: string,
+): Promise<void> => {
+    if (membershipIds.length === 0) return;
+
+    const memberships = await databases.listDocuments<MembershipDoc>(
+        DATABASE_ID,
+        MEMBERSHIPS_ID,
+        [Query.contains('$id', membershipIds), Query.limit(5000)]
+    );
+
+    const recipients = memberships.documents.filter(
+        (m) => m.userId && m.userId !== actorUserId
+    );
+
+    if (recipients.length === 0) return;
+
+    await Promise.all(
+        recipients.map((m) =>
+            databases.createDocument(DATABASE_ID, NOTIFICATIONS_ID, ID.unique(), {
+                userId: m.userId,
+                triggeredBy: actorUserId,
+                title,
+                read: false,
+                type: NotificationType.RECURRING,
+                entityType,
+                body: `${NotificationI18nKey.VIEW_DEAL_LINK}${NotificationBodySeparator}/${NotificationEntity.SELLS}`,
+            })
+        )
+    );
+};
+
+export const notifyDealAssignee = async ({
+    databases,
+    membershipId,
+    actorUserId,
+    title,
+    entityType,
+}: {
+    databases: Databases;
+    membershipId: string;
+    actorUserId: string;
+    title: string;
+    entityType: string;
+}): Promise<void> => {
+    await createDealNotifications(databases, [membershipId], actorUserId, title, entityType);
+};
+
+export const notifyDealAssignees = async ({
+    databases,
+    dealId,
+    actorUserId,
+    title,
+    entityType,
+}: {
+    databases: Databases;
+    dealId: string;
+    actorUserId: string;
+    title: string;
+    entityType: string;
+}): Promise<void> => {
+    const assignees = await databases.listDocuments<DealAssigneeDoc>(
+        DATABASE_ID,
+        DEAL_ASSIGNEES_ID,
+        [Query.equal('dealId', dealId), Query.limit(5000)]
+    );
+
+    const membershipIds = [...new Set(assignees.documents.map((a) => a.memberId))];
+    await createDealNotifications(databases, membershipIds, actorUserId, title, entityType);
+};
+
+export const notifyDealTeamSellers = async ({
+    databases,
+    teamId,
+    actorUserId,
+    title,
+    entityType,
+}: {
+    databases: Databases;
+    teamId: string;
+    actorUserId: string;
+    title: string;
+    entityType: string;
+}): Promise<void> => {
+    const sellers = await databases.listDocuments<DealSellerDoc>(
+        DATABASE_ID,
+        DEAL_SELLERS_ID,
+        [Query.equal('teamId', teamId), Query.limit(5000)]
+    );
+
+    const membershipIds = [...new Set(sellers.documents.map((s) => s.memberId))];
+    await createDealNotifications(databases, membershipIds, actorUserId, title, entityType);
 };

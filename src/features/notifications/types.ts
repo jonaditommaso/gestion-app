@@ -13,6 +13,10 @@ export const NotificationEntityType = {
     TASK_COMPLETED: 'task_completed',
     TASK_MENTIONED: 'task_mentioned',
     ORGANIZATION_INVITE: 'organization_invite',
+    DEAL_ASSIGNED: 'deal_assigned',
+    DEAL_WON: 'deal_won',
+    DEAL_LOST: 'deal_lost',
+    DEAL_GOAL_REACHED: 'deal_goal_reached',
 } as const;
 
 export type NotificationEntityTypeValue = typeof NotificationEntityType[keyof typeof NotificationEntityType];
@@ -20,6 +24,7 @@ export type NotificationEntityTypeValue = typeof NotificationEntityType[keyof ty
 export const NotificationEntity = {
     WORKSPACES: 'workspaces',
     TASKS: 'tasks',
+    SELLS: 'sells',
 } as const;
 
 export type NotificationEntityValue = typeof NotificationEntity[keyof typeof NotificationEntity];
@@ -36,6 +41,11 @@ export const NotificationI18nKey = {
     VIEW_TASK_LINK: 'notification-view-task-link',
     ORGANIZATION_INVITE_TITLE: 'notification-organization-invite-title',
     ORGANIZATION_INVITE_BODY: 'notification-organization-invite-body',
+    DEAL_ASSIGNED_TITLE: 'notification-deal-assigned-title',
+    DEAL_WON_TITLE: 'notification-deal-won-title',
+    DEAL_LOST_TITLE: 'notification-deal-lost-title',
+    DEAL_GOAL_REACHED_TITLE: 'notification-deal-goal-reached-title',
+    VIEW_DEAL_LINK: 'notification-view-deal-link',
 } as const;
 
 export const NotificationBodySeparator = '|';
