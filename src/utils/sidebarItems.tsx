@@ -1,4 +1,4 @@
-import {  Handshake, Home, KeyRound, Mail, NotepadText, ReceiptText, UserRoundSearch, Users } from "lucide-react"; // Archive, Target
+import {  Handshake, Home, KeyRound, Mail, NotepadText, ReceiptText, Users } from "lucide-react"; // Archive, Target
 
 export const initialItem = [
   {
@@ -34,12 +34,12 @@ export const sidebarItems = [
   //   icon: Target,
   //   key: 'marketing'
   // },
-  {
-    title: "records",
-    url: "/records",
-    icon: UserRoundSearch,
-    key: 'records'
-  },
+  // {
+  //   title: "records",
+  //   url: "/records",
+  //   icon: UserRoundSearch,
+  //   key: 'records'
+  // },
   {
     title: "activities",
     url: "/workspaces",

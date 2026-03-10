@@ -29,7 +29,6 @@ const PipelineHealthWidget = () => {
 
     const selectedBoard = boards.find((b) => b.id === selectedBoardId) ?? boards[0] ?? null;
 
-    console.log('Pipeline health data:', healthData);
     const primaryCurrencyStats = healthData?.totalByCurrency[0] ?? null;
 
     const isLoading = isLoadingHealth || isLoadingBoards;

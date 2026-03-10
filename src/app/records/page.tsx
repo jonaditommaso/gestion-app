@@ -1,11 +1,12 @@
 import RecordsContextProvider from "@/context/RecordsContext";
-import { getCurrent } from "@/features/auth/queries";
+// import { getCurrent } from "@/features/auth/queries";
 import RecordsContent from "@/features/records/RecordsContent";
 import { redirect } from "next/navigation";
 
 const RecordsView = async () => {
-    const user = await getCurrent();
-    if(!user) redirect('/');
+    // const user = await getCurrent();
+    // if(!user) redirect('/');
+    redirect('/');
 
     return <RecordsContextProvider>
         <RecordsContent />
