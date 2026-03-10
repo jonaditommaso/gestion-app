@@ -88,6 +88,7 @@ const HomeWidgetsGrid = () => {
 
     const organizationRole = teamContext?.membership?.role;
     const isPrivileged = organizationRole === 'OWNER' || organizationRole === 'ADMIN';
+    const canCreate = organizationRole !== 'VIEWER';
 
     // Obtener el status configurado para el widget de tareas
     const selectedStatusId = config.taskWidgetStatusId || TaskStatus.TODO;
@@ -130,20 +131,19 @@ const HomeWidgetsGrid = () => {
                     </ConditionalWidget>
                 </div>
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
-                    <ConditionalWidget widgetId="new-task">
-                        <CreateTaskButton />
-                    </ConditionalWidget>
-                    {/* {isPrivileged && ( */}
-                        <ConditionalWidget widgetId="new-deal">
-                            <CreateDealButton />
-                        </ConditionalWidget>
-                    {/* // )} */}
-                    {/* {isPrivileged && ( */}
-                        <ConditionalWidget widgetId="new-billing">
-                            <CreateBillingButton />
-                        </ConditionalWidget>
-                    {/* )} */}
-
+                    {canCreate && (
+                        <>
+                            <ConditionalWidget widgetId="new-task">
+                                <CreateTaskButton />
+                            </ConditionalWidget>
+                            <ConditionalWidget widgetId="new-deal">
+                                <CreateDealButton />
+                            </ConditionalWidget>
+                            <ConditionalWidget widgetId="new-billing">
+                                <CreateBillingButton />
+                            </ConditionalWidget>
+                        </>
+                    )}
                 </div>
                 <ConditionalWidget widgetId="calendar">
                     <CalendarDemo />
