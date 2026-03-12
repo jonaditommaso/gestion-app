@@ -58,7 +58,7 @@ const AppSidebar = () => {
                 collapsible="icon"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                className="pt-14 z-10"
+                className="pt-14 z-30"
             >
                 <SidebarContent>
 

@@ -54,7 +54,7 @@ const AppNavbar = () => {
   );
 
   return (
-    <nav className='border-b shadow-md fixed top-0 z-20 grid grid-cols-3 items-center w-full bg-sidebar'>
+    <nav className='border-b shadow-md fixed top-0 z-40 grid grid-cols-3 items-center w-full bg-sidebar'>
       <div className="max-w-44 flex items-center p-2">
         <DropdownMenu>
           <DropdownMenuTrigger
