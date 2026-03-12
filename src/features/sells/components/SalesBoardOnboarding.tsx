@@ -51,7 +51,7 @@ const SalesBoardOnboarding = ({ onCreated }: SalesBoardOnboardingProps) => {
   };
 
   return (
-    <div className="fixed top-20 left-14 right-0 bottom-0 z-20 flex items-center justify-center">
+    <div className="fixed top-16 left-14 right-0 bottom-0 z-20 flex items-center justify-center">
       {/* Backdrop — only covers the main content area, not navbar/sidebar */}
       <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
 

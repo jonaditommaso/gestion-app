@@ -1,6 +1,5 @@
 "use client";
 
-import { differenceInDays } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,6 +80,7 @@ import CreateSalesBoardDialog from "./CreateSalesBoardDialog";
 import SalesBoardOnboarding from "./SalesBoardOnboarding";
 import BoardSettingsDialog from "./BoardSettingsDialog";
 import type { Deal, DealCurrency, DealStage, DealOutcome, Seller, SalesBoard, SalesGoal, WorkItemPriority, ActivityEntry } from "../types";
+import { computeHealthScore } from "../utils/health";
 import { useGetSalesBoards } from "../api/use-get-sales-boards";
 import { useGetSalesGoals } from "../api/use-get-sales-goals";
 import { useSetSalesGoal } from "../api/use-set-sales-goal";
@@ -132,64 +132,7 @@ type ServerDealDocument = {
   activities: ActivityEntry[];
 };
 
-const computeHealthScore = (
-  deal: Pick<ServerDealDocument, "expectedCloseDate" | "lastStageChangedAt" | "activities" | "nextStep" | "priority" | "outcome">
-): { healthScore: number; needsAttention: boolean } => {
-  if (deal.outcome !== "PENDING") {
-    return { healthScore: 0, needsAttention: false };
-  }
 
-  let score = 100;
-  const today = new Date();
-
-  // 1. Expected close date
-  if (deal.expectedCloseDate) {
-    const daysUntil = differenceInDays(new Date(deal.expectedCloseDate), today);
-    if (daysUntil < 0) score -= 30;
-    else if (daysUntil <= 7) score -= 15;
-  }
-
-  // 2. Activity recency
-  const lastActivityMs =
-    deal.activities.length > 0
-      ? Math.max(...deal.activities.map((a) => new Date(a.timestamp).getTime()))
-      : null;
-
-  if (lastActivityMs === null) {
-    score -= 20;
-  } else {
-    const daysSince = differenceInDays(today, new Date(lastActivityMs));
-    if (daysSince > 14) score -= 20;
-    else if (daysSince > 7) score -= 10;
-    else if (daysSince <= 3) score += 5;
-  }
-
-  // 3. Next step defined
-  if (!deal.nextStep || deal.nextStep.trim() === "") score -= 10;
-  else score += 5;
-
-  // 4. Priority weight
-  if (deal.priority === 3) score += 10;
-  else if (deal.priority === 1) score -= 5;
-
-  // 5. Stage stagnation
-  if (deal.lastStageChangedAt) {
-    const daysInStage = differenceInDays(today, new Date(deal.lastStageChangedAt));
-    if (daysInStage > 30) score -= 20;
-    else if (daysInStage > 14) score -= 10;
-  }
-
-  const finalScore = Math.max(0, Math.min(100, score));
-
-  const isOverdue =
-    deal.expectedCloseDate !== null && new Date(deal.expectedCloseDate) < today;
-  const isInactive =
-    lastActivityMs === null ||
-    differenceInDays(today, new Date(lastActivityMs)) > 14;
-  const needsAttention = isOverdue || isInactive || finalScore < 40;
-
-  return { healthScore: finalScore, needsAttention };
-};
 
 type ServerSellerDocument = {
   $id: string;

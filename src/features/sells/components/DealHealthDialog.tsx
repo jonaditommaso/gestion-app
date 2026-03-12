@@ -9,96 +9,16 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { differenceInDays } from "date-fns";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Deal } from "../types";
+import { computeHealthSignals, type HealthSignal } from "../utils/health";
 
 interface DealHealthDialogProps {
   deal: Deal | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-type SignalStatus = "ok" | "warn";
-
-interface HealthSignal {
-  label: string;
-  status: SignalStatus;
-}
-
-const computeHealthBreakdown = (
-  deal: Deal,
-  t: (key: string) => string
-): HealthSignal[] => {
-  const signals: HealthSignal[] = [];
-  const today = new Date();
-
-  // 1. Expected close date
-  if (deal.expectedCloseDate) {
-    const daysUntil = differenceInDays(new Date(deal.expectedCloseDate), today);
-    if (daysUntil < 0) {
-      signals.push({ label: t("signals.close-date-overdue"), status: "warn" });
-    } else if (daysUntil <= 7) {
-      signals.push({ label: t("signals.close-date-soon"), status: "warn" });
-    } else {
-      signals.push({ label: t("signals.close-date-ok"), status: "ok" });
-    }
-  } else {
-    signals.push({ label: t("signals.close-date-missing"), status: "warn" });
-  }
-
-  // 2. Activity recency
-  const lastActivityMs =
-    deal.activities.length > 0
-      ? Math.max(...deal.activities.map((a) => new Date(a.timestamp).getTime()))
-      : null;
-
-  if (lastActivityMs === null) {
-    signals.push({ label: t("signals.activity-none"), status: "warn" });
-  } else {
-    const daysSince = differenceInDays(today, new Date(lastActivityMs));
-    if (daysSince > 14) {
-      signals.push({ label: t("signals.activity-inactive"), status: "warn" });
-    } else if (daysSince > 7) {
-      signals.push({ label: t("signals.activity-stale"), status: "warn" });
-    } else if (daysSince <= 3) {
-      signals.push({ label: t("signals.activity-recent"), status: "ok" });
-    } else {
-      signals.push({ label: t("signals.activity-ok"), status: "ok" });
-    }
-  }
-
-  // 3. Next step defined
-  if (!deal.nextStep || deal.nextStep.trim() === "") {
-    signals.push({ label: t("signals.next-step-missing"), status: "warn" });
-  } else {
-    signals.push({ label: t("signals.next-step-ok"), status: "ok" });
-  }
-
-  // 4. Priority
-  if (deal.priority === 3) {
-    signals.push({ label: t("signals.priority-high"), status: "ok" });
-  } else if (deal.priority === 2) {
-    signals.push({ label: t("signals.priority-medium"), status: "ok" });
-  } else {
-    signals.push({ label: t("signals.priority-low"), status: "warn" });
-  }
-
-  // 5. Stage stagnation
-  if (deal.lastStageChangedAt) {
-    const daysInStage = differenceInDays(today, new Date(deal.lastStageChangedAt));
-    if (daysInStage > 30) {
-      signals.push({ label: t("signals.stage-stagnant-30"), status: "warn" });
-    } else if (daysInStage > 14) {
-      signals.push({ label: t("signals.stage-stagnant-14"), status: "warn" });
-    } else {
-      signals.push({ label: t("signals.stage-recent"), status: "ok" });
-    }
-  }
-
-  return signals;
-};
 
 const getScoreColorClassName = (score: number): string => {
   if (score >= 70) return "text-emerald-600";
@@ -114,11 +34,12 @@ const getProgressIndicatorClassName = (score: number): string => {
 
 const DealHealthDialog = ({ deal, open, onOpenChange }: DealHealthDialogProps) => {
   const t = useTranslations("sales.health-dialog");
+  const tSignal = t as unknown as (key: string, values?: Record<string, string | number>) => string;
 
   if (!deal) return null;
 
   const isResolved = deal.outcome !== "PENDING";
-  const signals = isResolved ? [] : computeHealthBreakdown(deal, t);
+  const signals: HealthSignal[] = isResolved ? [] : computeHealthSignals(deal);
   const okCount = signals.filter((s) => s.status === "ok").length;
   const warnCount = signals.filter((s) => s.status === "warn").length;
 
@@ -178,7 +99,7 @@ const DealHealthDialog = ({ deal, open, onOpenChange }: DealHealthDialogProps) =
                   ) : (
                     <AlertCircle className="mt-px size-4 shrink-0" />
                   )}
-                  <span>{signal.label}</span>
+                  <span>{tSignal(`signals.${signal.key}`, signal.params)}</span>
                 </div>
               ))}
             </div>
