@@ -22,6 +22,12 @@ export const useSwitchOrg = () => {
             queryClient.invalidateQueries({ queryKey: ['team'] });
             queryClient.invalidateQueries({ queryKey: ['workspaces'] });
             queryClient.invalidateQueries({ queryKey: ['roles'] });
+            queryClient.invalidateQueries({ queryKey: ['sales-boards'] });
+            queryClient.invalidateQueries({ queryKey: ['deals'] });
+            queryClient.invalidateQueries({ queryKey: ['deal-sellers'] });
+            queryClient.invalidateQueries({ queryKey: ['deal-assignees'] });
+            queryClient.invalidateQueries({ queryKey: ['sales-goals'] });
+            queryClient.invalidateQueries({ queryKey: ['pipeline-health'] });
         }
     });
 
