@@ -1,9 +1,9 @@
 "use client"
-// import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Shield, Users } from "lucide-react"
 import { UsersTab } from "./UsersTab"
 import { RolesTab } from "./RolesTab"
+import { PermissionsInfoDialog } from "./PermissionsInfoDialog"
 import { useTranslations } from "next-intl"
 import { useCurrentUserPermissions } from "../hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "../constants"
@@ -41,19 +41,8 @@ export default function PermissionsManagement() {
           </TabsList>
 
           {/* actions */}
-          {/* //TODO: allow to add new roles and permissions in the future */}
           <div className="flex gap-2">
-            {/* <Button variant="outline" size="icon">
-              <Info />
-            </Button> */}
-            {/* <Button variant="outline">
-              <Plus className="w-4 h-4 mr-2" />
-              {t('new-permission')}
-            </Button> */}
-            {/* <Button>
-              <Shield className="w-4 h-4 mr-2" />
-              {t('new-role')}
-            </Button> */}
+            <PermissionsInfoDialog />
           </div>
         </div>
 
