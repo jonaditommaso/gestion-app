@@ -10,7 +10,7 @@ export const registerSchema = zod.object({
     name: zod.string().trim().min(1, 'Required'),
     email: zod.string().email(),
     password: zod.string().min(8, 'Minimo de 8 caracteres'),
-    plan: zod.enum(['free', 'pro', 'pro-plus']),
+    plan: zod.enum(['free', 'plus', 'pro']),
     billingCycle: zod.enum(['MONTHLY', 'YEARLY']).optional().default('MONTHLY'),
     isDemo: zod.boolean().optional().default(false)
 })

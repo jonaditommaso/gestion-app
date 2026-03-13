@@ -54,9 +54,9 @@ const SignUpCard = () => {
 
     const storedEmail = typeof window !== "undefined" ? localStorage.getItem("email") || "" : ""
 
-    const safePlan: 'free' | 'pro' | 'pro-plus' =
+    const safePlan: 'free' | 'plus' | 'pro' =
         planSelected === 'pro' ? 'pro' :
-        planSelected === 'pro-plus' ? 'pro-plus' : 'free';
+        planSelected === 'plus' ? 'plus' : 'free';
 
     const { mutate, isPending } = useRegister({
         onSuccess: () => {

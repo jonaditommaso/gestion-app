@@ -24,12 +24,6 @@
         "service-6-description": "Puoi scegliere tra vari temi e personalizzare l'applicazione a tuo piacimento per lavorare in modo confortevole",
         "join-gestionate": "Unisciti a Gestionate",
         "join-gestionate-description": "Piani su misura per te e tutte le funzionalità disponibili per ottimizzare la tua giornata lavorativa",
-        "plan-basic": "Base",
-        "plan-basic-description": "Contiene tutte le funzionalità disponibili. Ideale per chi desidera iniziare a organizzare la fatturazione, i registri dei clienti, l'inventario e le attività del team in piccole aziende.",
-        "plan-pro": "Pro",
-        "plan-pro-description": "Esplora l'espansione delle opportunità con questo piano, permettendo di aumentare il numero di utenti, tabelle di registrazione e workspaces. Ideale per organizzazioni in crescita.",
-        "plan-enterprise": "Azienda",
-        "plan-enterprise-description": "È il piano perfetto. Tutte le funzionalità, praticamente senza limiti, per soddisfare tutte le esigenze della tua organizzazione, indipendentemente dal volume.",
         "take-a-look": "Dai un'occhiata",
         "tal-1": "Prova la nostra",
         "tal-2": "demo gratuita",
@@ -37,7 +31,6 @@
         "facturation": "Fatturazione",
         "records": "Registri",
         "activities": "Attività",
-
         "hero": {
             "tabs-title": {
                 "all-in-one": "Tutto in uno",
@@ -54,13 +47,11 @@
                 "security": "Il livello di sicurezza di Gestionate è progettato per proteggere sia i tuoi dati che il tuo lavoro e garantire che solo le persone autorizzate vi abbiano accesso."
             }
         },
-
         "products": {
             "main-features-title": "Funzionalità principali",
             "main-features-description-1": "Tutto ciò di cui hai bisogno in",
             "main-features-description-2": "un'unica piattaforma",
             "main-features-description-3": "Gestisci progetti, file e operazioni da un'unica posizione con strumenti progettati per team moderni.",
-
             "feature-title-1": "Gestione di attività e progetti",
             "feature-description-1": "Gestisci tutte le attività del team in tempo reale in modo semplice ed efficiente, con vista ordinata in lista, calendario o bacheca Kanban.",
             "feature-1-item-name-1": "Dashboard del workspace",
@@ -68,26 +59,21 @@
             "feature-1-item-1-subitem-2": "Stato, scadenza, priorità e responsabili per attività",
             "feature-1-item-1-subitem-3": "Download di report delle attività in PDF ed Excel",
             "feature-1-item-1-subitem-4": "Dashboard di produttività in tempo reale",
-
             "feature-1-item-name-2": "Gestione attività con Chat IA",
             "feature-1-item-2-subitem-1": "Creazione di attività con un prompt",
             "feature-1-item-2-subitem-2": "Assegnazione di priorità intelligente",
             "feature-1-item-2-subitem-3": "Notifiche personalizzabili",
             "feature-1-item-2-subitem-4": "Stima automatica del tempo",
-
             "feature-1-item-name-3": "Collaborazione",
             "feature-1-item-3-subitem-1": "Assegnazione di attività ai membri del team",
             "feature-1-item-3-subitem-2": "Commenti in tempo reale",
             "feature-1-item-3-subitem-3": "Classificazione automatica basata sul carico di lavoro",
             "feature-1-item-3-subitem-4": "Opzione sola lettura secondo i permessi",
-
             "feature-1-item-name-4": "Praticità e velocità",
             "feature-1-item-4-subitem-1": "Widget attività da fare nella Home",
             "feature-1-item-4-subitem-2": "Tag per attività nelle Note personali",
             "feature-1-item-4-subitem-3": "Azioni rapide sulle attività",
             "feature-1-item-4-subitem-4": "Filtri rapidi per stato, priorità, scadenza, responsabile",
-
-
             "feature-title-2": "Archiviazione e gestione documenti",
             "feature-description-2": "Carica i tuoi registri, documenti e file importanti in modo sicuro e accedi ad essi da qualsiasi luogo.",
             "feature-2-item-name-1": "Tabelle di registri",
@@ -95,26 +81,21 @@
             "feature-2-item-1-subitem-2": "Puoi caricare registri manualmente o caricare un file Excel direttamente",
             "feature-2-item-1-subitem-3": "Tutte le tabelle sono personalizzabili, ovvero si costruiscono in base al tuo inserimento dati",
             "feature-2-item-1-subitem-4": "Ogni registro è unico e puoi caricare immagini, documenti PDF o Excel, e altro",
-
             "feature-2-item-name-2": "Sicurezza",
             "feature-2-item-2-subitem-1": "Condividi i file di cui hai bisogno con crittografia end-to-end",
             "feature-2-item-2-subitem-2": "Accesso ai dettagli dei registri con password solo per utenti autorizzati",
             "feature-2-item-2-subitem-3": "Registro di attività e audit per sapere chi accede e/o modifica ogni registro o dato",
             "feature-2-item-2-subitem-4": "Con la gestione dei permessi puoi controllare chi accede a ogni tabella, e persino permettere solo lettura",
-
             "feature-2-item-name-3": "Gestione registri con Chat IA",
             "feature-2-item-3-subitem-1": "Creazione di registri con un prompt",
             "feature-2-item-3-subitem-2": "Ricerca semantica ed esecuzione di azioni con IA",
             "feature-2-item-3-subitem-3": "Generazione automatica di report",
             "feature-2-item-3-subitem-4": "Filtri avanzati per metadati",
-
             "feature-2-item-name-4": "Più sull'ambito delle operazioni",
             "feature-2-item-4-subitem-1": "Integrazione con Google Drive, OneDrive e Dropbox",
             "feature-2-item-4-subitem-2": "Dashboard interattiva per visualizzare ed eseguire azioni sui tuoi registri",
             "feature-2-item-4-subitem-3": "Avvisi personalizzati in base ai criteri selezionati",
             "feature-2-item-4-subitem-4": "Download file di recupero dati, backup automatici e informazioni sulla cronologia versioni",
-
-
             "feature-title-3": "Portale operativo e finanziario",
             "feature-description-3": "Carica le tue entrate e uscite, e accedi a report finanziari in tempo reale. Gestisci presenza, buste paga, permessi e molto altro.",
             "feature-3-item-name-1": "Finanze",
@@ -122,26 +103,22 @@
             "feature-3-item-1-subitem-2": "Gestione budget e categorie di spese, incluse buste paga con informazioni dettagliate come ore lavorate, detrazioni e benefici",
             "feature-3-item-1-subitem-3": "Report finanziari automatizzati e suggerimenti di ottimizzazione con piani d'azione",
             "feature-3-item-1-subitem-4": "Gestisci diversi conti indipendenti, valute e categorie",
-
             "feature-3-item-name-2": "Risorse Umane",
             "feature-3-item-2-subitem-1": "Gestione buste paga integrata con inserimento presenza e ore lavorate",
             "feature-3-item-2-subitem-2": "Assegnazione ruoli e permessi per tutte le aree",
             "feature-3-item-2-subitem-3": "Attività privata in aree personali e registro attività in tempo reale per aree di collaborazione",
             "feature-3-item-2-subitem-4": "Valutazioni delle prestazioni, monitoraggio obiettivi e gestione talenti",
-
             "feature-3-item-name-3": "Vendite",
             "feature-3-item-3-subitem-1": "Gestione integrale di lead e clienti potenziali, dalla prospezione alla chiusura",
             "feature-3-item-3-subitem-2": "Funnel di vendita visuale con fasi personalizzabili e monitoraggio conversioni",
             "feature-3-item-3-subitem-3": "Integrazione con email e CRM per centralizzare interazioni clienti",
             "feature-3-item-3-subitem-4": "Report performance commerciali con metriche conversione, forecast e analisi opportunità",
-
             "feature-3-item-name-4": "Gestione organizzativa",
             "feature-3-item-4-subitem-1": "Controllo inventario, logistica, consegne e resi con avvisi stock e tracciabilità risorse",
             "feature-3-item-4-subitem-2": "Blog interno ed esterno per notifiche, aggiornamenti e comunicazione tra team",
             "feature-3-item-4-subitem-3": "Integrazione continua di strumenti terzi per migliorare collaborazione, produttività e comfort",
             "feature-3-item-4-subitem-4": "Automazione flussi di lavoro con promemoria, approvazioni e monitoraggio processi"
         },
-
         "customer-success": {
             "title-1": "Aziende e organizzazioni che",
             "title-2": "si fidano di noi",
@@ -158,18 +135,15 @@
             "metric-description-1": "Risultato misurato dopo",
             "metric-description-2": "mesi di implementazione"
         },
-
         "privacy": {
             "badge": "Informativa sulla Privacy",
             "title-1": "La tua privacy,",
             "title-2": "il nostro impegno",
             "description": "Ci impegniamo a proteggere la tua privacy e ad essere trasparenti su come raccogliamo, utilizziamo e proteggiamo le tue informazioni personali.",
             "updated": "Ultimo aggiornamento: Gennaio 2025",
-
             "card-1-title": "Il Nostro Impegno per la Privacy",
             "card-1-description-1": "In Gestionate, comprendiamo che la tua privacy è fondamentale per la fiducia nei nostri servizi. Questa Informativa sulla Privacy spiega come raccogliamo, utilizziamo, divulghiamo e proteggiamo le tue informazioni quando utilizzi la nostra piattaforma e i nostri servizi.",
             "card-1-description-2": "Ci impegniamo ad essere trasparenti sulle nostre pratiche sui dati e a darti il controllo sulle tue informazioni personali. Se hai domande su questa informativa, contattaci all'indirizzo privacy@gestionate.com.",
-
             "card-2-title": "Informazioni che Raccogliamo",
             "card-2-description": "Raccogliamo informazioni per fornire servizi migliori a tutti i nostri utenti. I tipi di informazioni che raccogliamo includono:",
             "card-2-subtitle-1": "Informazioni che Fornisci:",
@@ -183,7 +157,6 @@
             "card-2-list-2-2": "Informazioni del dispositivo (indirizzo IP, tipo di browser, sistema operativo)",
             "card-2-list-2-3": "Cookie e tecnologie di tracciamento simili (vedi la nostra Cookie Policy per maggiori dettagli)",
             "card-2-list-2-4": "File di log e dati tecnici per il miglioramento del servizio",
-
             "card-3-title": "Come Utilizziamo le Tue Informazioni",
             "card-3-description": "Utilizziamo le informazioni che raccogliamo per:",
             "card-3-list-1": "Fornire, mantenere e migliorare i nostri servizi",
@@ -194,7 +167,6 @@
             "card-3-list-6": "Personalizzare la tua esperienza e fornire contenuti pertinenti",
             "card-3-list-7": "Rilevare, indagare e prevenire transazioni fraudolente e problemi di sicurezza",
             "card-3-list-8": "Rispettare gli obblighi legali e proteggere i nostri diritti",
-
             "card-4-title": "Condivisione e Divulgazione delle Informazioni",
             "card-4-description": "Non vendiamo, scambiamo o affittiamo le tue informazioni personali a terze parti. Potremmo condividere le tue informazioni solo nelle seguenti circostanze:",
             "card-4-list-1": "Con il tuo consenso: Condivideremo le informazioni quando accetti esplicitamente",
@@ -202,7 +174,6 @@
             "card-4-list-3": "Requisiti legali: Quando richiesto dalla legge, regolamentazione o processo legale",
             "card-4-list-4": "Trasferimenti aziendali: In relazione a fusioni, acquisizioni o vendite di beni",
             "card-4-list-5": "Protezione dei diritti: Per proteggere i nostri diritti, privacy, sicurezza o proprietà",
-
             "card-5-title": "Sicurezza dei Dati",
             "card-5-description": "Implementiamo misure di sicurezza tecniche e organizzative appropriate per proteggere le tue informazioni personali contro accesso non autorizzato, alterazione, divulgazione o distruzione.",
             "card-5-subtitle-1": "Le Nostre Misure di Sicurezza Includono:",
@@ -211,7 +182,6 @@
             "card-5-list-3": "Controlli di accesso e sistemi di autenticazione",
             "card-5-list-4": "Data center sicuri con misure di sicurezza fisica",
             "card-5-list-5": "Formazione dei dipendenti su privacy e pratiche di sicurezza",
-
             "card-6-title": "I Tuoi Diritti sulla Privacy",
             "card-6-description": "Hai il diritto di:",
             "card-6-list-1": "Accesso: Richiedere una copia delle informazioni personali che deteniamo su di te",
@@ -221,7 +191,6 @@
             "card-6-list-5": "Restrizione: Chiederci di limitare come utilizziamo le tue informazioni",
             "card-6-list-6": "Opposizione: Opporti al nostro utilizzo delle tue informazioni per determinati scopi",
             "card-6-list-7": "Ritiro del consenso: Dove ci basiamo sul consenso, puoi ritirarlo in qualsiasi momento",
-
             "card-7-title": "Cookie e Tecnologie di Tracciamento",
             "card-7-description": "Utilizziamo cookie e tecnologie di tracciamento simili per migliorare la tua esperienza, analizzare i modelli di utilizzo e fornire contenuti personalizzati. Puoi controllare i cookie attraverso le impostazioni del tuo browser. Tuttavia, disabilitare certi cookie potrebbe influenzare la funzionalità dei nostri servizi.",
             "card-7-subtitle-1": "Tipi di Cookie che Utilizziamo:",
@@ -229,29 +198,24 @@
             "card-7-list-2": "Cookie di preferenza: Ricordano le tue preferenze e impostazioni",
             "card-7-list-3": "Cookie di prestazione: Ci aiutano a capire come utilizzi i nostri servizi",
             "card-7-list-4": "Cookie analitici: Forniscono approfondimenti per il miglioramento del servizio",
-
             "questions-title": "Domande sulla Tua Privacy?",
             "questions-description": "Se hai domande o preoccupazioni su questa Informativa sulla Privacy o le nostre pratiche sui dati, contattaci all'indirizzo privacy@gestionate.com.",
             "questions-contact": "Email: privacy@gestionate.com",
             "questions-info": "Tipicamente rispondiamo alle richieste sulla privacy entro 48 ore."
         },
-
         "terms": {
             "badge": "Legale",
             "title-1": "Termini di",
             "title-2": "Servizio",
             "description": "Ti preghiamo di leggere attentamente questi termini prima di utilizzare il nostro servizio",
             "updated": "Ultimo aggiornamento: Gennaio 2025",
-
             "card-1-title": "Benvenuto in Gestionate",
             "card-1-description-1": "Questi Termini di Servizio (\"Termini\") regolano l'utilizzo dei servizi di Gestionate, inclusi il nostro sito web, applicazioni e tutti i servizi correlati (collettivamente, il \"Servizio\") gestiti da Gestionate (\"noi\", \"ci\" o \"nostro\").",
             "card-1-description-2": "Accedendo o utilizzando il nostro Servizio, accetti di essere vincolato da questi Termini. Se non sei d'accordo con qualsiasi parte di questi termini, non potrai accedere al Servizio.",
-
             "card-2-title": "Termini dell'Account",
             "card-2-list-1": "Creazione dell'Account: Devi fornire informazioni accurate e complete quando crei un account. Sei responsabile del mantenimento della sicurezza del tuo account.",
             "card-2-list-2": "Idoneità: Devi avere almeno 18 anni per utilizzare il nostro Servizio. Utilizzando il nostro Servizio, dichiari di soddisfare questo requisito di età.",
             "card-2-list-3": "Responsabilità dell'Account: Sei responsabile di tutte le attività che si verificano sotto il tuo account e del mantenimento della riservatezza della tua password.",
-
             "card-3-title": "Politica di Uso Accettabile",
             "card-3-description": "Non puoi utilizzare il nostro Servizio:",
             "card-3-list-1": "Per scopi illegali o per sollecitare altri a compiere atti illegali",
@@ -260,53 +224,43 @@
             "card-3-list-4": "Per molestare, abusare, insultare, danneggiare, diffamare, calunniare, denigrare, intimidire o discriminare",
             "card-3-list-5": "Per inviare informazioni false o fuorvianti",
             "card-3-list-6": "Per caricare o trasmettere virus o qualsiasi altro tipo di codice dannoso",
-
             "card-4-title": "Disponibilità del Servizio",
             "card-4-list-1": "Tempo di attività: Ci impegniamo a mantenere il 99,9% di uptime per il nostro Servizio, ma non possiamo garantire accesso ininterrotto.",
             "card-4-list-2": "Manutenzione: Potremmo sospendere temporaneamente il Servizio per manutenzione, aggiornamenti o miglioramenti. Forniremo preavviso quando possibile.",
             "card-4-list-3": "Backup dei dati: Mentre manteniamo backup dei tuoi dati, sei responsabile del mantenimento dei tuoi backup delle informazioni importanti.",
-
             "card-5-title": "Pagamenti e Fatturazione",
             "card-5-list-1": "Tariffe di abbonamento: I piani a pagamento vengono fatturati in anticipo su base mensile o annuale e non sono rimborsabili tranne quando richiesto dalla legge.",
             "card-5-list-2": "Prova gratuita: Potremmo offrire un periodo di prova gratuita. Alla fine della prova, ti verrà addebitata la tariffa di abbonamento applicabile a meno che non annulli.",
             "card-5-list-3": "Cambi di prezzo: Ci riserviamo il diritto di modificare i nostri prezzi con 30 giorni di preavviso agli abbonati esistenti.",
-
             "card-6-title": "Privacy e Protezione dei Dati",
             "card-6-list-1": "La tua privacy è importante per noi. La nostra Informativa sulla Privacy spiega come raccogliamo, utilizziamo e proteggiamo le tue informazioni quando utilizzi il nostro Servizio.",
             "card-6-list-2": "Proprietà dei dati: Mantieni tutti i diritti sui tuoi dati. Non rivendichiamo la proprietà di alcun contenuto che carichi o crei utilizzando il nostro Servizio.",
             "card-6-list-3": "Sicurezza dei dati: Implementiamo misure di sicurezza standard del settore per proteggere i tuoi dati, inclusa la crittografia e centri dati sicuri.",
-
             "card-7-title": "Risoluzione",
             "card-7-list-1": "Da parte tua: Puoi terminare il tuo account in qualsiasi momento contattando il nostro team di supporto o utilizzando la funzione di cancellazione dell'account.",
             "card-7-list-2": "Da parte nostra: Potremmo terminare o sospendere il tuo account se violi questi Termini o ti impegni in condotte che riteniamo dannose per il nostro Servizio o altri utenti.",
             "card-7-list-3": "Effetto della risoluzione: Al momento della risoluzione, il tuo diritto di utilizzare il Servizio cesserà immediatamente. I tuoi dati verranno eliminati entro 30 giorni a meno che non sia richiesto di mantenerli per legge.",
-
             "card-8-title": "Limitazione di Responsabilità",
             "card-8-description": "Nella misura massima consentita dalla legge, Gestionate non sarà responsabile per danni indiretti, incidentali, speciali, consequenziali o punitivi, inclusi senza limitazione, perdita di profitti, dati, uso, avviamento o altre perdite intangibili.",
-
             "questions-title": "Domande su questi Termini?",
             "questions-description": "Se hai domande su questi Termini di Servizio, ti preghiamo di contattarci.",
             "questions-contact": "Email: legal@gestionate.com",
             "questions-info": "Tipicamente rispondiamo alle richieste legali entro 48 ore."
         },
-
         "contact": {
             "badge": "Mettiti in Contatto",
             "title": "Contattaci",
             "description": "Hai domande? Hai bisogno di supporto? Vuoi sapere di più su Gestionate? Ci piacerebbe sentirti.",
-
             "email-card-title": "Inviaci un'Email",
             "email-general": "Richieste generali",
             "email-general-address": "hello@gestionate.com",
             "email-support": "Supporto",
             "email-support-address": "support@gestionate.com",
-
             "response-card-title": "Tempo di Risposta",
             "response-email": "Email:",
             "response-email-time": "24 ore",
             "response-support": "Supporto:",
             "response-support-time": "4 ore",
-
             "form-title": "Inviaci un Messaggio",
             "form-name-label": "Nome",
             "form-name-placeholder": "Nome del responsabile",
@@ -320,24 +274,20 @@
             "form-message-placeholder": "Raccontaci di più sulla tua richiesta...",
             "form-submit": "Invia Messaggio",
             "form-response-info": "Tipicamente rispondiamo entro 24 ore durante i giorni lavorativi.",
-
             "faq-title": "Cerchi risposte rapide?",
             "faq-description": "Consulta la nostra sezione FAQ per risposte immediate alle domande più comuni.",
             "faq-button": "Visita FAQ",
-
             "form-name-required": "Il nome è obbligatorio",
             "form-email-required": "L'email è obbligatoria",
             "form-email-invalid": "Inserisci un indirizzo email valido",
             "form-organization-required": "L'organizzazione è obbligatoria",
             "form-subject-required": "L'oggetto è obbligatorio",
             "form-message-required": "Il messaggio è obbligatorio",
-
             "success-title": "Messaggio Inviato con Successo!",
             "success-description": "Grazie per averci contattato. Abbiamo ricevuto il tuo messaggio e ti risponderemo entro 24 ore.",
             "success-button": "Capito",
             "form-error": "Errore nell'invio del messaggio. Per favore riprova."
         },
-
         "getting-started": {
             "stat-title-1": "5 min",
             "stat-subtitle-1": "Configurazione completa",
@@ -420,7 +370,6 @@
             "feature-6-item-3": "Menzioni e avvisi personalizzati",
             "feature-6-item-4": "Cronologia completa dell'attività"
         },
-
         "about": {
             "badge": "Chi Siamo",
             "title-1": "Potenziando i team a lavorare in modo",
@@ -454,7 +403,6 @@
             "stat-3-title": "Supporto",
             "stat-3-description": "Sempre qui per aiutare"
         },
-
         "docs": {
             "workspaces": {
                 "overview": {
@@ -678,7 +626,6 @@
                     "best-practice-4": "Mantieni un registro dei cambi di permessi importanti"
                 }
             },
-
             "records": {
                 "overview": {
                     "title": "Records",
@@ -749,7 +696,6 @@
                 }
             }
         },
-
         "integrations": "Integrazioni",
         "integration-categories": "Categorie",
         "integrated-apps-badge": "Applicazioni integrate",
@@ -765,7 +711,6 @@
         "integration-2": "Visualizza i tuoi eventi e riunioni creati",
         "integration-3": "Ascolta la tua musica con Spotify in background",
         "integration-4": "Gestisci i tuoi repository di GitHub dalla piattaforma",
-
         "button-get-demo-1": "Ottieni demo gratuita senza registrazione",
         "button-get-demo-2": "Ottieni Demo senza registrazione",
         "cancel": "Annulla",
@@ -780,14 +725,12 @@
         "demo-info-description-7": "L'email, il nome utente e il nome dell'organizzazione appartengono a un account demo. Sono semplicemente illustrativi. L'account viene creato con il piano Free per impostazione predefinita.",
         "demo-info-description-8": "Veloce e sicuro, senza impegni né necessità di registrazione.",
         "demo-info-description-9": "Inizia a esplorare Gestionate e scopri tutto il suo potenziale.",
-
         "button-signup": "Registrati",
         "get-started": "Inizia ora",
         "button-signin": "Accedi",
         "button-see-prices": "Vedi i prezzi",
         "enter-valid-email": "Inserisci un'email valida",
         "email-placeholder": "Inserisci la tua email",
-
         "navbar-start": "Inizia",
         "navbar-gestionate": "L'applicazione web che ti permette di gestire la tua azienda in modo più efficiente. Tutto ciò di cui hai bisogno, in un unico luogo.",
         "navbar-intro": "Introduzione",
@@ -808,16 +751,13 @@
         "navbar-products-inventory-title": "Inventario",
         "navbar-products-inventory-description": "Carica le entrate e le uscite e tieni un controllo efficiente del tuo stock.",
         "navbar-pricing": "Prezzi",
-
         "footer-cta-title": "Inizia a lavorare in modo comodo e produttivo",
         "footer-cta-description": "Scopri fino a dove puoi arrivare. Che tu stia scalando il tuo progetto o voglia aumentare la produttività della tua azienda e dimenticare più piattaforme di sincronizzazione del lavoro, abbiamo la soluzione ideale per te.",
-
         "footer-who-we-are": "Chi siamo",
         "footer-faq": "Domande frequenti",
         "footer-terms": "Termini",
         "footer-privacy": "Privacy",
         "footer-contact-us": "Contattaci",
-
         "docs-intro-title": "Introduzione",
         "docs-intro-description": "è qui per rendere il tuo lavoro il più semplice possibile, unificando in un unico luogo tutto ciò di cui hai bisogno per avere un controllo reale sulle tue attività, quelle di tutto il tuo team, sapere come procedono gli altri reparti, e mantenere tutti i tuoi registri con facile accesso, modifica e caricamento. Vogliamo che il tuo spazio di lavoro si espanda in opportunità, senza dover utilizzare decine di applicazioni o sistemi.",
         "docs-how-it-works-title": "Come funziona",
@@ -825,7 +765,6 @@
         "docs-now-what-title": "E ora cosa?",
         "docs-now-what-description-1": "Con",
         "docs-now-what-description-2": "vogliamo rendere la tua giornata lavorativa il più piacevole possibile, cioè, oltre a tutte le funzionalità che forniamo, potrai personalizzarlo, dargli quel tocco personale che ti faccia sentire a tuo agio nella tua quotidianità. La sezione Home è tua, usa tutte le scorciatoie e i widget disponibili. Potrai anche aggiungere le tue note, quelle che condividi solo con te stesso come promemoria. Inoltre, potrai cambiare font e colori. Applica il tuo stile!",
-
         "products-title": "Guarda tutto ciò che possiamo offrirti",
         "products-workspaces-title": "Workspaces",
         "products-workspaces-description": "G-Workspace fornisce un sistema per monitorare le attività del tuo team. Crea le tue attività e gestiscile con una bacheca Kanban, visualizzale anche in tabelle o con una vista calendario.",
@@ -835,10 +774,8 @@
         "products-records-description": "Carica i tuoi registri di clienti, potenziali clienti, fornitori, affiliati, o l'elenco che desideri e ti serve. Potrai caricare il tuo file excel per più registri e anche caricarli manualmente. Hai diverse tabelle a tua completa disposizione.",
         "products-inventory-title": "Inventario",
         "products-inventory-description": "Con G-Inventory avrai un controllo efficiente del tuo inventario. Carica facilmente le entrate, le uscite e gestisci il tuo stock. Ti forniamo strumenti facili da usare. Vedrai che gestire l'inventario non è mai stato così semplice.",
-
         "faq-title": "Le domande più frequenti",
         "faq-description": "Hai ancora più curiosità su come funziona Gestionate? Forse troverai la risposta qui",
-
         "faq-question-1": "Gestionate è solo per le aziende?",
         "faq-answer-1": "No, Gestionate è uno strumento destinato a qualsiasi tipo di organizzazione, sia essa un'azienda, un'istituzione educativa o anche lavoratori indipendenti.",
         "faq-question-2": "Tutti i piani includono tutte le funzionalità?",
@@ -851,50 +788,40 @@
         "faq-answer-5": "Certo, siamo qui per aiutarti con qualsiasi problema o difficoltà che possa presentarsi. I nostri canali di contatto sono aperti tutti i giorni a tua disposizione.",
         "faq-question-6": "Come posso annullare la mia iscrizione?",
         "faq-answer-6": "Basta un clic. Hai la piena libertà di annullare l'iscrizione in qualsiasi momento. Sarebbe una situazione che ci rattristerebbe, quindi ti chiederemo i motivi che ti spingono a chiudere il tuo account. Si tratta di un mini-questionario che ci aiuta a comprenderti meglio e migliorare in futuro.",
-
         "who-we-are-title": "Chi siamo",
         "who-we-are-description": "Scopri il team dietro la macchina. Ti raccontiamo brevemente la nostra missione e cosa ci motiva a offrirti il miglior servizio",
         "who-we-are-1": "è lo strumento ideale per gestire tutto il tuo lavoro. L'idea nasce dalla necessità di unificare tutti i sistemi utilizzati nella nostra vita quotidiana.",
         "who-we-are-2": "Con",
         "who-we-are-3": "hai il controllo totale su tutto il flusso di lavoro, e continuiamo a sviluppare ancora più strumenti per te. La nostra missione è che tutto ciò che possiamo gestire per te, lo fai qui, con noi.",
         "who-we-are-4": "Ti offriremo tutto il comfort possibile per semplificare la tua giornata lavorativa. Non smetteremo di lavorare per te.",
-
         "message-created": "Messaggio creato con successo",
         "failed-create-message": "Ci scusiamo, si è verificato un errore durante la creazione del messaggio",
         "see-more": "Scopri di più",
-
         "product-workspace-item-1": "Kanban, calendario e lista delle attività",
         "product-workspace-item-2": "Gestione di attività con Chat IA",
         "product-workspace-item-3": "Download di report in PDF e Excel",
         "product-workspace-item-4": "Esecuzione di attività automatiche",
-
         "product-records-item-1": "Tabelle dinamiche organizzate",
         "product-records-item-2": "Caricamento da Excel/CSV",
         "product-records-item-3": "Ricerca e filtri avanzati",
         "product-records-item-4": "Cronologia delle modifiche",
-
         "product-billing-item-1": "Portale operativo completo",
         "product-billing-item-2": "Grafici e report visivi",
         "product-billing-item-3": "Controllo entrate e uscite",
         "product-billing-item-4": "Riepiloghi finanziari automatici",
-
         "product-inventory-item-1": "Controllo entrate e uscite",
         "product-inventory-item-2": "Monitoraggio stock attuale",
         "product-inventory-item-3": "Avvisi stock minimo",
         "product-inventory-item-4": "Report dei movimenti",
-
         "products-tech-title-1": "Caratteristiche che",
         "products-tech-title-2": "ci differenziano",
         "products-tech-description": "Gestionate garantisce sicurezza, prestazioni, e scalabilità con funzionalità avanzate progettate per organizzazioni che cercano l'eccellenza operativa e una crescita sostenibile.",
-
         "products-diff-title-1": "Interfaccia intuitiva, esperienza unica",
         "products-diff-title-2": "Intelligenza artificiale integrata",
         "products-diff-title-3": "Sicurezza di livello enterprise",
-
         "products-diff-description-1": "Azioni intuitive, navigazione fluida e un'interfaccia amichevole e personalizzabile che facilita l'adozione da parte di qualsiasi utente.",
         "products-diff-description-2": "Machine learning integrato per previsioni, automazione dei compiti e raccomandazioni personalizzate.",
         "products-diff-description-3": "Crittografia AES-256 e autenticazione a più fattori. I tuoi dati sono protetti con i più alti standard del settore.",
-
         "items-feature-diff-1-1": "Interfaccia intuitiva e facile da usare",
         "items-feature-diff-1-2": "Integrazione con strumenti popolari",
         "items-feature-diff-1-3": "Accesso rapido e personalizzato",
@@ -911,110 +838,114 @@
         "pricing-title-3": "per il tuo team",
         "pricing-annual": "annuale",
         "pricing-monthly": "mensile",
-        "pricing-annual-save": "Risparmia fino al 20%",
+        "pricing-annual-save": "Risparmia fino al 18%",
         "pricing-billed-annually": "/anno",
         "pricing-most-popular": "Il più popolare",
         "pricing-best-value": "Miglior rapporto qualità-prezzo",
         "pricing-no-limits": "Senza limiti",
-        "pricing-basic-title": "Base",
-        "pricing-basic-description": "Inizia con il piano base",
-        "pricing-basic-button": "Inizia gratis",
-        "pricing-basic-benefit-1-title": "5 utenti",
-        "pricing-basic-benefit-1-description": "Numero massimo di utenti per team.",
-        "pricing-basic-benefit-2-title": "Controllo dell'inventario",
-        "pricing-basic-benefit-2-description": "",
-        "pricing-basic-benefit-3-title": "Controllo della fatturazione",
-        "pricing-basic-benefit-3-description": "Entrate, uscite, riepilogo, calendario e grafici.",
-        "pricing-basic-benefit-7-title": "Registri (fino a 5.000)",
-        "pricing-basic-benefit-7-description": "Numero massimo di registri per team, comprese tutte le tabelle.",
-        "pricing-basic-benefit-4-title": "3 tabelle di registri",
-        "pricing-basic-benefit-4-description": "Numero massimo di tabelle di registri per team.",
-        "pricing-basic-benefit-5-title": "1 GB di archiviazione",
-        "pricing-basic-benefit-5-description": "Quantità massima di archiviazione dati, comprensiva di tutti i file caricati per team.",
-        "pricing-basic-benefit-6-title": "1 spazio di lavoro per attività",
-        "pricing-basic-benefit-6-description": "Uno spazio di lavoro disponibile dove puoi creare attività e assegnarle ai membri del team.",
-        "pricing-basic-benefit-8-title": "Tabellone Kanban",
-        "pricing-basic-benefit-8-description": "Disponibile all'interno dello spazio di lavoro delle attività, che possono anche essere elencate in una tabella o in un calendario.",
-
-        "pricing-pro-title": "Pro",
-        "pricing-pro-description": "Porta la tua organizzazione al livello successivo",
-        "pricing-pro-button": "Inizia",
-        "pricing-pro-benefit-1-title": "10 utenti",
+        "pricing-free-description": "Inizia con l'essenziale",
+        "pricing-free-button": "Inizia",
+        "pricing-free-benefit-1-title": "Fino a 3 utenti",
+        "pricing-free-benefit-1-description": "Numero massimo di utenti per team.",
+        "pricing-free-benefit-2-title": "1 workspace",
+        "pricing-free-benefit-2-description": "Organizza le attività del tuo team su una board Kanban visiva e intuitiva.",
+        "pricing-free-benefit-3-title": "Gestione attività base",
+        "pricing-free-benefit-3-description": "Crea e assegna attività.",
+        "pricing-free-benefit-4-title": "1 pipeline vendite",
+        "pricing-free-benefit-4-description": "Una pipeline per tracciare e gestire le trattative dall'inizio alla chiusura.",
+        "pricing-free-benefit-5-title": "Home personale",
+        "pricing-free-benefit-5-description": "Note e calendario personale per tenere la giornata sotto controllo.",
+        "pricing-plus-description": "Aumenta il livello della tua organizzazione",
+        "pricing-plus-button": "Ottieni Plus",
+        "pricing-plus-includes": "Tutto il piano Gratuito, più:",
+        "pricing-plus-benefit-1-title": "Fino a 10 utenti",
+        "pricing-plus-benefit-1-description": "Numero massimo di utenti per team.",
+        "pricing-plus-benefit-2-title": "3 workspace",
+        "pricing-plus-benefit-2-description": "Gestisci più progetti su 3 board Kanban indipendenti.",
+        "pricing-plus-benefit-3-title": "Gestione attività completa",
+        "pricing-plus-benefit-3-description": "Epics, stati personalizzati, limiti di colonne e archiviazione attività inclusi.",
+        "pricing-plus-benefit-4-title": "Modulo fatturazione",
+        "pricing-plus-benefit-4-description": "Monitora entrate, uscite, riepiloghi, calendario e grafici.",
+        "pricing-plus-benefit-5-title": "Home operativa completa",
+        "pricing-plus-benefit-5-description": "Tutti i widget della dashboard per una visione completa della tua organizzazione.",
+        "pricing-plus-benefit-6-title": "Messaggistica interna",
+        "pricing-plus-benefit-6-description": "Messaggistica integrata per comunicare con i membri del tuo team.",
+        "pricing-plus-benefit-7-title": "IA di base",
+        "pricing-plus-benefit-7-description": "Assistente IA per velocizzare la gestione delle attività e la stesura di note.",
+        "pricing-plus-benefit-8-title": "Permessi base",
+        "pricing-plus-benefit-8-description": "Controllo degli accessi basato sui ruoli per i membri della tua organizzazione.",
+        "pricing-pro-description": "Per team ad alte prestazioni",
+        "pricing-pro-button": "Ottieni Pro",
+        "pricing-pro-includes": "Tutto il piano Plus, più:",
+        "pricing-pro-benefit-1-title": "Fino a 25 utenti",
         "pricing-pro-benefit-1-description": "Numero massimo di utenti per team.",
-        "pricing-pro-benefit-2-title": "Controllo dell'inventario",
-        "pricing-pro-benefit-2-description": "",
-        "pricing-pro-benefit-3-title": "Controllo della fatturazione",
-        "pricing-pro-benefit-3-description": "Entrate, uscite, riepilogo, calendario e grafici.",
-        "pricing-pro-benefit-4-title": "5 tabelle di registri",
-        "pricing-pro-benefit-4-description": "Numero massimo di tabelle di registri per team.",
-        "pricing-pro-benefit-5-title": "5 GB di archiviazione",
-        "pricing-pro-benefit-5-description": "Quantità massima di archiviazione dati, comprensiva di tutti i file caricati per team.",
-        "pricing-pro-benefit-6-title": "3 spazi di lavoro per attività",
-        "pricing-pro-benefit-7-title": "Registri (fino a 20.000)",
-        "pricing-pro-benefit-7-description": "Numero massimo di registri per team, comprese tutte le tabelle.",
-        "pricing-pro-benefit-6-description": "Uno spazio di lavoro disponibile dove puoi creare attività e assegnarle ai membri del team.",
-        "pricing-pro-benefit-8-title": "Tabellone Kanban",
-        "pricing-pro-benefit-8-description": "Disponibile all'interno dello spazio di lavoro delle attività, che possono anche essere elencate in una tabella o in un calendario.",
-
-        "pricing-pro-plus-benefit-1-title": "20 utenti",
-        "pricing-pro-plus-benefit-1-description": "Numero massimo di utenti per team.",
-        "pricing-pro-plus-benefit-2-title": "Controllo dell'inventario",
-        "pricing-pro-plus-benefit-2-description": "",
-        "pricing-pro-plus-benefit-3-title": "Controllo della fatturazione",
-        "pricing-pro-plus-benefit-3-description": "Entrate, uscite, riepilogo, calendario e grafici.",
-        "pricing-pro-plus-benefit-4-title": "8 tabelle di registri",
-        "pricing-pro-plus-benefit-4-description": "Numero massimo di tabelle di registri per team.",
-        "pricing-pro-plus-benefit-5-title": "10 GB di archiviazione",
-        "pricing-pro-plus-benefit-5-description": "Quantità massima di archiviazione dati, comprensiva di tutti i file caricati per team.",
-        "pricing-pro-plus-benefit-6-title": "5 spazi di lavoro per attività",
-        "pricing-pro-plus-benefit-7-title": "Registri (fino a 50.000)",
-        "pricing-pro-plus-benefit-7-description": "Numero massimo di registri per team, comprese tutte le tabelle.",
-        "pricing-pro-plus-benefit-6-description": "Uno spazio di lavoro disponibile dove puoi creare attività e assegnarle ai membri del team.",
-        "pricing-pro-plus-benefit-8-title": "Tabellone Kanban",
-        "pricing-pro-plus-benefit-8-description": "Disponibile all'interno dello spazio di lavoro delle attività, che possono anche essere elencate in una tabella o in un calendario.",
-
-        "pricing-pro-plus-title": "Pro Plus",
-        "pricing-pro-plus-description": "Più potenza per i team in crescita",
-        "pricing-pro-plus-button": "Ottieni Pro Plus",
-
-        "pricing-enterprise-title": "Azienda",
-        "pricing-enterprise-description": "Sfrutta al massimo il potenziale",
+        "pricing-pro-benefit-2-title": "Workspace illimitati",
+        "pricing-pro-benefit-2-description": "Crea tutti i workspace di cui il tuo team ha bisogno, senza limiti.",
+        "pricing-pro-benefit-3-title": "Pipeline multiple",
+        "pricing-pro-benefit-3-description": "Vista multi-board per gestire più pipeline di vendita contemporaneamente.",
+        "pricing-pro-benefit-4-title": "Grafici della pipeline",
+        "pricing-pro-benefit-4-description": "Visualizza le prestazioni dei tuoi venditori e i progressi delle tue trattative tramite grafici.",
+        "pricing-pro-benefit-5-title": "Assistente AI completo",
+        "pricing-pro-benefit-5-description": "AI per attività, fatturazione, trattative e messaggi interni.",
+        "pricing-pro-benefit-6-title": "Permessi granulari per ruolo",
+        "pricing-pro-benefit-6-description": "Controllo degli accessi dettagliato per ruolo e organizzazione.",
+        "pricing-pro-benefit-7-title": "Obiettivi di vendita",
+        "pricing-pro-benefit-7-description": "Imposta obiettivi di fatturato, tieni traccia dei progressi del team nel tempo e confrontali accedendo allo storico.",
+        "pricing-pro-benefit-8-title": "Avvisi proattivi",
+        "pricing-pro-benefit-8-description": "Ricevi avvisi per trattative in corso, attività e fatture scadute.",
+        "pricing-pro-benefit-9-title": "Esportazioni (CSV / Excel)",
+        "pricing-pro-benefit-9-description": "Esporta tutte le tue fatture, attività e trattative in formato CSV o Excel.",
+        "pricing-enterprise-description": "Sfrutta il massimo potenziale",
         "pricing-enterprise-button": "Contatta Vendite",
-        "pricing-enterprise-benefit-1-title": "20+ utenti",
-        "pricing-enterprise-benefit-1-description": "Numero minimo di utenti per team.",
-        "pricing-enterprise-benefit-2-title": "Controllo dell'inventario",
-        "pricing-enterprise-benefit-2-description": "",
-        "pricing-enterprise-benefit-3-title": "Controllo della fatturazione",
-        "pricing-enterprise-benefit-3-description": "Entrate, uscite, riepilogo, calendario e grafici.",
-        "pricing-enterprise-benefit-4-title": "20 tabelle di registri",
-        "pricing-enterprise-benefit-4-description": "Numero massimo di tabelle di registri per team.",
-        "pricing-enterprise-benefit-5-title": "100 GB di archiviazione",
-        "pricing-enterprise-benefit-5-description": "Quantità massima di archiviazione dati, comprensiva di tutti i file caricati per team.",
-        "pricing-enterprise-benefit-6-title": "10 spazi di lavoro per attività",
-        "pricing-enterprise-benefit-6-description": "Uno spazio di lavoro disponibile dove puoi creare attività e assegnarle ai membri del team.",
-        "pricing-enterprise-benefit-7-title": "Registri (fino a 100.000)",
-        "pricing-enterprise-benefit-7-description": "Numero massimo di registri per team, comprese tutte le tabelle.",
-        "pricing-enterprise-benefit-8-title": "Tabellone Kanban",
-        "pricing-enterprise-benefit-8-description": "Disponibile all'interno dello spazio di lavoro delle attività, che possono anche essere elencate in una tabella o in un calendario.",
-
+        "pricing-enterprise-includes": "Tutto il piano Pro, più:",
+        "pricing-enterprise-benefit-1-title": "Utenti illimitati",
+        "pricing-enterprise-benefit-1-description": "Nessun limite alle dimensioni del team.",
+        "pricing-enterprise-benefit-2-title": "SLA e onboarding dedicato",
+        "pricing-enterprise-benefit-2-description": "Accordo sul livello di servizio, specialista di onboarding dedicato e supporto prioritario.",
+        "pricing-enterprise-benefit-3-title": "Conservazione dati",
+        "pricing-enterprise-benefit-3-description": "Definisci le tue politiche di conservazione e archiviazione dei dati.",
+        "pricing-enterprise-benefit-4-title": "Fatturazione personalizzata",
+        "pricing-enterprise-benefit-4-description": "Accordi di fatturazione su misura per le esigenze della tua organizzazione.",
+        "pricing-enterprise-benefit-5-title": "Account manager dedicato",
+        "pricing-enterprise-benefit-5-description": "Un account manager dedicato per supportare la crescita della tua organizzazione.",
+        "pricing-enterprise-benefit-6-title": "SSO",
+        "pricing-enterprise-benefit-6-description": "Integrazione Single Sign-On con il tuo provider di identità.",
+        "pricing-per-user-month": "per utente / mese",
+        "pricing-per-user-year": "per utente / anno",
+        "pricing-users-label": "Membri del team",
+        "pricing-total-monthly": "Totale / mese",
+        "pricing-price-on-request": "Parlaci della tua organizzazione e progetteremo insieme il piano ideale per te",
         "pricing-compare-title": "Confronta i piani",
         "pricing-compare-feature": "Funzione",
         "pricing-compare-users": "Utenti",
-        "pricing-compare-records": "Registrazioni",
-        "pricing-compare-tables": "Tabelle di registrazioni",
-        "pricing-compare-storage": "Spazio",
-        "pricing-compare-workspaces": "Spazi attività",
-        "pricing-compare-billing": "Controllo fatturazione",
-        "pricing-compare-kanban": "Bacheca Kanban",
-
+        "pricing-compare-workspaces": "Workspace",
+        "pricing-compare-pipelines": "Pipeline vendite",
+        "pricing-compare-tasks": "Gestione attività",
+        "pricing-compare-billing": "Modulo fatturazione",
+        "pricing-compare-messaging": "Messaggistica interna",
+        "pricing-compare-ai": "Funzionalità AI",
+        "pricing-compare-permissions": "Permessi",
+        "pricing-compare-exports": "Esportazioni",
+        "pricing-compare-sso": "SSO",
+        "pricing-compare-sla": "SLA",
+        "pricing-compare-priority-support": "Supporto prioritario",
+        "pricing-compare-data-retention": "Conservazione dati",
+        "pricing-compare-custom-billing": "Fatturazione personalizzata",
+        "pricing-compare-account-manager": "Account manager",
+        "pricing-compare-unlimited": "Illimitati",
+        "pricing-compare-tasks-free": "Gestione di base delle attività",
+        "pricing-compare-tasks-full": "Epic, checklist, stati e tipi personalizzati",
+        "pricing-compare-ai-basic": "Attività e note",
+        "pricing-compare-ai-full": "Supporto completo",
+        "pricing-compare-permissions-basic": "Base",
+        "pricing-compare-permissions-granular": "Granulari per ruolo",
         "pricing-enterprise-contact-title": "Inserisci la tua email e ti contatteremo al più presto",
-        "pricing-enterprise-contact-description": "Ci metteremo in contatto con te per discutere i dettagli per creare un piano personalizzato che sia quello più adatto a te",
+        "pricing-enterprise-contact-description": "Ci metteremo in contatto con te per discutere i dettagli e creare un piano personalizzato che si adatti meglio alle tue esigenze",
         "email-placeholder": "Inserisci la tua email",
-        "additionnal-query-placeholder": "Aggiungi qualsiasi domanda aggiuntiva...",
+        "additionnal-query-placeholder": "Aggiungi ulteriori domande...",
         "send": "Invia",
-
-        "cannot-get-payment-link": "Impossibile ottenere il link di pagamento",
-        "redirection-stripe-error": "Ci scusiamo, si è verificato un errore durante la redirezione al pagamento su Stripe"
+        "cannot-get-payment-link": "Impossibile recuperare il link di pagamento",
+        "redirection-stripe-error": "Siamo spiacenti, si è verificato un errore nel reindirizzamento al pagamento Stripe"
     },
     "auth": {
         "welcome": "Benvenuto",
@@ -1066,7 +997,7 @@
         "your-plan": "Il tuo piano",
         "free-plan-label": "Free",
         "pro-plan-label": "Pro",
-        "pro-plus-plan-label": "Pro Plus",
+        "plus-plan-label": "Plus",
         "create-and-continue": "Crea e continua",
         "payment-redirect-notice": "Verrai reindirizzato al pagamento dopo aver creato l'organizzazione.",
         "team-created": "Organizzazione creata!",
@@ -1295,7 +1226,6 @@
         "no-results": "Nessun risultato trovato.",
         "first-row-header": "La prima riga è l'intestazione",
         "choise-field": "Scegli un campo",
-
         "file-uploaded": "File caricati con successo",
         "failed-upload-file": "Ci scusiamo, si è verificato un errore durante il caricamento dei file",
         "records-uploaded": "Dati caricati con successo",
@@ -2749,7 +2679,7 @@
         "date-to": "Al",
         "clear-dates": "Cancella date",
         "empty-all": "Nessun messaggio",
-        "empty-inbox": "La posta in arrivo \u00e8 vuota",
+        "empty-inbox": "La posta in arrivo è vuota",
         "empty-sent": "Nessun messaggio inviato",
         "empty-featured": "Nessun messaggio in evidenza",
         "no-subject": "Nessun oggetto",

@@ -4,11 +4,13 @@ import { plans } from "@/features/landing/plans";
 import PricingCard from "./PricingCard";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { Minus, Plus, Users } from "lucide-react";
 
 type Billing = 'monthly' | 'annual';
 
 const PricingSection = () => {
     const [billing, setBilling] = useState<Billing>('monthly');
+    const [userCount, setUserCount] = useState(5);
     const t = useTranslations('pricing');
 
     return (
@@ -43,6 +45,30 @@ const PricingSection = () => {
                 </button>
             </div>
 
+            <div className="flex items-center gap-3 text-sm">
+                <Users className="size-4 text-muted-foreground" />
+                <span className="text-muted-foreground">{t('pricing-users-label')}:</span>
+                <div className="flex items-center border rounded-lg overflow-hidden">
+                    <button
+                        type="button"
+                        onClick={() => setUserCount(c => Math.max(1, c - 1))}
+                        className="px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        aria-label="decrease"
+                    >
+                        <Minus className="size-3.5" />
+                    </button>
+                    <span className="min-w-[2.5rem] text-center font-semibold text-foreground tabular-nums">{userCount}</span>
+                    <button
+                        type="button"
+                        onClick={() => setUserCount(c => Math.min(50, c + 1))}
+                        className="px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        aria-label="increase"
+                    >
+                        <Plus className="size-3.5" />
+                    </button>
+                </div>
+            </div>
+
             <div className="container flex flex-wrap gap-4 justify-center p-1 max-sm:flex-col mb-10">
                 {plans.map(plan => (
                     <PricingCard
@@ -54,6 +80,8 @@ const PricingSection = () => {
                             billing === 'monthly' ? plan.monthlyPrice : plan.annualPrice
                         }
                         billing={billing}
+                        userCount={userCount}
+                        includes={plan.includes}
                     />
                 ))}
             </div>

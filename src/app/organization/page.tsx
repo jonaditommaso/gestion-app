@@ -17,7 +17,7 @@ type TeamFileDocument = Models.Document & {
 };
 
 const formatPlan = (plan: Organization['plan']) => {
-    if (plan === 'PRO-PLUS') return 'Pro Plus';
+    if (plan === 'PLUS') return 'Plus';
     return `${plan.charAt(0)}${plan.slice(1).toLowerCase()}`;
 };
 

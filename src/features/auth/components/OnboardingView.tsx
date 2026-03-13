@@ -24,7 +24,7 @@ import { useStripeCheckout } from "@/features/pricing/api/use-stripe-checkout";
 import { useAcceptInvitationToken } from "@/features/team/api/use-accept-invitation-token";
 
 type OnboardingChoice = 'create' | 'join';
-type PlanType = 'free' | 'pro' | 'pro-plus';
+type PlanType = 'free' | 'plus' | 'pro';
 type CreateStep = 'name' | 'select-plan' | 'confirm';
 
 const formSchema = zod.object({
@@ -33,7 +33,7 @@ const formSchema = zod.object({
 
 interface PlanStyle {
     sparkle: string;
-    labelKey: 'free-plan-label' | 'pro-plan-label' | 'pro-plus-plan-label';
+    labelKey: 'free-plan-label' | 'plus-plan-label' | 'pro-plan-label';
     border: string;
     bg: string;
     color: string;
@@ -47,6 +47,13 @@ const planStyle: Record<PlanType, PlanStyle> = {
         bg: 'bg-emerald-50 dark:bg-emerald-950/30',
         color: 'text-emerald-700 dark:text-emerald-300',
     },
+    'plus': {
+        sparkle: 'text-violet-500',
+        labelKey: 'plus-plan-label',
+        border: 'border-violet-400',
+        bg: 'bg-violet-50 dark:bg-violet-950/30',
+        color: 'text-violet-700 dark:text-violet-300',
+    },
     'pro': {
         sparkle: 'text-blue-500',
         labelKey: 'pro-plan-label',
@@ -54,23 +61,16 @@ const planStyle: Record<PlanType, PlanStyle> = {
         bg: 'bg-blue-50 dark:bg-blue-950/30',
         color: 'text-blue-700 dark:text-blue-300',
     },
-    'pro-plus': {
-        sparkle: 'text-violet-500',
-        labelKey: 'pro-plus-plan-label',
-        border: 'border-violet-400',
-        bg: 'bg-violet-50 dark:bg-violet-950/30',
-        color: 'text-violet-700 dark:text-violet-300',
-    },
 };
 
-const carouselPlans: PlanType[] = ['free', 'pro', 'pro-plus'];
+const carouselPlans: PlanType[] = ['free', 'plus', 'pro'];
 
-const carouselPrices: Record<PlanType, number> = { free: 0, pro: 49, 'pro-plus': 99 };
-const carouselAnnualPrices: Record<PlanType, number> = { free: 0, pro: 469, 'pro-plus': 949 };
+const carouselPrices: Record<PlanType, number> = { free: 0, plus: 12, pro: 22 };
+const carouselAnnualPrices: Record<PlanType, number> = { free: 0, plus: 9, pro: 18 };
 const planDescKey: Record<PlanType, string> = {
-    'free': 'pricing-basic-description',
+    'free': 'pricing-free-description',
+    'plus': 'pricing-plus-description',
     'pro': 'pricing-pro-description',
-    'pro-plus': 'pricing-pro-plus-description',
 };
 interface OnboardingViewProps {
     onSkip?: () => void;

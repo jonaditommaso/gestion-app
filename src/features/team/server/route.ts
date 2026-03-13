@@ -80,7 +80,7 @@ const app = new Hono()
             await teams.updatePrefs(newTeam.$id, { plan, billingCycle });
 
             const planUppercase: OrganizationPlan =
-                plan === 'pro-plus' ? 'PRO-PLUS' :
+                plan === 'plus' ? 'PLUS' :
                     plan === 'pro' ? 'PRO' : 'FREE';
 
             const newOrg = await adminDatabases.createDocument<Organization>(

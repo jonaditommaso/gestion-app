@@ -26,8 +26,7 @@ const app = new Hono()
 
             const products = await stripe.products.list()
 
-            const stripeProductId = plan === 'pro-plus' ? 'proplus' : plan;
-            const product = products.data.find(prod => prod.metadata.plan === stripeProductId);
+            const product = products.data.find(prod => prod.metadata.plan === plan);
 
             if (!product?.default_price) {
                 return ctx.json({ error: 'There is no plan' }, 400)

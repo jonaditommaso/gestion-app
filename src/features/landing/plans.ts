@@ -1,41 +1,44 @@
-{/* cambiar descripciones */ }
-type PlanType = 'free' | 'pro' | 'pro-plus' | 'enterprise';
+export type PlanType = 'free' | 'plus' | 'pro' | 'enterprise';
 
 interface Plan {
     type: PlanType;
-    description: string,
-    textButton: string,
-    monthlyPrice: number,
-    annualPrice: number,
+    description: string;
+    textButton: string;
+    monthlyPrice: number;
+    annualPrice: number;
+    includes?: string;
 }
 
 export const plans: Plan[] = [
     {
         type: 'free',
-        description: 'pricing-basic-description',
-        textButton: 'pricing-basic-button',
+        description: 'pricing-free-description',
+        textButton: 'pricing-free-button',
         monthlyPrice: 0,
-        annualPrice: 0
+        annualPrice: 0,
+    },
+    {
+        type: 'plus',
+        description: 'pricing-plus-description',
+        textButton: 'pricing-plus-button',
+        monthlyPrice: 12,
+        annualPrice: 9,
+        includes: 'pricing-plus-includes',
     },
     {
         type: 'pro',
         description: 'pricing-pro-description',
         textButton: 'pricing-pro-button',
-        monthlyPrice: 49,
-        annualPrice: 469
-    },
-    {
-        type: 'pro-plus',
-        description: 'pricing-pro-plus-description',
-        textButton: 'pricing-pro-plus-button',
-        monthlyPrice: 99,
-        annualPrice: 949
+        monthlyPrice: 22,
+        annualPrice: 18,
+        includes: 'pricing-pro-includes',
     },
     {
         type: 'enterprise',
         description: 'pricing-enterprise-description',
         textButton: 'pricing-enterprise-button',
-        monthlyPrice: 149,
-        annualPrice: 1499
-    }
+        monthlyPrice: 0,
+        annualPrice: 0,
+        includes: 'pricing-enterprise-includes',
+    },
 ];

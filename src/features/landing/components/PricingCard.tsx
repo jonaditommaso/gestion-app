@@ -1,5 +1,5 @@
 'use client'
-import { basicBenefits, enterpriseBenefits, proBenefits, proPlusBenefits } from "@/features/landing/benefits";
+import { freeBenefits, enterpriseBenefits, proBenefits, plusBenefits } from "@/features/landing/benefits";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -10,46 +10,79 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 interface PricingCardProps {
-    type: 'free' | 'pro' | 'pro-plus' | 'enterprise',
+    type: 'free' | 'plus' | 'pro' | 'enterprise',
     description: string,
     textButton: string,
     price: number,
     onSelect?: () => void,
     compact?: boolean,
     billing?: 'monthly' | 'annual',
+    userCount?: number,
+    includes?: string,
 }
 
 const planes_t = {
-    free: 'pricing-basic-title',
-    pro: 'pricing-pro-title',
-    'pro-plus': 'pricing-pro-plus-title',
-    enterprise: 'pricing-enterprise-title'
+    free: 'Free',
+    plus: 'Plus',
+    pro: 'Pro',
+    enterprise: 'Enterprise',
 }
 
 const benefits = {
-    free: basicBenefits,
+    free: freeBenefits,
+    plus: plusBenefits,
     pro: proBenefits,
-    'pro-plus': proPlusBenefits,
     enterprise: enterpriseBenefits
 }
 
-const PricingCard = ({ type, description, textButton, price, onSelect, compact = false, billing = 'monthly' }: PricingCardProps) => {
+const PricingCard = ({ type, description, textButton, price, onSelect, compact = false, billing = 'monthly', userCount, includes }: PricingCardProps) => {
     const t = useTranslations('pricing');
 
-    const isFeatured = type === 'pro-plus' || type === 'enterprise';
-    const borderColor = type === 'pro-plus' ? 'border-blue-600' : 'border-yellow-400';
-    const bgColor = type === 'pro-plus' ? 'bg-blue-50' : 'bg-yellow-50';
-    const badgeBg = type === 'pro-plus' ? 'bg-blue-600' : 'bg-yellow-400';
-    const badgeLabel = type === 'pro-plus'
+    const isFeatured = type === 'pro' || type === 'enterprise';
+    const borderColor = type === 'pro' ? 'border-blue-600' : 'border-yellow-400';
+    const bgColor = type === 'pro' ? 'bg-blue-50' : 'bg-yellow-50';
+    const badgeBg = type === 'pro' ? 'bg-blue-600' : 'bg-yellow-400';
+    const badgeLabel = type === 'pro'
         ? t('pricing-most-popular')
         : <span className="flex items-center gap-2">{t('pricing-no-limits')} <Rocket className="size-4" /></span>;
+
+    const perUserLabel = billing === 'annual' ? t('pricing-per-user-year') : t('pricing-per-user-month');
+    const showTotal = type !== 'free' && type !== 'enterprise' && userCount !== undefined && userCount > 0;
+    const total = showTotal ? price * userCount! : 0;
+
+    const priceBlock = () => {
+        if (type === 'enterprise') {
+            return (
+                <p className={cn('text-sm text-zinc-500 leading-relaxed text-center font-semibold', compact ? 'py-3' : 'py-5')}>
+                    {t('pricing-price-on-request')}
+                </p>
+            );
+        }
+        return (
+            <div className={cn('flex flex-col items-center gap-1 text-center', compact && 'py-2')}>
+                <div className="flex items-end">
+                    <span className={compact ? 'text-base' : 'text-2xl'}>us$</span>
+                    <p className={cn('tabular-nums font-bold', compact ? 'text-4xl' : 'text-6xl leading-none')}>{price}</p>
+                </div>
+                {type !== 'free' && (
+                    <p className="text-zinc-500 text-xs">{perUserLabel}</p>
+                )}
+                {showTotal && !compact && (
+                    <p className="text-zinc-500 text-sm mt-1 tabular-nums">
+                        {t('pricing-total-monthly')}:{' '}
+                        <span className="font-semibold text-foreground">us$ {total}</span>
+                    </p>
+                )}
+            </div>
+        );
+    };
 
     if (compact) {
         return (
             <Card className={cn(
                 'w-full shadow',
                 isFeatured
-                    ? `border-4 box-border ${borderColor} ${type === 'pro-plus' ? 'bg-blue-600/5' : ''}`
+                    ? `border-4 box-border ${borderColor} ${type === 'pro' ? 'bg-blue-600/5' : ''}`
                     : 'border-4 border-transparent'
             )}>
                 <CardHeader className={`relative flex items-center justify-center text-center px-5 pt-5 pb-3 ${isFeatured ? 'mt-[-8px]' : ''}`}>
@@ -59,24 +92,22 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
                         </p>
                     )}
                     <CardTitle className="text-xl">
-                        {t(planes_t[type])}
+                        {planes_t[type]}
                     </CardTitle>
                     <p className="text-zinc-500 text-xs">{t(description)}</p>
-                    <div className="flex items-center py-2">
-                        <span className="text-lg">us$</span>
-                        <div className="flex gap-2 items-center">
-                            <p className="text-4xl">{price}</p>
-                            {type !== 'free' && <p className="text-zinc-500 text-xs">{billing === 'annual' ? t('pricing-billed-annually') : t('pricing-monthly')}</p>}
-                        </div>
-                    </div>
+                    {priceBlock()}
                 </CardHeader>
                 <Separator />
                 <CardContent className="px-5 py-3">
+                    {includes && (
+                        <p className="text-xs text-muted-foreground font-medium mb-2 px-1">{t(includes)}</p>
+                    )}
                     <ul>
                         {benefits[type].map((benefit, index) => (
                             <Collapsible className='my-2 group/collapsible' key={index}>
-                                <CollapsibleTrigger className="flex items-center text-xs font-semibold text-zinc-600">
-                                    <ChevronRight className="ml-auto size-3.5 transition-transform group-data-[state=open]/collapsible:rotate-90"/> {t(benefit.triggerText)}
+                            <CollapsibleTrigger className="flex items-start gap-1 text-xs font-semibold text-zinc-500 text-left w-full">
+                                    <ChevronRight className="shrink-0 mt-0.5 size-3.5 transition-transform group-data-[state=open]/collapsible:rotate-90"/>
+                                    <span>{t(benefit.triggerText)}</span>
                                 </CollapsibleTrigger>
                                 <CollapsibleContent className="pl-5 text-zinc-500 text-xs">
                                     {t(benefit.contentText)}
@@ -90,23 +121,19 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
     }
 
     return (
-        <Card className={cn('w-full md:w-[360px] shadow', isFeatured ? `border-4 box-border ${borderColor} ${bgColor}` : '')}>
-            <CardHeader className={`relative flex items-center justify-center text-center p-7 ${isFeatured ? 'mt-[-8px]' : ''}`}>
+        <Card className={cn('w-full md:w-[360px] shadow flex flex-col', isFeatured ? `border-4 box-border ${borderColor} ${bgColor}` : '')}>
+            <CardHeader className={`relative flex flex-col items-center text-center p-7 ${isFeatured ? 'mt-[-8px]' : ''}`}>
                 {isFeatured && (
                     <p className={`absolute m-0 mt-[8px] top-0 ${badgeBg} text-white px-4 p-0 rounded-b-lg`}>
                         {badgeLabel}
                     </p>
                 )}
                 <CardTitle className="text-2xl">
-                    {t(planes_t[type])}
+                    {planes_t[type]}
                 </CardTitle>
                 <p className="text-zinc-500 h-14">{t(description)}</p>
-                <div className="flex items-center py-5">
-                    <span className="text-2xl">us$</span>
-                    <div className="flex gap-2 items-center">
-                        <p className="text-6xl">{price}</p>
-                        {type !== 'free' && <p className="text-zinc-500">{billing === 'annual' ? t('pricing-billed-annually') : t('pricing-monthly')}</p>}
-                    </div>
+                <div className="w-full h-[148px] flex flex-col justify-center items-center">
+                    {priceBlock()}
                 </div>
                 {onSelect
                     ? <Button className="w-full" onClick={onSelect}>{textButton}</Button>
@@ -115,11 +142,15 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
             </CardHeader>
             <Separator />
             <CardContent className="p-7">
+                {includes && (
+                    <p className="text-sm text-muted-foreground font-medium mb-3">{t(includes)}</p>
+                )}
                 <ul>
                     {benefits[type].map((benefit, index) => (
                         <Collapsible className='m-4 group/collapsible' key={index}>
-                            <CollapsibleTrigger className="flex items-center font-semibold text-zinc-600">
-                                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90"/> {t(benefit.triggerText)}
+                            <CollapsibleTrigger className="flex items-end gap-1.5 font-semibold text-zinc-500 text-left w-full">
+                                <ChevronRight className="shrink-0 mt-0.5 transition-transform group-data-[state=open]/collapsible:rotate-90 stroke-1"/>
+                                <span>{t(benefit.triggerText)}</span>
                             </CollapsibleTrigger>
                             <CollapsibleContent className="pl-6 text-zinc-500 text-sm">
                                 {t(benefit.contentText)}

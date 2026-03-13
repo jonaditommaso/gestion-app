@@ -26,7 +26,7 @@ export const profileSchema = zod.object({
 
 export const createTeamSchema = zod.object({
     company: zod.string().trim().min(1, 'Required'),
-    plan: zod.enum(['free', 'pro', 'pro-plus']).optional().default('free'),
+    plan: zod.enum(['free', 'plus', 'pro']).optional().default('free'),
     billingCycle: zod.enum(['MONTHLY', 'YEARLY']).optional().default('MONTHLY'),
     stripeSessionId: zod.string().trim().optional(),
 })

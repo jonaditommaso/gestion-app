@@ -1,6 +1,6 @@
 import { Models } from "node-appwrite";
 
-export type OrganizationPlan = 'FREE' | 'PRO' | 'PRO-PLUS' | 'ENTERPRISE';
+export type OrganizationPlan = 'FREE' | 'PLUS' | 'PRO' | 'ENTERPRISE';
 export type BillingCycle = 'MONTHLY' | 'YEARLY';
 
 export type MembershipRole = 'OWNER' | 'ADMIN' | 'CREATOR' | 'VIEWER';
