@@ -39,8 +39,13 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
     const t = useTranslations('pricing');
 
     const isFeatured = type === 'pro' || type === 'enterprise';
-    const borderColor = type === 'pro' ? 'border-blue-600' : 'border-yellow-400';
-    const bgColor = type === 'pro' ? 'bg-blue-50' : 'bg-yellow-50';
+    const borderColor = type === 'pro' ? 'border-blue-500' : 'border-yellow-400';
+    const bgColor = type === 'pro'
+        ? 'bg-gradient-to-br from-blue-100 via-white to-indigo-50/60'
+        : 'bg-gradient-to-br from-yellow-100 via-white to-amber-50/60';
+    const featuredShadow = type === 'pro'
+        ? 'shadow-xl shadow-blue-200/60'
+        : 'shadow-xl shadow-yellow-200/60';
     const badgeBg = type === 'pro' ? 'bg-blue-600' : 'bg-yellow-400';
     const badgeLabel = type === 'pro'
         ? t('pricing-most-popular')
@@ -80,10 +85,10 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
     if (compact) {
         return (
             <Card className={cn(
-                'w-full shadow',
+                'w-full',
                 isFeatured
-                    ? `border-4 box-border ${borderColor} ${type === 'pro' ? 'bg-blue-600/5' : ''}`
-                    : 'border-4 border-transparent'
+                    ? `border-4 box-border ${borderColor} ${bgColor} ${featuredShadow}`
+                    : 'border shadow-md bg-gradient-to-br from-zinc-100 via-white to-slate-50/80'
             )}>
                 <CardHeader className={`relative flex items-center justify-center text-center px-5 pt-5 pb-3 ${isFeatured ? 'mt-[-8px]' : ''}`}>
                     {isFeatured && (
@@ -121,7 +126,7 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
     }
 
     return (
-        <Card className={cn('w-full md:w-[360px] shadow flex flex-col', isFeatured ? `border-4 box-border ${borderColor} ${bgColor}` : '')}>
+        <Card className={cn('w-full md:w-[360px] flex flex-col', isFeatured ? `border-4 box-border ${borderColor} ${bgColor} ${featuredShadow}` : 'shadow-md border bg-gradient-to-br from-zinc-100 via-white to-slate-50/80')}>
             <CardHeader className={`relative flex flex-col items-center text-center p-7 ${isFeatured ? 'mt-[-8px]' : ''}`}>
                 {isFeatured && (
                     <p className={`absolute m-0 mt-[8px] top-0 ${badgeBg} text-white px-4 p-0 rounded-b-lg`}>
