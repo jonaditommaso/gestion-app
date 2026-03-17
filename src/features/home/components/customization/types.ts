@@ -85,6 +85,15 @@ export interface HomeConfigDocument {
     $permissions: string[];
 }
 
+export const FREE_PLAN_WIDGETS: WidgetId[] = [
+    'my-notes',
+    'shortcut',
+    'calendar',
+    'todo-tasks',
+    'new-deal',
+    'new-task',
+];
+
 export const DEFAULT_WIDGETS: WidgetConfig[] = [
     { id: 'my-notes', visible: true, canToggle: false },
     { id: 'messages', visible: true, canToggle: true },

@@ -6,9 +6,10 @@ import { Separator } from "@/components/ui/separator";
 import { useTranslations, useLocale } from "next-intl";
 import { Dispatch, SetStateAction } from "react";
 import { useHomeCustomization } from "./HomeCustomizationContext";
-import { WIDGET_LABELS, INTEGRATION_LABELS, WidgetId, IntegrationId } from "./types";
+import { WIDGET_LABELS, INTEGRATION_LABELS, WidgetId, IntegrationId, FREE_PLAN_WIDGETS } from "./types";
 import { Eye, EyeOff, Sparkles, Music, Video, HardDrive } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface AddWidgetModalProps {
     isOpen: boolean;
@@ -30,6 +31,10 @@ const AddWidgetModal = ({ isOpen, setIsOpen }: AddWidgetModalProps) => {
         toggleIntegration,
         toggleSmartWidgets,
     } = useHomeCustomization();
+    const { isFree } = usePlanAccess();
+    const visibleWidgets = isFree
+        ? config.widgets.filter(w => FREE_PLAN_WIDGETS.includes(w.id as WidgetId))
+        : config.widgets;
 
     return (
         <DialogContainer
@@ -61,7 +66,7 @@ const AddWidgetModal = ({ isOpen, setIsOpen }: AddWidgetModalProps) => {
                 <div>
                     <h4 className="font-medium mb-3">{t('widgets')}</h4>
                     <div className="space-y-2">
-                        {config.widgets.map((widget) => (
+                        {visibleWidgets.map((widget) => (
                             <div
                                 key={widget.id}
                                 className={cn(

@@ -957,7 +957,8 @@
         "additionnal-query-placeholder": "Add any additional questions...",
         "send": "Send",
         "cannot-get-payment-link": "Could not retrieve the payment link",
-        "redirection-stripe-error": "Sorry, there was an error redirecting to Stripe payment"
+        "redirection-stripe-error": "Sorry, there was an error redirecting to Stripe payment",
+        "pricing-current-plan": "Your current plan"
     },
     "auth": {
         "welcome": "Welcome",
@@ -2710,5 +2711,31 @@
         "title": "Page not found",
         "description": "Sorry, the page you are looking for does not exist or has been moved to another location.",
         "button-home": "Back to home"
+    },
+    "plan-limits": {
+        "member-limit-reached": "You've reached the 3-member limit of your current plan. Upgrade to add more.",
+        "workspace-limit-reached": "You've reached the 1-workspace limit of your current plan. Upgrade to create more.",
+        "pipeline-limit-reached": "Your current plan allows only 1 sales pipeline. Upgrade to create more.",
+        "upgrade-cta": "Upgrade plan",
+        "free-feature-unavailable": "This feature is not available on the Free plan.",
+        "upgrade-dialog-view-plans": "View plans",
+        "upgrade-dialog-cancel": "Cancel",
+        "upgrade-dialog-members-title": "Add more members",
+        "upgrade-dialog-members-description": "Your current plan allows up to 3 members per organization.",
+        "upgrade-dialog-members-cta-description": "Upgrade your plan to keep growing with your team.",
+        "upgrade-dialog-members-resource": "members",
+        "upgrade-dialog-pipelines-title": "New sales pipeline",
+        "upgrade-dialog-pipelines-description": "Your current plan allows only 1 sales pipeline.",
+        "upgrade-dialog-pipelines-cta-description": "Upgrade your plan to create more and better organize your opportunities.",
+        "upgrade-dialog-pipelines-resource": "pipelines",
+        "upgrade-dialog-workspaces-title": "New workspace",
+        "upgrade-dialog-workspaces-description": "Your current plan allows only 1 workspace.",
+        "upgrade-dialog-workspaces-cta-description": "Upgrade your plan to manage multiple projects.",
+        "upgrade-dialog-workspaces-resource": "workspaces",
+        "upgrade-dialog-team-limit-reached": "Team limit reached",
+        "upgrade-dialog-notify-admin": "Notify Administrator",
+        "upgrade-dialog-notify-owner-members": "{name} is trying to invite more people to the team, but the limit has been reached. Click here to upgrade your plan.",
+        "upgrade-dialog-notify-owner-pipelines": "{name} is trying to create more sales pipelines, but the limit has been reached. Click here to upgrade your plan.",
+        "upgrade-dialog-notify-owner-workspaces": "{name} is trying to create a new workspace, but the limit has been reached. Click here to upgrade your plan."
     }
 }

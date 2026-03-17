@@ -14,6 +14,7 @@ import FadeLoader from "react-spinners/FadeLoader";
 import EditMemberModal from "./EditMemberModal";
 import SendDirectMessageModal from "./SendDirectMessageModal";
 import TagsMember from "./TagsMember";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 import { MembershipRole } from "../types";
 
@@ -52,6 +53,7 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
     const [editOpen, setEditOpen] = useState(false);
     const [messageOpen, setMessageOpen] = useState(false);
 
+    const { isFree } = usePlanAccess();
     const isCurrentUser = !!currentUser && currentUser.$id === userId;
     const hasPhoto = !!imageUrl && !isPending;
     const company: string = orgName ?? '';
@@ -175,7 +177,7 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                                         </Tooltip>
                                     </TooltipProvider>
                                 )}
-                                {!isCurrentUser && (
+                                {!isCurrentUser && !isFree && (
                                     <div
                                         className="cursor-pointer bg-transparent hover:bg-secondary rounded-full p-1.5 transition-colors"
                                         onClick={() => setMessageOpen(true)}
@@ -220,7 +222,7 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                 />
             )}
 
-            {!isCurrentUser && (
+            {!isCurrentUser && !isFree && (
                 <SendDirectMessageModal
                     isOpen={messageOpen}
                     setIsOpen={setMessageOpen}

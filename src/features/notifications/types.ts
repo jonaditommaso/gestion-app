@@ -17,6 +17,7 @@ export const NotificationEntityType = {
     DEAL_WON: 'deal_won',
     DEAL_LOST: 'deal_lost',
     DEAL_GOAL_REACHED: 'deal_goal_reached',
+    PLAN_LIMIT_REACHED: 'plan_limit_reached',
 } as const;
 
 export type NotificationEntityTypeValue = typeof NotificationEntityType[keyof typeof NotificationEntityType];

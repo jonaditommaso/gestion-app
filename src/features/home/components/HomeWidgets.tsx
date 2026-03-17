@@ -24,8 +24,9 @@ import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { TaskStatus } from "@/features/tasks/types";
 import { useGetMember } from "@/features/members/api/use-get-member";
 import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
-import { WidgetId } from "./customization/types";
+import { WidgetId, FREE_PLAN_WIDGETS } from "./customization/types";
 import { MinusCircle } from "lucide-react";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface EditableWidgetOverlayProps {
     onRemove: () => void;
@@ -57,7 +58,12 @@ interface ConditionalWidgetProps {
 
 const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWidgetProps) => {
     const { isWidgetVisible, config, isEditMode, toggleWidgetVisibility, canToggleWidget } = useHomeCustomization();
+    const { isFree } = usePlanAccess();
     const canToggle = canToggleWidget(widgetId);
+
+    if (isFree && !FREE_PLAN_WIDGETS.includes(widgetId)) {
+        return null;
+    }
 
     if (!isWidgetVisible(widgetId)) {
         return null;
@@ -81,7 +87,8 @@ const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWi
 };
 
 const HomeWidgetsGrid = () => {
-    const { data: messages } = useGetMessages();
+    const { isFree } = usePlanAccess();
+    const { data: messages } = useGetMessages({ enabled: !isFree });
     const { data: member } = useGetMember();
     const { data: teamContext } = useGetTeamContext();
     const { config } = useHomeCustomization();
@@ -105,7 +112,7 @@ const HomeWidgetsGrid = () => {
     const hasMessages = (messages?.total ?? 0) > 0;
     const hasTasks = (tasks?.documents?.length ?? 0) > 0;
 
-    const { data: meets } = useGetMeets();
+    const { data: meets } = useGetMeets({ enabled: !isFree });
     const hasMeets = (meets?.length ?? 0) > 0;
 
     return (

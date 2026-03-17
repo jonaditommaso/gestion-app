@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetMeets = () => {
+export const useGetMeets = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: ['meets'],
         queryFn: async () => {
             const response = await client.api.meets.$get();
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to fetch meets')
             }
 
@@ -15,7 +15,8 @@ export const useGetMeets = () => {
 
             return data;
         },
-        refetchOnMount: false
+        refetchOnMount: false,
+        enabled: options?.enabled ?? true,
     })
 
     return query;

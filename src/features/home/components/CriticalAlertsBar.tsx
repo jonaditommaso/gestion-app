@@ -7,6 +7,7 @@ import { AlertCircle, AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import dayjs from "dayjs";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 type BillingOperation = {
     status?: 'PENDING' | 'PAID' | 'OVERDUE';
@@ -16,14 +17,17 @@ type BillingOperation = {
 const CriticalAlertsBar = () => {
     const t = useTranslations('home');
     const { data: teamContext } = useGetTeamContext();
-    const { data: operationsData } = useGetOperations();
-    const { data: tasksSummary } = useGetOrgTasksSummary();
+    const { isFree } = usePlanAccess();
 
     const organizationRole = teamContext?.membership?.role;
     const isPrivileged = organizationRole === 'OWNER' || organizationRole === 'ADMIN';
+    const shouldFetch = !isFree && isPrivileged;
+
+    const { data: operationsData } = useGetOperations({ enabled: shouldFetch });
+    const { data: tasksSummary } = useGetOrgTasksSummary({ enabled: shouldFetch });
 
     const overdueInvoiceCount = useMemo(() => {
-        if (!isPrivileged || !operationsData?.documents) return 0;
+        if (!shouldFetch || !operationsData?.documents) return 0;
 
         const todayStart = dayjs().startOf('day');
 
@@ -33,12 +37,13 @@ const CriticalAlertsBar = () => {
                 op.dueDate != null &&
                 dayjs(op.dueDate).isBefore(todayStart)
             ).length;
-    }, [isPrivileged, operationsData]);
+    }, [shouldFetch, operationsData]);
+
+    if (isFree) return null;
+    if (!isPrivileged) return null;
 
     const overdueWorkspaces = tasksSummary?.overdueByWorkspace ?? [];
     const unassignedFeaturedWorkspaces = tasksSummary?.unassignedFeaturedByWorkspace ?? [];
-
-    if (!isPrivileged) return null;
 
     const hasAlerts =
         overdueInvoiceCount > 0 ||

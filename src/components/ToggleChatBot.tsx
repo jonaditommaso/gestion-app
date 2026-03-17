@@ -2,9 +2,13 @@
 import { BotMessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { useChatBot } from "@/context/ChatBotContext";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const ToggleChatBot = () => {
     const { toggleChatBot } = useChatBot();
+    const { isFree } = usePlanAccess();
+
+    if (isFree) return null;
 
     return (
         <Button

@@ -959,7 +959,8 @@
         "additionnal-query-placeholder": "Agrega consultas adicionales...",
         "send": "Enviar",
         "cannot-get-payment-link": "No se pudo obtener el enlace de pago",
-        "redirection-stripe-error": "Lo sentimos, hubo un error al redirigir al pago de Stripe"
+        "redirection-stripe-error": "Lo sentimos, hubo un error al redirigir al pago de Stripe",
+        "pricing-current-plan": "Tu plan actual"
     },
     "auth": {
         "welcome": "Bienvenido",
@@ -2714,5 +2715,31 @@
         "title": "Página no encontrada",
         "description": "Lo sentimos, la página que estás buscando no existe o ha sido movida a otra ubicación.",
         "button-home": "Volver al inicio"
+    },
+    "plan-limits": {
+        "member-limit-reached": "Alcanzaste el límite de 3 miembros de tu plan actual. Mejora tu plan para agregar más.",
+        "workspace-limit-reached": "Alcanzaste el límite de 1 workspace de tu plan actual. Mejora tu plan para crear más.",
+        "pipeline-limit-reached": "Tu plan actual permite solo 1 pipeline de ventas. Mejora tu plan para crear más.",
+        "upgrade-cta": "Mejorar plan",
+        "free-feature-unavailable": "Esta función no está disponible en el plan Free.",
+        "upgrade-dialog-view-plans": "Ver planes",
+        "upgrade-dialog-cancel": "Cancelar",
+        "upgrade-dialog-members-title": "Agregar más miembros",
+        "upgrade-dialog-members-description": "Tu plan actual permite agregar hasta 3 miembros por organización.",
+        "upgrade-dialog-members-cta-description": "Actualiza tu plan para agregar más miembros.",
+        "upgrade-dialog-members-resource": "miembros",
+        "upgrade-dialog-pipelines-title": "Nuevo pipeline de ventas",
+        "upgrade-dialog-pipelines-description": "Tu plan actual permite crear solo 1 pipeline de ventas.",
+        "upgrade-dialog-pipelines-cta-description": "Actualiza tu plan para crear más pipelines.",
+        "upgrade-dialog-pipelines-resource": "pipelines",
+        "upgrade-dialog-workspaces-title": "Nuevo workspace",
+        "upgrade-dialog-workspaces-description": "Tu plan actual permite solo 1 workspace.",
+        "upgrade-dialog-workspaces-cta-description": "Actualiza tu plan para crear más workspaces.",
+        "upgrade-dialog-workspaces-resource": "workspaces",
+        "upgrade-dialog-team-limit-reached": "Límite del equipo alcanzado",
+        "upgrade-dialog-notify-admin": "Notificar al Administrador",
+        "upgrade-dialog-notify-owner-members": "{name} está intentando invitar a más personas al equipo, pero han alcanzado el límite. Haz clic aquí para mejorar tu plan.",
+        "upgrade-dialog-notify-owner-pipelines": "{name} está intentando crear más pipelines de ventas, pero han alcanzado el límite. Haz clic aquí para mejorar tu plan.",
+        "upgrade-dialog-notify-owner-workspaces": "{name} está intentando crear un nuevo workspace, pero han alcanzado el límite. Haz clic aquí para mejorar tu plan."
     }
 }

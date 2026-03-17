@@ -38,6 +38,7 @@ import { useGetTask } from "../api/use-get-task";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -67,10 +68,12 @@ export const TaskTitleEditor = ({
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(initialTitle);
     const { mutate: updateTask, isPending } = useUpdateTask();
+    const { isFree } = usePlanAccess();
 
     const currentType = initialType || 'task';
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === currentType)!;
     const TypeIcon = typeOption.icon;
+    const typeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic') : TASK_TYPE_OPTIONS;
 
     const handleSave = () => {
         if (readOnly) return;
@@ -123,7 +126,7 @@ export const TaskTitleEditor = ({
                         <TypeIcon className={cn(iconSize, typeOption.textColor)} />
                     </SelectTrigger>
                     <SelectContent>
-                        {TASK_TYPE_OPTIONS.map(type => {
+                        {typeOptions.map(type => {
                             const Icon = type.icon;
                             return (
                                 <SelectItem key={type.value} value={type.value}>
@@ -175,6 +178,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
+    const { isFree } = usePlanAccess();
 
     // State for managing the current task being viewed
     const [currentTaskId, setCurrentTaskId] = useState<string>(task.$id);
@@ -544,7 +548,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         taskId={displayTask.$id}
                         workspaceId={displayTask.workspaceId}
                         members={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
-                        readOnly={readOnly}
+                        readOnly={isFree || readOnly}
                         checklistCount={displayTask.checklistCount || 0}
                         savedChecklistTitle={displayTask.checklistTitle}
                         onTitleChange={(newTitle) => {

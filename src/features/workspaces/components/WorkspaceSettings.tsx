@@ -24,6 +24,7 @@ import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { TaskStatus } from "@/features/tasks/types";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -45,6 +46,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canDelete = hasPermission(PERMISSIONS.DELETE);
+    const { isFree } = usePlanAccess();
 
     // Parse current config from metadata
     const currentConfig = useMemo(() => {
@@ -394,6 +396,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                     </div>
                     {/* //TODO: Add custom threshold option - show count only when cards >= X */}
 
+                    {!isFree && (<>
                     <Separator />
 
                     <div className="flex items-center justify-between">
@@ -616,6 +619,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             </SelectContent>
                         </Select>
                     </div>
+                    </>)}
                 </CardContent>
             </Card>
 
@@ -777,6 +781,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                         </Select>
                     </div>
 
+                    {!isFree && (<>
                     <Separator />
 
                     <div className="flex items-center justify-between">
@@ -792,6 +797,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             disabled={isConfigPending(WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR) || !canWrite}
                         />
                     </div>
+                    </>)}
                 </CardContent>
             </Card>
 
@@ -926,7 +932,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                 </CardContent>
             </Card>
 
-            {/* Permissions Section */}
+            {!isFree && (
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1046,6 +1052,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                     </div>
                 </CardContent>
             </Card>
+            )}
 
             {/* Danger Zone */}
             {canDelete && (

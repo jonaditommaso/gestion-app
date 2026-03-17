@@ -35,6 +35,7 @@ import { useCurrent } from "@/features/auth/api/use-current";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetTasks } from "../api/use-get-tasks";
 import { LabelSelector } from "./LabelSelector";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
@@ -57,6 +58,8 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
 
     const config = useWorkspaceConfig();
     const { canEditLabel } = useWorkspacePermissions();
+    const { isFree } = usePlanAccess();
+    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((type) => type.value !== 'epic') : TASK_TYPE_OPTIONS;
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
@@ -335,7 +338,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                 </FormControl>
                                                 <FormMessage />
                                                 <SelectContent>
-                                                    {TASK_TYPE_OPTIONS.map((type) => {
+                                                    {taskTypeOptions.map((type) => {
                                                         const Icon = type.icon;
                                                         return (
                                                             <SelectItem key={type.value} value={type.value}>

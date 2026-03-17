@@ -12,6 +12,7 @@ import { useCurrent } from "@/features/auth/api/use-current";
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useDeleteShortcut } from "../../api/use-delete-shortcut";
 import dynamic from "next/dynamic";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const ShortcutForm = dynamic(() => import('./ShortcutForm'), {
     loading: () => <div className="h-64 bg-sidebar"></div>,
@@ -74,6 +75,7 @@ const ShortcutButton = () => {
     const t = useTranslations('home');
     const { data: user, isLoading } = useCurrent();
     const { mutate: deleteShortcut, isPending: isDeleting } = useDeleteShortcut();
+    const { isFree } = usePlanAccess();
 
     const form = useForm<zod.infer<typeof shortcutSchema>>({
         resolver: zodResolver(shortcutSchema),
@@ -123,7 +125,7 @@ const ShortcutButton = () => {
             <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
                 <PopoverTrigger asChild>
                     <Button
-                        className="w-full py-16 h-auto"
+                        className={`w-full ${isFree ? 'py-11' : 'py-16'} h-auto`}
                         variant='outline'
                         disabled={popoverIsOpen || isLoading}
                         onClick={() => handleAddShortcut('shortcut')}
@@ -138,7 +140,7 @@ const ShortcutButton = () => {
         );
     }
 
-    // Estado: Con ambos shortcuts
+    // Estado: Con ambos shortcuts (solo disponible en plan Plus+)
     if (hasBothShortcuts) {
         return (
             <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
@@ -174,7 +176,7 @@ const ShortcutButton = () => {
         );
     }
 
-    // Estado: Con solo un shortcut (mostrar el existente + opción de agregar otro)
+    // Estado: Con solo un shortcut
     const existingShortcut = shortcut1 || shortcut2;
     const existingSlot: ShortcutSlot = shortcut1 ? 'shortcut' : 'shortcut2';
     const emptySlot: ShortcutSlot = shortcut1 ? 'shortcut2' : 'shortcut';
@@ -193,17 +195,19 @@ const ShortcutButton = () => {
                             isLoading={isLoading}
                             isDeleting={isDeleting}
                         />
-                        <div className="border-t border-dashed">
-                            <Button
-                                className="w-full py-3 h-auto rounded-none border-0 text-muted-foreground hover:text-foreground"
-                                variant='ghost'
-                                disabled={isLoading}
-                                onClick={(e) => { e.stopPropagation(); handleAddShortcut(emptySlot); }}
-                            >
-                                <Plus className="h-3 w-3 mr-1" />
-                                <span className="text-xs">{t('add-another-shortcut')}</span>
-                            </Button>
-                        </div>
+                        {!isFree && (
+                            <div className="border-t border-dashed">
+                                <Button
+                                    className="w-full py-3 h-auto rounded-none border-0 text-muted-foreground hover:text-foreground"
+                                    variant='ghost'
+                                    disabled={isLoading}
+                                    onClick={(e) => { e.stopPropagation(); handleAddShortcut(emptySlot); }}
+                                >
+                                    <Plus className="h-3 w-3 mr-1" />
+                                    <span className="text-xs">{t('add-another-shortcut')}</span>
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </PopoverTrigger>

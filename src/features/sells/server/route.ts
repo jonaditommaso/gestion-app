@@ -439,10 +439,12 @@ const app = new Hono()
             }
 
             // Auto-create a draft billing operation when deal reaches CLOSED+WON
+            // Not available on FREE plan (billing module is not included)
             const finalStatus = (body.status ?? existing.status) as string;
             const finalOutcome = (body.outcome ?? existing.outcome) as string;
 
             if (
+                context.org.plan !== 'FREE' &&
                 finalStatus === "CLOSED" &&
                 finalOutcome === "WON" &&
                 !existing.linkedDraftId

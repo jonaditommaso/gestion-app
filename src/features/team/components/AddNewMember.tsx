@@ -14,8 +14,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import FadeLoader from "react-spinners/FadeLoader";
 import { useInviteMember } from "../api/use-invite-member";
 import { useGetTeamContext } from "../api/use-get-team-context";
+import { useGetMembers } from "../api/use-get-members";
 import ManageMembersModal from "./ManageMembersModal";
 import NoTeamWarningIcon from "./NoTeamWarningIcon";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import UpgradeDialog from "@/components/UpgradeDialog";
 
 // interface AddNewMemberProps {
 //     user: Models.User<Models.Preferences>
@@ -36,7 +39,11 @@ const AddNewMember = () => { //we receive the user quickly from server component
     const { hasPermission, isLoading } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const { data: teamContext } = useGetTeamContext();
+    const { isFree, limits } = usePlanAccess();
+    const { data: membersData } = useGetMembers();
     const hasOrg = !!teamContext?.membership;
+    const isAtMemberLimit = isFree && (membersData?.members?.length ?? 0) >= limits.members;
+    const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
     const isValidInviteEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail.trim());
 
     const dialogDescription = step === 'choose'
@@ -251,8 +258,20 @@ const AddNewMember = () => { //we receive the user quickly from server component
             <div className="flex items-center gap-2">
                 {!hasOrg && <NoTeamWarningIcon />}
                 {hasOrg && <ManageMembersModal />}
-                <Button disabled={!hasOrg} onClick={() => setIsOpen(true)}>+ {t('add-new-member')}</Button>
+                <Button
+                    disabled={!hasOrg}
+                    onClick={() => isAtMemberLimit ? setUpgradeDialogOpen(true) : setIsOpen(true)}
+                >
+                    + {t('add-new-member')}
+                </Button>
             </div>
+            <UpgradeDialog
+                open={upgradeDialogOpen}
+                onOpenChange={setUpgradeDialogOpen}
+                feature="members"
+                currentCount={membersData?.members?.length ?? 0}
+                limitCount={limits.members}
+            />
         </div>
     );
 }

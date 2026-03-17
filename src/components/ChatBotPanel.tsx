@@ -11,6 +11,7 @@ import { useSendMessage } from "@/features/chat/api/use-send-message";
 import { useGetConversations } from "@/features/chat/api/use-get-conversations";
 import { useDeleteConversation } from "@/features/chat/api/use-delete-conversation";
 import { useCurrent } from "@/features/auth/api/use-current";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
 import { MODELS } from "@/ai/config";
@@ -48,10 +49,11 @@ const ChatBotPanel = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { data: currentUser } = useCurrent();
+  const { isFree } = usePlanAccess();
 
   // Obtener conversaciones de la BD
   const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations({
-    enabled: Boolean(currentUser),
+    enabled: Boolean(currentUser) && !isFree,
   });
 
   // Callback cuando se elimina una conversación exitosamente

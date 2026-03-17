@@ -1,11 +1,12 @@
+'use client'
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import CTAFooter from "./CTAFooter";
 
 
-const LandingFooter = async () => {
-    const t = await getTranslations('landing')
+const LandingFooter = () => {
+    const t = useTranslations('landing')
 
     return (
         <div className="flex flex-col px-28 w-full bg-[#171321]">

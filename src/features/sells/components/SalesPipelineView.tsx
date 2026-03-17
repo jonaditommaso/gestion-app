@@ -41,6 +41,7 @@ import {
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { Slider } from "@/components/ui/slider";
 import { useLocale, useTranslations } from "next-intl";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import {
   Activity,
   ArrowDownUp,
@@ -79,6 +80,7 @@ import SalesBoardSwitcher from "./SalesBoardSwitcher";
 import CreateSalesBoardDialog from "./CreateSalesBoardDialog";
 import SalesBoardOnboarding from "./SalesBoardOnboarding";
 import BoardSettingsDialog from "./BoardSettingsDialog";
+import UpgradeDialog from "@/components/UpgradeDialog";
 import type { Deal, DealCurrency, DealStage, DealOutcome, Seller, SalesBoard, SalesGoal, WorkItemPriority, ActivityEntry } from "../types";
 import { computeHealthScore } from "../utils/health";
 import { useGetSalesBoards } from "../api/use-get-sales-boards";
@@ -146,6 +148,7 @@ type TableSortKey = "company" | "priority" | "value" | "health";
 type SortDirection = "asc" | "desc";
 const SalesPipelineView = () => {
   const t = useTranslations("sales");
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const locale = useLocale();
   const [boardDeals, setBoardDeals] = useState<Record<DealStage, Deal[]>>(() =>
     groupDealsByStage([])
@@ -189,7 +192,9 @@ const SalesPipelineView = () => {
   const { mutate: addAssigneeMutation } = useAddDealAssignee();
   const { mutate: addActivityMutation } = useAddDealActivity();
 
+  const { isFree } = usePlanAccess();
   const boards: SalesBoard[] = (boardsData?.documents ?? []) as SalesBoard[];
+  const isAtBoardLimit = isFree && boards.length >= 1;
   const selectedBoard: SalesBoard | undefined = boards.find((b) => b.id === selectedBoardId);
   const goals: SalesGoal[] = (goalsData?.documents ?? []) as SalesGoal[];
   const activeGoal: SalesGoal | undefined = goals[0];
@@ -641,7 +646,13 @@ const SalesPipelineView = () => {
               boards={boards}
               selectedBoardId={selectedBoardId}
               onSelect={setSelectedBoardId}
-              onCreateNew={() => setIsCreateBoardOpen(true)}
+              onCreateNew={() => {
+                if (isAtBoardLimit) {
+                  setUpgradeDialogOpen(true);
+                  return;
+                }
+                setIsCreateBoardOpen(true);
+              }}
             />
             {selectedBoard && (
               <Button
@@ -676,8 +687,8 @@ const SalesPipelineView = () => {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {metricCards.map((metric) => (
+      <section className={cn("mt-6 grid gap-4 md:grid-cols-2", isFree ? "xl:grid-cols-3" : "xl:grid-cols-4")}>
+        {metricCards.filter((metric) => !isFree || metric.key !== 'monthly-goal').map((metric) => (
           <Card key={metric.key}>
             <CardHeader className="pb-3">
               <div className="mb-2 flex items-center justify-between">
@@ -826,7 +837,7 @@ const SalesPipelineView = () => {
             {t("sellers.title")}
           </Button>
         </div>
-        <TabsList className="grid w-full grid-cols-3 md:w-[540px]">
+        <TabsList className={cn("grid w-full", isFree ? "grid-cols-2 md:w-[360px]" : "grid-cols-3 md:w-[540px]")}>
           <TabsTrigger value="pipeline" className="gap-1.5 items-center">
             <KanbanSquare className="size-3.5" />
             Kanban
@@ -835,10 +846,12 @@ const SalesPipelineView = () => {
             <HeartHandshake className="size-3.5" />
             {t("tabs.prospects")}
           </TabsTrigger>
-          <TabsTrigger value="charts" className="gap-1.5 items-center">
-            <ChartLine className="size-3.5" />
-            {t("tabs.charts")}
-          </TabsTrigger>
+          {!isFree && (
+            <TabsTrigger value="charts" className="gap-1.5 items-center">
+              <ChartLine className="size-3.5" />
+              {t("tabs.charts")}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="pipeline" className="mt-4">
@@ -1390,6 +1403,7 @@ const SalesPipelineView = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        {!isFree && (
         <TabsContent value="charts">
           <SalesChartsTab
             deals={allDeals}
@@ -1401,6 +1415,7 @@ const SalesPipelineView = () => {
             wonAmount={wonAmount}
           />
         </TabsContent>
+        )}
       </Tabs>
 
       <CreateDealDialog
@@ -1484,6 +1499,13 @@ const SalesPipelineView = () => {
     </main>
 
     {hasNoBoards && <SalesBoardOnboarding onCreated={setSelectedBoardId} />}
+    <UpgradeDialog
+      open={upgradeDialogOpen}
+      onOpenChange={setUpgradeDialogOpen}
+      feature="pipelines"
+      currentCount={boards.length}
+      limitCount={1}
+    />
     </>
   );
 };

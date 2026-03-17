@@ -1,6 +1,7 @@
 'use client'
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, X, ChevronsUpDown, CircleDotIcon, CheckCircle2Icon, CircleIcon, Check } from "lucide-react";
 import { TaskStatus } from "../types";
@@ -33,6 +34,8 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
     const workspaceId = useWorkspaceId();
     const { data: members, isLoading } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const t = useTranslations('workspaces');
+    const { isFree } = usePlanAccess();
+    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic') : TASK_TYPE_OPTIONS;
     const config = useWorkspaceConfig();
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const { customLabels, getLabelColor } = useCustomLabels();
@@ -324,7 +327,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                 <SelectContent>
                     <SelectItem value="all">{t('all-types')}</SelectItem>
                     <SelectSeparator />
-                    {TASK_TYPE_OPTIONS.map(typeOption => {
+                    {taskTypeOptions.map(typeOption => {
                         const TypeIcon = typeOption.icon;
                         return (
                             <SelectItem key={typeOption.value} value={typeOption.value}>

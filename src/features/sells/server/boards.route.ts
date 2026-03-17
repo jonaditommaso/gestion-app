@@ -18,9 +18,12 @@ import {
 interface SalesBoardDocument extends Models.Document {
     teamId: string;
     name: string;
-    currencies: string[];
+    currencies: string; // stored as comma-separated string in Appwrite
     activeGoalId: string | null;
 }
+
+const parseCurrencies = (raw: string): string[] =>
+    raw ? raw.split(',').filter(Boolean) : [];
 
 interface SalesGoalDocument extends Models.Document {
     boardId: string;
@@ -63,7 +66,7 @@ const app = new Hono()
             id: doc.$id,
             teamId: doc.teamId,
             name: doc.name,
-            currencies: doc.currencies,
+            currencies: parseCurrencies(doc.currencies),
             activeGoalId: doc.activeGoalId ?? null,
             createdAt: doc.$createdAt,
         }));
@@ -91,7 +94,7 @@ const app = new Hono()
                 {
                     teamId: context.org.appwriteTeamId,
                     name,
-                    currencies,
+                    currencies: currencies.join(','),
                     activeGoalId: null,
                 }
             );
@@ -101,7 +104,7 @@ const app = new Hono()
                     id: doc.$id,
                     teamId: doc.teamId,
                     name: doc.name,
-                    currencies: doc.currencies,
+                    currencies: parseCurrencies(doc.currencies),
                     activeGoalId: null,
                     createdAt: doc.$createdAt,
                 },
@@ -132,12 +135,16 @@ const app = new Hono()
             }
 
             const body = ctx.req.valid("json");
+            const updateData: Record<string, unknown> = { ...body };
+            if (body.currencies !== undefined) {
+                updateData.currencies = body.currencies.join(',');
+            }
 
             const doc = await databases.updateDocument<SalesBoardDocument>(
                 DATABASE_ID,
                 SALES_BOARDS_ID,
                 boardId,
-                body
+                updateData
             );
 
             return ctx.json({
@@ -145,7 +152,7 @@ const app = new Hono()
                     id: doc.$id,
                     teamId: doc.teamId,
                     name: doc.name,
-                    currencies: doc.currencies,
+                    currencies: parseCurrencies(doc.currencies),
                     activeGoalId: doc.activeGoalId ?? null,
                     createdAt: doc.$createdAt,
                 },

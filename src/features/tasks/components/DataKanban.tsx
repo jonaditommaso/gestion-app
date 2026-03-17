@@ -26,6 +26,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { useUpdateTask } from "../api/use-update-task";
 import { useGetMembers } from "@/features/members/api/use-get-members";
@@ -109,6 +110,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
 
     // Get workspace-level permissions
     const { canCreateColumn } = useWorkspacePermissions();
+    const { isFree } = usePlanAccess();
 
     const handleUpdateLabel = (status: TaskStatus, label: string) => {
         const labelKey = STATUS_TO_LABEL_KEY[status];
@@ -763,7 +765,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 }}
                                             >
                                                 {/* Add column divider before columns */}
-                                                {canCreateColumn && (
+                                                {canCreateColumn && !isFree && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
@@ -851,7 +853,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 </div>
 
                                                 {/* Add column divider after last column */}
-                                                {canCreateColumn && index === orderedStatuses.length - 1 && (
+                                                {canCreateColumn && !isFree && index === orderedStatuses.length - 1 && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index + 1}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>

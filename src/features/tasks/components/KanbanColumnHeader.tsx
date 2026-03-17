@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 
 interface KanbanColumnHeaderProps {
@@ -63,6 +64,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canDelete = hasPermission(PERMISSIONS.DELETE);
+    const { isFree } = usePlanAccess();
 
     const [{ assigneeId, search, dueDate, priority }] = useTaskFilters();
 
@@ -146,10 +148,11 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                         size="sm"
                         className="px-0 py-0 min-h-0 w-full"
                         displayClassName={`text-sm font-medium truncate ${
-                            canEditLabel ? 'hover:bg-muted/80' : 'cursor-default'
+                            canEditLabel && !isFree ? 'hover:bg-muted/80' : 'cursor-default'
                         }`}
                         inputClassName="text-sm font-medium w-full"
                         disabled={!canWrite || !canEditLabel}
+                        readOnly={isFree}
                     />
                 </div>
             </div>
@@ -174,7 +177,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                     <DropdownMenuContent align="end" className="w-fit min-w-[180px]">
                         {menuView === 'main' ? (
                             <>
-                                {canWrite && (
+                                {canWrite && !isFree && (
                                     <>
                                         <DropdownMenuItem onClick={onEditColumn} className="cursor-pointer">
                                             <PencilIcon className="size-4 mr-2" />

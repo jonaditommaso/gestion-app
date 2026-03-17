@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetOrgTasksSummary = () => {
+export const useGetOrgTasksSummary = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: ['tasks', 'org-summary'],
         queryFn: async () => {
@@ -16,6 +16,7 @@ export const useGetOrgTasksSummary = () => {
             return data;
         },
         retry: false,
+        enabled: options?.enabled ?? true,
     });
 
     return query;

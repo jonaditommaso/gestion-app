@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetOperations = () => {
+export const useGetOperations = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: ['billing',],
         queryFn: async () => {
             const response = await client.api.billing.$get();
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to fetch operations')
             }
 
@@ -15,7 +15,8 @@ export const useGetOperations = () => {
 
             return data;
         },
-        retry: false
+        retry: false,
+        enabled: options?.enabled ?? true,
     })
 
     return query;

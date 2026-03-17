@@ -1,20 +1,34 @@
-import {  Handshake, Home, KeyRound, Mail, NotepadText, ReceiptText, Users } from "lucide-react"; // Archive, Target
+import { Handshake, Home, KeyRound, Mail, NotepadText, ReceiptText, Users } from "lucide-react"; // Archive, Target
+import { OrganizationPlan } from "@/features/team/types";
 
-export const initialItem = [
+export type SidebarItem = {
+    title: string;
+    url: string;
+    icon: React.ElementType;
+    key: string;
+    plans?: OrganizationPlan[];
+};
+
+const ALL_PLANS: OrganizationPlan[] = ['FREE', 'PLUS', 'PRO', 'ENTERPRISE'];
+const PAID_PLANS: OrganizationPlan[] = ['PLUS', 'PRO', 'ENTERPRISE'];
+
+export const initialItem: SidebarItem[] = [
   {
     title: "home",
     url: "/",
     icon: Home,
-    key: 'home'
+    key: 'home',
+    plans: ALL_PLANS,
   },
 ]
 
-export const sidebarItems = [
+export const sidebarItems: SidebarItem[] = [
   {
     title: "billing",
     url: "/billing-management",
     icon: ReceiptText,
-    key: 'billing-management'
+    key: 'billing-management',
+    plans: PAID_PLANS,
   },
   // {
   //   title: "Inventario",
@@ -26,7 +40,8 @@ export const sidebarItems = [
     title: "sells",
     url: "/sells",
     icon: Handshake,
-    key: 'sells'
+    key: 'sells',
+    plans: ALL_PLANS,
   },
   // {
   //   title: "Marketing",
@@ -44,27 +59,31 @@ export const sidebarItems = [
     title: "activities",
     url: "/workspaces",
     icon: NotepadText,
-    key: 'workspaces'
+    key: 'workspaces',
+    plans: ALL_PLANS,
   },
 ]
 
-export const sidebarBottomItems = [
+export const sidebarBottomItems: SidebarItem[] = [
   {
     title: "messages",
     url: "/messages",
     icon: Mail,
-    key: 'messages'
+    key: 'messages',
+    plans: PAID_PLANS,
   },
   {
     title: "team",
     url: "/team",
     icon: Users,
-    key: 'team'
+    key: 'team',
+    plans: ALL_PLANS,
   },
   {
     title: "roles",
     url: "/roles",
     icon: KeyRound,
-    key: 'roles'
+    key: 'roles',
+    plans: PAID_PLANS,
   },
 ]

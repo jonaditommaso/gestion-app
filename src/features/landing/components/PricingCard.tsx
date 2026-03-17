@@ -19,6 +19,7 @@ interface PricingCardProps {
     billing?: 'monthly' | 'annual',
     userCount?: number,
     includes?: string,
+    isCurrentPlan?: boolean,
 }
 
 const planes_t = {
@@ -35,7 +36,7 @@ const benefits = {
     enterprise: enterpriseBenefits
 }
 
-const PricingCard = ({ type, description, textButton, price, onSelect, compact = false, billing = 'monthly', userCount, includes }: PricingCardProps) => {
+const PricingCard = ({ type, description, textButton, price, onSelect, compact = false, billing = 'monthly', userCount, includes, isCurrentPlan }: PricingCardProps) => {
     const t = useTranslations('pricing');
 
     const isFeatured = type === 'pro' || type === 'enterprise';
@@ -140,9 +141,11 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
                 <div className="w-full h-[148px] flex flex-col justify-center items-center">
                     {priceBlock()}
                 </div>
-                {onSelect
-                    ? <Button className="w-full" onClick={onSelect}>{textButton}</Button>
-                    : <SelectPricingButton textButton={t(textButton)} type={type} billing={billing} />
+                {isCurrentPlan
+                    ? <div className="w-full py-2 text-center text-sm font-semibold text-muted-foreground border rounded-md bg-muted/50">{t('pricing-current-plan')}</div>
+                    : onSelect
+                        ? <Button className="w-full" onClick={onSelect}>{textButton}</Button>
+                        : <SelectPricingButton textButton={t(textButton)} type={type} billing={billing} />
                 }
             </CardHeader>
             <Separator />

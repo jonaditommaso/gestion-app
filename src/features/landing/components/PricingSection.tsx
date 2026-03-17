@@ -8,7 +8,11 @@ import { Minus, Plus, Users } from "lucide-react";
 
 type Billing = 'monthly' | 'annual';
 
-const PricingSection = () => {
+interface PricingSectionProps {
+    currentPlan?: string;
+}
+
+const PricingSection = ({ currentPlan }: PricingSectionProps) => {
     const [billing, setBilling] = useState<Billing>('monthly');
     const [userCount, setUserCount] = useState(5);
     const t = useTranslations('pricing');
@@ -82,6 +86,7 @@ const PricingSection = () => {
                         billing={billing}
                         userCount={userCount}
                         includes={plan.includes}
+                        isCurrentPlan={plan.type === currentPlan}
                     />
                 ))}
             </div>

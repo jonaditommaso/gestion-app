@@ -16,7 +16,7 @@ import { useGetWorkspacesCount } from "../api/use-get-workspaces-count";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2 } from "lucide-react";
 import { FeatureIncluded, FEATURES_INCLUDED } from "../constants/features-included";
-//import { toast } from "sonner";
+
 
 interface CreateWorkspaceFormProps {
     onCancel?: () => void,
@@ -29,7 +29,8 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
     const { mutate, isPending } = useCreateWorkspace();
     const { data: workspacesCount, isLoading: isLoadingCount } = useGetWorkspacesCount();
     const router = useRouter();
-    const t = useTranslations('workspaces')
+    const t = useTranslations('workspaces');
+
 
     const schema = zod.object({
         name: zod.string().trim().min(1, t('field-required'))

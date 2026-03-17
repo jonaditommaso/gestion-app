@@ -23,6 +23,7 @@ import { useTranslations } from "next-intl";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const notShowInView = [
   '/oauth/loading',
@@ -39,7 +40,14 @@ const AppSidebar = () => {
     const { data: teamContext } = useGetTeamContext();
     const { hasPermission } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
+    const { plan } = usePlanAccess();
     const hasTeam = !!teamContext?.membership;
+
+    const isItemVisible = (item: { plans?: string[]; key: string }) => {
+        if (item.plans && !item.plans.includes(plan)) return false;
+        if (item.key === 'roles' && !canManageUsers) return false;
+        return true;
+    };
 
     const handleMouseEnter = () => setIsCollapsed(true);
     const handleMouseLeave = () => setIsCollapsed(false);
@@ -87,7 +95,7 @@ const AppSidebar = () => {
                     {/* <SidebarGroupLabel>Application</SidebarGroupLabel> */}
                     <SidebarGroupContent>
                         <SidebarMenu className="gap-3">
-                        {sidebarItems.map((item) => (
+                        {sidebarItems.filter(isItemVisible).map((item) => (
                             <SidebarMenuItem key={t(item.title)} >
                             <SidebarMenuButton asChild>
                                 <Link href={item.url}>
@@ -106,8 +114,7 @@ const AppSidebar = () => {
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-3">
-                            {sidebarBottomItems.map((item) => {
-                                if (item.key === 'roles' && !canManageUsers) return null;
+                            {sidebarBottomItems.filter(isItemVisible).map((item) => {
                                 return (
                                 <SidebarMenuItem key={t(item.title)} >
                                 <SidebarMenuButton asChild>
