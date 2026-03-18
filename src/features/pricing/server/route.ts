@@ -2,6 +2,7 @@ import { NEXT_PUBLIC_APP_URL, STRIPE_SECRET_KEY } from "@/config";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { Stripe } from 'stripe'
+import { sessionMiddleware } from "@/lib/session-middleware";
 import { priceSchema } from "../schemas";
 
 const app = new Hono()
@@ -18,6 +19,7 @@ const app = new Hono()
 
     .post(
         '/stripe',
+        sessionMiddleware,
         zValidator('json', priceSchema),
         async ctx => {
             const { plan, billing, company } = await ctx.req.json();

@@ -98,7 +98,9 @@ Crear `POST /api/billing/portal` que genere y retorne la URL del portal de Strip
 
 ---
 
-## [INC-05] Endpoint `/api/pricing/stripe` sin autenticación
+## ~~[INC-05] Endpoint `/api/pricing/stripe` sin autenticación~~ ✅ RESUELTO
+
+**Resuelta en:** `fix: add sessionMiddleware to POST /api/pricing/stripe`
 
 **Severidad:** Alta  
 **Archivo:** `src/app/api/pricing/stripe/route.ts` (o equivalente en Hono)
