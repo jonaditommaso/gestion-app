@@ -192,9 +192,10 @@ const SalesPipelineView = () => {
   const { mutate: addAssigneeMutation } = useAddDealAssignee();
   const { mutate: addActivityMutation } = useAddDealActivity();
 
-  const { isFree } = usePlanAccess();
+  const { isFree, limits, plan } = usePlanAccess();
   const boards: SalesBoard[] = (boardsData?.documents ?? []) as SalesBoard[];
-  const isAtBoardLimit = isFree && boards.length >= 1;
+  const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
+  const isAtBoardLimit = limits.pipelines !== -1 && boards.length >= limits.pipelines;
   const selectedBoard: SalesBoard | undefined = boards.find((b) => b.id === selectedBoardId);
   const goals: SalesGoal[] = (goalsData?.documents ?? []) as SalesGoal[];
   const activeGoal: SalesGoal | undefined = goals[0];
@@ -687,8 +688,8 @@ const SalesPipelineView = () => {
         </div>
       </section>
 
-      <section className={cn("mt-6 grid gap-4 md:grid-cols-2", isFree ? "xl:grid-cols-3" : "xl:grid-cols-4")}>
-        {metricCards.filter((metric) => !isFree || metric.key !== 'monthly-goal').map((metric) => (
+      <section className={cn("mt-6 grid gap-4 md:grid-cols-2", (isFree || !isPro) ? "xl:grid-cols-3" : "xl:grid-cols-4")}>
+        {metricCards.filter((metric) => isPro || metric.key !== 'monthly-goal').map((metric) => (
           <Card key={metric.key}>
             <CardHeader className="pb-3">
               <div className="mb-2 flex items-center justify-between">
@@ -837,7 +838,7 @@ const SalesPipelineView = () => {
             {t("sellers.title")}
           </Button>
         </div>
-        <TabsList className={cn("grid w-full", isFree ? "grid-cols-2 md:w-[360px]" : "grid-cols-3 md:w-[540px]")}>
+        <TabsList className={cn("grid w-full", (isFree || !isPro) ? "grid-cols-2 md:w-[360px]" : "grid-cols-3 md:w-[540px]")}>
           <TabsTrigger value="pipeline" className="gap-1.5 items-center">
             <KanbanSquare className="size-3.5" />
             Kanban
@@ -846,7 +847,7 @@ const SalesPipelineView = () => {
             <HeartHandshake className="size-3.5" />
             {t("tabs.prospects")}
           </TabsTrigger>
-          {!isFree && (
+          {isPro && (
             <TabsTrigger value="charts" className="gap-1.5 items-center">
               <ChartLine className="size-3.5" />
               {t("tabs.charts")}
@@ -1403,7 +1404,7 @@ const SalesPipelineView = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        {!isFree && (
+        {isPro && (
         <TabsContent value="charts">
           <SalesChartsTab
             deals={allDeals}

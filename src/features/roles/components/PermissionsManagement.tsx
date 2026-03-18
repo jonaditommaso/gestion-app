@@ -9,11 +9,14 @@ import { useCurrentUserPermissions } from "../hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "../constants"
 import { redirect } from "next/navigation"
 import FadeLoader from "react-spinners/FadeLoader"
+import { usePlanAccess } from "@/hooks/usePlanAccess"
 
 export default function PermissionsManagement() {
   const t = useTranslations('roles')
   const { hasPermission, isLoading } = useCurrentUserPermissions();
   const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
+  const { plan } = usePlanAccess();
+  const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
 
   if (!isLoading && !canManageUsers) {
     redirect('/');
@@ -22,6 +25,17 @@ export default function PermissionsManagement() {
   if(isLoading) return <div className="flex items-center justify-center">
     <FadeLoader color="#999" width={3} className="mt-5" />
   </div>
+
+  if (!isPro) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-end">
+          <PermissionsInfoDialog />
+        </div>
+        <UsersTab />
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -47,15 +61,7 @@ export default function PermissionsManagement() {
         </div>
 
         <TabsContent value="users">
-          <UsersTab
-            // users={[]}
-            // roles={[]}
-            // permissions={[]}
-            // searchTerm=""
-            // onSearchChange={() => {}}
-            // getRoleColor={() => ""}
-            // getPermissionBadgeColor={() => ""}
-          />
+          <UsersTab />
         </TabsContent>
 
         <TabsContent value="roles">

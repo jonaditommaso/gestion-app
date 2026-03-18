@@ -4,7 +4,9 @@ import { ID, Query } from "node-appwrite";
 import { getNextService } from "@/ai";
 import { ChatMessage } from "@/ai/types";
 import { chatWithTools } from "@/ai/function-calling";
+import { PLUS_TOOLS } from "@/ai/tools/index";
 import { executeAction } from "@/ai/handlers";
+import type { ChatCompletionTool } from "groq-sdk/resources/chat/completions";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
@@ -249,6 +251,14 @@ const app = new Hono()
                 content: m.content
             }));
 
+            // Determine which tools to expose based on org plan
+            const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const orgPlan = orgContext?.org?.plan ?? 'FREE';
+            const isProOrEnterprise = orgPlan === 'PRO' || orgPlan === 'ENTERPRISE';
+            const planTools: ChatCompletionTool[] | undefined = isProOrEnterprise
+                ? undefined
+                : (PLUS_TOOLS as ChatCompletionTool[]);
+
             // =====================================================================
             // FUNCTION CALLING: Intentar interpretar acciones
             // =====================================================================
@@ -260,7 +270,7 @@ const app = new Hono()
             console.log('[CHAT] Starting function calling attempt...');
 
             try {
-                const result = await chatWithTools(aiMessages);
+                const result = await chatWithTools(aiMessages, planTools);
 
                 console.log('[CHAT] Function calling result type:', result.type);
 

@@ -30,6 +30,12 @@ export const ALL_TOOLS = [
     // ...TEAM_TOOLS,
 ];
 
+// Tools available on PLUS plan: only tasks and notes (no deals, billing)
+export const PLUS_TOOLS = [
+    ...HOME_TOOLS,
+    ...TASKS_TOOLS,
+];
+
 // Re-exportar tipos de tools específicas para conveniencia
 export type { CreateNoteArgs, UpdateNoteArgs, DeleteNoteArgs, SendMessageArgs } from './home.tools';
 export type {

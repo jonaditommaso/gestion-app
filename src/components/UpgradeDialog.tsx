@@ -47,21 +47,21 @@ const UpgradeDialog = ({ open, onOpenChange, feature, currentCount, limitCount }
     const featureConfig: Record<UpgradeFeature, { title: string; description: string; ctaDescription: string; resource: string; notifyOwnerTitle: string }> = {
         members: {
             title: t('upgrade-dialog-members-title'),
-            description: t('upgrade-dialog-members-description'),
+            description: t('upgrade-dialog-members-description', { limit: limitCount ?? 0 }),
             ctaDescription: t('upgrade-dialog-members-cta-description'),
             resource: t('upgrade-dialog-members-resource'),
             notifyOwnerTitle: t('upgrade-dialog-notify-owner-members', { name: currentUser?.name ?? '' }),
         },
         pipelines: {
             title: t('upgrade-dialog-pipelines-title'),
-            description: t('upgrade-dialog-pipelines-description'),
+            description: t('upgrade-dialog-pipelines-description', { limit: limitCount ?? 0 }),
             ctaDescription: t('upgrade-dialog-pipelines-cta-description'),
             resource: t('upgrade-dialog-pipelines-resource'),
             notifyOwnerTitle: t('upgrade-dialog-notify-owner-pipelines', { name: currentUser?.name ?? '' }),
         },
         workspaces: {
             title: t('upgrade-dialog-workspaces-title'),
-            description: t('upgrade-dialog-workspaces-description'),
+            description: t('upgrade-dialog-workspaces-description', { limit: limitCount ?? 0 }),
             ctaDescription: t('upgrade-dialog-workspaces-cta-description'),
             resource: t('upgrade-dialog-workspaces-resource'),
             notifyOwnerTitle: t('upgrade-dialog-notify-owner-workspaces', { name: currentUser?.name ?? '' }),

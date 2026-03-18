@@ -63,9 +63,9 @@ Rules:
 - bulk_update_deals: only for multiple deals; use update_deal for a single one.
 - query_deals: CRM/pipeline board names (e.g. "Jona Ventas Q1", "mi CRM de X", "el pipeline de Y") are NOT deal titles or companies — NEVER pass them as the 'search' parameter. They just indicate the user is talking about their pipeline. Call query_deals with NO filters (or only explicit filters like status/outcome) to return all deals. Only use 'search' if the user explicitly names a deal title or company.`;
 
-export async function chatWithTools(messages: ChatMessage[]): Promise<ChatWithToolsResult> {
+export async function chatWithTools(messages: ChatMessage[], allowedTools?: ChatCompletionTool[]): Promise<ChatWithToolsResult> {
     const groq = getGroqClient();
-    const allTools = [...ALL_TOOLS as ChatCompletionTool[], REPLY_TOOL];
+    const allTools = [...(allowedTools ?? ALL_TOOLS as ChatCompletionTool[]), REPLY_TOOL];
 
     // Limit history to last 6 messages to stay within model token limits
     const recentMessages = messages.slice(-6);

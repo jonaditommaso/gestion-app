@@ -37,6 +37,7 @@ import { DialogContainer } from "@/components/DialogContainer"
 import { toast } from "sonner"
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "@/features/roles/constants"
+import { usePlanAccess } from "@/hooks/usePlanAccess"
 
 const headers = ['invoice', 'type', 'date', 'due-date', 'category', 'status', 'account', 'party-name', 'amount', 'actions']
 
@@ -79,6 +80,8 @@ export function BillingTable() {
   const { selectedData } = useDataBillingTable();
   const { mutate: deleteOperation, isPending: isDeleting } = useDeleteOperation();
   const { mutate: updateOperation, isPending: isUpdating } = useUpdateOperation();
+  const { plan } = usePlanAccess();
+  const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
   const t = useTranslations('billing')
 
   const [dataType, setDataType] = useState(selectedData);
@@ -594,6 +597,7 @@ export function BillingTable() {
         />
         <Button variant="ghost" onClick={clearFilters}>{t('clear-filters')}</Button>
         <div className="md:col-span-2 lg:col-span-4 flex justify-end mt-4">
+          {isPro && (
           <div className="flex items-center">
             <Button variant="default" className="rounded-r-none bg-emerald-700 hover:bg-emerald-800" onClick={handleExportSelected}>
               {selectedExportFormat === 'csv' ? t('export-csv') : t('export-excel')}
@@ -610,6 +614,7 @@ export function BillingTable() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          )}
         </div>
       </div>
 

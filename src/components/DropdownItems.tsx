@@ -27,8 +27,8 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
     const router = useRouter();
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
-    const { isFree, limits } = usePlanAccess();
-    const isAtWorkspaceLimit = isFree && workspacesCount !== undefined && workspacesCount.count >= limits.workspaces;
+    const { limits } = usePlanAccess();
+    const isAtWorkspaceLimit = limits.workspaces !== -1 && workspacesCount !== undefined && workspacesCount.count >= limits.workspaces;
     const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
     const handleSelectWorkspace = (workspaceId: string) => {

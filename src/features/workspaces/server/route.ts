@@ -20,18 +20,6 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const members = await databases.listDocuments(
-                DATABASE_ID,
-                MEMBERS_ID,
-                [Query.equal('userId', user.$id)]
-            );
-
-            if (members.total === 0) {
-                return ctx.json({ data: { documents: [], total: 0 } })
-            }
-
-            const workspacesIds = members.documents.map(member => member.workspaceId)
-
             const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
@@ -41,7 +29,6 @@ const app = new Hono()
                 [
                     Query.orderDesc('$createdAt'),
                     Query.equal('teamId', context.org.appwriteTeamId),
-                    Query.contains('$id', workspacesIds),
                 ]
             );
 

@@ -12,15 +12,20 @@ import {
 } from "@/components/ui/dialog"
 import { useTranslations } from "next-intl"
 import { PERMISSION_CATALOG, getPermissionBadgeColor } from "../constants"
+import { usePlanAccess } from "@/hooks/usePlanAccess"
 
 export function PermissionsInfoDialog() {
     const t = useTranslations("roles")
     const [open, setOpen] = useState(false)
     const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+    const { plan } = usePlanAccess()
+    const isPro = plan === 'PRO' || plan === 'ENTERPRISE'
 
     const toggle = (moduleKey: string) => {
         setExpanded(prev => ({ ...prev, [moduleKey]: !prev[moduleKey] }))
     }
+
+    const generalModule = PERMISSION_CATALOG.find(m => m.moduleKey === 'module-general')
 
     return (
         <>
@@ -38,6 +43,7 @@ export function PermissionsInfoDialog() {
                         </DialogDescription>
                     </DialogHeader>
 
+                    {isPro ? (
                     <div className="space-y-1 mt-2">
                         {PERMISSION_CATALOG.map(({ moduleKey, permissions }) => {
                             const isOpen = !!expanded[moduleKey]
@@ -97,6 +103,46 @@ export function PermissionsInfoDialog() {
                             )
                         })}
                     </div>
+                    ) : (
+                    <div className="mt-2 border rounded-md overflow-hidden">
+                        <div className="px-4 py-3 bg-muted/30 border-b">
+                            <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                                {t("module-general")}
+                            </span>
+                        </div>
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b bg-muted/30">
+                                    <th className="text-left font-medium px-4 py-2 w-48">
+                                        {t("permission-col")}
+                                    </th>
+                                    <th className="text-left font-medium px-4 py-2">
+                                        {t("description-col")}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {generalModule?.permissions.map((perm) => {
+                                    const permKey = perm.replace(/_/g, "-")
+                                    return (
+                                        <tr key={perm} className="border-b last:border-0">
+                                            <td className="py-2 px-4">
+                                                <span
+                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getPermissionBadgeColor(perm)}`}
+                                                >
+                                                    {t(`perm-${permKey}`)}
+                                                </span>
+                                            </td>
+                                            <td className="py-2 px-4 text-muted-foreground">
+                                                {t(`perm-desc-${permKey}`)}
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    )}
                 </DialogContent>
             </Dialog>
         </>

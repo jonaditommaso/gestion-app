@@ -39,10 +39,10 @@ const AddNewMember = () => { //we receive the user quickly from server component
     const { hasPermission, isLoading } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const { data: teamContext } = useGetTeamContext();
-    const { isFree, limits } = usePlanAccess();
+    const { limits } = usePlanAccess();
     const { data: membersData } = useGetMembers();
     const hasOrg = !!teamContext?.membership;
-    const isAtMemberLimit = isFree && (membersData?.members?.length ?? 0) >= limits.members;
+    const isAtMemberLimit = limits.members !== -1 && (membersData?.members?.length ?? 0) >= limits.members;
     const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
     const isValidInviteEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail.trim());
 

@@ -1,5 +1,5 @@
 import { Query } from "node-appwrite"
-import { DATABASE_ID, MEMBERS_ID } from "@/config"
+import { DATABASE_ID } from "@/config"
 import { WORKSPACES_ID } from '../../config';
 import { getMember } from "./members/utils";
 import { WorkspaceType } from "./types";
@@ -16,34 +16,17 @@ interface GetWorkspacesOptions {
 export const getWorkspaces = async ({ teamId }: GetWorkspacesOptions = {}) => {
 
     try {
-        const { databases, account } = await createSessionClient()
-        const user = await account.get();
+        if (!teamId) return { documents: [], total: 0 };
 
-        const members = await databases.listDocuments(
-            DATABASE_ID,
-            MEMBERS_ID,
-            [Query.equal('userId', user.$id)]
-        );
-
-        if (members.total === 0) {
-            return { documents: [], total: 0 }
-        }
-
-        const workspacesIds = members.documents.map(member => member.workspaceId)
-
-        const filters: ReturnType<typeof Query.orderDesc>[] = [
-            Query.orderDesc('$createdAt'),
-            Query.contains('$id', workspacesIds),
-        ];
-
-        if (teamId) {
-            filters.push(Query.equal('teamId', teamId));
-        }
+        const { databases } = await createSessionClient();
 
         const workspaces = await databases.listDocuments(
             DATABASE_ID,
             WORKSPACES_ID,
-            filters
+            [
+                Query.orderDesc('$createdAt'),
+                Query.equal('teamId', teamId),
+            ]
         );
 
         return workspaces;
