@@ -7,7 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:auth": "playwright test tests/auth",
+    "test:e2e:billing": "playwright test tests/billing-management",
+    "test:e2e:tasks": "playwright test tests/tasks",
+    "test:e2e:deals": "playwright test tests/deals",
+    "playwright:install": "playwright install chromium"
   },
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.64.1",
@@ -73,6 +81,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
+    "@playwright/test": "^1.58.2",
     "@types/node": "20",
     "@types/react": "18",
     "@types/react-big-calendar": "1.8.11",
