@@ -11,7 +11,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { goToSignup, TEST_USER, waitForAuthRedirect, logout } from '../helpers';
+import { goToSignup } from '../helpers';
 
 const freeUser = {
   name: 'Free Tester',

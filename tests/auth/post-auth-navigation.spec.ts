@@ -10,12 +10,9 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import { goToLogin, loginWith, waitForAuthRedirect, logout } from '../helpers';
+import { logout } from '../helpers';
 
-const FREE_USER = {
-  email: process.env.TEST_FREE_EMAIL ?? 'e2e.free@mailinator.com',
-  password: process.env.TEST_FREE_PASSWORD ?? 'TestPassword123!',
-};
+
 
 /** Mock de usuario autenticado — simula la respuesta de /api/auth/current */
 async function mockAuthenticatedUser(

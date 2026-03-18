@@ -22,20 +22,19 @@
 import { test, expect, type Page } from '@playwright/test';
 
 async function captureOauthRedirect(page: Page, provider: 'google' | 'github'): Promise<string | null> {
-  let capturedUrl: string | null = null;
-
-  // Interceptar la navegación externa
-  page.on('request', (request) => {
-    const url = request.url();
-    if (provider === 'google' && url.includes('accounts.google.com')) {
-      capturedUrl = url;
-    }
-    if (provider === 'github' && (url.includes('github.com') && url.includes('oauth'))) {
-      capturedUrl = url;
-    }
+  return new Promise((resolve) => {
+    page.on('request', (request) => {
+      const url = request.url();
+      if (provider === 'google' && url.includes('accounts.google.com')) {
+        resolve(url);
+      }
+      if (provider === 'github' && url.includes('github.com') && url.includes('oauth')) {
+        resolve(url);
+      }
+    });
+    // Resolver con null si no hay redirección en 3s
+    setTimeout(() => resolve(null), 3000);
   });
-
-  return capturedUrl;
 }
 
 test.describe('OAuth — Login con Google', () => {
@@ -81,22 +80,15 @@ test.describe('OAuth — Login con Google', () => {
   test('Google OAuth con plan PLUS → botón pasa el plan al proveedor', async ({ page }) => {
     await page.goto('/signup?plan=plus&billing=MONTHLY');
 
-    let requestedUrl = '';
-    page.on('request', (req) => {
-      // La Server Action de signUpWithGoogle debería hacer algo con el plan
-      if (req.url().includes('/api/') || req.url().includes('oauth')) {
-        requestedUrl = req.url();
-      }
-    });
-
     await page.route('https://accounts.google.com/**', (route) => route.abort());
+    const capturePromise = captureOauthRedirect(page, 'google');
     const googleBtn = page.getByRole('button', { name: /google/i });
     await googleBtn.click();
-    await page.waitForTimeout(1500);
+    const capturedUrl = await capturePromise;
 
     // BUG CHECK: Verificar que el plan se propaga en el flujo OAuth
     // Si no, después del OAuth el usuario no tendría plan asignado
-    console.info('[CHECK] URL de request durante OAuth:', requestedUrl);
+    console.info('[CHECK] URL de redirección OAuth capturada:', capturedUrl);
   });
 });
 

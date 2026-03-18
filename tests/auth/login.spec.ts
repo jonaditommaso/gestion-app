@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { goToLogin, loginWith, waitForAuthRedirect } from '../helpers';
+import { goToLogin, loginWith } from '../helpers';
 
 const VALID_USER = {
   email: process.env.TEST_FREE_EMAIL ?? 'e2e.free@mailinator.com',
