@@ -12,7 +12,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "test:e2e:auth": "playwright test tests/auth",
-    "test:e2e:stripe": "playwright test tests/billing",
+    "test:e2e:billing": "playwright test tests/billing-management",
+    "test:e2e:tasks": "playwright test tests/tasks",
+    "test:e2e:deals": "playwright test tests/deals",
     "playwright:install": "playwright install chromium"
   },
   "dependencies": {
