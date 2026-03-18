@@ -866,4 +866,32 @@ const app = new Hono()
         }
     )
 
+    .post(
+        '/billing-portal',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            if (context.membership.role !== 'OWNER') {
+                return ctx.json({ error: 'Only owners can access billing portal' }, 403);
+            }
+
+            if (!context.org.stripeCustomerId) {
+                return ctx.json({ error: 'No billing account found' }, 400);
+            }
+
+            const stripe = new Stripe(STRIPE_SECRET_KEY);
+            const session = await stripe.billingPortal.sessions.create({
+                customer: context.org.stripeCustomerId,
+                return_url: `${NEXT_PUBLIC_APP_URL}/organization`,
+            });
+
+            return ctx.json({ url: session.url });
+        }
+    )
+
 export default app;

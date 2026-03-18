@@ -3,6 +3,7 @@ import { DATABASE_ID, MEMBERSHIPS_ID, SALES_BOARDS_ID, STRIPE_SECRET_KEY, WORKSP
 import { getCurrent } from "@/features/auth/queries";
 import { planLimits, planPrices } from "@/features/pricing/plan-limits";
 import CancelSubscriptionButton from "@/features/team/components/CancelSubscriptionButton";
+import ManageBillingButton from "@/features/team/components/ManageBillingButton";
 import ReactivateSubscriptionButton from "@/features/team/components/ReactivateSubscriptionButton";
 import { Membership, Organization } from "@/features/team/types";
 import { getActiveContext } from "@/features/team/server/utils";
@@ -232,7 +233,8 @@ const OrganizationPage = async () => {
                 </div>
 
                 {membership.role === 'OWNER' && (
-                    <div className="mb-6 flex justify-end">
+                    <div className="mb-6 flex justify-end gap-2">
+                        {org.stripeCustomerId && <ManageBillingButton />}
                         <Button variant="outline" size="sm" asChild>
                             <a href="/pricing">{t('change-plan')}</a>
                         </Button>

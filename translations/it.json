@@ -2364,6 +2364,7 @@
         "billing-customer-email": "Email di fatturazione",
         "billing-customer-location": "Posizione di fatturazione",
         "manage-billing": "Gestisci fatturazione",
+        "billing-portal-error": "Impossibile aprire il portale di fatturazione",
         "usage": "Utilizzo",
         "limits": "Limiti",
         "members-limit": "Membri",

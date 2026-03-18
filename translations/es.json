@@ -2378,6 +2378,7 @@
         "billing-customer-email": "Email de facturación",
         "billing-customer-location": "Ubicación de facturación",
         "manage-billing": "Gestionar facturación",
+        "billing-portal-error": "No se pudo abrir el portal de facturación",
         "usage": "Uso",
         "limits": "Límites",
         "members-limit": "Miembros",

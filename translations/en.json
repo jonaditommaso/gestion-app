@@ -2374,6 +2374,7 @@
         "billing-customer-email": "Billing email",
         "billing-customer-location": "Billing location",
         "manage-billing": "Manage billing",
+        "billing-portal-error": "Failed to open billing portal",
         "usage": "Usage",
         "limits": "Limits",
         "members-limit": "Members",
