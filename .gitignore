@@ -44,3 +44,7 @@ next-env.d.ts
 
 # local development
 ROADMAP.md
+
+# Playwright
+/playwright-report/
+/test-results/
