@@ -3,6 +3,7 @@ import { DATABASE_ID, MEMBERSHIPS_ID, SALES_BOARDS_ID, STRIPE_SECRET_KEY, WORKSP
 import { getCurrent } from "@/features/auth/queries";
 import { planLimits, planPrices } from "@/features/pricing/plan-limits";
 import CancelSubscriptionButton from "@/features/team/components/CancelSubscriptionButton";
+import ReactivateSubscriptionButton from "@/features/team/components/ReactivateSubscriptionButton";
 import { Membership, Organization } from "@/features/team/types";
 import { getActiveContext } from "@/features/team/server/utils";
 import { createAdminClient } from "@/lib/appwrite";
@@ -307,8 +308,17 @@ const OrganizationPage = async () => {
                 {membership.role === 'OWNER' && org.plan !== 'FREE' && (
                     <div className="rounded-xl border border-red-500/40 p-5 space-y-3">
                         <h2 className="font-semibold text-red-600">{t('danger-zone')}</h2>
-                        <p className="text-sm text-muted-foreground">{t('cancel-subscription-description')}</p>
-                        <CancelSubscriptionButton />
+                        {org.subscriptionStatus === 'canceling' ? (
+                            <>
+                                <p className="text-sm text-muted-foreground">{t('reactivate-subscription-description')}</p>
+                                <ReactivateSubscriptionButton />
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-sm text-muted-foreground">{t('cancel-subscription-description')}</p>
+                                <CancelSubscriptionButton />
+                            </>
+                        )}
                     </div>
                 )}
             </div>

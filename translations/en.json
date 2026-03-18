@@ -2389,9 +2389,15 @@
         "invoice-download": "Download",
         "danger-zone": "Danger zone",
         "cancel-subscription": "Cancel subscription",
+        "cancel-subscription-confirm-title": "Cancel subscription?",
+        "cancel-subscription-confirm-message": "Your subscription will remain active until the end of the current billing period. After that, your account will be downgraded to the Free plan.",
         "cancel-subscription-description": "The subscription will be canceled at the end of the current period.",
         "subscription-cancel-scheduled": "Subscription cancellation scheduled",
-        "subscription-cancel-error": "Failed to cancel subscription"
+        "subscription-cancel-error": "Failed to cancel subscription",
+        "reactivate-subscription": "Reactivate subscription",
+        "reactivate-subscription-description": "Your subscription is scheduled to be canceled at the end of the current period. You can reactivate it at any time before then.",
+        "subscription-reactivated": "Subscription reactivated successfully",
+        "subscription-reactivate-error": "Failed to reactivate subscription"
     },
     "roles": {
         "admin": "Admin",

@@ -2379,9 +2379,15 @@
         "invoice-download": "Scarica",
         "danger-zone": "Zona pericolosa",
         "cancel-subscription": "Annulla abbonamento",
+        "cancel-subscription-confirm-title": "Annullare l'abbonamento?",
+        "cancel-subscription-confirm-message": "Il tuo abbonamento rimarrà attivo fino alla fine del periodo di fatturazione corrente. Dopo di ciò, il tuo account verrà retrocesso al piano gratuito.",
         "cancel-subscription-description": "L'abbonamento verrà annullato alla fine del periodo corrente.",
         "subscription-cancel-scheduled": "Cancellazione dell'abbonamento programmata",
-        "subscription-cancel-error": "Impossibile annullare l'abbonamento"
+        "subscription-cancel-error": "Impossibile annullare l'abbonamento",
+        "reactivate-subscription": "Riattiva abbonamento",
+        "reactivate-subscription-description": "Il tuo abbonamento è programmato per essere annullato alla fine del periodo corrente. Puoi riattivarlo in qualsiasi momento prima di quella data.",
+        "subscription-reactivated": "Abbonamento riattivato con successo",
+        "subscription-reactivate-error": "Impossibile riattivare l'abbonamento"
     },
     "roles": {
         "admin": "Admin",

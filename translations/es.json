@@ -2393,9 +2393,15 @@
         "invoice-download": "Descargar",
         "danger-zone": "Zona de peligro",
         "cancel-subscription": "Cancelar suscripción",
+        "cancel-subscription-confirm-title": "¿Cancelar suscripción?",
+        "cancel-subscription-confirm-message": "Tu suscripción seguirá activa hasta el final del periodo de facturación actual. Después de eso, tu cuenta será degradada al plan gratuito.",
         "cancel-subscription-description": "La suscripción se cancelará al final del periodo actual.",
         "subscription-cancel-scheduled": "La cancelación de la suscripción fue programada",
-        "subscription-cancel-error": "No se pudo cancelar la suscripción"
+        "subscription-cancel-error": "No se pudo cancelar la suscripción",
+        "reactivate-subscription": "Reactivar suscripción",
+        "reactivate-subscription-description": "Tu suscripción está programada para cancelarse al final del periodo actual. Puedes reactivarla en cualquier momento antes de esa fecha.",
+        "subscription-reactivated": "Suscripción reactivada correctamente",
+        "subscription-reactivate-error": "No se pudo reactivar la suscripción"
     },
     "roles": {
         "admin": "Admin",

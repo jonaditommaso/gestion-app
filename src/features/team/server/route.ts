@@ -825,4 +825,45 @@ const app = new Hono()
         }
     )
 
+    .post(
+        '/reactivate-subscription',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            if (context.membership.role !== 'OWNER') {
+                return ctx.json({ error: 'Only owners can reactivate subscriptions' }, 403);
+            }
+
+            if (!context.org.stripeSubscriptionId) {
+                return ctx.json({ error: 'No subscription to reactivate' }, 400);
+            }
+
+            if (context.org.subscriptionStatus !== 'canceling') {
+                return ctx.json({ error: 'Subscription is not pending cancellation' }, 400);
+            }
+
+            const stripe = new Stripe(STRIPE_SECRET_KEY);
+            await stripe.subscriptions.update(context.org.stripeSubscriptionId, {
+                cancel_at_period_end: false,
+            });
+
+            await databases.updateDocument(
+                DATABASE_ID,
+                ORGANIZATIONS_ID,
+                context.org.$id,
+                {
+                    subscriptionStatus: 'active',
+                    cancelAtPeriodEnd: false,
+                }
+            );
+
+            return ctx.json({ success: true });
+        }
+    )
+
 export default app;
