@@ -85,7 +85,7 @@ const NEW_TASK: Omit<MockTask, '$id' | '$createdAt'> = {
 // ─── Helpers de mock ──────────────────────────────────────────────────────────
 
 async function mockTasksApi(page: Page, tasks: MockTask[] = MOCK_TASKS): Promise<void> {
-  let currentTasks = [...tasks];
+  const currentTasks = [...tasks];
 
   await page.route('**/api/tasks**', async (route) => {
     const method = route.request().method();

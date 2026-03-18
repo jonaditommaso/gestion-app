@@ -135,5 +135,9 @@ export async function waitForTableRows(page: Page, minRows: number = 1): Promise
     state: 'visible',
     timeout: 15000,
   });
-  return page.locator('tbody tr, [data-testid="table-row"]').count();
+  const count = await page.locator('tbody tr, [data-testid="table-row"]').count();
+  if (count < minRows) {
+    throw new Error(`Expected at least ${minRows} rows, found ${count}`);
+  }
+  return count;
 }
