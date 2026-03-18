@@ -2388,7 +2388,15 @@
         "reactivate-subscription": "Riattiva abbonamento",
         "reactivate-subscription-description": "Il tuo abbonamento è programmato per essere annullato alla fine del periodo corrente. Puoi riattivarlo in qualsiasi momento prima di quella data.",
         "subscription-reactivated": "Abbonamento riattivato con successo",
-        "subscription-reactivate-error": "Impossibile riattivare l'abbonamento"
+        "subscription-reactivate-error": "Impossibile riattivare l'abbonamento",
+        "change-plan-title": "Cambia piano",
+        "change-plan-current": "Piano attuale",
+        "change-plan-upgrade": "Aggiornamento",
+        "change-plan-downgrade": "Riduzione",
+        "change-plan-cancel": "Annulla",
+        "change-plan-confirm": "Conferma cambio",
+        "plan-changed-success": "Piano aggiornato con successo",
+        "plan-change-error": "Impossibile cambiare il piano"
     },
     "roles": {
         "admin": "Admin",

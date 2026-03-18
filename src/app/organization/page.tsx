@@ -10,6 +10,7 @@ import { getActiveContext } from "@/features/team/server/utils";
 import { createAdminClient } from "@/lib/appwrite";
 import { getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Query } from "node-appwrite";
 import Stripe from "stripe";
@@ -236,7 +237,7 @@ const OrganizationPage = async () => {
                     <div className="mb-6 flex justify-end gap-2">
                         {org.stripeCustomerId && <ManageBillingButton />}
                         <Button variant="outline" size="sm" asChild>
-                            <a href="/pricing">{t('change-plan')}</a>
+                            <Link href="/pricing">{t('change-plan')}</Link>
                         </Button>
                     </div>
                 )}

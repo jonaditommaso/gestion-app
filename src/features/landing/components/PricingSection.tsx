@@ -10,9 +10,10 @@ type Billing = 'monthly' | 'annual';
 
 interface PricingSectionProps {
     currentPlan?: string;
+    onSelectPlan?: (plan: string, billing: 'monthly' | 'annual') => void;
 }
 
-const PricingSection = ({ currentPlan }: PricingSectionProps) => {
+const PricingSection = ({ currentPlan, onSelectPlan }: PricingSectionProps) => {
     const [billing, setBilling] = useState<Billing>('monthly');
     const [userCount, setUserCount] = useState(5);
     const t = useTranslations('pricing');
@@ -87,6 +88,11 @@ const PricingSection = ({ currentPlan }: PricingSectionProps) => {
                         userCount={userCount}
                         includes={plan.includes}
                         isCurrentPlan={plan.type === currentPlan}
+                        onSelect={
+                            onSelectPlan && plan.type !== 'free' && plan.type !== 'enterprise' && plan.type !== currentPlan
+                                ? () => onSelectPlan(plan.type, billing)
+                                : undefined
+                        }
                     />
                 ))}
             </div>

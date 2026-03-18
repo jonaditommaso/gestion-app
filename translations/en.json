@@ -2398,7 +2398,15 @@
         "reactivate-subscription": "Reactivate subscription",
         "reactivate-subscription-description": "Your subscription is scheduled to be canceled at the end of the current period. You can reactivate it at any time before then.",
         "subscription-reactivated": "Subscription reactivated successfully",
-        "subscription-reactivate-error": "Failed to reactivate subscription"
+        "subscription-reactivate-error": "Failed to reactivate subscription",
+        "change-plan-title": "Change plan",
+        "change-plan-current": "Current plan",
+        "change-plan-upgrade": "Upgrade",
+        "change-plan-downgrade": "Downgrade",
+        "change-plan-cancel": "Cancel",
+        "change-plan-confirm": "Confirm change",
+        "plan-changed-success": "Plan updated successfully",
+        "plan-change-error": "Failed to change plan"
     },
     "roles": {
         "admin": "Admin",

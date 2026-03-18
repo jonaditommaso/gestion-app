@@ -2402,7 +2402,15 @@
         "reactivate-subscription": "Reactivar suscripción",
         "reactivate-subscription-description": "Tu suscripción está programada para cancelarse al final del periodo actual. Puedes reactivarla en cualquier momento antes de esa fecha.",
         "subscription-reactivated": "Suscripción reactivada correctamente",
-        "subscription-reactivate-error": "No se pudo reactivar la suscripción"
+        "subscription-reactivate-error": "No se pudo reactivar la suscripción",
+        "change-plan-title": "Cambiar plan",
+        "change-plan-current": "Plan actual",
+        "change-plan-upgrade": "Mejorar",
+        "change-plan-downgrade": "Reducir",
+        "change-plan-cancel": "Cancelar",
+        "change-plan-confirm": "Confirmar cambio",
+        "plan-changed-success": "Plan actualizado correctamente",
+        "plan-change-error": "No se pudo cambiar el plan"
     },
     "roles": {
         "admin": "Admin",
