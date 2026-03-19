@@ -2147,7 +2147,8 @@
         "user": "Utente",
         "not-defined": "Non definito",
         "add-organization": "Aggiungi organizzazione",
-        "messages": "Messaggi"
+        "messages": "Messaggi",
+        "upgrade": "Potenzia piano"
     },
     "sales": {
         "title": "Pipeline Vendite",
@@ -2785,5 +2786,36 @@
         "upgrade-dialog-notify-owner-members": "{name} sta cercando di invitare più persone nel team, ma è stato raggiunto il limite. Clicca qui per aggiornare il tuo piano.",
         "upgrade-dialog-notify-owner-pipelines": "{name} sta cercando di creare più pipeline di vendita, ma è stato raggiunto il limite. Clicca qui per aggiornare il tuo piano.",
         "upgrade-dialog-notify-owner-workspaces": "{name} sta cercando di creare un nuovo workspace, ma è stato raggiunto il limite. Clicca qui per aggiornare il tuo piano."
+    },
+    "upgrade-carousel": {
+        "dialog-title": "Scopri cosa ti aspetta",
+        "dialog-description": "Esplora le funzionalità disponibili con un upgrade del piano",
+        "upgrade-button": "Scopri i piani",
+        "free-intro-title": "Sei sul piano gratuito",
+        "free-intro-description": "Sblocca fatturazione, un assistente IA avanzato, team più grandi e molto altro. Scopri tutto ciò che ti aspetta con un upgrade.",
+        "free-slide-1-title": "Prendi il controllo delle tue finanze",
+        "free-slide-1-description": "Il modulo Fatturazione è disponibile da PLUS in poi. Tieni traccia di entrate, uscite e ottieni un riepilogo finanziario chiaro — tutto in un posto.",
+        "free-slide-2-title": "Collega vendite e fatturazione",
+        "free-slide-2-description": "Collega la tua pipeline di vendita direttamente alla fatturazione. Quando si chiude un accordo, genera una fattura in pochi secondi. Fluido, automatico e potente.",
+        "free-slide-3-title": "Cresci oltre i 3 membri",
+        "free-slide-3-description": "FREE supporta fino a 3 membri del team. Con PLUS puoi invitare fino a 10 persone, assegnare ruoli e collaborare senza restrizioni.",
+        "free-slide-4-title": "La tua IA, potenziata al massimo",
+        "free-slide-4-description": "Da PRO in poi, il tuo assistente IA va ben oltre la creazione di attività — analizza la pipeline, ottieni insight sul business e agisci più velocemente ogni giorno.",
+        "plus-intro-title": "Pronto a crescere più velocemente?",
+        "plus-intro-description": "Sei su PLUS. Passare a PRO rimuove ogni limite su workspace, pipeline e dimensione del team — e sblocca capacità IA avanzate.",
+        "plus-slide-1-title": "Workspace e pipeline illimitati",
+        "plus-slide-1-description": "PRO rimuove ogni vincolo. Crea tutti i workspace e le pipeline di vendita di cui ha bisogno la tua attività — tutto organizzato da un unico posto.",
+        "plus-slide-2-title": "Capacità IA di livello superiore",
+        "plus-slide-2-description": "Con PRO e oltre, il tuo chatbot fa molto di più che creare attività. Analizza le performance di vendita, redige messaggi e ti fornisce insight proattivi.",
+        "plus-slide-3-title": "Scala il team a 25+",
+        "plus-slide-3-description": "PLUS supporta fino a 10 membri del team. PRO scala a 25. Ne hai bisogno di più? Enterprise è completamente illimitato.",
+        "pro-intro-title": "Porta il tuo team al livello successivo",
+        "pro-intro-description": "Sei su PRO. Enterprise offre capacità illimitata, onboarding dedicato e supporto prioritario per la tua organizzazione.",
+        "pro-slide-1-title": "Team illimitato, zero vincoli",
+        "pro-slide-1-description": "PRO supporta fino a 25 membri. Enterprise elimina completamente quel limite — invita tutta la tua organizzazione, senza tetto massimo.",
+        "pro-slide-3-title": "Onboarding dedicato",
+        "pro-slide-3-description": "Enterprise include un processo di onboarding guidato per far partire il tuo team rapidamente, con supporto esperto dal primo giorno.",
+        "pro-slide-4-title": "Supporto di gruppo prioritario",
+        "pro-slide-4-description": "I clienti Enterprise accedono a un canale di supporto dedicato per il team — risposte più rapide, persone reali, soluzioni reali."
     }
 }

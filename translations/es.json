@@ -2161,7 +2161,8 @@
         "user": "Usuario",
         "not-defined": "Sin definir",
         "add-organization": "Agregar organización",
-        "messages": "Mensajes"
+        "messages": "Mensajes",
+        "upgrade": "Mejorar plan"
     },
     "sales": {
         "title": "Pipeline de Ventas",
@@ -2799,5 +2800,36 @@
         "upgrade-dialog-notify-owner-members": "{name} está intentando invitar a más personas al equipo, pero han alcanzado el límite. Haz clic aquí para mejorar tu plan.",
         "upgrade-dialog-notify-owner-pipelines": "{name} está intentando crear más pipelines de ventas, pero han alcanzado el límite. Haz clic aquí para mejorar tu plan.",
         "upgrade-dialog-notify-owner-workspaces": "{name} está intentando crear un nuevo workspace, pero han alcanzado el límite. Haz clic aquí para mejorar tu plan."
+    },
+    "upgrade-carousel": {
+        "dialog-title": "Descubre lo que te espera",
+        "dialog-description": "Explora las funcionalidades disponibles al mejorar tu plan",
+        "upgrade-button": "Ver planes",
+        "free-intro-title": "Estás en el plan gratuito",
+        "free-intro-description": "Desbloquea facturación, un asistente de IA avanzado, equipos más grandes y mucho más. Descubre todo lo que te espera al mejorar tu plan.",
+        "free-slide-1-title": "Toma el control de tus finanzas",
+        "free-slide-1-description": "El módulo de Facturación está disponible desde PLUS. Controla ingresos, gastos y obtén un resumen financiero claro — todo en un solo lugar.",
+        "free-slide-2-title": "Conecta ventas con facturación",
+        "free-slide-2-description": "Vincula tu pipeline de ventas directamente con la facturación. Cuando cierres un trato, genera una factura en segundos. Fluido, automático y poderoso.",
+        "free-slide-3-title": "Crece más allá de 3 miembros",
+        "free-slide-3-description": "FREE soporta hasta 3 miembros del equipo. Con PLUS puedes invitar hasta 10 personas, asignar roles y colaborar sin restricciones.",
+        "free-slide-4-title": "Tu IA, potenciada al máximo",
+        "free-slide-4-description": "Desde PRO, tu asistente de IA va mucho más allá de crear tareas — analiza tu pipeline, obtén insights de negocio y actúa más rápido cada día.",
+        "plus-intro-title": "¿Listo para crecer más rápido?",
+        "plus-intro-description": "Estás en PLUS. Pasar a PRO elimina todos los límites de workspaces, pipelines y tamaño del equipo — y desbloquea capacidades de IA de alto nivel.",
+        "plus-slide-1-title": "Espacios y pipelines ilimitados",
+        "plus-slide-1-description": "PRO elimina toda restricción. Crea tantos workspaces y pipelines de ventas como necesite tu negocio — todo organizado desde un único lugar.",
+        "plus-slide-2-title": "IA de nivel superior",
+        "plus-slide-2-description": "Con PRO en adelante, tu chatbot hace mucho más que crear tareas. Analiza tu rendimiento de ventas, redacta mensajes y te brinda insights proactivos.",
+        "plus-slide-3-title": "Escala tu equipo a 25+",
+        "plus-slide-3-description": "PLUS soporta hasta 10 miembros del equipo. PRO escala a 25. ¿Necesitas más? Enterprise es completamente ilimitado.",
+        "pro-intro-title": "Lleva tu equipo al siguiente nivel",
+        "pro-intro-description": "Estás en PRO. Enterprise ofrece capacidad ilimitada, onboarding dedicado y soporte prioritario para tu organización.",
+        "pro-slide-1-title": "Equipo ilimitado, sin restricciones",
+        "pro-slide-1-description": "PRO soporta hasta 25 miembros. Enterprise elimina ese límite completamente — invita a toda tu organización, sin tope.",
+        "pro-slide-3-title": "Onboarding dedicado",
+        "pro-slide-3-description": "Enterprise incluye un proceso de onboarding guiado para que tu equipo arranque rápido, con soporte experto desde el primer día.",
+        "pro-slide-4-title": "Soporte grupal prioritario",
+        "pro-slide-4-description": "Los clientes Enterprise acceden a un canal de soporte dedicado para su equipo — respuestas más rápidas, personas reales, soluciones reales."
     }
 }

@@ -2157,7 +2157,8 @@
         "user": "User",
         "not-defined": "Undefined",
         "add-organization": "Add organization",
-        "messages": "Messages"
+        "messages": "Messages",
+        "upgrade": "Upgrade"
     },
     "sales": {
         "title": "Sales Pipeline",
@@ -2795,5 +2796,36 @@
         "upgrade-dialog-notify-owner-members": "{name} is trying to invite more people to the team, but the limit has been reached. Click here to upgrade your plan.",
         "upgrade-dialog-notify-owner-pipelines": "{name} is trying to create more sales pipelines, but the limit has been reached. Click here to upgrade your plan.",
         "upgrade-dialog-notify-owner-workspaces": "{name} is trying to create a new workspace, but the limit has been reached. Click here to upgrade your plan."
+    },
+    "upgrade-carousel": {
+        "dialog-title": "Discover what's waiting for you",
+        "dialog-description": "Explore the features available with a plan upgrade",
+        "upgrade-button": "Explore plans",
+        "free-intro-title": "You're on the Free plan",
+        "free-intro-description": "Unlock billing, an advanced AI assistant, larger teams, and more. See everything that's waiting for you when you upgrade.",
+        "free-slide-1-title": "Take control of your finances",
+        "free-slide-1-description": "The Billing module is available from PLUS onwards. Track income, expenses, and get a clear financial summary — all in one place.",
+        "free-slide-2-title": "Connect sales with billing",
+        "free-slide-2-description": "Link your sales pipeline directly to billing. When a deal closes, generate an invoice in seconds. Seamless, automatic, and powerful.",
+        "free-slide-3-title": "Grow beyond 3 members",
+        "free-slide-3-description": "FREE supports up to 3 team members. With PLUS you can invite up to 10 people, assign roles, and collaborate without restrictions.",
+        "free-slide-4-title": "Your AI, supercharged",
+        "free-slide-4-description": "Starting from PRO, your AI assistant goes far beyond creating tasks — analyze your pipeline, get business insights, and act faster every day.",
+        "plus-intro-title": "Ready to scale faster?",
+        "plus-intro-description": "You're on PLUS. Upgrading to PRO removes all limits on workspaces, pipelines, and team size — and unlocks next-level AI capabilities.",
+        "plus-slide-1-title": "Unlimited workspaces & pipelines",
+        "plus-slide-1-description": "PRO removes every constraint. Create as many workspaces and sales pipelines as your business needs — all organized from one place.",
+        "plus-slide-2-title": "Next-level AI capabilities",
+        "plus-slide-2-description": "With PRO and beyond, your chatbot does much more than create tasks. It analyzes your sales performance, drafts messages, and gives you proactive insights.",
+        "plus-slide-3-title": "Scale your team to 25+",
+        "plus-slide-3-description": "PLUS supports up to 10 team members. PRO scales to 25. Need more? Enterprise is completely unlimited.",
+        "pro-intro-title": "Take it to the next level",
+        "pro-intro-description": "You're on PRO. Enterprise gives your organization unlimited capacity, dedicated onboarding, and priority support.",
+        "pro-slide-1-title": "Unlimited team, zero restrictions",
+        "pro-slide-1-description": "PRO supports up to 25 members. Enterprise removes that cap entirely — invite your whole organization, no limits.",
+        "pro-slide-3-title": "Dedicated onboarding",
+        "pro-slide-3-description": "Enterprise includes a guided onboarding process so your team gets up and running fast, with expert support from day one.",
+        "pro-slide-4-title": "Priority group support",
+        "pro-slide-4-description": "Enterprise clients get access to a dedicated support channel for your team — faster responses, real people, real solutions."
     }
 }
