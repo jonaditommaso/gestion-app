@@ -2091,6 +2091,19 @@
         "this-device": "This device",
         "active": "Active"
     },
+    "sso": {
+        "section-title": "Single Sign-On (SSO)",
+        "description": "Restrict access to your organization by requiring all members to authenticate through a verified Google Workspace domain. Users attempting to log in with email and password from this domain will be redirected to use Google SSO.",
+        "domain-label": "Allowed domain",
+        "enforce-label": "Enforce SSO",
+        "enforce-description": "Block email/password login for users with this domain.",
+        "enforce-warning": "Members with this domain will no longer be able to log in with email and password.",
+        "warning-badge": "Warning",
+        "save": "Save",
+        "saved": "SSO configuration saved",
+        "save-error": "Failed to save SSO configuration",
+        "sso-required-login": "Your organization requires Single Sign-On. Please use the Google or GitHub button below to sign in."
+    },
     "general": {
         "create-new": "Create new",
         "back-to-home": "Back to Home",

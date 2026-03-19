@@ -2095,6 +2095,19 @@
         "this-device": "Este dispositivo",
         "active": "Activa"
     },
+    "sso": {
+        "section-title": "Inicio de sesión único (SSO)",
+        "description": "Restringe el acceso a tu organización exigiendo que todos los miembros se autentiquen mediante un dominio de Google Workspace verificado. Los usuarios que intenten iniciar sesión con email y contraseña desde este dominio deberán usar Google SSO.",
+        "domain-label": "Dominio permitido",
+        "enforce-label": "Forzar SSO",
+        "enforce-description": "Bloquea el inicio de sesión con email y contraseña para usuarios con este dominio.",
+        "enforce-warning": "Los miembros con este dominio ya no podrán iniciar sesión con email y contraseña.",
+        "warning-badge": "Atención",
+        "save": "Guardar",
+        "saved": "Configuración de SSO guardada",
+        "save-error": "Error al guardar la configuración de SSO",
+        "sso-required-login": "Tu organización requiere inicio de sesión único. Por favor usa el botón de Google o GitHub para iniciar sesión."
+    },
     "general": {
         "create-new": "Crear nuevo",
         "back-to-home": "Volver al Inicio",

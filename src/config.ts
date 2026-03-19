@@ -51,6 +51,8 @@ export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
 
+export const SSO_CONFIGS_ID = process.env.NEXT_PUBLIC_APPWRITE_SSO_CONFIGS_ID!
+
 export const GROQ_API_KEY = process.env.GROQ_API_KEY!
 export const CEREBRAS_API_KEY = process.env.CEREBRAS_API_KEY!
 

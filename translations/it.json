@@ -2081,6 +2081,19 @@
         "this-device": "Questo dispositivo",
         "active": "Attiva"
     },
+    "sso": {
+        "section-title": "Single Sign-On (SSO)",
+        "description": "Limita l'accesso alla tua organizzazione richiedendo a tutti i membri di autenticarsi tramite un dominio Google Workspace verificato. Gli utenti che tentano di accedere con email e password da questo dominio dovranno utilizzare Google SSO.",
+        "domain-label": "Dominio consentito",
+        "enforce-label": "Imponi SSO",
+        "enforce-description": "Blocca il login con email e password per gli utenti con questo dominio.",
+        "enforce-warning": "I membri con questo dominio non potranno più accedere con email e password.",
+        "warning-badge": "Attenzione",
+        "save": "Salva",
+        "saved": "Configurazione SSO salvata",
+        "save-error": "Errore nel salvataggio della configurazione SSO",
+        "sso-required-login": "La tua organizzazione richiede il Single Sign-On. Utilizza il pulsante Google o GitHub per accedere."
+    },
     "general": {
         "create-new": "Crea nuovo",
         "back-to-home": "Ritorna alla Home.",
