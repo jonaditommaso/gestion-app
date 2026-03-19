@@ -213,7 +213,7 @@ async function handleCreateDeal(ctx: ActionContext): Promise<ActionResult> {
         expectedCloseDate, nextStep, outcome,
     } = ctx.args as unknown as CreateDealArgs;
 
-    console.log('[CREATE_DEAL] Args received:', { title, company, amount, currency, status });
+    if (process.env.NODE_ENV === 'development') console.log('[CREATE_DEAL] Args received:', { title, company, amount, currency, status });
 
     const body: Record<string, unknown> = { title, company, amount, currency };
     if (status) body.status = status;

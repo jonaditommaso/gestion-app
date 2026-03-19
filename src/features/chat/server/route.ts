@@ -272,12 +272,12 @@ const app = new Hono()
             // detectar si el usuario quiere ejecutar una acción.
             // Si la IA detecta una acción, ejecutamos el handler correspondiente.
 
-            console.log('[CHAT] Starting function calling attempt...');
+            if (process.env.NODE_ENV === 'development') console.log('[CHAT] Starting function calling attempt...');
 
             try {
                 const result = await chatWithTools(aiMessages, planTools);
 
-                console.log('[CHAT] Function calling result type:', result.type);
+                if (process.env.NODE_ENV === 'development') console.log('[CHAT] Function calling result type:', result.type);
 
                 // ¿La IA quiere ejecutar una acción?
                 if (result.type === 'tool_call') {
@@ -291,7 +291,7 @@ const app = new Hono()
                         args: toolCall.arguments,
                     };
 
-                    console.log('[CHAT] Executing action:', {
+                    if (process.env.NODE_ENV === 'development') console.log('[CHAT] Executing action:', {
                         actionName: toolCall.name,
                         userId: actionContext.userId,
                         baseUrl: actionContext.baseUrl,
@@ -358,7 +358,7 @@ const app = new Hono()
                 console.error('[CHAT] Function calling failed, falling back to streaming:', error);
             }
 
-            console.log('[CHAT] Falling back to streaming chat (no function call detected)');
+            if (process.env.NODE_ENV === 'development') console.log('[CHAT] Falling back to streaming chat (no function call detected)');
 
             // =====================================================================
             // FALLBACK: Chat normal con streaming (sin function calling)
