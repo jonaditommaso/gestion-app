@@ -24,26 +24,26 @@ export const UNSUPPORTED_ACTION_FRAGMENT = 'no está soportada todavía';
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 export interface ChatResponse {
-  type: 'text' | 'tool_call';
-  content: string;
-  functionCalled?: string;
-  conversationId?: string;
-  modelName?: string;
+    type: 'text' | 'tool_call';
+    content: string;
+    functionCalled?: string;
+    conversationId?: string;
+    modelName?: string;
 }
 
 export interface MockConversation {
-  $id: string;
-  title: string;
-  userId: string;
-  $createdAt: string;
+    $id: string;
+    title: string;
+    userId: string;
+    $createdAt: string;
 }
 
 export interface MockChatMessage {
-  $id: string;
-  conversationId: string;
-  content: string;
-  role: 'USER' | 'ASSISTANT';
-  $createdAt: string;
+    $id: string;
+    conversationId: string;
+    content: string;
+    role: 'USER' | 'ASSISTANT';
+    $createdAt: string;
 }
 
 // ─── Helpers de mock para /api/chat ──────────────────────────────────────────
@@ -52,112 +52,112 @@ export interface MockChatMessage {
  * Simula una respuesta de texto del chatbot (sin function calling)
  */
 export async function mockChatTextResponse(
-  page: Page,
-  responseText: string,
-  opts: { conversationId?: string; modelName?: string } = {}
+    page: Page,
+    responseText: string,
+    opts: { conversationId?: string; modelName?: string } = {}
 ): Promise<void> {
-  await page.route(CHAT_API, async (route: Route) => {
-    if (route.request().method() !== 'POST') {
-      await route.continue();
-      return;
-    }
-    const encoder = new TextEncoder();
-    const body = encoder.encode(responseText);
-    await route.fulfill({
-      status: 200,
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
-        'X-Model-Name': opts.modelName ?? 'Groq · Kimi K2',
-      },
-      body,
+    await page.route(CHAT_API, async (route: Route) => {
+        if (route.request().method() !== 'POST') {
+            await route.continue();
+            return;
+        }
+        const encoder = new TextEncoder();
+        const body = encoder.encode(responseText);
+        await route.fulfill({
+            status: 200,
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
+                'X-Model-Name': opts.modelName ?? 'Groq · Kimi K2',
+            },
+            body,
+        });
     });
-  });
 }
 
 /**
  * Simula una respuesta de acción ejecutada por el chatbot (function calling)
  */
 export async function mockChatToolCallResponse(
-  page: Page,
-  responseText: string,
-  functionCalled: string,
-  opts: { conversationId?: string } = {}
+    page: Page,
+    responseText: string,
+    functionCalled: string,
+    opts: { conversationId?: string } = {}
 ): Promise<void> {
-  await page.route(CHAT_API, async (route: Route) => {
-    if (route.request().method() !== 'POST') {
-      await route.continue();
-      return;
-    }
-    const encoder = new TextEncoder();
-    const body = encoder.encode(responseText);
-    await route.fulfill({
-      status: 200,
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
-        'X-Model-Name': 'Groq · Kimi K2',
-        'X-Function-Called': functionCalled,
-      },
-      body,
+    await page.route(CHAT_API, async (route: Route) => {
+        if (route.request().method() !== 'POST') {
+            await route.continue();
+            return;
+        }
+        const encoder = new TextEncoder();
+        const body = encoder.encode(responseText);
+        await route.fulfill({
+            status: 200,
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
+                'X-Model-Name': 'Groq · Kimi K2',
+                'X-Function-Called': functionCalled,
+            },
+            body,
+        });
     });
-  });
 }
 
 /**
  * Simula un error 403 del chatbot (plan FREE o sin permiso)
  */
 export async function mockChatForbiddenResponse(page: Page, message: string = 'Upgrade required'): Promise<void> {
-  await page.route(CHAT_API, async (route: Route) => {
-    if (route.request().method() !== 'POST') {
-      await route.continue();
-      return;
-    }
-    await route.fulfill({
-      status: 403,
-      contentType: 'application/json',
-      body: JSON.stringify({ error: message }),
+    await page.route(CHAT_API, async (route: Route) => {
+        if (route.request().method() !== 'POST') {
+            await route.continue();
+            return;
+        }
+        await route.fulfill({
+            status: 403,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: message }),
+        });
     });
-  });
 }
 
 /**
  * Simula un error 401 del chatbot (no autenticado)
  */
 export async function mockChatUnauthorizedResponse(page: Page): Promise<void> {
-  await page.route(CHAT_API, async (route: Route) => {
-    if (route.request().method() !== 'POST') {
-      await route.continue();
-      return;
-    }
-    await route.fulfill({
-      status: 401,
-      contentType: 'application/json',
-      body: JSON.stringify({ error: 'Unauthorized' }),
+    await page.route(CHAT_API, async (route: Route) => {
+        if (route.request().method() !== 'POST') {
+            await route.continue();
+            return;
+        }
+        await route.fulfill({
+            status: 401,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: 'Unauthorized' }),
+        });
     });
-  });
 }
 
 /**
  * Simula la lista de conversaciones
  */
 export async function mockConversationsList(
-  page: Page,
-  conversations: MockConversation[] = []
+    page: Page,
+    conversations: MockConversation[] = []
 ): Promise<void> {
-  await page.route('**/api/chat/conversations', async (route: Route) => {
-    if (route.request().method() !== 'GET') {
-      await route.continue();
-      return;
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ data: conversations }),
+    await page.route('**/api/chat/conversations', async (route: Route) => {
+        if (route.request().method() !== 'GET') {
+            await route.continue();
+            return;
+        }
+        await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ data: conversations }),
+        });
     });
-  });
 }
 
 // ─── Helpers para abrir el chatbot en UI ─────────────────────────────────────
@@ -166,19 +166,19 @@ export async function mockConversationsList(
  * Abre el panel del chatbot haciendo clic en el trigger de la navbar
  */
 export async function openChatPanel(page: Page): Promise<void> {
-  const trigger = page.locator('[data-testid="chatbot-trigger"]');
-  await trigger.waitFor({ state: 'visible', timeout: 10000 });
-  await trigger.click();
-  // Esperar a que el panel sea visible
-  await page.locator('[data-testid="chatbot-panel"]').waitFor({ state: 'visible', timeout: 5000 });
+    const trigger = page.locator('[data-testid="chatbot-trigger"]');
+    await trigger.waitFor({ state: 'visible', timeout: 10000 });
+    await trigger.click();
+    // Esperar a que el panel sea visible
+    await page.locator('[data-testid="chatbot-panel"]').waitFor({ state: 'visible', timeout: 5000 });
 }
 
 /**
  * Envía un mensaje desde el chat UI
  */
 export async function sendChatMessage(page: Page, message: string): Promise<void> {
-  const textarea = page.locator('[data-testid="chatbot-input"]');
-  await textarea.waitFor({ state: 'visible', timeout: 5000 });
-  await textarea.fill(message);
-  await page.keyboard.press('Enter');
+    const textarea = page.locator('[data-testid="chatbot-input"]');
+    await textarea.waitFor({ state: 'visible', timeout: 5000 });
+    await textarea.fill(message);
+    await page.keyboard.press('Enter');
 }
