@@ -15,6 +15,7 @@ const ToggleChatBot = () => {
             variant="outline"
             size="icon"
             onClick={toggleChatBot}
+            data-testid="chatbot-trigger"
         >
             <BotMessageSquare className="h-[1.5rem] w-[1.5rem] transition-all" />
         </Button>
