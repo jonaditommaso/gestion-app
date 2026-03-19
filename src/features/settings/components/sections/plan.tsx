@@ -23,7 +23,11 @@ const Plan = async () => {
     return (
         <div className="flex items-center justify-between w-full">
             <h2>{capitalize(plan)}</h2>
-            {(role === 'OWNER' || role === 'ADMIN') && <Button variant='outline'>{t('see-plans')}</Button>}
+            {(role === 'OWNER' || role === 'ADMIN') && (
+                <Button variant='outline' asChild>
+                    <a href="/pricing">{t('see-plans')}</a>
+                </Button>
+            )}
         </div>
     );
 }

@@ -144,7 +144,7 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
                 {isCurrentPlan
                     ? <div className="w-full py-2 text-center text-sm font-semibold text-muted-foreground border rounded-md bg-muted/50">{t('pricing-current-plan')}</div>
                     : onSelect
-                        ? <Button className="w-full" onClick={onSelect}>{textButton}</Button>
+                        ? <Button className="w-full" onClick={onSelect}>{t(textButton)}</Button>
                         : <SelectPricingButton textButton={t(textButton)} type={type} billing={billing} />
                 }
             </CardHeader>

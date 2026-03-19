@@ -19,6 +19,7 @@ import roles from '@/features/roles/server/route'
 import chat from '@/features/chat/server/route'
 import notifications from '@/features/notifications/server/route'
 import sells from '@/features/sells/server/route'
+import sso from '@/features/sso/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -42,6 +43,7 @@ const routes = app
   .route('/chat', chat)
   .route('/notifications', notifications)
   .route('/sells', sells)
+  .route('/sso', sso)
   .route('/', home)
 
 export const GET = handle(app)

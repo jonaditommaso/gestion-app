@@ -1,4 +1,4 @@
-import { ArrowRightLeft, Calculator, KeyRound, ListTodo, LucideIcon, Palette, UserRoundSearch } from "lucide-react";
+import { Bot, Calculator, KeyRound, ListTodo, LucideIcon, Palette, TrendingUp } from "lucide-react";
 
 type Service = {
     title: string,
@@ -21,7 +21,7 @@ export const services: Service[] = [
     {
         title: 'service-2',
         description: 'service-2-description',
-        icon: ArrowRightLeft,
+        icon: TrendingUp,
         iconColor: 'text-green-500',
         circleColor: 'bg-green-300',
         circlePosition: "top-right"
@@ -37,7 +37,7 @@ export const services: Service[] = [
     {
         title: 'service-4',
         description: 'service-4-description',
-        icon: UserRoundSearch,
+        icon: Bot,
         iconColor: 'text-blue-500',
         circleColor: 'bg-blue-300',
         circlePosition: 'top-left'

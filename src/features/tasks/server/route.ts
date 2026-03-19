@@ -492,6 +492,13 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            if (type === 'epic') {
+                const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                if (orgContext?.org?.plan === 'FREE') {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
+            }
+
             const highestPositionTask = await databases.listDocuments(
                 DATABASE_ID,
                 TASKS_ID,

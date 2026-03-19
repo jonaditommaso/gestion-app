@@ -18,6 +18,7 @@ import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-
 import { WorkspaceConfigKey, DEFAULT_WORKSPACE_CONFIG, STATUS_TO_LIMIT_KEYS, STATUS_TO_PROTECTED_KEY, STATUS_TO_LABEL_KEY, ColumnLimitType, ShowCardCountType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useMemo, useState, useOptimistic, startTransition } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useMfaConfirm } from "@/hooks/use-mfa-confirm";
 import { useRouter } from "next/navigation";
 import { ArchivedTasksModal } from "@/features/tasks/components/ArchivedTasksModal";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
@@ -93,9 +94,15 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         'destructive'
     );
 
+    const [ArchiveMfaDialog, confirmArchiveMfa] = useMfaConfirm();
+    const [DeleteMfaDialog, confirmDeleteMfa] = useMfaConfirm();
+
     const handleArchive = async () => {
-        const ok = await confirmArchive();
-        if (!ok) return;
+        const confirmed = await confirmArchive();
+        if (!confirmed) return;
+
+        const mfaOk = await confirmArchiveMfa();
+        if (!mfaOk) return;
 
         setPendingConfigKey('archive');
         updateWorkspace(
@@ -115,8 +122,11 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     };
 
     const handleDelete = async () => {
-        const ok = await confirmDelete();
-        if (!ok) return;
+        const confirmed = await confirmDelete();
+        if (!confirmed) return;
+
+        const mfaOk = await confirmDeleteMfa();
+        if (!mfaOk) return;
 
         deleteWorkspace(
             { param: { workspaceId: workspace.$id } },
@@ -1106,6 +1116,8 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
             <ArchiveDialog />
             <DeleteDialog />
+            <ArchiveMfaDialog />
+            <DeleteMfaDialog />
             <ArchivedTasksModal
                 isOpen={isArchivedTasksModalOpen}
                 onClose={() => setIsArchivedTasksModalOpen(false)}

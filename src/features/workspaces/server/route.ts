@@ -10,6 +10,7 @@ import { getMember } from '../members/utils';
 import { z as zod } from 'zod';
 import { WorkspaceType } from '../types';
 import { getActiveContext } from '@/features/team/server/utils';
+import { planLimits } from '@/features/pricing/plan-limits';
 
 const app = new Hono()
 
@@ -67,6 +68,18 @@ const app = new Hono()
             const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
+            const workspaceLimit = planLimits[context.org.plan].workspaces;
+            if (workspaceLimit !== -1) {
+                const existing = await databases.listDocuments(
+                    DATABASE_ID,
+                    WORKSPACES_ID,
+                    [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(1)]
+                );
+                if (existing.total >= workspaceLimit) {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
+            }
+
             const workspace = await databases.createDocument(
                 DATABASE_ID,
                 WORKSPACES_ID,
@@ -120,7 +133,19 @@ const app = new Hono()
             const updateData: Partial<WorkspaceType> = {};
             if (name !== undefined) updateData.name = name;
             if (description !== undefined) updateData.description = description;
-            if (metadata !== undefined) updateData.metadata = metadata;
+            if (metadata !== undefined) {
+                let parsedMeta: Record<string, unknown> = {};
+                try {
+                    parsedMeta = typeof metadata === 'string' ? JSON.parse(metadata) : {};
+                } catch { /* invalid JSON — skip check */ }
+                if ('customStatuses' in parsedMeta) {
+                    const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                    if (orgContext?.org?.plan === 'FREE') {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+                updateData.metadata = metadata;
+            }
             if (archived !== undefined) updateData.archived = archived;
 
             const workspace = await databases.updateDocument(

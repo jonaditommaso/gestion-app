@@ -5,6 +5,7 @@ import Languages from "@/features/settings/components/Languages";
 import ProfilePhotoEdition from "@/features/settings/components/ProfilePhotoEdition";
 import { settingsSections } from "@/features/settings/components/sections";
 import SettingSection from "@/features/settings/components/SettingSection";
+import SSOSettings from "@/features/sso/components/SSOSettings";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
@@ -29,6 +30,7 @@ const SettingsView = async () => {
                             </SettingSection>
                         )
                     })}
+                    <SSOSettings />
                 </div>
                 <div className="w-[400px] flex flex-col items-center">
                     <ProfilePhotoEdition user={user} />

@@ -2,10 +2,11 @@ import { Hono } from "hono"
 import { zValidator } from '@hono/zod-validator';
 import { loginSchema, mfaSchema, registerSchema, userNameSchema } from "../schemas";
 import { createAdminClient } from "@/lib/appwrite";
-import { ID, Account, AppwriteException, AuthenticationFactor, Client } from "node-appwrite";
+import { ID, Account, AppwriteException, AuthenticationFactor, Client, Query } from "node-appwrite";
 import { deleteCookie, setCookie } from 'hono/cookie';
 import { AUTH_COOKIE } from "../constants";
 import { ContextType, sessionMfaMiddleware, sessionMiddleware } from "@/lib/session-middleware";
+import { DATABASE_ID, SSO_CONFIGS_ID } from "@/config";
 
 // function isErrorResponseWithChallengeId(response: unknown): response is { challengeId: string } {
 //     return typeof response === 'object' && response !== null && 'challengeId' in response;
@@ -30,7 +31,20 @@ const app = new Hono<ContextType>()
         async ctx => {
             const { email, password } = ctx.req.valid('json');
 
-            const { account: adminAccount } = await createAdminClient();
+            const { account: adminAccount, databases } = await createAdminClient();
+
+            const domain = email.split('@')[1]?.toLowerCase();
+            if (domain) {
+                const ssoResult = await databases.listDocuments(
+                    DATABASE_ID,
+                    SSO_CONFIGS_ID,
+                    [Query.equal('domain', domain), Query.equal('enabled', true), Query.limit(1)]
+                );
+                if (ssoResult.total > 0) {
+                    return ctx.json({ error: 'sso_required' }, 403);
+                }
+            }
+
             const session = await adminAccount.createEmailPasswordSession(
                 email,
                 password
@@ -280,6 +294,25 @@ const app = new Hono<ContextType>()
             await users.updateName(user.$id, userName);
 
             return ctx.json({ success: true, message: 'Updated username' });
+        }
+    )
+
+    .post('/mfa/challenge',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+
+            if (!account) {
+                return ctx.json({ error: 'Account not found' }, 401);
+            }
+
+            try {
+                const challenge = await account.createMfaChallenge(AuthenticationFactor.Totp);
+                return ctx.json({ challengeId: challenge.$id }, 200);
+            } catch (error) {
+                console.error(error);
+                return ctx.json({ error: 'Failed to create MFA challenge' }, 500);
+            }
         }
     )
 

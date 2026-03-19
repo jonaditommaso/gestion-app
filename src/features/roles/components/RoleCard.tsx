@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Edit } from "lucide-react"
-import type { RoleType, Permission } from "../constants"
-import { getPermissionBadgeColor } from "../constants"
+import type { RoleType } from "../constants"
+import { getPermissionBadgeColor, getEffectivePermissions } from "../constants"
 import { useTranslations } from "next-intl"
+import { usePlanAccess } from "@/hooks/usePlanAccess"
 
 interface RoleCardProps {
   role: RoleType
-  permissions: Permission[]
+  permissions: string[]
   name: string
   description: string
   color: string
@@ -19,6 +20,12 @@ interface RoleCardProps {
 
 export function RoleCard({ permissions, name, description, color, onEdit }: RoleCardProps) {
   const t = useTranslations('roles')
+  const { plan } = usePlanAccess()
+  const isPro = plan === 'PRO' || plan === 'ENTERPRISE'
+  const displayPermissions = isPro ? getEffectivePermissions(permissions) : permissions
+  const MAX_VISIBLE = 5
+  const visiblePermissions = displayPermissions.slice(0, MAX_VISIBLE)
+  const hiddenCount = displayPermissions.length - visiblePermissions.length
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -38,13 +45,18 @@ export function RoleCard({ permissions, name, description, color, onEdit }: Role
       <CardContent>
         <div className="space-y-4">
           <div>
-            <p className="text-sm font-medium mb-2">{t('permissions')} ({permissions.length})</p>
+            <p className="text-sm font-medium mb-2">{t('permissions')} ({displayPermissions.length})</p>
             <div className="flex flex-wrap gap-1">
-              {permissions.map((permission) => (
+              {visiblePermissions.map((permission) => (
                 <Badge key={permission} variant="outline" className={`text-xs ${getPermissionBadgeColor(permission)}`}>
                   {permission}
                 </Badge>
               ))}
+              {hiddenCount > 0 && (
+                <Badge variant="outline" className="text-xs">
+                  +{hiddenCount}
+                </Badge>
+              )}
             </div>
           </div>
         </div>

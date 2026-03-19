@@ -3,17 +3,17 @@
 import { RoleCard } from "./RoleCard"
 import RoleEditModal from "./RoleEditModal"
 import { useState } from "react"
-import type { RoleType, Permission } from "../constants"
+import type { RoleType } from "../constants"
 import { ROLE_METADATA } from "../constants"
 import { useGetFinalRolesPermissions } from "../hooks/useGetFinalRolesPermissions"
 
 export function RolesTab() {
-  const [selectedRole, setSelectedRole] = useState<{ role: RoleType; permissions: Permission[], $id?: string } | null>(null)
+  const [selectedRole, setSelectedRole] = useState<{ role: RoleType; permissions: string[], $id?: string } | null>(null)
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
 
   const finalRolePermissions = useGetFinalRolesPermissions();
 
-  const handleEdit = (roleData: { role: RoleType; permissions: Permission[], $id?: string }) => {
+  const handleEdit = (roleData: { role: RoleType; permissions: string[], $id?: string }) => {
     setSelectedRole(roleData)
     setIsRoleDialogOpen(true)
   }

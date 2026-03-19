@@ -3,7 +3,6 @@
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarMenu,
@@ -24,6 +23,8 @@ import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUser
 import { PERMISSIONS } from "@/features/roles/constants";
 import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { Rocket } from "lucide-react";
+import UpgradeCarouselDialog from "@/components/UpgradeCarouselDialog";
 
 const notShowInView = [
   '/oauth/loading',
@@ -34,6 +35,7 @@ const notShowInView = [
 
 const AppSidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useTranslations('general')
@@ -42,6 +44,9 @@ const AppSidebar = () => {
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const { plan } = usePlanAccess();
     const hasTeam = !!teamContext?.membership;
+
+    const isOwner = teamContext?.membership?.role === 'OWNER';
+    const showUpgradeRocket = isOwner && plan !== 'ENTERPRISE';
 
     const isItemVisible = (item: { plans?: string[]; key: string }) => {
         if (item.plans && !item.plans.includes(plan)) return false;
@@ -131,7 +136,33 @@ const AppSidebar = () => {
                     </>
                     )}
                 </SidebarContent>
-                <SidebarFooter />
+                {showUpgradeRocket && (
+                    <>
+                        <SidebarSeparator />
+                        <SidebarGroup>
+                            <SidebarGroupContent>
+                                <SidebarMenu className="gap-3">
+                                    <SidebarMenuItem key="upgrade">
+                                        <SidebarMenuButton
+                                            onClick={() => { setUpgradeDialogOpen(true); setIsCollapsed(false); }}
+                                            tooltip="Upgrade"
+                                        >
+                                            <Rocket size={30} color="#f59e0b" />
+                                            <span className=" text-amber-500 font-medium">
+                                                {t('upgrade')}
+                                            </span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                        <UpgradeCarouselDialog
+                            open={upgradeDialogOpen}
+                            onOpenChange={setUpgradeDialogOpen}
+                            plan={plan}
+                        />
+                    </>
+                )}
             </Sidebar>
         </SidebarProvider>
     );

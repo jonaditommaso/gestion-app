@@ -16,12 +16,14 @@ import {
     FormMessage
 } from '@/components/ui/form'
 import { loginSchema } from "../schemas";
-import { useLogin } from "../api/use-login";
+import { useLogin, SsoRequiredError } from "../api/use-login";
 import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
+import { ShieldCheck } from "lucide-react";
 import {
     Tooltip,
     TooltipContent,
@@ -32,8 +34,10 @@ import {
 const LoginCard = () => {
     const { mutate, isPending } = useLogin();
     const t = useTranslations('auth');
+    const tSso = useTranslations('sso');
     const isMobile = useIsMobile();
     const googleSignInWarning = t('google-signin-test-warning');
+    const [ssoRequired, setSsoRequired] = useState(false);
 
     const form = useForm<zod.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -44,7 +48,14 @@ const LoginCard = () => {
     })
 
     const onSubmit = (values: zod.infer<typeof loginSchema>) => {
-        mutate({json: values})
+        setSsoRequired(false);
+        mutate({ json: values }, {
+            onError: (error) => {
+                if (error instanceof SsoRequiredError) {
+                    setSsoRequired(true);
+                }
+            }
+        });
     }
 
     return (
@@ -109,6 +120,12 @@ const LoginCard = () => {
                             </Button>
                         </form>
                     </Form>
+                    {ssoRequired && (
+                        <div className="mt-4 flex items-start gap-2 rounded-md border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 p-3">
+                            <ShieldCheck className="size-4 text-blue-500 mt-0.5 shrink-0" />
+                            <p className="text-sm text-blue-700 dark:text-blue-300">{tSso('sso-required-login')}</p>
+                        </div>
+                    )}
                 </CardContent>
                 <Separator />
                 <CardContent className="p-7 flex flex-col gap-y-4">

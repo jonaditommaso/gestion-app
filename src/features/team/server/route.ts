@@ -9,10 +9,11 @@ import { companyNameSchema, registerByInvitationSchema } from "@/features/auth/s
 import { setCookie } from "hono/cookie";
 import { AUTH_COOKIE } from "@/features/auth/constants";
 import { getActiveContext } from "./utils";
-import { Membership, Organization, OrganizationPlan } from "../types";
+import { Membership, Organization, OrganizationPlan, BillingCycle } from "../types";
 import { z as zod } from 'zod';
 import { Stripe } from "stripe";
 import { NotificationBodySeparator, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
+import { planLimits } from "@/features/pricing/plan-limits";
 
 const app = new Hono()
 
@@ -40,7 +41,7 @@ const app = new Hono()
 
                 const stripe = new Stripe(STRIPE_SECRET_KEY);
                 const checkoutSession = await stripe.checkout.sessions.retrieve(stripeSessionId, {
-                    expand: ['payment_intent.payment_method', 'customer', 'subscription'],
+                    expand: ['customer', 'subscription'],
                 });
 
                 if (checkoutSession.payment_status !== 'paid') {
@@ -56,19 +57,28 @@ const app = new Hono()
                 stripeSubscriptionId = typeof subscription === 'string' ? subscription : subscription.id;
 
                 const fullSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId) as unknown as Stripe.Subscription & { current_period_end: number };
-                stripeCustomerId = customer
-                    ? (typeof customer === 'string' ? customer : customer.id)
-                    : (typeof fullSubscription.customer === 'string' ? fullSubscription.customer : fullSubscription.customer?.id);
+
+                const getStripeId = (val: string | { id: string } | null | undefined): string | undefined => {
+                    if (!val) return undefined;
+                    return typeof val === 'string' ? val : val.id;
+                };
+
+                stripeCustomerId = getStripeId(customer) ?? getStripeId(fullSubscription.customer as string | { id: string });
 
                 subscriptionStatus = fullSubscription.status;
                 nextRenewal = new Date(fullSubscription.current_period_end * 1000).toISOString();
                 cancelAtPeriodEnd = fullSubscription.cancel_at_period_end;
 
-                const pi = checkoutSession.payment_intent;
-                if (pi && typeof pi !== 'string') {
-                    const pm = (pi as Stripe.PaymentIntent).payment_method;
-                    if (pm && typeof pm !== 'string' && pm.card?.last4) {
-                        paymentMethodLast4 = pm.card.last4;
+                if (stripeCustomerId) {
+                    try {
+                        const paymentMethods = await stripe.paymentMethods.list({
+                            customer: stripeCustomerId,
+                            type: 'card',
+                            limit: 1,
+                        });
+                        paymentMethodLast4 = paymentMethods.data[0]?.card?.last4;
+                    } catch {
+                        // non-critical — fetched live from Stripe in /organization
                     }
                 }
             }
@@ -506,6 +516,18 @@ const app = new Hono()
             const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
+            const memberLimit = planLimits[context.org.plan].members;
+            if (memberLimit !== -1) {
+                const currentMembers = await databases.listDocuments<Membership>(
+                    DATABASE_ID,
+                    MEMBERSHIPS_ID,
+                    [Query.equal('organizationId', context.org.$id), Query.limit(1)]
+                );
+                if (currentMembers.total >= memberLimit) {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
+            }
+
             const token = crypto.randomUUID();
 
             if (mode === 'existing') {
@@ -604,6 +626,26 @@ const app = new Hono()
                 // fallback to CREATOR if invite not found
             }
 
+            const orgs = await databases.listDocuments<Organization>(
+                DATABASE_ID,
+                ORGANIZATIONS_ID,
+                [Query.equal('appwriteTeamId', teamId), Query.limit(1)]
+            );
+            if (orgs.total > 0) {
+                const org = orgs.documents[0];
+                const memberLimit = planLimits[org.plan].members;
+                if (memberLimit !== -1) {
+                    const currentMembers = await databases.listDocuments<Membership>(
+                        DATABASE_ID,
+                        MEMBERSHIPS_ID,
+                        [Query.equal('organizationId', org.$id), Query.limit(1)]
+                    );
+                    if (currentMembers.total >= memberLimit) {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+            }
+
             const newUser = await account.create(
                 ID.unique(),
                 email,
@@ -700,6 +742,18 @@ const app = new Hono()
             let membershipId = existingMemberships.documents[0]?.$id;
 
             if (!membershipId) {
+                const memberLimit = planLimits[organization.plan].members;
+                if (memberLimit !== -1) {
+                    const currentMembers = await adminDatabases.listDocuments<Membership>(
+                        DATABASE_ID,
+                        MEMBERSHIPS_ID,
+                        [Query.equal('organizationId', organization.$id), Query.limit(1)]
+                    );
+                    if (currentMembers.total >= memberLimit) {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+
                 await adminDatabases.createDocument(
                     DATABASE_ID,
                     MEMBERSHIPS_ID,
@@ -825,4 +879,208 @@ const app = new Hono()
         }
     )
 
+    .post(
+        '/reactivate-subscription',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            if (context.membership.role !== 'OWNER') {
+                return ctx.json({ error: 'Only owners can reactivate subscriptions' }, 403);
+            }
+
+            if (!context.org.stripeSubscriptionId) {
+                return ctx.json({ error: 'No subscription to reactivate' }, 400);
+            }
+
+            if (context.org.subscriptionStatus !== 'canceling') {
+                return ctx.json({ error: 'Subscription is not pending cancellation' }, 400);
+            }
+
+            const stripe = new Stripe(STRIPE_SECRET_KEY);
+            await stripe.subscriptions.update(context.org.stripeSubscriptionId, {
+                cancel_at_period_end: false,
+            });
+
+            await databases.updateDocument(
+                DATABASE_ID,
+                ORGANIZATIONS_ID,
+                context.org.$id,
+                {
+                    subscriptionStatus: 'active',
+                    cancelAtPeriodEnd: false,
+                }
+            );
+
+            return ctx.json({ success: true });
+        }
+    )
+
+    .post(
+        '/billing-portal',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            if (context.membership.role !== 'OWNER') {
+                return ctx.json({ error: 'Only owners can access billing portal' }, 403);
+            }
+
+            if (!context.org.stripeCustomerId) {
+                return ctx.json({ error: 'No billing account found' }, 400);
+            }
+
+            const stripe = new Stripe(STRIPE_SECRET_KEY);
+            const session = await stripe.billingPortal.sessions.create({
+                customer: context.org.stripeCustomerId,
+                return_url: `${NEXT_PUBLIC_APP_URL}/organization`,
+            });
+
+            return ctx.json({ url: session.url });
+        }
+    )
+    .put(
+        '/change-plan',
+        sessionMiddleware,
+        zValidator('json', zod.object({
+            plan: zod.enum(['plus', 'pro']),
+            billing: zod.enum(['monthly', 'annual']).optional().default('monthly'),
+        })),
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+            const { plan, billing } = ctx.req.valid('json');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+            if (context.membership.role !== 'OWNER') return ctx.json({ error: 'Only owners can change plans' }, 403);
+
+            const org = context.org;
+            const stripe = new Stripe(STRIPE_SECRET_KEY);
+
+            const products = await stripe.products.list();
+            const product = products.data.find(p => p.metadata.plan === plan);
+            if (!product?.default_price) return ctx.json({ error: 'Plan not found in Stripe' }, 400);
+
+            const newPriceId = product.default_price.toString();
+            const planUppercase: OrganizationPlan = plan === 'pro' ? 'PRO' : 'PLUS';
+            const billingCycle: BillingCycle = billing === 'annual' ? 'YEARLY' : 'MONTHLY';
+
+            // Paid → paid: update subscription directly (Stripe handles proration)
+            if (org.stripeSubscriptionId) {
+                const subscription = await stripe.subscriptions.retrieve(org.stripeSubscriptionId);
+                const currentItemId = subscription.items.data[0]?.id;
+                if (!currentItemId) return ctx.json({ error: 'Subscription item not found' }, 400);
+
+                const updatedSub = await stripe.subscriptions.update(org.stripeSubscriptionId, {
+                    items: [{ id: currentItemId, price: newPriceId }],
+                    proration_behavior: 'create_prorations',
+                }) as unknown as Stripe.Subscription & { current_period_end: number };
+
+                await databases.updateDocument(
+                    DATABASE_ID, ORGANIZATIONS_ID, org.$id,
+                    {
+                        plan: planUppercase,
+                        billingCycle,
+                        subscriptionStatus: updatedSub.status,
+                        nextRenewal: new Date(updatedSub.current_period_end * 1000).toISOString(),
+                    }
+                );
+
+                return ctx.json({ success: true });
+            }
+
+            // FREE → paid: create Stripe Checkout linking existing customer if available
+            const sessionParams: Stripe.Checkout.SessionCreateParams = {
+                mode: 'subscription',
+                payment_method_types: ['card'],
+                line_items: [{ price: newPriceId, quantity: 1 }],
+                metadata: { plan, billing },
+                success_url: `${NEXT_PUBLIC_APP_URL}/organization?upgraded=true&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${NEXT_PUBLIC_APP_URL}/organization`,
+            };
+
+            if (org.stripeCustomerId) {
+                sessionParams.customer = org.stripeCustomerId;
+            }
+
+            const session = await stripe.checkout.sessions.create(sessionParams);
+            return ctx.json({ url: session.url });
+        }
+    )
+
+    .post(
+        '/finalize-upgrade',
+        sessionMiddleware,
+        zValidator('json', zod.object({ sessionId: zod.string().trim().min(1) })),
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+            const { sessionId } = ctx.req.valid('json');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+            if (context.membership.role !== 'OWNER') return ctx.json({ error: 'Only owners can upgrade plans' }, 403);
+
+            const stripe = new Stripe(STRIPE_SECRET_KEY);
+            const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId, {
+                expand: ['customer', 'subscription'],
+            });
+
+            if (checkoutSession.payment_status !== 'paid') {
+                return ctx.json({ error: 'Payment not confirmed' }, 400);
+            }
+
+            const getStripeId = (val: string | { id: string } | null | undefined): string | undefined => {
+                if (!val) return undefined;
+                return typeof val === 'string' ? val : val.id;
+            };
+
+            const stripeCustomerId = getStripeId(checkoutSession.customer as string | { id: string } | null);
+            const subscription = checkoutSession.subscription;
+            const stripeSubscriptionId = getStripeId(subscription as string | { id: string } | null);
+
+            if (!stripeSubscriptionId) return ctx.json({ error: 'No subscription found in session' }, 400);
+
+            const fullSub = await stripe.subscriptions.retrieve(stripeSubscriptionId) as unknown as Stripe.Subscription & { current_period_end: number };
+
+            const planMeta = checkoutSession.metadata?.plan ?? 'plus';
+            const billingMeta = checkoutSession.metadata?.billing ?? 'monthly';
+            const planUppercase: OrganizationPlan = planMeta === 'pro' ? 'PRO' : 'PLUS';
+            const billingCycle: BillingCycle = billingMeta === 'annual' ? 'YEARLY' : 'MONTHLY';
+
+            let paymentMethodLast4: string | undefined;
+            const effectiveCustomerId = stripeCustomerId ?? context.org.stripeCustomerId;
+            if (effectiveCustomerId) {
+                try {
+                    const pms = await stripe.paymentMethods.list({ customer: effectiveCustomerId, type: 'card', limit: 1 });
+                    paymentMethodLast4 = pms.data[0]?.card?.last4;
+                } catch { /* non-critical */ }
+            }
+
+            await databases.updateDocument(
+                DATABASE_ID, ORGANIZATIONS_ID, context.org.$id,
+                {
+                    plan: planUppercase,
+                    billingCycle,
+                    subscriptionStatus: fullSub.status,
+                    stripeCustomerId: stripeCustomerId ?? context.org.stripeCustomerId,
+                    stripeSubscriptionId,
+                    nextRenewal: new Date(fullSub.current_period_end * 1000).toISOString(),
+                    cancelAtPeriodEnd: false,
+                    ...(paymentMethodLast4 ? { paymentMethodLast4 } : {}),
+                }
+            );
+
+            return ctx.json({ success: true });
+        }
+    )
 export default app;

@@ -81,7 +81,7 @@ export async function handleCreateNote(ctx: ActionContext): Promise<ActionResult
             bgColor: args.bgColor || 'none',
         };
 
-        console.log('[CREATE_NOTE] Request details:', {
+        if (process.env.NODE_ENV === 'development') console.log('[CREATE_NOTE] Request details:', {
             url,
             payload,
             hasCookie: !!ctx.cookie,
@@ -97,7 +97,7 @@ export async function handleCreateNote(ctx: ActionContext): Promise<ActionResult
             body: JSON.stringify(payload),
         });
 
-        console.log('[CREATE_NOTE] Response:', {
+        if (process.env.NODE_ENV === 'development') console.log('[CREATE_NOTE] Response:', {
             status: response.status,
             statusText: response.statusText,
             ok: response.ok,
@@ -114,7 +114,7 @@ export async function handleCreateNote(ctx: ActionContext): Promise<ActionResult
         }
 
         const responseData = await response.json();
-        console.log('[CREATE_NOTE] Success response:', responseData);
+        if (process.env.NODE_ENV === 'development') console.log('[CREATE_NOTE] Success response:', responseData);
 
         const message = `✅ ¡Nota creada exitosamente!\n\n` +
             (args.title ? `**${args.title}**\n` : '') +
@@ -179,7 +179,7 @@ export async function handleUpdateNote(ctx: ActionContext): Promise<ActionResult
             payload.globalAt = args.isGlobal ? new Date().toISOString() : null;
         }
 
-        console.log('[UPDATE_NOTE] Updating note:', { noteId: note.$id, payload });
+        if (process.env.NODE_ENV === 'development') console.log('[UPDATE_NOTE] Updating note:', { noteId: note.$id, payload });
 
         const response = await fetch(`${ctx.baseUrl}/api/notes/${note.$id}`, {
             method: 'PATCH',
@@ -252,7 +252,7 @@ export async function handleDeleteNote(ctx: ActionContext): Promise<ActionResult
             };
         }
 
-        console.log('[DELETE_NOTE] Deleting note:', { noteId: note.$id, title: note.title });
+        if (process.env.NODE_ENV === 'development') console.log('[DELETE_NOTE] Deleting note:', { noteId: note.$id, title: note.title });
 
         const response = await fetch(`${ctx.baseUrl}/api/notes/${note.$id}`, {
             method: 'DELETE',

@@ -21,27 +21,21 @@ const LandingFooter = () => {
                 </div>
                 <div className="w-full flex justify-center gap-24 text-white">
                     <div className="flex flex-col gap-2">
-                        <p className="font-semibold text-xl">Solutions</p>
-                        <Link href='/products#workspaces' className="hover:underline">Workspace</Link>
-                        <Link href='/products#billing' className="hover:underline">Billing</Link>
-                        <Link href='/products#inventory' className="hover:underline">Inventory</Link>
-                        <Link href='/products#records' className="hover:underline">Records</Link>
-                        {/* <Link href='/products#workspaces' className="hover:underline">Internal chat</Link>
-                        <Link href='/products#workspaces' className="hover:underline">Permissions</Link>
-                        <Link href='/products#workspaces' className="hover:underline">All-in-one</Link>
-                        <Link href='/products#workspaces' className="hover:underline">Team</Link> */}
+                        <p className="font-semibold text-xl">{t('footer-solutions')}</p>
+                        <Link href='/products#workspaces' className="hover:underline">{t('footer-workspace')}</Link>
+                        <Link href='/products#billing' className="hover:underline">{t('footer-billing')}</Link>
+                        <Link href='/products#sells' className="hover:underline">{t('footer-sells')}</Link>
+                        <Link href='/products#chatbot' className="hover:underline">{t('footer-ai-chat')}</Link>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <p className="font-semibold text-xl">Resources</p>
-                        <Link href='/getting-started' className="hover:underline">Getting started guide</Link>
-                        <Link href='/docs' className="hover:underline">Documentation center</Link>
+                        <p className="font-semibold text-xl">{t('footer-resources')}</p>
+                        <Link href='/getting-started' className="hover:underline">{t('footer-getting-started')}</Link>
+                        <Link href='/docs' className="hover:underline">{t('footer-docs')}</Link>
                         <Link href='/faq' className="hover:underline">{t('footer-faq')}</Link>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <p className="font-semibold text-xl">Company</p>
-                        <Link href='/about' className="hover:underline">About us</Link>
-                        {/* <Link href='/' className="hover:underline">Leadership</Link> */}
-                        {/* <Link href='/blog' className="hover:underline">Blog</Link> */}
+                        <p className="font-semibold text-xl">{t('footer-company')}</p>
+                        <Link href='/about' className="hover:underline">{t('footer-about-us')}</Link>
                         <Link href='/contact' className="hover:underline">{t('footer-contact-us')}</Link>
                         <Link href='/terms' className="hover:underline">{t('footer-terms')}</Link>
                         <Link href='/privacy' className="hover:underline">{t('footer-privacy')}</Link>

@@ -346,6 +346,7 @@ const ChatBotPanel = () => {
 
       {/* Panel del ChatBot */}
       <div
+        data-testid="chatbot-panel"
         className={`chatbot-panel fixed top-0 right-0 h-full bg-background border-l shadow-2xl z-50 flex flex-col ${
           isResizing ? 'resizing' : ''
         }`}
@@ -383,6 +384,7 @@ const ChatBotPanel = () => {
               onClick={() => setShowHistory(!showHistory)}
               className="h-8 w-8"
               title={t("history")}
+              data-testid="chat-history-toggle"
             >
               <History className="h-4 w-4" />
             </Button>
@@ -392,6 +394,7 @@ const ChatBotPanel = () => {
               onClick={toggleChatBot}
               className="h-8 w-8"
               title={t("close")}
+              data-testid="chatbot-close"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -500,7 +503,7 @@ const ChatBotPanel = () => {
                     /* Mensaje de la IA - estilo plano con hover */
                     <div className="w-full">
                       {isLoading && !message.content.trim() ? (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div data-testid="chat-loading" className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Loader2 className="h-4 w-4 animate-spin" />
                           <span>{t("assistant-working")}</span>
                         </div>
@@ -543,6 +546,7 @@ const ChatBotPanel = () => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
               disabled={isLoading}
+              data-testid="chatbot-input"
               className="auto-resize-textarea flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               rows={1}
             />

@@ -10,6 +10,7 @@ import { useGetMembers } from "../api/use-get-members";
 import ManageMemberRow from "./ManageMemberRow";
 import { useRemoveMember } from "../api/use-remove-member";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useMfaConfirm } from "@/hooks/use-mfa-confirm";
 
 type RoleFilter = 'ALL' | 'OWNER' | 'ADMIN' | 'MEMBER';
 
@@ -23,6 +24,7 @@ const ManageMembersModal = () => {
         t('remove-member-confirm-description'),
         'destructive'
     );
+    const [RemoveMemberMfaDialog, confirmRemoveMemberMfa] = useMfaConfirm();
 
     const { data, isLoading } = useGetMembers();
     const { mutate: removeMember, isPending } = useRemoveMember();
@@ -47,8 +49,10 @@ const ManageMembersModal = () => {
 
     const handleRemove = async (membershipId: string) => {
         const ok = await confirmRemoveMember();
-
         if (!ok) return;
+
+        const mfaOk = await confirmRemoveMemberMfa();
+        if (!mfaOk) return;
 
         removeMember({ json: { membershipId } });
     };
@@ -102,6 +106,7 @@ const ManageMembersModal = () => {
             </DialogContent>
 
             <RemoveMemberConfirmDialog />
+            <RemoveMemberMfaDialog />
         </Dialog>
     );
 };

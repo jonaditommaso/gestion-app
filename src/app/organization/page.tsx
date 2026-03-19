@@ -1,20 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { DATABASE_ID, FILES_ID, IMAGES_BUCKET_ID, MEMBERSHIPS_ID, RECORD_TABLES_ID, RECORDS_ID, STRIPE_SECRET_KEY, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, MEMBERSHIPS_ID, SALES_BOARDS_ID, STRIPE_SECRET_KEY, WORKSPACES_ID } from "@/config";
 import { getCurrent } from "@/features/auth/queries";
 import { planLimits, planPrices } from "@/features/pricing/plan-limits";
 import CancelSubscriptionButton from "@/features/team/components/CancelSubscriptionButton";
+import ManageBillingButton from "@/features/team/components/ManageBillingButton";
+import ReactivateSubscriptionButton from "@/features/team/components/ReactivateSubscriptionButton";
 import { Membership, Organization } from "@/features/team/types";
 import { getActiveContext } from "@/features/team/server/utils";
 import { createAdminClient } from "@/lib/appwrite";
 import { getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Models, Query } from "node-appwrite";
+import { Query } from "node-appwrite";
 import Stripe from "stripe";
-
-type TeamFileDocument = Models.Document & {
-    bucketFileId?: string;
-};
 
 const formatPlan = (plan: Organization['plan']) => {
     if (plan === 'PLUS') return 'Plus';
@@ -23,6 +22,7 @@ const formatPlan = (plan: Organization['plan']) => {
 
 const formatStatus = (status: string, t: Awaited<ReturnType<typeof getTranslations>>) => {
     if (status === 'active') return t('status-active');
+    if (status === 'paid') return t('status-active');
     if (status === 'canceling') return t('status-canceling');
     if (status === 'canceled') return t('status-expired');
     if (status === 'free') return t('status-active');
@@ -40,25 +40,12 @@ const getCurrentUsageFont = (current: number, limit: number) => {
     return 'font-medium';
 };
 
-const formatBytes = (bytes: number) => {
-    if (bytes >= 1024 * 1024 * 1024) {
-        return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-    }
-    if (bytes >= 1024 * 1024) {
-        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-    }
-    if (bytes >= 1024) {
-        return `${(bytes / 1024).toFixed(2)} KB`;
-    }
-    return `${bytes} B`;
-};
-
 const OrganizationPage = async () => {
     const user = await getCurrent();
     if (!user) redirect('/login');
 
     const t = await getTranslations('organization');
-    const { databases, storage } = await createAdminClient();
+    const { databases } = await createAdminClient();
     const cookieStore = await cookies();
     const activeMembershipId = cookieStore.get('active-org-id')?.value;
     const context = await getActiveContext(user, databases, activeMembershipId);
@@ -76,7 +63,7 @@ const OrganizationPage = async () => {
 
     if (membership.role !== 'OWNER') redirect('/');
 
-    const [membersResult, workspacesResult, recordTablesResult, recordsResult, filesResult] = await Promise.all([
+    const [membersResult, workspacesResult, pipelinesResult] = await Promise.all([
         databases.listDocuments<Membership>(
             DATABASE_ID,
             MEMBERSHIPS_ID,
@@ -89,18 +76,8 @@ const OrganizationPage = async () => {
         ),
         databases.listDocuments(
             DATABASE_ID,
-            RECORD_TABLES_ID,
+            SALES_BOARDS_ID,
             [Query.equal('teamId', org.appwriteTeamId)]
-        ),
-        databases.listDocuments(
-            DATABASE_ID,
-            RECORDS_ID,
-            [Query.equal('teamId', org.appwriteTeamId)]
-        ),
-        databases.listDocuments<TeamFileDocument>(
-            DATABASE_ID,
-            FILES_ID,
-            [Query.equal('teamId', org.appwriteTeamId), Query.limit(5000)]
         ),
     ]);
 
@@ -108,24 +85,7 @@ const OrganizationPage = async () => {
     const prices = planPrices[org.plan];
     const membersCount = membersResult.total;
     const workspacesCount = workspacesResult.total;
-    const recordTablesCount = recordTablesResult.total;
-    const recordsCount = recordsResult.total;
-    const storageLimitBytes = limits.storageBytes;
-
-    const fileMetadatas = await Promise.all(
-        filesResult.documents.map(async (doc) => {
-            if (!doc.bucketFileId) return null;
-            try {
-                return await storage.getFile(IMAGES_BUCKET_ID, doc.bucketFileId);
-            } catch {
-                return null;
-            }
-        })
-    );
-
-    const storageUsedBytes = fileMetadatas.reduce((acc, file) => {
-        return acc + (file?.sizeOriginal ?? 0);
-    }, 0);
+    const pipelinesCount = pipelinesResult.total;
 
     const isYearly = org.billingCycle === 'YEARLY';
     const planPrice = isYearly ? prices.annual : prices.monthly;
@@ -274,9 +234,10 @@ const OrganizationPage = async () => {
                 </div>
 
                 {membership.role === 'OWNER' && (
-                    <div className="mb-6 flex justify-end">
+                    <div className="mb-6 flex justify-end gap-2">
+                        {org.stripeCustomerId && <ManageBillingButton />}
                         <Button variant="outline" size="sm" asChild>
-                            <a href="/pricing">{t('change-plan')}</a>
+                            <Link href="/pricing">{t('change-plan')}</Link>
                         </Button>
                     </div>
                 )}
@@ -302,26 +263,10 @@ const OrganizationPage = async () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{t('tables-limit')}</span>
+                        <span className="text-sm text-muted-foreground">{t('pipelines-limit')}</span>
                         <span>
-                            <span className={getCurrentUsageFont(recordTablesCount, limits.tables)}>{recordTablesCount}</span>
-                            <span className="text-muted-foreground font-medium">/{limits.tables}</span>
-                        </span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{t('records-limit')}</span>
-                        <span>
-                            <span className={getCurrentUsageFont(recordsCount, limits.records)}>{recordsCount.toLocaleString('en-US')}</span>
-                            <span className="text-muted-foreground font-medium">/{limits.records.toLocaleString('en-US')}</span>
-                        </span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{t('storage-limit')}</span>
-                        <span>
-                            <span className={getCurrentUsageFont(storageUsedBytes, storageLimitBytes)}>{formatBytes(storageUsedBytes)}</span>
-                            <span className="text-muted-foreground font-medium">/{limits.storage}</span>
+                            <span className={limits.pipelines === -1 ? 'font-light' : getCurrentUsageFont(pipelinesCount, limits.pipelines)}>{pipelinesCount}</span>
+                            <span className="text-muted-foreground font-medium">/{limits.pipelines === -1 ? '∞' : limits.pipelines}</span>
                         </span>
                     </div>
                 </div>
@@ -366,8 +311,17 @@ const OrganizationPage = async () => {
                 {membership.role === 'OWNER' && org.plan !== 'FREE' && (
                     <div className="rounded-xl border border-red-500/40 p-5 space-y-3">
                         <h2 className="font-semibold text-red-600">{t('danger-zone')}</h2>
-                        <p className="text-sm text-muted-foreground">{t('cancel-subscription-description')}</p>
-                        <CancelSubscriptionButton />
+                        {org.subscriptionStatus === 'canceling' ? (
+                            <>
+                                <p className="text-sm text-muted-foreground">{t('reactivate-subscription-description')}</p>
+                                <ReactivateSubscriptionButton />
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-sm text-muted-foreground">{t('cancel-subscription-description')}</p>
+                                <CancelSubscriptionButton />
+                            </>
+                        )}
                     </div>
                 )}
             </div>

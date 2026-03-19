@@ -8,9 +8,11 @@ import { PLUS_TOOLS } from "@/ai/tools/index";
 import { executeAction } from "@/ai/handlers";
 import type { ChatCompletionTool } from "groq-sdk/resources/chat/completions";
 import { sessionMiddleware } from "@/lib/session-middleware";
-import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID } from "@/config";
+import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID, ROLES_PERMISSIONS_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
 import { getActiveContext } from "@/features/team/server/utils";
+import { DEFAULT_ROLE_PERMISSIONS } from "@/features/roles/constants";
+import type { MembershipRole } from "@/features/team/types";
 
 const app = new Hono()
     // Obtener todas las conversaciones del usuario
@@ -254,6 +256,11 @@ const app = new Hono()
             // Determine which tools to expose based on org plan
             const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             const orgPlan = orgContext?.org?.plan ?? 'FREE';
+
+            if (orgPlan === 'FREE') {
+                return ctx.json({ error: 'Upgrade required' }, 403);
+            }
+
             const isProOrEnterprise = orgPlan === 'PRO' || orgPlan === 'ENTERPRISE';
             const planTools: ChatCompletionTool[] | undefined = isProOrEnterprise
                 ? undefined
@@ -267,16 +274,36 @@ const app = new Hono()
             // detectar si el usuario quiere ejecutar una acción.
             // Si la IA detecta una acción, ejecutamos el handler correspondiente.
 
-            console.log('[CHAT] Starting function calling attempt...');
+            if (process.env.NODE_ENV === 'development') console.log('[CHAT] Starting function calling attempt...');
 
             try {
                 const result = await chatWithTools(aiMessages, planTools);
 
-                console.log('[CHAT] Function calling result type:', result.type);
+                if (process.env.NODE_ENV === 'development') console.log('[CHAT] Function calling result type:', result.type);
 
                 // ¿La IA quiere ejecutar una acción?
                 if (result.type === 'tool_call') {
                     const toolCall = result.toolCalls[0];
+
+                    // Resolve effective permissions for this user/role
+                    const userRole: MembershipRole = orgContext?.membership?.role ?? 'VIEWER';
+                    let userPermissions: string[] = DEFAULT_ROLE_PERMISSIONS[userRole] as string[];
+                    try {
+                        const customRolePerms = await databases.listDocuments(
+                            DATABASE_ID,
+                            ROLES_PERMISSIONS_ID,
+                            [
+                                Query.equal('teamId', orgContext?.org?.appwriteTeamId ?? ''),
+                                Query.equal('role', userRole),
+                                Query.limit(1),
+                            ]
+                        );
+                        if (customRolePerms.documents.length > 0) {
+                            userPermissions = customRolePerms.documents[0].permissions as string[];
+                        }
+                    } catch {
+                        // fallback to broad defaults already set
+                    }
 
                     const actionContext = {
                         userId: user.$id,
@@ -284,9 +311,11 @@ const app = new Hono()
                         cookie: ctx.req.header('cookie') || '',
                         baseUrl: new URL(ctx.req.url).origin,
                         args: toolCall.arguments,
+                        userRole,
+                        userPermissions,
                     };
 
-                    console.log('[CHAT] Executing action:', {
+                    if (process.env.NODE_ENV === 'development') console.log('[CHAT] Executing action:', {
                         actionName: toolCall.name,
                         userId: actionContext.userId,
                         baseUrl: actionContext.baseUrl,
@@ -353,7 +382,7 @@ const app = new Hono()
                 console.error('[CHAT] Function calling failed, falling back to streaming:', error);
             }
 
-            console.log('[CHAT] Falling back to streaming chat (no function call detected)');
+            if (process.env.NODE_ENV === 'development') console.log('[CHAT] Falling back to streaming chat (no function call detected)');
 
             // =====================================================================
             // FALLBACK: Chat normal con streaming (sin function calling)

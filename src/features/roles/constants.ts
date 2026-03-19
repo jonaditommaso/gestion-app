@@ -253,3 +253,54 @@ export const rolePermissions = Object.keys(ROLES).map(roleKey => ({
     role: ROLES[roleKey as keyof typeof ROLES],
     permissions: DEFAULT_ROLE_PERMISSIONS[ROLES[roleKey as keyof typeof ROLES]],
 }))
+
+// Expands base permissions (read/write/delete/…) to include implied granular ones from the catalog.
+// Used to pre-check granular permission checkboxes when the stored array only contains base permissions.
+export function getEffectivePermissions(permissions: string[]): string[] {
+    const allGranular = PERMISSION_CATALOG.flatMap(m => m.permissions)
+    const effective = new Set(permissions)
+
+    if (permissions.includes(PERMISSIONS.READ)) {
+        allGranular.filter(p => p.startsWith("view_")).forEach(p => effective.add(p))
+    }
+    if (permissions.includes(PERMISSIONS.WRITE)) {
+        allGranular
+            .filter(p =>
+                p.startsWith("create_") ||
+                p.startsWith("edit_") ||
+                p.startsWith("send_") ||
+                p.startsWith("public_") ||
+                p.startsWith("feature_") ||
+                p.startsWith("schedule_") ||
+                p.startsWith("move_") ||
+                p.startsWith("mark_") ||
+                p.startsWith("duplicate_") ||
+                p.startsWith("comment_") ||
+                p.startsWith("share_") ||
+                p.startsWith("set_") ||
+                p.startsWith("add_")
+            )
+            .forEach(p => effective.add(p))
+    }
+    if (permissions.includes(PERMISSIONS.DELETE)) {
+        allGranular
+            .filter(p =>
+                p.startsWith("delete_") ||
+                p.startsWith("archive_") ||
+                p.startsWith("restore_") ||
+                p.startsWith("revert_")
+            )
+            .forEach(p => effective.add(p))
+    }
+    if (permissions.includes(PERMISSIONS.MANAGE_USERS)) {
+        allGranular
+            .filter(p =>
+                p.startsWith("invite_") ||
+                p.startsWith("remove_") ||
+                p.startsWith("manage_")
+            )
+            .forEach(p => effective.add(p))
+    }
+
+    return Array.from(effective)
+}
