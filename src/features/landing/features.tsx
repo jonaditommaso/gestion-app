@@ -1,4 +1,4 @@
-import { FcParallelTasks, FcAddDatabase, FcBullish } from 'react-icons/fc';
+import { FcParallelTasks, FcBullish, FcSms, FcMoneyTransfer } from 'react-icons/fc';
 
 interface Feature {
   id: string;
@@ -37,16 +37,22 @@ const featureConfigs = [
     gradient: 'from-blue-500/10 to-purple-500/10'
   },
   {
-    id: 'cloud-storage',
-    icon: FcAddDatabase,
-    image: '/present-records.png',
-    gradient: 'from-emerald-500/10 to-blue-500/10'
+    id: 'sells',
+    icon: FcMoneyTransfer,
+    image: '/present-billing.png',
+    gradient: 'from-emerald-500/10 to-teal-500/10'
   },
   {
     id: 'operations',
     icon: FcBullish,
     image: '/present-billing.png',
     gradient: 'from-orange-500/10 to-red-500/10'
+  },
+  {
+    id: 'chatbot',
+    icon: FcSms,
+    image: '/present-workspaces.png',
+    gradient: 'from-violet-500/10 to-pink-500/10'
   }
 ];
 

@@ -1,4 +1,4 @@
-import { Code, CreditCard, Database, Package } from "lucide-react";
+import { Bot, Code, CreditCard, TrendingUp } from "lucide-react";
 
 export const productsData = [
     {
@@ -16,22 +16,22 @@ export const productsData = [
         ]
     },
     {
-        id: "records",
-        title: "records",
-        description: "products-records-description",
+        id: "sells",
+        title: "products-sells-title",
+        description: "products-sells-description",
         color: 'text-emerald-600',
-        bgColor: 'from-emerald-50 to-green-100',
-        icon: <Database className="h-8 w-8 text-emerald-600" />,
+        bgColor: 'from-emerald-50 to-teal-100',
+        icon: <TrendingUp className="h-8 w-8 text-emerald-600" />,
         items: [
-            "product-records-item-1",
-            "product-records-item-2",
-            "product-records-item-3",
-            "product-records-item-4"
+            "product-sells-item-1",
+            "product-sells-item-2",
+            "product-sells-item-3",
+            "product-sells-item-4"
         ]
     },
     {
         id: "billing",
-        title: "facturation",
+        title: "products-billing-title",
         description: "products-billing-description",
         color: 'text-purple-600',
         bgColor: 'from-purple-50 to-violet-100',
@@ -44,17 +44,17 @@ export const productsData = [
         ]
     },
     {
-        id: "inventory",
-        title: "products-inventory-title",
-        description: "products-inventory-description",
+        id: "chatbot",
+        title: "products-chatbot-title",
+        description: "products-chatbot-description",
         color: 'text-orange-600',
         bgColor: 'from-orange-50 to-amber-100',
-        icon: <Package className="h-8 w-8 text-orange-600" />,
+        icon: <Bot className="h-8 w-8 text-orange-600" />,
         items: [
-            "product-inventory-item-1",
-            "product-inventory-item-2",
-            "product-inventory-item-3",
-            "product-inventory-item-4"
+            "product-chatbot-item-1",
+            "product-chatbot-item-2",
+            "product-chatbot-item-3",
+            "product-chatbot-item-4"
         ]
     }
 ];
