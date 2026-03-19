@@ -21,13 +21,6 @@ import type { ActionContext, ActionResult } from './types';
 // TYPES
 // ═════════════════════════════════════════════════════════════════════════════
 
-type MembershipRole = 'OWNER' | 'ADMIN' | 'CREATOR' | 'VIEWER';
-
-interface TeamMemberDoc {
-    userEmail: string;
-    prefs: { role: MembershipRole };
-}
-
 interface WorkspaceDoc {
     $id: string;
     name: string;
@@ -61,13 +54,6 @@ interface WorkspaceMemberDoc {
 // HELPERS PRIVADOS
 // ═════════════════════════════════════════════════════════════════════════════
 
-async function fetchTeamMembers(baseUrl: string, cookie: string): Promise<TeamMemberDoc[]> {
-    const res = await fetch(`${baseUrl}/api/team`, { headers: { 'Cookie': cookie } });
-    if (!res.ok) return [];
-    const json = await res.json() as { data?: TeamMemberDoc[] };
-    return json.data || [];
-}
-
 async function fetchWorkspaces(baseUrl: string, cookie: string): Promise<WorkspaceDoc[]> {
     const res = await fetch(`${baseUrl}/api/workspaces`, { headers: { 'Cookie': cookie } });
     if (!res.ok) return [];
@@ -89,12 +75,6 @@ async function fetchWorkspaceMembers(baseUrl: string, cookie: string, workspaceI
     if (!res.ok) return [];
     const json = await res.json() as { data?: { documents?: WorkspaceMemberDoc[] } };
     return json.data?.documents || [];
-}
-
-/** true si el usuario tiene rol VIEWER a nivel organización */
-function isViewer(teamMembers: TeamMemberDoc[], userEmail: string): boolean {
-    const member = teamMembers.find(m => m.userEmail === userEmail);
-    return member?.prefs?.role === 'VIEWER';
 }
 
 type ResolveWorkspaceOk = { ok: true; workspace: WorkspaceDoc };
@@ -251,11 +231,6 @@ export async function handleCreateTask(ctx: ActionContext): Promise<ActionResult
     const args = ctx.args as unknown as CreateTaskArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'create_task', message: '❌ No tienes permisos para crear tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         const workspaces = await fetchWorkspaces(ctx.baseUrl, ctx.cookie || '');
         const resolved = resolveWorkspace(workspaces, args.workspaceName, 'create_task');
         if (!resolved.ok) return resolved.result;
@@ -297,11 +272,6 @@ export async function handleDeleteTask(ctx: ActionContext): Promise<ActionResult
     const args = ctx.args as unknown as DeleteTaskArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'delete_task', message: '❌ No tienes permisos para eliminar tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         const found = await findTask(ctx.baseUrl, ctx.cookie || '', args.taskSearch, args.workspaceName, 'delete_task');
         if (!found.ok) return found.result;
 
@@ -326,11 +296,6 @@ export async function handleUpdateTask(ctx: ActionContext): Promise<ActionResult
     const args = ctx.args as unknown as UpdateTaskArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'update_task', message: '❌ No tienes permisos para editar tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         const found = await findTask(ctx.baseUrl, ctx.cookie || '', args.taskSearch, args.workspaceName, 'update_task');
         if (!found.ok) return found.result;
 
@@ -532,11 +497,6 @@ export async function handleAddChecklistItem(ctx: ActionContext): Promise<Action
     const args = ctx.args as unknown as AddChecklistItemArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'add_checklist_item', message: '❌ No tienes permisos para modificar tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         const found = await findTask(ctx.baseUrl, ctx.cookie || '', args.taskSearch, args.workspaceName, 'add_checklist_item');
         if (!found.ok) return found.result;
 
@@ -588,11 +548,6 @@ export async function handleAssignTaskMember(ctx: ActionContext): Promise<Action
     const args = ctx.args as unknown as AssignTaskMemberArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'assign_task_member', message: '❌ No tienes permisos para modificar tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         const found = await findTask(ctx.baseUrl, ctx.cookie || '', args.taskSearch, args.workspaceName, 'assign_task_member');
         if (!found.ok) return found.result;
 
@@ -676,11 +631,6 @@ export async function handleBulkMoveTasks(ctx: ActionContext): Promise<ActionRes
     const args = ctx.args as unknown as BulkMoveTasksArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'bulk_move_tasks', message: '❌ No tienes permisos para modificar tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         if (args.fromStatus === args.toStatus) {
             return { success: false, actionName: 'bulk_move_tasks', message: '❌ El estado origen y destino son iguales.' };
         }
@@ -755,11 +705,6 @@ export async function handleArchiveTask(ctx: ActionContext): Promise<ActionResul
     const args = ctx.args as unknown as ArchiveTaskArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return { success: false, actionName: 'archive_task', message: '❌ No tienes permisos para modificar tareas. Tu rol actual es **VIEWER**.' };
-        }
-
         const found = await findTask(ctx.baseUrl, ctx.cookie || '', args.taskSearch, args.workspaceName, 'archive_task');
         if (!found.ok) return found.result;
 

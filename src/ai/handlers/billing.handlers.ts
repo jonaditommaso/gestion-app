@@ -17,13 +17,6 @@ import type { ActionContext, ActionResult } from './types';
 // TYPES
 // ═════════════════════════════════════════════════════════════════════════════
 
-type MembershipRole = 'OWNER' | 'ADMIN' | 'CREATOR' | 'VIEWER';
-
-interface TeamMemberDoc {
-    userEmail: string;
-    prefs: { role: MembershipRole };
-}
-
 interface BillingOperationDoc {
     $id: string;
     type: 'income' | 'expense';
@@ -53,18 +46,6 @@ interface BillingOptionsDoc {
 // ═════════════════════════════════════════════════════════════════════════════
 // HELPERS PRIVADOS
 // ═════════════════════════════════════════════════════════════════════════════
-
-async function fetchTeamMembers(baseUrl: string, cookie: string): Promise<TeamMemberDoc[]> {
-    const res = await fetch(`${baseUrl}/api/team`, { headers: { 'Cookie': cookie } });
-    if (!res.ok) return [];
-    const json = await res.json() as { data?: TeamMemberDoc[] };
-    return json.data || [];
-}
-
-function isViewer(teamMembers: TeamMemberDoc[], userEmail: string): boolean {
-    const member = teamMembers.find(m => m.userEmail === userEmail);
-    return member?.prefs?.role === 'VIEWER';
-}
 
 async function fetchActiveBillingOperations(baseUrl: string, cookie: string): Promise<BillingOperationDoc[]> {
     const res = await fetch(`${baseUrl}/api/billing`, { headers: { 'Cookie': cookie } });
@@ -202,15 +183,6 @@ export async function handleCreateBillingOperation(ctx: ActionContext): Promise<
     const args = ctx.args as unknown as CreateBillingOperationArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return {
-                success: false,
-                actionName: 'create_billing_operation',
-                message: '❌ No tienes permisos para crear operaciones. Tu rol actual es **VIEWER**.',
-            };
-        }
-
         // Sync the category into existing billing options to avoid duplicate option documents.
         // The billing POST endpoint auto-creates a new options doc if the category is missing,
         // which would create duplicate documents if one already exists.
@@ -403,15 +375,6 @@ export async function handleUpdateBillingOperation(ctx: ActionContext): Promise<
     const args = ctx.args as unknown as UpdateBillingOperationArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return {
-                success: false,
-                actionName: 'update_billing_operation',
-                message: '❌ No tienes permisos para editar operaciones. Tu rol actual es **VIEWER**.',
-            };
-        }
-
         const found = await findBillingOperation(
             ctx.baseUrl,
             ctx.cookie || '',
@@ -489,15 +452,6 @@ export async function handleDeleteBillingOperation(ctx: ActionContext): Promise<
     const args = ctx.args as unknown as DeleteBillingOperationArgs;
 
     try {
-        const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-        if (isViewer(teamMembers, ctx.userEmail)) {
-            return {
-                success: false,
-                actionName: 'delete_billing_operation',
-                message: '❌ No tienes permisos para eliminar operaciones. Tu rol actual es **VIEWER**.',
-            };
-        }
-
         const found = await findBillingOperation(
             ctx.baseUrl,
             ctx.cookie || '',
@@ -545,17 +499,6 @@ export async function handleManageBillingCategories(ctx: ActionContext): Promise
     const args = ctx.args as unknown as ManageBillingCategoriesArgs;
 
     try {
-        if (args.action !== 'list') {
-            const teamMembers = await fetchTeamMembers(ctx.baseUrl, ctx.cookie || '');
-            if (isViewer(teamMembers, ctx.userEmail)) {
-                return {
-                    success: false,
-                    actionName: 'manage_billing_categories',
-                    message: '❌ No tienes permisos para modificar categorías. Tu rol actual es **VIEWER**.',
-                };
-            }
-        }
-
         const options = await fetchBillingOptions(ctx.baseUrl, ctx.cookie || '');
 
         // LIST
