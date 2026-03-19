@@ -133,7 +133,19 @@ const app = new Hono()
             const updateData: Partial<WorkspaceType> = {};
             if (name !== undefined) updateData.name = name;
             if (description !== undefined) updateData.description = description;
-            if (metadata !== undefined) updateData.metadata = metadata;
+            if (metadata !== undefined) {
+                let parsedMeta: Record<string, unknown> = {};
+                try {
+                    parsedMeta = typeof metadata === 'string' ? JSON.parse(metadata) : {};
+                } catch { /* invalid JSON — skip check */ }
+                if ('customStatuses' in parsedMeta) {
+                    const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                    if (orgContext?.org?.plan === 'FREE') {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+                updateData.metadata = metadata;
+            }
             if (archived !== undefined) updateData.archived = archived;
 
             const workspace = await databases.updateDocument(
