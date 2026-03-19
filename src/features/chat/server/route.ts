@@ -254,6 +254,11 @@ const app = new Hono()
             // Determine which tools to expose based on org plan
             const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             const orgPlan = orgContext?.org?.plan ?? 'FREE';
+
+            if (orgPlan === 'FREE') {
+                return ctx.json({ error: 'Upgrade required' }, 403);
+            }
+
             const isProOrEnterprise = orgPlan === 'PRO' || orgPlan === 'ENTERPRISE';
             const planTools: ChatCompletionTool[] | undefined = isProOrEnterprise
                 ? undefined

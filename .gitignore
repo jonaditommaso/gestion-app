@@ -43,7 +43,7 @@ next-env.d.ts
 /scripts
 
 # local development
-ROADMAP.md
+*ROADMAP*.*
 
 # Playwright
 /playwright-report/

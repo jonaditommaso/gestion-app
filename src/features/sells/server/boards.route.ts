@@ -14,6 +14,7 @@ import {
     createSalesGoalSchema,
     updateSalesBoardSchema,
 } from "../schemas";
+import { planLimits } from "@/features/pricing/plan-limits";
 
 interface SalesBoardDocument extends Models.Document {
     teamId: string;
@@ -84,6 +85,18 @@ const app = new Hono()
 
             const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
+
+            const pipelineLimit = planLimits[context.org.plan].pipelines;
+            if (pipelineLimit !== -1) {
+                const existing = await databases.listDocuments(
+                    DATABASE_ID,
+                    SALES_BOARDS_ID,
+                    [Query.equal("teamId", context.org.appwriteTeamId), Query.limit(1)]
+                );
+                if (existing.total >= pipelineLimit) {
+                    return ctx.json({ error: "Plan limit reached" }, 403);
+                }
+            }
 
             const { name, currencies } = ctx.req.valid("json");
 

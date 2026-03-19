@@ -13,6 +13,7 @@ import { Membership, Organization, OrganizationPlan, BillingCycle } from "../typ
 import { z as zod } from 'zod';
 import { Stripe } from "stripe";
 import { NotificationBodySeparator, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
+import { planLimits } from "@/features/pricing/plan-limits";
 
 const app = new Hono()
 
@@ -515,6 +516,18 @@ const app = new Hono()
             const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
+            const memberLimit = planLimits[context.org.plan].members;
+            if (memberLimit !== -1) {
+                const currentMembers = await databases.listDocuments<Membership>(
+                    DATABASE_ID,
+                    MEMBERSHIPS_ID,
+                    [Query.equal('organizationId', context.org.$id), Query.limit(1)]
+                );
+                if (currentMembers.total >= memberLimit) {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
+            }
+
             const token = crypto.randomUUID();
 
             if (mode === 'existing') {
@@ -613,6 +626,26 @@ const app = new Hono()
                 // fallback to CREATOR if invite not found
             }
 
+            const orgs = await databases.listDocuments<Organization>(
+                DATABASE_ID,
+                ORGANIZATIONS_ID,
+                [Query.equal('appwriteTeamId', teamId), Query.limit(1)]
+            );
+            if (orgs.total > 0) {
+                const org = orgs.documents[0];
+                const memberLimit = planLimits[org.plan].members;
+                if (memberLimit !== -1) {
+                    const currentMembers = await databases.listDocuments<Membership>(
+                        DATABASE_ID,
+                        MEMBERSHIPS_ID,
+                        [Query.equal('organizationId', org.$id), Query.limit(1)]
+                    );
+                    if (currentMembers.total >= memberLimit) {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+            }
+
             const newUser = await account.create(
                 ID.unique(),
                 email,
@@ -709,6 +742,18 @@ const app = new Hono()
             let membershipId = existingMemberships.documents[0]?.$id;
 
             if (!membershipId) {
+                const memberLimit = planLimits[organization.plan].members;
+                if (memberLimit !== -1) {
+                    const currentMembers = await adminDatabases.listDocuments<Membership>(
+                        DATABASE_ID,
+                        MEMBERSHIPS_ID,
+                        [Query.equal('organizationId', organization.$id), Query.limit(1)]
+                    );
+                    if (currentMembers.total >= memberLimit) {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+
                 await adminDatabases.createDocument(
                     DATABASE_ID,
                     MEMBERSHIPS_ID,
