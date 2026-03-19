@@ -297,6 +297,25 @@ const app = new Hono<ContextType>()
         }
     )
 
+    .post('/mfa/challenge',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+
+            if (!account) {
+                return ctx.json({ error: 'Account not found' }, 401);
+            }
+
+            try {
+                const challenge = await account.createMfaChallenge(AuthenticationFactor.Totp);
+                return ctx.json({ challengeId: challenge.$id }, 200);
+            } catch (error) {
+                console.error(error);
+                return ctx.json({ error: 'Failed to create MFA challenge' }, 500);
+            }
+        }
+    )
+
     .post('/mfa',
         zValidator('json', mfaSchema),
         sessionMfaMiddleware,

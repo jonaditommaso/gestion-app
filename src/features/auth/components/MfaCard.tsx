@@ -9,9 +9,11 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMfa } from "../api/use-mfa";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useRouter } from "next/navigation";
 
-const MfaCard = ({ challengeId }: { challengeId: string }) => {
+const MfaCard = ({ challengeId, onSuccess }: { challengeId: string; onSuccess?: () => void }) => {
     const t = useTranslations('auth');
+    const router = useRouter();
 
     const [code, setCode] = useState(Array(6).fill(""));
     const inputRefs = useRef<HTMLInputElement[]>([]);
@@ -38,6 +40,14 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
                 challengeId
             }
         }, {
+            onSuccess: () => {
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    router.replace('/');
+                    router.refresh();
+                }
+            },
             onError: () => {
                 submittedRef.current = false;
                 setIsVerifying(false);
@@ -45,7 +55,7 @@ const MfaCard = ({ challengeId }: { challengeId: string }) => {
                 inputRefs.current[0]?.focus();
             }
         });
-    }, [challengeId, verifyMfa]);
+    }, [challengeId, verifyMfa, onSuccess, router]);
 
     const handleChange = (value: string, index: number) => {
         if (!/^\d?$/.test(value)) return; // solo nums o vacío
