@@ -51,7 +51,7 @@ const GettingStartedView = async () => {
                         </p>
 
                         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="#getting-started" className="rounded-lg bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 inline-flex items-center justify-center gap-x-2">
+                            <a href="#first-steps" className="rounded-lg bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 inline-flex items-center justify-center gap-x-2">
                                 <Play className="h-4 w-4" />
                                 {t('hero-button-start')}
                             </a>
