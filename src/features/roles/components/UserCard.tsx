@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Edit } from "lucide-react"
 import type { RoleUser } from "../types"
 import { usePlanAccess } from "@/hooks/usePlanAccess"
+import { getEffectivePermissions } from "../constants"
 
 interface UserCardProps {
   user: RoleUser
@@ -25,7 +26,8 @@ export function UserCard({
 }: UserCardProps) {
   const { plan } = usePlanAccess();
   const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
-  const MAX_VISIBLE = isPro ? 3 : user.permissions.length;
+  const displayPermissions = isPro ? getEffectivePermissions(user.permissions) : user.permissions;
+  const MAX_VISIBLE = 3;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -52,7 +54,7 @@ export function UserCard({
               <div className="flex items-center gap-2 mt-2">
                 <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
                 <div className="flex flex-wrap gap-1">
-                  {user.permissions.slice(0, MAX_VISIBLE).map((permission) => (
+                  {displayPermissions.slice(0, MAX_VISIBLE).map((permission) => (
                     <Badge
                       key={permission}
                       variant="outline"
@@ -61,9 +63,9 @@ export function UserCard({
                       {permission}
                     </Badge>
                   ))}
-                  {user.permissions.length > MAX_VISIBLE && (
+                  {displayPermissions.length > MAX_VISIBLE && (
                     <Badge variant="outline" className="text-xs">
-                      +{user.permissions.length - MAX_VISIBLE}
+                      +{displayPermissions.length - MAX_VISIBLE}
                     </Badge>
                   )}
                 </div>
