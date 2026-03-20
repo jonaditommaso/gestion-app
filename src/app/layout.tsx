@@ -10,6 +10,7 @@ import { getLocale } from 'next-intl/server';
 import { ChatBotProvider } from "@/context/ChatBotContext";
 import ChatBotPanel from "@/components/ChatBotPanel";
 import { AppProvider } from "@/context/AppContext";
+import { getCurrent } from "@/features/auth/queries";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  const user = await getCurrent();
 
   return (
     <html lang={locale} className={`${montserrat.variable}`}>
@@ -43,7 +45,7 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <AppProvider>
+              <AppProvider hasSession={!!user}>
                 <ChatBotProvider>
                   <AppStructure />
                   <Toaster />

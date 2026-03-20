@@ -4,7 +4,7 @@ import { loginSchema, mfaSchema, registerSchema, userNameSchema } from "../schem
 import { createAdminClient } from "@/lib/appwrite";
 import { ID, Account, AppwriteException, AuthenticationFactor, Client, Query } from "node-appwrite";
 import { deleteCookie, setCookie } from 'hono/cookie';
-import { AUTH_COOKIE, HAS_SESSION_COOKIE } from "../constants";
+import { AUTH_COOKIE } from "../constants";
 import { ContextType, sessionMfaMiddleware, sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, SSO_CONFIGS_ID } from "@/config";
 
@@ -53,14 +53,6 @@ const app = new Hono<ContextType>()
             setCookie(ctx, AUTH_COOKIE, session.secret, {
                 path: '/',
                 httpOnly: true,
-                secure: isSecure,
-                sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 30
-            })
-
-            setCookie(ctx, HAS_SESSION_COOKIE, '1', {
-                path: '/',
-                httpOnly: false,
                 secure: isSecure,
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 30
@@ -226,14 +218,6 @@ const app = new Hono<ContextType>()
                 maxAge: 60 * 60 * 24 * 30
             })
 
-            setCookie(ctx, HAS_SESSION_COOKIE, '1', {
-                path: '/',
-                httpOnly: false,
-                secure: isSecure,
-                sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 30
-            })
-
             return ctx.json({ success: true, isDemo: !!isDemo })
         }
     )
@@ -245,7 +229,6 @@ const app = new Hono<ContextType>()
             const account = ctx.get('account') //obtained by set function in sessionMidleware
 
             deleteCookie(ctx, AUTH_COOKIE);
-            deleteCookie(ctx, HAS_SESSION_COOKIE);
             deleteCookie(ctx, 'active-org-id');
             await account.deleteSession('current')
 
@@ -293,7 +276,6 @@ const app = new Hono<ContextType>()
             }
 
             deleteCookie(ctx, AUTH_COOKIE);
-            deleteCookie(ctx, HAS_SESSION_COOKIE);
 
             return ctx.json({ success: true });
         }
@@ -371,7 +353,6 @@ const app = new Hono<ContextType>()
             const account = ctx.get('account')
 
             deleteCookie(ctx, AUTH_COOKIE);
-            deleteCookie(ctx, HAS_SESSION_COOKIE);
             await account.deleteSession('current')
 
             await users.delete(user.$id)

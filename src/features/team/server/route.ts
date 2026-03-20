@@ -7,7 +7,7 @@ import { Client, Databases, ID, Query } from "node-appwrite";
 import { DATABASE_ID, INVITES_ID, MEMBERSHIPS_ID, NEXT_PUBLIC_APP_URL, NOTIFICATIONS_ID, ORGANIZATIONS_ID, STRIPE_SECRET_KEY } from "@/config";
 import { companyNameSchema, registerByInvitationSchema } from "@/features/auth/schemas";
 import { setCookie } from "hono/cookie";
-import { AUTH_COOKIE, HAS_SESSION_COOKIE } from "@/features/auth/constants";
+import { AUTH_COOKIE } from "@/features/auth/constants";
 import { getActiveContext } from "./utils";
 import { Membership, Organization, OrganizationPlan, BillingCycle } from "../types";
 import { z as zod } from 'zod';
@@ -679,14 +679,6 @@ const app = new Hono()
             setCookie(ctx, AUTH_COOKIE, session.secret, {
                 path: '/',
                 httpOnly: true,
-                secure: true,
-                sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 30
-            })
-
-            setCookie(ctx, HAS_SESSION_COOKIE, '1', {
-                path: '/',
-                httpOnly: false,
                 secure: true,
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 30

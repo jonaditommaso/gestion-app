@@ -3,7 +3,6 @@
 import { createContext, useContext } from 'react';
 import { useCurrent } from '@/features/auth/api/use-current';
 import { useGetTeamContext } from '@/features/team/api/use-get-team-context';
-import { HAS_SESSION_COOKIE } from '@/features/auth/constants';
 
 type CurrentUser = NonNullable<ReturnType<typeof useCurrent>['data']>;
 type TeamContextData = NonNullable<ReturnType<typeof useGetTeamContext>['data']>;
@@ -17,12 +16,7 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const getHasSession = () =>
-    typeof document !== 'undefined' &&
-    document.cookie.split(';').some(c => c.trim().startsWith(`${HAS_SESSION_COOKIE}=1`));
-
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-    const hasSession = getHasSession();
+export const AppProvider = ({ children, hasSession }: { children: React.ReactNode; hasSession: boolean }) => {
     const { data: currentUser, isLoading: isLoadingUser } = useCurrent({ enabled: hasSession });
     const { data: teamContext, isLoading: isLoadingTeamContext } = useGetTeamContext({
         enabled: !!currentUser,
