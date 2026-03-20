@@ -55,7 +55,7 @@ export default function ProductDocsClient() {
         },
         {
             id: "ai-assistant",
-            title: "AI Assistant",
+            title: "AI Agent",
             icon: <Bot className="h-4 w-4" />,
             subsections: [
                 { id: "ai-overview", title: "Visión General" },
