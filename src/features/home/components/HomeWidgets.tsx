@@ -25,6 +25,9 @@ import { TaskStatus } from "@/features/tasks/types";
 import { useGetMember } from "@/features/members/api/use-get-member";
 import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 import { WidgetId, FREE_PLAN_WIDGETS } from "./customization/types";
+import { useGetOrgDashboard } from "@/features/tasks/api/use-get-org-dashboard";
+import { useGetOperations } from "@/features/billing-management/api/use-get-operations";
+import { Message } from "./messages/types";
 import { MinusCircle } from "lucide-react";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 
@@ -109,11 +112,24 @@ const HomeWidgetsGrid = () => {
         enabled: !!member?.workspaceId
     });
 
-    const hasMessages = (messages?.total ?? 0) > 0;
+    const hasUnreadMessages = (messages?.documents ?? []).some(
+        (m): m is Message => 'read' in m && !m.read
+    );
     const hasTasks = (tasks?.documents?.length ?? 0) > 0;
 
     const { data: meets } = useGetMeets({ enabled: !isFree });
     const hasMeets = (meets?.length ?? 0) > 0;
+
+    const { data: orgDashboard } = useGetOrgDashboard();
+    const hasVelocityData = (orgDashboard?.workspaceVelocity?.length ?? 0) > 0;
+
+    const { data: operationsData } = useGetOperations({ enabled: isPrivileged });
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const hasUpcomingPayments = (operationsData?.documents ?? []).some((op) => {
+        const o = op as { type?: string; status?: string; dueDate?: string | null };
+        return o.type === 'income' && o.status === 'PENDING' && o.dueDate != null && new Date(o.dueDate) >= todayStart;
+    });
 
     return (
         <div className="gap-4 grid grid-cols-3">
@@ -121,7 +137,7 @@ const HomeWidgetsGrid = () => {
                 <MyNotes />
             </ConditionalWidget>
 
-            <ConditionalWidget widgetId="messages" hasData={hasMessages}>
+            <ConditionalWidget widgetId="messages" hasData={hasUnreadMessages}>
                 <MessagesContainer />
             </ConditionalWidget>
 
@@ -178,7 +194,7 @@ const HomeWidgetsGrid = () => {
             )}
 
             {isPrivileged && (
-                <ConditionalWidget widgetId="team-velocity">
+                <ConditionalWidget widgetId="team-velocity" hasData={hasVelocityData}>
                     <TeamVelocityWidget />
                 </ConditionalWidget>
             )}
@@ -196,7 +212,7 @@ const HomeWidgetsGrid = () => {
             )}
 
             {isPrivileged && (
-                <ConditionalWidget widgetId="upcoming-payments">
+                <ConditionalWidget widgetId="upcoming-payments" hasData={hasUpcomingPayments}>
                     <UpcomingPaymentsWidget />
                 </ConditionalWidget>
             )}
