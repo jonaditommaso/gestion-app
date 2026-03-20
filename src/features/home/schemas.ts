@@ -10,6 +10,8 @@ export const notesSchema = zod.object({
     pinnedAt: zod.string().nullable().optional(),
     isGlobal: zod.boolean().optional(),
     globalAt: zod.string().nullable().optional(),
+    reminderAt: zod.string().nullable().optional(),
+    reminderNotified: zod.boolean().optional(),
 })
 
 export const messagesSchema = zod.object({

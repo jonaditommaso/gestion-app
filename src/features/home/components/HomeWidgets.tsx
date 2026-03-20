@@ -132,7 +132,7 @@ const HomeWidgetsGrid = () => {
     });
 
     return (
-        <div className="gap-4 grid grid-cols-3">
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 pb-4">
             <ConditionalWidget widgetId="my-notes">
                 <MyNotes />
             </ConditionalWidget>
@@ -141,7 +141,7 @@ const HomeWidgetsGrid = () => {
                 <MessagesContainer />
             </ConditionalWidget>
 
-            <div className="flex col-span-1 gap-2 justify-around">
+            <div className="flex flex-wrap col-span-1 gap-2 justify-around">
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
                     <ConditionalWidget widgetId="send-message">
                         <SendMessageButton />

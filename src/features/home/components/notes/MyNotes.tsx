@@ -177,7 +177,7 @@ const MyNotes = () => {
                         <div className="flex flex-col gap-2">
                             <Input
                                 placeholder={t('title')}
-                                className="bg-sidebar"
+                                className="bg-sidebar m-1"
                                 value={newNote.title}
                                 onChange={(e) => onChange(e.target.value, 'title')}
                             />

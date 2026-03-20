@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
-import { DATABASE_ID, MEMBERS_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASKS_ID } from "@/config";
+import { DATABASE_ID, MEMBERS_ID, NOTES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASKS_ID } from "@/config";
 import { notificationsSchema } from "../schemas";
 import { Models } from "node-appwrite";
 import { Task } from "@/features/tasks/types";
@@ -173,6 +173,48 @@ const app = new Hono()
                             createdBodies.forEach((body) => existingReminderBodies.add(body));
                         }
                     }
+                }
+
+                // Note reminders check
+                const noteReminderNow = new Date();
+                const dueReminderNotes = await databases.listDocuments(
+                    DATABASE_ID,
+                    NOTES_ID,
+                    [
+                        Query.contains('memberId', workspaceMemberIds),
+                        Query.isNotNull('reminderAt'),
+                        Query.lessThanEqual('reminderAt', noteReminderNow.toISOString()),
+                        Query.limit(100)
+                    ]
+                );
+
+                const unnotifiedNotes = dueReminderNotes.documents.filter(n => n.reminderNotified !== true);
+
+                if (unnotifiedNotes.length > 0) {
+                    await Promise.all(
+                        unnotifiedNotes.map(async (note) => {
+                            await databases.createDocument(
+                                DATABASE_ID,
+                                NOTIFICATIONS_ID,
+                                ID.unique(),
+                                {
+                                    userId: user.$id,
+                                    triggeredBy: user.$id,
+                                    title: NotificationI18nKey.NOTE_REMINDER_TITLE,
+                                    read: false,
+                                    type: NotificationType.RECURRING,
+                                    entityType: NotificationEntityType.NOTE_REMINDER,
+                                    body: (note.title as string | null) || (note.content as string | null)?.slice(0, 100) || '',
+                                }
+                            );
+                            await databases.updateDocument(
+                                DATABASE_ID,
+                                NOTES_ID,
+                                note.$id,
+                                { reminderNotified: true }
+                            );
+                        })
+                    );
                 }
             }
 

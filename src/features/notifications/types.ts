@@ -18,6 +18,7 @@ export const NotificationEntityType = {
     DEAL_LOST: 'deal_lost',
     DEAL_GOAL_REACHED: 'deal_goal_reached',
     PLAN_LIMIT_REACHED: 'plan_limit_reached',
+    NOTE_REMINDER: 'note_reminder',
 } as const;
 
 export type NotificationEntityTypeValue = typeof NotificationEntityType[keyof typeof NotificationEntityType];
@@ -47,6 +48,7 @@ export const NotificationI18nKey = {
     DEAL_LOST_TITLE: 'notification-deal-lost-title',
     DEAL_GOAL_REACHED_TITLE: 'notification-deal-goal-reached-title',
     VIEW_DEAL_LINK: 'notification-view-deal-link',
+    NOTE_REMINDER_TITLE: 'notification-note-reminder-title',
 } as const;
 
 export const NotificationBodySeparator = '|';
