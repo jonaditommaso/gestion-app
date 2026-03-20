@@ -21,6 +21,7 @@ export const useSwitchOrg = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['team'] });
             queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+            queryClient.invalidateQueries({ queryKey: ['home-config'] });
             queryClient.invalidateQueries({ queryKey: ['roles'] });
             queryClient.invalidateQueries({ queryKey: ['sales-boards'] });
             queryClient.invalidateQueries({ queryKey: ['deals'] });

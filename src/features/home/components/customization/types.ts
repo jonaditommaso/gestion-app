@@ -75,7 +75,8 @@ export interface HomeConfigOverrides {
 
 export interface HomeConfigDocument {
     $id: string;
-    userId: string;
+    memberId: string;
+    organizationId: string;
     widgets: string; // JSON stringified HomeConfig
     noteGlobalPinOnboarded?: boolean;
     $collectionId: string;

@@ -7,7 +7,6 @@ import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessages
 import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
 import { getActiveContext } from "@/features/team/server/utils";
-import { getMember } from "@/features/workspaces/members/utils";
 import { google } from 'googleapis';
 import { cookies } from "next/headers";
 import dayjs from "dayjs";
@@ -21,10 +20,15 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: null });
+
+            const memberId = context.membership.$id;
+
             const configs = await databases.listDocuments(
                 DATABASE_ID,
                 USER_HOME_CONFIG_ID,
-                [Query.equal('userId', user.$id)]
+                [Query.equal('memberId', memberId)]
             );
 
             if (configs.total === 0) {
@@ -49,18 +53,25 @@ const app = new Hono()
                 return ctx.json({ error: 'At least one field is required' }, 400)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            const memberId = context.membership.$id;
+            const organizationId = context.membership.organizationId;
+
             const existingConfigs = await databases.listDocuments(
                 DATABASE_ID,
                 USER_HOME_CONFIG_ID,
-                [Query.equal('userId', user.$id)]
+                [Query.equal('memberId', memberId)]
             );
 
             if (existingConfigs.total > 0) {
                 return ctx.json({ error: 'Home config already exists' }, 409)
             }
 
-            const createPayload: { userId: string; widgets?: string; noteGlobalPinOnboarded?: boolean } = {
-                userId: user.$id,
+            const createPayload: { memberId: string; organizationId: string; widgets?: string; noteGlobalPinOnboarded?: boolean } = {
+                memberId,
+                organizationId,
             };
 
             if (widgets !== undefined) {
@@ -96,31 +107,44 @@ const app = new Hono()
                 return ctx.json({ error: 'At least one field is required' }, 400)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            const memberId = context.membership.$id;
+
             const existingConfigs = await databases.listDocuments(
                 DATABASE_ID,
                 USER_HOME_CONFIG_ID,
-                [Query.equal('userId', user.$id)]
+                [Query.equal('memberId', memberId)]
             );
 
-            if (existingConfigs.total === 0) {
-                return ctx.json({ error: 'Home config not found' }, 404)
-            }
-
-            const updatePayload: { widgets?: string; noteGlobalPinOnboarded?: boolean } = {};
+            const payload: { memberId?: string; organizationId?: string; widgets?: string; noteGlobalPinOnboarded?: boolean } = {};
 
             if (widgets !== undefined) {
-                updatePayload.widgets = widgets;
+                payload.widgets = widgets;
             }
 
             if (noteGlobalPinOnboarded !== undefined) {
-                updatePayload.noteGlobalPinOnboarded = noteGlobalPinOnboarded;
+                payload.noteGlobalPinOnboarded = noteGlobalPinOnboarded;
+            }
+
+            if (existingConfigs.total === 0) {
+                // Upsert: si no existe, crear
+                const organizationId = context.membership.organizationId;
+                const created = await databases.createDocument(
+                    DATABASE_ID,
+                    USER_HOME_CONFIG_ID,
+                    ID.unique(),
+                    { ...payload, memberId, organizationId }
+                );
+                return ctx.json({ data: created })
             }
 
             const updated = await databases.updateDocument(
                 DATABASE_ID,
                 USER_HOME_CONFIG_ID,
                 existingConfigs.documents[0].$id,
-                updatePayload
+                payload
             );
 
             return ctx.json({ data: updated })
@@ -144,19 +168,7 @@ const app = new Hono()
             const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
-            const workspacesResult = await databases.listDocuments(
-                DATABASE_ID,
-                WORKSPACES_ID,
-                [Query.equal('teamId', context.org.appwriteTeamId), Query.orderAsc('$createdAt'), Query.limit(1)]
-            );
-            if (!workspacesResult.documents.length) return ctx.json({ error: 'No workspace found' }, 400);
-
-            const member = await getMember({
-                databases,
-                workspaceId: workspacesResult.documents[0].$id,
-                userId: user.$id,
-            });
-            if (!member) return ctx.json({ error: 'Unauthorized' }, 401);
+            const memberId = context.membership.$id;
 
             await databases.createDocument(
                 DATABASE_ID,
@@ -169,7 +181,7 @@ const app = new Hono()
                     isModern,
                     hasLines,
                     teamId: context.org.appwriteTeamId,
-                    memberId: member.$id,
+                    memberId,
                 }
             );
 
@@ -187,26 +199,12 @@ const app = new Hono()
             const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
-            const workspacesResult = await databases.listDocuments(
-                DATABASE_ID,
-                WORKSPACES_ID,
-                [Query.equal('teamId', context.org.appwriteTeamId), Query.orderAsc('$createdAt'), Query.limit(1)]
-            );
-            if (!workspacesResult.documents.length) {
-                return ctx.json({ data: { documents: [], total: 0 } });
-            }
-
-            const member = await getMember({
-                databases,
-                workspaceId: workspacesResult.documents[0].$id,
-                userId: user.$id,
-            });
-            if (!member) return ctx.json({ data: { documents: [], total: 0 } });
+            const memberId = context.membership.$id;
 
             const notes = await databases.listDocuments(
                 DATABASE_ID,
                 NOTES_ID,
-                [Query.equal('memberId', member.$id)]
+                [Query.equal('memberId', memberId)]
             );
 
             if (notes.total === 0) {
@@ -225,9 +223,9 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { noteId } = ctx.req.param();
 
-            const { title, content, bgColor, isModern, hasLines, isPinned, pinnedAt, isGlobal, globalAt } = ctx.req.valid('json');
+            const { title, content, bgColor, isModern, hasLines, isPinned, pinnedAt, isGlobal, globalAt, reminderAt, reminderNotified } = ctx.req.valid('json');
 
-            const updateData: { title?: string; content?: string; bgColor?: string; isModern?: boolean; hasLines?: boolean; isPinned?: boolean; pinnedAt?: string | null; isGlobal?: boolean; globalAt?: string | null } = {};
+            const updateData: { title?: string; content?: string; bgColor?: string; isModern?: boolean; hasLines?: boolean; isPinned?: boolean; pinnedAt?: string | null; isGlobal?: boolean; globalAt?: string | null; reminderAt?: string | null; reminderNotified?: boolean } = {};
 
             if (title !== undefined) updateData.title = title;
             if (content !== undefined) updateData.content = content;
@@ -238,6 +236,8 @@ const app = new Hono()
             if (pinnedAt !== undefined) updateData.pinnedAt = pinnedAt;
             if (isGlobal !== undefined) updateData.isGlobal = isGlobal;
             if (globalAt !== undefined) updateData.globalAt = globalAt;
+            if (reminderAt !== undefined) updateData.reminderAt = reminderAt;
+            if (reminderNotified !== undefined) updateData.reminderNotified = reminderNotified;
 
             if (Object.keys(updateData).length === 0) {
                 return ctx.json({ error: 'Note must have at least one field to update' }, 400)
