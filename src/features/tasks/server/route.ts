@@ -480,7 +480,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId, duplicatedFromId } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -598,6 +598,33 @@ const app = new Hono()
                     title: NotificationI18nKey.TASK_MENTIONED_TITLE,
                     entityType: NotificationEntityType.TASK_MENTIONED,
                 });
+            }
+
+            // Create activity log for task creation (non-blocking)
+            if (parentId) {
+                createActivityLog({
+                    databases,
+                    taskId: task.$id,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.SUBTASK_CREATED,
+                    payload: { taskName: name }
+                }).catch(err => console.error('Error creating activity log:', err));
+            } else if (duplicatedFromId) {
+                createActivityLog({
+                    databases,
+                    taskId: task.$id,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.TASK_DUPLICATED,
+                    payload: { originalTaskId: duplicatedFromId, newTaskName: name }
+                }).catch(err => console.error('Error creating activity log:', err));
+            } else {
+                createActivityLog({
+                    databases,
+                    taskId: task.$id,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.TASK_CREATED,
+                    payload: { taskName: name }
+                }).catch(err => console.error('Error creating activity log:', err));
             }
 
             return ctx.json({
@@ -923,6 +950,21 @@ const app = new Hono()
                         payload: {
                             subAction: 'title_changed',
                             checklistTitle: updates.checklistTitle || undefined
+                        }
+                    })
+                );
+            }
+
+            // Archive change
+            if (updates.archived !== undefined && updates.archived !== existingTask.archived) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_ARCHIVED,
+                        payload: {
+                            archived: updates.archived
                         }
                     })
                 );

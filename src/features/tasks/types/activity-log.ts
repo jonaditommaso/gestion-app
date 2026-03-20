@@ -16,6 +16,10 @@ export enum ActivityAction {
     TASK_NAME_UPDATED = 'TASK_NAME_UPDATED',
     TASK_SHARED = 'TASK_SHARED',
     TASK_FEATURED_UPDATED = 'TASK_FEATURED_UPDATED',
+    TASK_CREATED = 'TASK_CREATED',
+    TASK_ARCHIVED = 'TASK_ARCHIVED',
+    SUBTASK_CREATED = 'SUBTASK_CREATED',
+    TASK_DUPLICATED = 'TASK_DUPLICATED',
 }
 
 /**
@@ -113,6 +117,23 @@ export interface TaskFeaturedUpdatedPayload {
     to: boolean;
 }
 
+export interface TaskCreatedPayload {
+    taskName: string;
+}
+
+export interface TaskArchivedPayload {
+    archived: boolean;
+}
+
+export interface SubtaskCreatedPayload {
+    taskName: string;
+}
+
+export interface TaskDuplicatedPayload {
+    originalTaskId: string;
+    newTaskName: string;
+}
+
 /**
  * Union type for all payloads
  */
@@ -128,7 +149,11 @@ export type ActivityPayload =
     | TaskTypeUpdatedPayload
     | TaskNameUpdatedPayload
     | TaskSharedPayload
-    | TaskFeaturedUpdatedPayload;
+    | TaskFeaturedUpdatedPayload
+    | TaskCreatedPayload
+    | TaskArchivedPayload
+    | SubtaskCreatedPayload
+    | TaskDuplicatedPayload;
 
 /**
  * Activity log document type

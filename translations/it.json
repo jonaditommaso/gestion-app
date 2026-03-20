@@ -1962,7 +1962,12 @@
             "changed-featured": "ha cambiato lo stato in evidenza",
             "marked-featured": "ha segnato l'attività come in evidenza",
             "unmarked-featured": "ha rimosso l'attività dai in evidenza",
-            "updated-task": "ha aggiornato l'attività"
+            "updated-task": "ha aggiornato l'attività",
+            "created-task": "ha creato l'attività",
+            "created-subtask": "ha creato una sottoattività",
+            "archived-task": "ha archiviato l'attività",
+            "unarchived-task": "ha rimosso l'attività dall'archivio",
+            "duplicated-task": "ha duplicato l'attività"
         },
         "back": "Indietro"
     },

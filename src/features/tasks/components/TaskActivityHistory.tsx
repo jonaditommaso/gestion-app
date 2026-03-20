@@ -21,6 +21,10 @@ import {
     TaskNameUpdatedPayload,
     TaskSharedPayload,
     TaskFeaturedUpdatedPayload,
+    TaskCreatedPayload,
+    TaskArchivedPayload,
+    SubtaskCreatedPayload,
+    TaskDuplicatedPayload,
 } from "../types/activity-log";
 import {
     MessageSquare,
@@ -36,6 +40,9 @@ import {
     Type,
     Edit3,
     Workflow,
+    Archive,
+    Copy,
+    Plus,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -85,6 +92,14 @@ const getActionIcon = (action: ActivityAction) => {
             return Share2;
         case ActivityAction.TASK_FEATURED_UPDATED:
             return Star;
+        case ActivityAction.TASK_CREATED:
+            return Plus;
+        case ActivityAction.SUBTASK_CREATED:
+            return Plus;
+        case ActivityAction.TASK_ARCHIVED:
+            return Archive;
+        case ActivityAction.TASK_DUPLICATED:
+            return Copy;
         default:
             return FileText;
     }
@@ -325,6 +340,36 @@ const ActivityLogEntry = ({
                 return payload.to
                     ? t('activity.marked-featured')
                     : t('activity.unmarked-featured');
+            }
+
+            case ActivityAction.TASK_CREATED: {
+                const payload = parsePayload<TaskCreatedPayload>(log.payload);
+                if (!payload) return t('activity.created-task');
+                return t('activity.created-task');
+            }
+
+            case ActivityAction.SUBTASK_CREATED: {
+                const payload = parsePayload<SubtaskCreatedPayload>(log.payload);
+                if (!payload) return t('activity.created-subtask');
+                return (
+                    <span>
+                        {t('activity.created-subtask')} <strong>&quot;{payload.taskName}&quot;</strong>
+                    </span>
+                );
+            }
+
+            case ActivityAction.TASK_ARCHIVED: {
+                const payload = parsePayload<TaskArchivedPayload>(log.payload);
+                if (!payload) return t('activity.archived-task');
+                return payload.archived
+                    ? t('activity.archived-task')
+                    : t('activity.unarchived-task');
+            }
+
+            case ActivityAction.TASK_DUPLICATED: {
+                const payload = parsePayload<TaskDuplicatedPayload>(log.payload);
+                if (!payload) return t('activity.duplicated-task');
+                return t('activity.duplicated-task');
             }
 
             default:

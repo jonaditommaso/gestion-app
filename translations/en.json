@@ -1972,7 +1972,12 @@
             "changed-featured": "changed featured",
             "marked-featured": "marked the task as featured",
             "unmarked-featured": "unmarked the task as featured",
-            "updated-task": "updated the task"
+            "updated-task": "updated the task",
+            "created-task": "created the task",
+            "created-subtask": "created a subtask",
+            "archived-task": "archived the task",
+            "unarchived-task": "unarchived the task",
+            "duplicated-task": "duplicated the task"
         },
         "back": "Back"
     },

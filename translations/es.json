@@ -1976,7 +1976,12 @@
             "changed-featured": "cambió destacado",
             "marked-featured": "marcó la tarea como destacada",
             "unmarked-featured": "quitó la tarea de destacadas",
-            "updated-task": "actualizó la tarea"
+            "updated-task": "actualizó la tarea",
+            "created-task": "creó la tarea",
+            "created-subtask": "creó una subtarea",
+            "archived-task": "archivó la tarea",
+            "unarchived-task": "desarchivó la tarea",
+            "duplicated-task": "duplicó la tarea"
         },
         "back": "Regresar"
     },
