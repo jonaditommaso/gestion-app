@@ -4,6 +4,7 @@ import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import { ArrowRight, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 const DiscoverButton = () => {
 
@@ -91,8 +92,10 @@ const DiscoverButton = () => {
                 transition={{ delay: 1.3, duration: 0.4, ease: "easeOut" }}
             >
                 <Button className="rounded-lg w-fit group transition-all duration-200 hover:shadow-lg hover:scale-105">
-                    {t('explore-integrations')}
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <Link href="/products#integrations " className="flex items-center">
+                        {t('explore-integrations')}
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                 </Button>
             </motion.div>
         </div>
