@@ -1,11 +1,9 @@
-import { useCurrent } from "@/features/auth/api/use-current";
 import { Permission, RoleType } from "../constants";
 import { useGetFinalRolesPermissions } from "./useGetFinalRolesPermissions";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+import { useAppContext } from "@/context/AppContext";
 
 export const useCurrentUserPermissions = () => {
-    const { isLoading: isLoadingUser } = useCurrent();
-    const { data: teamContext, isLoading: isLoadingContext } = useGetTeamContext();
+    const { isLoadingUser, teamContext, isLoadingTeamContext: isLoadingContext } = useAppContext();
     const finalRolePermissions = useGetFinalRolesPermissions(!!teamContext?.membership);
 
     const rawRole = teamContext?.membership?.role;

@@ -10,7 +10,7 @@ import { useResizePanel } from "@/hooks/useResizePanel";
 import { useSendMessage } from "@/features/chat/api/use-send-message";
 import { useGetConversations } from "@/features/chat/api/use-get-conversations";
 import { useDeleteConversation } from "@/features/chat/api/use-delete-conversation";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
@@ -48,7 +48,7 @@ const ChatBotPanel = () => {
   const resizeRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { data: currentUser } = useCurrent();
+  const { currentUser } = useAppContext();
   const { isFree } = usePlanAccess();
 
   // Obtener conversaciones de la BD

@@ -1,7 +1,7 @@
 ﻿'use client'
 import { useGetOperations } from "@/features/billing-management/api/use-get-operations";
 import { useGetOrgTasksSummary } from "@/features/tasks/api/use-get-org-tasks-summary";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+import { useAppContext } from "@/context/AppContext";
 import { useTranslations } from "next-intl";
 import { AlertCircle, AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +16,7 @@ type BillingOperation = {
 
 const CriticalAlertsBar = () => {
     const t = useTranslations('home');
-    const { data: teamContext } = useGetTeamContext();
+    const { teamContext } = useAppContext();
     const { isFree } = usePlanAccess();
 
     const organizationRole = teamContext?.membership?.role;

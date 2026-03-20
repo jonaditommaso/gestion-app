@@ -21,7 +21,7 @@ import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+import { useAppContext } from "@/context/AppContext";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { Rocket } from "lucide-react";
 import UpgradeCarouselDialog from "@/components/UpgradeCarouselDialog";
@@ -39,7 +39,7 @@ const AppSidebar = () => {
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useTranslations('general')
-    const { data: teamContext } = useGetTeamContext();
+    const { teamContext } = useAppContext();
     const { hasPermission } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const { plan } = usePlanAccess();

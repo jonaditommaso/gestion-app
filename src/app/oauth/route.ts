@@ -1,6 +1,6 @@
 import { Account, AppwriteException, AuthenticationFactor, Client, Query, Users } from "node-appwrite";
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE } from "@/features/auth/constants";
+import { AUTH_COOKIE, HAS_SESSION_COOKIE } from "@/features/auth/constants";
 import { createAdminClient } from "@/lib/appwrite";
 import { DATABASE_ID, MEMBERSHIPS_ID } from "@/config";
 
@@ -62,6 +62,14 @@ export async function GET(request: NextRequest) {
             path: "/",
             httpOnly: true,
             sameSite: "strict",
+            secure: isSecure,
+            maxAge: 60 * 60 * 24 * 30,
+        });
+
+        response.cookies.set(HAS_SESSION_COOKIE, '1', {
+            path: "/",
+            httpOnly: false,
+            sameSite: "lax",
             secure: isSecure,
             maxAge: 60 * 60 * 24 * 30,
         });

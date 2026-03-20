@@ -6,7 +6,7 @@ import CustomLoader from "@/components/CustomLoader";
 import TaskDetails, { TaskTitleEditor } from "@/features/tasks/components/TaskDetails";
 import { useTranslations } from "next-intl";
 import { AlertCircle, Clock } from "lucide-react";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +15,7 @@ const SharedTaskPage = () => {
     const params = useParams();
     const token = params.token as string;
     const t = useTranslations('workspaces');
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
 
     const { data, isLoading, error } = useGetSharedTask({ token });
 

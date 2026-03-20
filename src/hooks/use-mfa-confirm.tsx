@@ -2,13 +2,13 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useCreateMfaChallenge } from "@/features/auth/api/use-create-mfa-challenge";
 import MfaCard from "@/features/auth/components/MfaCard";
 
 export const useMfaConfirm = (): [() => JSX.Element, () => Promise<boolean>] => {
     const t = useTranslations('auth');
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
     const [promise, setPromise] = useState<{ resolve: (value: boolean) => void } | null>(null);
     const [challengeId, setChallengeId] = useState<string | null>(null);
     const { mutate: createChallenge } = useCreateMfaChallenge();

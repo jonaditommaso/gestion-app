@@ -6,10 +6,9 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 import { useGetMembers, TeamMember } from "@/features/team/api/use-get-members";
 import { useCreateNotification } from "@/features/notifications/api/use-create-notification";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { NotificationEntityType, NotificationType } from "@/features/notifications/types";
 
 type UpgradeFeature = 'members' | 'pipelines' | 'workspaces';
@@ -37,9 +36,8 @@ const FEATURE_IMAGE_SIZES: Record<UpgradeFeature, { width: number; height: numbe
 const UpgradeDialog = ({ open, onOpenChange, feature, currentCount, limitCount }: UpgradeDialogProps) => {
     const t = useTranslations('plan-limits');
     const { plan } = usePlanAccess();
-    const { data: teamContext } = useGetTeamContext();
+    const { teamContext, currentUser } = useAppContext();
     const { data: teamMembers } = useGetMembers();
-    const { data: currentUser } = useCurrent();
     const { mutate: createNotification, isPending: isNotifying } = useCreateNotification();
 
     const isOwner = teamContext?.membership?.role === 'OWNER';

@@ -1,6 +1,5 @@
 'use client'
 import { Loader } from "lucide-react";
-import { useCurrent } from "../api/use-current";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
@@ -12,17 +11,16 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useProfilePicture } from "@/hooks/useProfilePicture";
 import { useTranslations } from "next-intl";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+import { useAppContext } from "@/context/AppContext";
 
 const UserButton = () => {
-    const { data: user, isLoading } = useCurrent();
+    const { currentUser: user, isLoadingUser: isLoading, teamContext } = useAppContext();
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const { setTheme } = useTheme();
     const { imageUrl, isPending } = useProfilePicture(undefined, !!user?.prefs?.image);
     const t = useTranslations('general')
-    const { data: teamContext } = useGetTeamContext();
     const organizationRole = teamContext?.membership?.role;
 
     if(isLoading || isPending) {

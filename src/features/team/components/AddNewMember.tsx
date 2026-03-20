@@ -13,7 +13,7 @@ import { CircleCheckBig, CopyIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import FadeLoader from "react-spinners/FadeLoader";
 import { useInviteMember } from "../api/use-invite-member";
-import { useGetTeamContext } from "../api/use-get-team-context";
+import { useAppContext } from "@/context/AppContext";
 import { useGetMembers } from "../api/use-get-members";
 import ManageMembersModal from "./ManageMembersModal";
 import NoTeamWarningIcon from "./NoTeamWarningIcon";
@@ -38,7 +38,7 @@ const AddNewMember = () => { //we receive the user quickly from server component
     const t = useTranslations('team');
     const { hasPermission, isLoading } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
-    const { data: teamContext } = useGetTeamContext();
+    const { teamContext } = useAppContext();
     const { limits } = usePlanAccess();
     const { data: membersData } = useGetMembers();
     const hasOrg = !!teamContext?.membership;

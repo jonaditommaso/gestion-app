@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z as zod } from 'zod';
 import { meetSchemaForm } from "../../schemas";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import dayjs from "dayjs";
 import { useCreateMeet } from "../../api/use-create-meet";
 import { useTranslations } from "next-intl";
@@ -34,7 +34,7 @@ interface CreateMeetModalProps {
 
 const CreateMeetModal = ({ isOpen, setIsOpen, team }: CreateMeetModalProps) => {
     const { mutate: createMeet, isPending } = useCreateMeet();
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const t = useTranslations('home');
 
     const form = useForm<zod.infer<typeof meetSchemaForm>>({

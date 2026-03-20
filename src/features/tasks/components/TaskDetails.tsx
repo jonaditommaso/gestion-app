@@ -8,7 +8,7 @@ import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { format, formatDistanceToNow } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import RichTextArea from "@/components/RichTextArea";
@@ -173,7 +173,7 @@ const DATE_LOCALES = { es, en: enUS, it };
 const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
     const locale = useLocale() as 'es' | 'en' | 'it';
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const router = useRouter();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });

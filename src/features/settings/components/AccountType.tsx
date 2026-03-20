@@ -2,7 +2,7 @@
 
 import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
+import { useAppContext } from "@/context/AppContext";
 import { useLeaveOrganization } from "@/features/team/api/use-leave-organization";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useTranslations } from "next-intl";
@@ -15,7 +15,7 @@ const getOrganizationRoleLabel = (role: string): string => {
 };
 
 const AccountType = () => {
-    const { data: teamContext } = useGetTeamContext();
+    const { teamContext } = useAppContext();
     const { mutate: leaveOrganization, isPending } = useLeaveOrganization();
     const t = useTranslations('settings');
     const [isOpen, setIsOpen] = useState(false);

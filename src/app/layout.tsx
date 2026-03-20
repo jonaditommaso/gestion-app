@@ -9,6 +9,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
 import { ChatBotProvider } from "@/context/ChatBotContext";
 import ChatBotPanel from "@/components/ChatBotPanel";
+import { AppProvider } from "@/context/AppContext";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -42,12 +43,14 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <ChatBotProvider>
-                <AppStructure />
-                <Toaster />
-                <ChatBotPanel />
-                {children}
-              </ChatBotProvider>
+              <AppProvider>
+                <ChatBotProvider>
+                  <AppStructure />
+                  <Toaster />
+                  <ChatBotPanel />
+                  {children}
+                </ChatBotProvider>
+              </AppProvider>
             </ThemeProvider>
           </TanstackQueryProvider>
         </NextIntlClientProvider>

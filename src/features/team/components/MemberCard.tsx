@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useProfilePicture } from "@/hooks/useProfilePicture";
 import { format } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
@@ -46,7 +46,7 @@ const ImageMock = ({ name }: { name: string }) => (
 
 const MemberCard = ({ memberId, name, email, position, tags = [], userId, image, birthday, description, linkedin, memberSince, currentProject, orgName, appwriteMembershipId }: MemberCardProps) => {
     const { imageUrl, isPending } = useProfilePicture(userId, !!image);
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
     const t = useTranslations('team');
     const locale = useLocale() as keyof typeof localeMap;
     const dateLocale = localeMap[locale] ?? enUS;

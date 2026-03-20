@@ -1,13 +1,13 @@
 'use client'
 
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import FadeLoader from "react-spinners/FadeLoader";
 import { useGetMembers } from "../api/use-get-members";
 import MemberCard from "./MemberCard";
 
 const TeamList = () => {
     const { data, isLoading} = useGetMembers();
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
 
     if(isLoading) return (
         <div className="w-full flex justify-center">

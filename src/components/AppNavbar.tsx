@@ -9,10 +9,10 @@ import NoTeamWarningIcon from "@/features/team/components/NoTeamWarningIcon";
 import ToggleChatBot from "./ToggleChatBot";
 import HomeCustomizationTrigger from "./HomeCustomizationTrigger";
 import NotificationsTrigger from "./NotificationsTrigger";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 import { useSwitchOrg } from "@/features/team/api/use-switch-org";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
 
 const notShowInView = [
   '/login',
@@ -27,7 +27,7 @@ const AppNavbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('general');
-  const { data: teamContext, isLoading: isLoadingContext } = useGetTeamContext();
+  const { teamContext, isLoadingTeamContext: isLoadingContext } = useAppContext();
   const { mutate: switchOrg, isPending: isSwitching } = useSwitchOrg();
 
   const orgName = teamContext?.org?.name;

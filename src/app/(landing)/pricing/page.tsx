@@ -3,8 +3,7 @@ import PricingSection from '../../../features/landing/components/PricingSection'
 import PricingComparisonTable from '../../../features/landing/components/PricingComparisonTable';
 import LandingFooter from '@/features/landing/components/LandingFooter';
 import { useTranslations } from 'next-intl';
-import { useCurrent } from '@/features/auth/api/use-current';
-import { useGetTeamContext } from '@/features/team/api/use-get-team-context';
+import { useAppContext } from '@/context/AppContext';
 import { usePlanAccess } from '@/hooks/usePlanAccess';
 import { useChangePlan } from '@/features/team/api/use-change-plan';
 import { useRouter } from 'next/navigation';
@@ -12,8 +11,7 @@ import { useEffect } from 'react';
 
 const PricingView = () => {
     const t = useTranslations('pricing');
-    const { data: user, isLoading: isLoadingUser } = useCurrent();
-    const { data: teamContext, isLoading: isLoadingTeam } = useGetTeamContext();
+    const { currentUser: user, isLoadingUser, teamContext, isLoadingTeamContext: isLoadingTeam } = useAppContext();
     const { plan } = usePlanAccess();
     const router = useRouter();
     const { mutate: changePlan } = useChangePlan(() => router.push('/organization'));

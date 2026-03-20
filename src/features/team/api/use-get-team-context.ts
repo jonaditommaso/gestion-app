@@ -13,9 +13,10 @@ type TeamContextData = {
     allContexts: OrgContext[];
 };
 
-export const useGetTeamContext = () => {
+export const useGetTeamContext = ({ enabled = true }: { enabled?: boolean } = {}) => {
     const query = useQuery({
         queryKey: ['team', 'context'],
+        enabled,
         queryFn: async () => {
             const response = await client.api.team.context.$get();
 

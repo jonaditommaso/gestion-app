@@ -23,8 +23,8 @@ import { useGetMeets } from "../api/use-get-meets";
 import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { TaskStatus } from "@/features/tasks/types";
 import { useGetMember } from "@/features/members/api/use-get-member";
-import { useGetTeamContext } from "@/features/team/api/use-get-team-context";
 import { WidgetId, FREE_PLAN_WIDGETS } from "./customization/types";
+import { useAppContext } from "@/context/AppContext";
 import { useGetOrgDashboard } from "@/features/tasks/api/use-get-org-dashboard";
 import { useGetOperations } from "@/features/billing-management/api/use-get-operations";
 import { Message } from "./messages/types";
@@ -93,7 +93,7 @@ const HomeWidgetsGrid = () => {
     const { isFree } = usePlanAccess();
     const { data: messages } = useGetMessages({ enabled: !isFree });
     const { data: member } = useGetMember();
-    const { data: teamContext } = useGetTeamContext();
+    const { teamContext } = useAppContext();
     const { config } = useHomeCustomization();
 
     const organizationRole = teamContext?.membership?.role;

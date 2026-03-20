@@ -14,7 +14,7 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
@@ -51,7 +51,7 @@ const insertPositionStore: InsertPositionStore = {};
 const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanProps) => {
     const config = useWorkspaceConfig();
     const t = useTranslations('workspaces');
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const { mutate: updateWorkspace } = useUpdateWorkspace();

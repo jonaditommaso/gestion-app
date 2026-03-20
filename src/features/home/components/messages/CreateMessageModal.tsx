@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useGetMembers } from "@/features/team/api/use-get-members";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -19,7 +19,7 @@ interface CreateMessageModalProps {
 const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
     const { data, isLoading} = useGetMembers();
     const team = data?.members;
-    const { data: user, isLoading: gettingUser } = useCurrent();
+    const { currentUser: user, isLoadingUser: gettingUser } = useAppContext();
     const { mutate: createMessage, isPending: isSending } = useCreateMessage();
     const [membersSelected, setMembersSelected] = useState<string[]>([]);
     const [subject, setSubject] = useState('');

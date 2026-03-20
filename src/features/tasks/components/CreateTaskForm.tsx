@@ -31,7 +31,7 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { useEffect, useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetTasks } from "../api/use-get-tasks";
 import { LabelSelector } from "./LabelSelector";
@@ -52,7 +52,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const t = useTranslations('workspaces');
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
     const { data: membersData } = useGetMembers({ workspaceId });
     const { data: tasksData } = useGetTasks({ workspaceId });
 

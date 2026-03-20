@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z as zod } from 'zod';
 import { useForm } from "react-hook-form";
 import { shortcutSchema } from "../../schemas";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { useDeleteShortcut } from "../../api/use-delete-shortcut";
 import dynamic from "next/dynamic";
@@ -73,7 +73,7 @@ const ShortcutItem = ({ shortcutString, onNavigate, onEdit, onDelete, isLoading,
 const ShortcutButton = () => {
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const t = useTranslations('home');
-    const { data: user, isLoading } = useCurrent();
+    const { currentUser: user, isLoadingUser: isLoading } = useAppContext();
     const { mutate: deleteShortcut, isPending: isDeleting } = useDeleteShortcut();
     const { isFree } = usePlanAccess();
 
