@@ -61,8 +61,6 @@ export async function mockChatTextResponse(
             await route.continue();
             return;
         }
-        const encoder = new TextEncoder();
-        const body = encoder.encode(responseText);
         await route.fulfill({
             status: 200,
             headers: {
@@ -71,7 +69,7 @@ export async function mockChatTextResponse(
                 'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
                 'X-Model-Name': opts.modelName ?? 'Groq · Kimi K2',
             },
-            body,
+            body: Buffer.from(responseText),
         });
     });
 }
@@ -90,8 +88,6 @@ export async function mockChatToolCallResponse(
             await route.continue();
             return;
         }
-        const encoder = new TextEncoder();
-        const body = encoder.encode(responseText);
         await route.fulfill({
             status: 200,
             headers: {
@@ -101,7 +97,7 @@ export async function mockChatToolCallResponse(
                 'X-Model-Name': 'Groq · Kimi K2',
                 'X-Function-Called': functionCalled,
             },
-            body,
+            body: Buffer.from(responseText),
         });
     });
 }
