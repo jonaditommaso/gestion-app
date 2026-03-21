@@ -27,6 +27,7 @@ export const createTaskSchema = zod.object({
     archivedBy: zod.string().optional().nullable(),
     archivedAt: zod.coerce.date().optional().nullable(),
     duplicatedFromId: zod.string().optional().nullable(),
+    linkedTaskId: zod.string().optional().nullable(), // ID of the task this task originated from
 })
 
 export const getTaskSchema = zod.object({

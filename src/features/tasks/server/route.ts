@@ -480,7 +480,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId, duplicatedFromId } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId, duplicatedFromId, linkedTaskId } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -541,6 +541,7 @@ const app = new Hono()
                     featured: featured || false,
                     metadata: metadata || null,
                     parentId: parentId || null,
+                    ...(linkedTaskId ? { linkedTaskId } : {}),
                 }
             )
 

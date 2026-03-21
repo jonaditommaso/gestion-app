@@ -14,12 +14,17 @@ export enum TaskShareType {
     EXTERNAL = 'EXTERNAL'
 };
 
+export type SpikeFinding = {
+    id: string;
+    content: string; // HTML rich text
+    createdAt: string; // ISO timestamp
+};
+
 export type TaskMetadata = {
     imageIds?: string[];
-    // Aquí podemos agregar más campos en el futuro:
-    // attachments?: string[];
-    // mentions?: string[];
-    // tags?: string[];
+    spikeFindings?: SpikeFinding[]; // timeline of findings from spike investigation
+    spikeConclusion?: string; // HTML rich text - conclusion from spike investigation
+    spikeConclusionType?: 'adopt' | 'reject' | 'investigate'; // outcome type of the spike
 }
 
 export type WorkspaceMember = Models.Document & {
@@ -53,6 +58,7 @@ export type Task = Models.Document & {
     archived?: boolean, // Whether the task is archived
     archivedBy?: string, // ID of the member who archived the task
     archivedAt?: string, // Date when task was archived
+    linkedTaskId?: string, // ID of the task this task originated from (e.g., spike that led to this task)
 }
 
 export type TaskShare = Models.Document & {

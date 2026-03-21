@@ -242,6 +242,7 @@ export async function handleCreateTask(ctx: ActionContext): Promise<ActionResult
             priority: args.priority ?? 3,
             dueDate: args.dueDate || null,
             description: args.description || null,
+            ...(args.type ? { type: args.type } : {}),
         };
 
         const response = await fetch(`${ctx.baseUrl}/api/tasks`, {

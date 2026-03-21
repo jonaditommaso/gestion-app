@@ -33,6 +33,7 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType, WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
 import { EpicSubtasks } from "./epic-subtasks";
+import { SpikePanel } from "./SpikePanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
@@ -535,7 +536,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                     )}
                 </div>
 
-                {/* Checklist section or Epic Subtasks */}
+                {/* Checklist section, Epic Subtasks, or Spike Panel */}
                 {displayTask.type === 'epic' ? (
                     <EpicSubtasks
                         epic={displayTask}
@@ -543,6 +544,8 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         availableMembers={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
                         hideProgressBar={config.hideEpicProgressBar}
                     />
+                ) : displayTask.type === 'spike' ? (
+                    <SpikePanel task={displayTask} readOnly={readOnly} />
                 ) : (
                     <Checklist
                         taskId={displayTask.$id}

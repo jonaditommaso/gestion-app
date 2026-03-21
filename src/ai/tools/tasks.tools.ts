@@ -15,6 +15,7 @@ export interface CreateTaskArgs {
     priority?: number;
     dueDate?: string;
     description?: string;
+    type?: 'epic' | 'bug' | 'task' | 'test' | 'urgent' | 'spike';
 }
 
 export interface DeleteTaskArgs {
@@ -82,6 +83,7 @@ export interface QueryTasksArgs {
     includeArchived?: boolean;
     search?: string;
     limit?: number;
+    type?: 'epic' | 'bug' | 'task' | 'test' | 'urgent' | 'spike';
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -120,6 +122,11 @@ export const CREATE_TASK_TOOL = {
                 description: {
                     type: "string",
                     description: "Descripción de la tarea. Opcional."
+                },
+                type: {
+                    type: "string",
+                    description: "Tipo de tarea. Por defecto 'task'.",
+                    enum: ["epic", "bug", "task", "test", "urgent", "spike"]
                 }
             },
             required: ["name"]
@@ -420,6 +427,11 @@ export const QUERY_TASKS_TOOL = {
                 limit: {
                     type: "number",
                     description: "Cantidad máxima de resultados a mostrar (1-100). Por defecto 20."
+                },
+                type: {
+                    type: "string",
+                    description: "Filtrar por tipo de tarea.",
+                    enum: ["epic", "bug", "task", "test", "urgent", "spike"]
                 }
             }
         }
