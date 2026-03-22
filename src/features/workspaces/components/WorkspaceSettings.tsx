@@ -41,7 +41,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const { allStatuses } = useCustomStatuses();
 
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
-    const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | null>(null); // Track which config key is currently being updated
+    const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | 'urgentWarnings' | null>(null); // Track which config key is currently being updated
     const [isArchivedTasksModalOpen, setIsArchivedTasksModalOpen] = useState(false);
 
     const { hasPermission } = useCurrentUserPermissions();
@@ -166,8 +166,16 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
         return limits;
     });
 
+    // Local state for urgent warning thresholds
+    const [urgentWarning1, setUrgentWarning1] = useState<number>(
+        (currentConfig[WorkspaceConfigKey.URGENT_WARNING_1_DAYS] as number) ?? 1
+    );
+    const [urgentWarning2, setUrgentWarning2] = useState<number>(
+        (currentConfig[WorkspaceConfigKey.URGENT_WARNING_2_DAYS] as number) ?? 2
+    );
+
     // Helper to check if a specific config is pending
-    const isConfigPending = (key: WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive') => {
+    const isConfigPending = (key: WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | 'urgentWarnings') => {
         return isPending && pendingConfigKey === key;
     };
 
@@ -212,6 +220,23 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                     setPendingConfigKey(null);
                 }
             }
+        );
+    };
+
+    // Save urgent warning thresholds
+    const saveUrgentWarnings = () => {
+        const customConfig = getCustomConfig();
+        const w1 = Math.max(1, urgentWarning1);
+        const w2 = Math.max(w1 + 1, urgentWarning2);
+
+        customConfig[WorkspaceConfigKey.URGENT_WARNING_1_DAYS] = w1;
+        customConfig[WorkspaceConfigKey.URGENT_WARNING_2_DAYS] = w2;
+
+        const metadata = JSON.stringify(customConfig);
+        setPendingConfigKey('urgentWarnings');
+        updateWorkspace(
+            { json: { metadata }, param: { workspaceId: workspace.$id } },
+            { onSettled: () => setPendingConfigKey(null) }
         );
     };
 
@@ -731,6 +756,72 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             disabled={isPending}
                         />
                     </div> */}
+
+                    <Separator />
+
+                    {/* Urgent visual alerts */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5 flex-1">
+                                <Label>{t('urgent-visual-alerts')}</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    {t('urgent-visual-alerts-description')}
+                                </p>
+                            </div>
+                            <Switch
+                                checked={displayConfig[WorkspaceConfigKey.URGENT_VISUAL_ALERTS] as boolean}
+                                onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.URGENT_VISUAL_ALERTS, checked)}
+                                disabled={isConfigPending(WorkspaceConfigKey.URGENT_VISUAL_ALERTS) || !canWrite}
+                            />
+                        </div>
+                        {displayConfig[WorkspaceConfigKey.URGENT_VISUAL_ALERTS] && (
+                            <div className="flex flex-col items-start justify-between gap-6 pl-4 border-l-2">
+                                <p className="text-sm text-muted-foreground flex-1">
+                                    {t('urgent-warning-thresholds-description')}
+                                </p>
+                                <div className="space-y-3 shrink-0">
+                                    <div className="space-y-1.5 flex items-center gap-2">
+                                        <Label className="text-sm min-w-32">{t('urgent-warning-1-days')}</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                type="number"
+                                                min={1}
+                                                max={29}
+                                                value={urgentWarning1}
+                                                onChange={(e) => setUrgentWarning1(Math.max(1, Number(e.target.value)))}
+                                                className="w-20"
+                                                disabled={isConfigPending('urgentWarnings') || !canWrite}
+                                            />
+                                            <span className="text-sm text-muted-foreground">{t('days')}</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5 flex items-center gap-2">
+                                        <Label className="text-sm min-w-32">{t('urgent-warning-2-days')}</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                type="number"
+                                                min={urgentWarning1 + 1}
+                                                max={30}
+                                                value={urgentWarning2}
+                                                onChange={(e) => setUrgentWarning2(Math.max(urgentWarning1 + 1, Number(e.target.value)))}
+                                                className="w-20"
+                                                disabled={isConfigPending('urgentWarnings') || !canWrite}
+                                            />
+                                            <span className="text-sm text-muted-foreground">{t('days')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={saveUrgentWarnings}
+                                    disabled={isConfigPending('urgentWarnings') || !canWrite}
+                                >
+                                    {t('save')}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
 
                     <Separator />
 

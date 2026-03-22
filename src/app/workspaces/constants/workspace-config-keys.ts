@@ -35,6 +35,11 @@ export enum WorkspaceConfigKey {
     LABEL_IN_REVIEW = 'labelInReview',
     LABEL_DONE = 'labelDone',
 
+    // Urgent Visual Alerts
+    URGENT_VISUAL_ALERTS = 'urgentVisualAlerts',
+    URGENT_WARNING_1_DAYS = 'urgentWarning1Days',
+    URGENT_WARNING_2_DAYS = 'urgentWarning2Days',
+
     // Task Preferences
     REQUIRED_ASSIGNEE = 'requiredAssignee',
     REQUIRED_DUE_DATE = 'requiredDueDate',
@@ -125,6 +130,11 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.LABEL_IN_PROGRESS]: null,
     [WorkspaceConfigKey.LABEL_IN_REVIEW]: null,
     [WorkspaceConfigKey.LABEL_DONE]: null,
+
+    // Urgent visual alerts
+    [WorkspaceConfigKey.URGENT_VISUAL_ALERTS]: true,
+    [WorkspaceConfigKey.URGENT_WARNING_1_DAYS]: 1,
+    [WorkspaceConfigKey.URGENT_WARNING_2_DAYS]: 2,
 
     // Task preferences
     [WorkspaceConfigKey.REQUIRED_ASSIGNEE]: false,

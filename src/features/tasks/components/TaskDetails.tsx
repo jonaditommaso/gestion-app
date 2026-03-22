@@ -34,6 +34,7 @@ import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType, WorkspaceCo
 import { Checklist } from "@/features/checklist";
 import { EpicSubtasks } from "./epic-subtasks";
 import { SpikePanel } from "./SpikePanel";
+import { UrgentPanel } from "./UrgentPanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
@@ -546,6 +547,8 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                     />
                 ) : displayTask.type === 'spike' ? (
                     <SpikePanel task={displayTask} readOnly={readOnly} />
+                ) : displayTask.type === 'urgent' ? (
+                    <UrgentPanel task={displayTask} />
                 ) : (
                     <Checklist
                         taskId={displayTask.$id}
