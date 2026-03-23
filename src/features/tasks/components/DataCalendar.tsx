@@ -9,6 +9,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/date-calendar.css'
 import EventCard from "./EventCard";
 import CustomToolbar from "./CustomToolbar";
+import TaskDetailsModal from "./TaskDetailsModal";
 
 interface DataCalendarProps {
     data: Task[]
@@ -36,6 +37,7 @@ const localizer = dateFnsLocalizer({
 
 const DataCalendar = ({ data }: DataCalendarProps) => {
     const [value, setValue] = useState(data.length > 0 ? new Date(data[0].dueDate) : new Date())
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const locale = useLocale() as keyof typeof localeMap;
     const dateLocale = localeMap[locale] || enUS;
 
@@ -48,6 +50,8 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
         id: task.$id,
         featured: task.featured,
         label: task.label,
+        type: task.type,
+        priority: task.priority,
     }))
 
     const handleNavigate = (action: 'PREV' | 'NEXT' | 'TODAY') => {
@@ -61,34 +65,46 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
     }
 
     return (
-        <Calendar
-            localizer={localizer}
-            events={events}
-            views={['month']}
-            defaultView="month"
-            date={value}
-            toolbar
-            showAllEvents
-            className="h-full bg-background p-4 rounded-lg"
-            culture={locale}
-            max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
-            formats={{
-                weekdayFormat: (date, culture, localizer) => localizer?.format(date, 'EEEE', culture) ?? '',
-            }}
-            components={{
-                eventWrapper: ({ event }) => (
-                    <EventCard
-                        title={event.title}
-                        assignees={event.assignees}
-                        status={event.status}
-                        id={event.id}
-                        featured={event.featured}
-                        label={event.label}
-                    />
-                ),
-                toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} locale={dateLocale} />
-            }}
-        />
+        <>
+            <Calendar
+                localizer={localizer}
+                events={events}
+                views={['month']}
+                defaultView="month"
+                date={value}
+                toolbar
+                showAllEvents
+                className="h-full bg-background p-4 rounded-lg"
+                culture={locale}
+                max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
+                formats={{
+                    weekdayFormat: (date, culture, localizer) => localizer?.format(date, 'EEEE', culture) ?? '',
+                }}
+                components={{
+                    eventWrapper: ({ event }) => (
+                        <EventCard
+                            title={event.title}
+                            assignees={event.assignees}
+                            status={event.status}
+                            id={event.id}
+                            featured={event.featured}
+                            label={event.label}
+                            type={event.type}
+                            priority={event.priority}
+                            onOpenTask={setSelectedTaskId}
+                        />
+                    ),
+                    toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} locale={dateLocale} />
+                }}
+            />
+            {selectedTaskId && (
+                <TaskDetailsModal
+                    taskId={selectedTaskId}
+                    isOpen={!!selectedTaskId}
+                    onClose={() => setSelectedTaskId(null)}
+                />
+            )}
+        </>
     );
 }
 
