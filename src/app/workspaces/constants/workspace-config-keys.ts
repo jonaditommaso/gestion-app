@@ -53,6 +53,10 @@ export enum WorkspaceConfigKey {
     HIDE_EPIC_PROGRESS_BAR = 'hideEpicProgressBar',
     TABLE_PAGE_SIZE = 'tablePageSize',
 
+    // Calendar
+    CALENDAR_VIEW = 'calendarView',
+    CALENDAR_DATE_MODE = 'calendarDateMode',
+
     // Notifications
     NOTIFY_TASK_ASSIGNMENT = 'notifyTaskAssignment',
     NOTIFY_DUE_DATE_REMINDER = 'notifyDueDateReminder',
@@ -85,6 +89,22 @@ export enum ColumnLimitType {
 export enum DateFormatType {
     SHORT = 'short',
     LONG = 'long',
+}
+
+/**
+ * Calendar view types
+ */
+export enum CalendarViewType {
+    MONTH = 'month',
+    WEEK = 'week',
+}
+
+/**
+ * Calendar date mode types
+ */
+export enum CalendarDateModeType {
+    DUE_DATE = 'dueDate',
+    CREATED_AT = 'createdAt',
 }
 
 /**
@@ -148,6 +168,10 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.MULTI_SELECT_LABELS]: false, // single select by default
     [WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]: false, // show progress bar by default
     [WorkspaceConfigKey.TABLE_PAGE_SIZE]: 10, // 10 items per page by default
+
+    // Calendar defaults
+    [WorkspaceConfigKey.CALENDAR_VIEW]: CalendarViewType.MONTH,
+    [WorkspaceConfigKey.CALENDAR_DATE_MODE]: CalendarDateModeType.CREATED_AT,
 
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,
