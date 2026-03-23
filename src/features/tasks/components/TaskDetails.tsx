@@ -36,6 +36,7 @@ import { EpicSubtasks } from "./epic-subtasks";
 import { SpikePanel } from "./SpikePanel";
 import { UrgentPanel } from "./UrgentPanel";
 import { TestPanel } from "./TestPanel";
+import { BugPanel } from "./BugPanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
@@ -552,6 +553,8 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                     <UrgentPanel task={displayTask} />
                 ) : displayTask.type === 'test' ? (
                     <TestPanel task={displayTask} readOnly={readOnly} />
+                ) : displayTask.type === 'bug' ? (
+                    <BugPanel task={displayTask} readOnly={readOnly} />
                 ) : (
                     <Checklist
                         taskId={displayTask.$id}

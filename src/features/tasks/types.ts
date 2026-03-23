@@ -42,6 +42,9 @@ export type TaskMetadata = {
     spikeConclusionType?: 'adopt' | 'reject' | 'investigate'; // outcome type of the spike
     testScenarios?: TestScenario[]; // suites of test cases for test type tasks
     isTdd?: boolean; // whether this test was written before (TDD) or after development
+    bugExpected?: string; // HTML rich text - expected behavior
+    bugActual?: string; // HTML rich text - actual/current behavior
+    bugRootCause?: string; // plain text - root cause explanation after resolution
 }
 
 export type WorkspaceMember = Models.Document & {
