@@ -20,11 +20,28 @@ export type SpikeFinding = {
     createdAt: string; // ISO timestamp
 };
 
+export type TestCaseStatus = 'pending' | 'pass' | 'fail';
+
+export type TestCase = {
+    id: string;
+    name: string;
+    status: TestCaseStatus;
+};
+
+export type TestScenario = {
+    id: string;
+    name: string;
+    cases: TestCase[];
+    collapsed?: boolean;
+};
+
 export type TaskMetadata = {
     imageIds?: string[];
     spikeFindings?: SpikeFinding[]; // timeline of findings from spike investigation
     spikeConclusion?: string; // HTML rich text - conclusion from spike investigation
     spikeConclusionType?: 'adopt' | 'reject' | 'investigate'; // outcome type of the spike
+    testScenarios?: TestScenario[]; // suites of test cases for test type tasks
+    isTdd?: boolean; // whether this test was written before (TDD) or after development
 }
 
 export type WorkspaceMember = Models.Document & {
