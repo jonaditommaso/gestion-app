@@ -20,6 +20,7 @@ import {
     XCircleIcon,
 } from "lucide-react";
 import { useGetTask } from "../api/use-get-task";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface BugPanelProps {
     task: Task;
@@ -30,6 +31,7 @@ const PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-dis
 
 export const BugPanel = ({ task, readOnly = false }: BugPanelProps) => {
     const t = useTranslations('workspaces');
+    const { isFree } = usePlanAccess();
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: createTaskAsync, isPending: isCreating } = useCreateTask();
 
@@ -294,7 +296,7 @@ export const BugPanel = ({ task, readOnly = false }: BugPanelProps) => {
                             </button>
                         )}
                     </div>
-                ) : !readOnly ? (
+                ) : !readOnly && !isFree ? (
                     <Button
                         size="sm"
                         variant="outline"

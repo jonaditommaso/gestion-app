@@ -59,7 +59,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const config = useWorkspaceConfig();
     const { canEditLabel } = useWorkspacePermissions();
     const { isFree } = usePlanAccess();
-    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((type) => type.value !== 'epic') : TASK_TYPE_OPTIONS;
+    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((type) => type.value !== 'epic' && type.value !== 'spike' && type.value !== 'test') : TASK_TYPE_OPTIONS;
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;

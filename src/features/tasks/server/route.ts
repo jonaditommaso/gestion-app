@@ -492,7 +492,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            if (type === 'epic') {
+            if (type === 'epic' || type === 'spike' || type === 'test') {
                 const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
                 if (orgContext?.org?.plan === 'FREE') {
                     return ctx.json({ error: 'Plan limit reached' }, 403);
@@ -732,6 +732,18 @@ const app = new Hono()
 
             if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            // Check plan limits when changing to a restricted type
+            if (
+                updates.type !== undefined &&
+                updates.type !== existingTask.type &&
+                (updates.type === 'epic' || updates.type === 'spike' || updates.type === 'test')
+            ) {
+                const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                if (orgContext?.org?.plan === 'FREE') {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
             }
 
             // Si se está actualizando metadata, eliminar imágenes que ya no están presentes

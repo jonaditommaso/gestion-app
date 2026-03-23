@@ -77,7 +77,7 @@ export const TaskTitleEditor = ({
     const currentType = initialType || 'task';
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === currentType)!;
     const TypeIcon = typeOption.icon;
-    const typeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic') : TASK_TYPE_OPTIONS;
+    const typeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS;
 
     const handleSave = () => {
         if (readOnly) return;

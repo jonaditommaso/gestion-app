@@ -35,7 +35,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
     const { data: members, isLoading } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const t = useTranslations('workspaces');
     const { isFree } = usePlanAccess();
-    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic') : TASK_TYPE_OPTIONS;
+    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS;
     const config = useWorkspaceConfig();
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const { customLabels, getLabelColor } = useCustomLabels();

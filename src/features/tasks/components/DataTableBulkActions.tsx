@@ -50,7 +50,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
   const canWrite = hasPermission(PERMISSIONS.WRITE)
   const canDelete = hasPermission(PERMISSIONS.DELETE)
   const { isFree } = usePlanAccess()
-  const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic') : TASK_TYPE_OPTIONS
+  const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS
   const [DeleteDialog, confirmDelete] = useConfirm(
     t('delete-tasks'),
     t('delete-tasks-confirm', { count: selectedCount }),
