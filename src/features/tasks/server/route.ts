@@ -971,6 +971,143 @@ const app = new Hono()
                 );
             }
 
+            // Linked task change
+            if (updates.linkedTaskId !== undefined && updates.linkedTaskId !== existingTask.linkedTaskId) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.LINKED_TASK_UPDATED,
+                        payload: {
+                            subAction: updates.linkedTaskId ? 'linked' : 'unlinked',
+                            ...(updates.linkedTaskId ? { linkedTaskId: updates.linkedTaskId } : {}),
+                        }
+                    })
+                );
+            }
+
+            // Metadata field changes (bug, spike, test panels)
+            if (updates.metadata !== undefined) {
+                const oldMeta = parseTaskMetadata(existingTask.metadata);
+                const newMeta = parseTaskMetadata(updates.metadata);
+
+                // Bug panel fields
+                if (oldMeta.bugExpected !== newMeta.bugExpected) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.BUG_UPDATED,
+                        payload: { subAction: newMeta.bugExpected ? 'expected_set' : 'expected_cleared' }
+                    }));
+                }
+                if (oldMeta.bugActual !== newMeta.bugActual) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.BUG_UPDATED,
+                        payload: { subAction: newMeta.bugActual ? 'actual_set' : 'actual_cleared' }
+                    }));
+                }
+                if (oldMeta.bugRootCause !== newMeta.bugRootCause) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.BUG_UPDATED,
+                        payload: { subAction: newMeta.bugRootCause ? 'root_cause_set' : 'root_cause_cleared' }
+                    }));
+                }
+
+                // Spike panel fields
+                const oldFindings = oldMeta.spikeFindings || [];
+                const newFindings = newMeta.spikeFindings || [];
+                if (newFindings.length > oldFindings.length) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: 'finding_added' }
+                    }));
+                } else if (newFindings.length < oldFindings.length) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: 'finding_removed' }
+                    }));
+                }
+                if (oldMeta.spikeConclusion !== newMeta.spikeConclusion) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: newMeta.spikeConclusion ? 'conclusion_set' : 'conclusion_cleared' }
+                    }));
+                }
+                if (oldMeta.spikeConclusionType !== newMeta.spikeConclusionType && newMeta.spikeConclusionType !== undefined) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: 'conclusion_type_changed', value: newMeta.spikeConclusionType }
+                    }));
+                }
+
+                // Test panel fields — TDD mode
+                if (oldMeta.isTdd !== newMeta.isTdd && newMeta.isTdd !== undefined) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.TEST_UPDATED,
+                        payload: { subAction: 'tdd_mode_changed', to: newMeta.isTdd ? 'tdd' : 'post-fix' }
+                    }));
+                }
+
+                // Test panel fields — suites and cases
+                const oldScenarios = oldMeta.testScenarios || [];
+                const newScenarios = newMeta.testScenarios || [];
+
+                for (const newSuite of newScenarios) {
+                    const oldSuite = oldScenarios.find(s => s.id === newSuite.id);
+                    if (!oldSuite) {
+                        activityLogPromises.push(createActivityLog({
+                            databases, taskId, actorMemberId: member.$id,
+                            action: ActivityAction.TEST_UPDATED,
+                            payload: { subAction: 'suite_added', suiteName: newSuite.name }
+                        }));
+                    } else {
+                        const oldCases = oldSuite.cases || [];
+                        const newCases = newSuite.cases || [];
+                        for (const newCase of newCases) {
+                            const oldCase = oldCases.find(c => c.id === newCase.id);
+                            if (!oldCase) {
+                                activityLogPromises.push(createActivityLog({
+                                    databases, taskId, actorMemberId: member.$id,
+                                    action: ActivityAction.TEST_UPDATED,
+                                    payload: { subAction: 'case_added', suiteName: newSuite.name, caseName: newCase.name }
+                                }));
+                            } else if (oldCase.status !== newCase.status) {
+                                activityLogPromises.push(createActivityLog({
+                                    databases, taskId, actorMemberId: member.$id,
+                                    action: ActivityAction.TEST_UPDATED,
+                                    payload: { subAction: 'case_status_changed', suiteName: newSuite.name, caseName: newCase.name, from: oldCase.status, to: newCase.status }
+                                }));
+                            }
+                        }
+                        for (const oldCase of oldCases) {
+                            if (!newCases.find(c => c.id === oldCase.id)) {
+                                activityLogPromises.push(createActivityLog({
+                                    databases, taskId, actorMemberId: member.$id,
+                                    action: ActivityAction.TEST_UPDATED,
+                                    payload: { subAction: 'case_removed', suiteName: newSuite.name, caseName: oldCase.name }
+                                }));
+                            }
+                        }
+                    }
+                }
+                for (const oldSuite of oldScenarios) {
+                    if (!newScenarios.find(s => s.id === oldSuite.id)) {
+                        activityLogPromises.push(createActivityLog({
+                            databases, taskId, actorMemberId: member.$id,
+                            action: ActivityAction.TEST_UPDATED,
+                            payload: { subAction: 'suite_removed', suiteName: oldSuite.name }
+                        }));
+                    }
+                }
+            }
+
             // Execute all activity log creations in parallel (non-blocking)
             Promise.all(activityLogPromises).catch(err => {
                 console.error('Error creating activity logs:', err);
