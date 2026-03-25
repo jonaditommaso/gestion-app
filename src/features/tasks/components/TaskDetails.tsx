@@ -1,5 +1,5 @@
 'use client'
-import { Task, TaskStatus, TaskComment } from "../types";
+import { Task, TaskStatus, TaskComment, TaskSquad } from "../types";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
@@ -23,7 +23,9 @@ import { checkEmptyContent } from "@/utils/checkEmptyContent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
 import { TaskAssigneesManager } from "./TaskAssigneesManager";
+import { TaskSquadsManager } from "./TaskSquadsManager";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { useGetSquads } from "../api/squads";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
@@ -181,6 +183,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const router = useRouter();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
+    const { data: squadsData } = useGetSquads({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
     const { isFree } = usePlanAccess();
 
@@ -253,6 +256,29 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const comments = (commentsData?.documents || []) as TaskComment[];
 
     const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
+    const availableSquads = squadsData?.documents ?? [];
+
+    // IDs de members que ya están cubiertos por algún squad asignado a esta task
+    const squadMemberIds = useMemo(() => {
+        const assignedSquads = (displayTask.squads || []) as TaskSquad[];
+        const ids = new Set<string>();
+        assignedSquads.forEach(squad => {
+            (squad.members || []).forEach(m => ids.add(m.$id));
+        });
+        return ids;
+    }, [displayTask.squads]);
+
+    // Assignees visibles: excluir los que ya aparecen en algún squad asignado
+    const visibleAssignees = useMemo(
+        () => (displayTask.assignees || []).filter(a => !squadMemberIds.has(a.$id)),
+        [displayTask.assignees, squadMemberIds]
+    );
+
+    // Members disponibles para asignar individualmente: excluir los del squad
+    const availableMembersFiltered = useMemo(
+        () => (availableMembers || []).filter(m => !squadMemberIds.has(m.$id)),
+        [availableMembers, squadMemberIds]
+    );
 
     // Obtener el valor efectivo del status para el selector
     const effectiveStatusValue = displayTask.status === TaskStatus.CUSTOM && displayTask.statusCustomId
@@ -993,8 +1019,21 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         </span>
                         <TaskAssigneesManager
                             taskId={displayTask.$id}
-                            assignees={displayTask.assignees || []}
-                            availableMembers={availableMembers}
+                            assignees={visibleAssignees}
+                            availableMembers={availableMembersFiltered}
+                            readOnly={readOnly}
+                        />
+                    </div>
+
+                    {/* Squads */}
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-24">
+                            {t('squads')}
+                        </span>
+                        <TaskSquadsManager
+                            taskId={displayTask.$id}
+                            squads={displayTask.squads || []}
+                            availableSquads={availableSquads}
                             readOnly={readOnly}
                         />
                     </div>

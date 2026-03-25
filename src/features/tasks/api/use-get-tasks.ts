@@ -5,15 +5,16 @@ import { TaskStatus } from "../types";
 interface UseGetTasksProps {
     workspaceId?: string,
     status?: TaskStatus | null,
-    statusCustomId?: string | null, // Para filtrar por custom status específico
+    statusCustomId?: string | null,
     assigneeId?: string | null,
+    squadId?: string | null,
     dueDate?: string | null,
     search?: string | null,
     priority?: number | null,
     label?: string[] | null,
     type?: string | null,
     completed?: string | null,
-    limit?: number | null, // Límite de resultados
+    limit?: number | null,
     enabled?: boolean
 }
 
@@ -22,6 +23,7 @@ export const useGetTasks = ({
     status,
     statusCustomId,
     assigneeId,
+    squadId,
     dueDate,
     search,
     priority,
@@ -38,6 +40,7 @@ export const useGetTasks = ({
             status,
             statusCustomId,
             assigneeId,
+            squadId,
             dueDate,
             search,
             priority,
@@ -54,6 +57,7 @@ export const useGetTasks = ({
                         status: status ?? undefined,
                         statusCustomId: statusCustomId ?? undefined,
                         assigneeId: assigneeId ?? undefined,
+                        squadId: squadId ?? undefined,
                         dueDate: dueDate ?? undefined,
                         search: search ?? undefined,
                         priority: priority ? String(priority) : undefined,

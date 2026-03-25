@@ -1,4 +1,4 @@
-import { Palette,  Info, Settings2, UserPlus, LucideIcon } from "lucide-react"; //Download, Share2, Copy,
+import { Palette, Info, Settings2, UserPlus, Users, LucideIcon } from "lucide-react"; //Download, Share2, Copy,
 
 export interface WorkspaceOption {
     icon: LucideIcon;
@@ -13,6 +13,10 @@ export const workspaceOptions: WorkspaceOption[] = [
     {
         icon: UserPlus,
         key: 'add-member'
+    },
+    {
+        icon: Users,
+        key: 'manage-squads'
     },
     // {
     //     icon: Share2,

@@ -11,7 +11,7 @@ import { useCreateNotification } from "@/features/notifications/api/use-create-n
 import { useAppContext } from "@/context/AppContext";
 import { NotificationEntityType, NotificationType } from "@/features/notifications/types";
 
-type UpgradeFeature = 'members' | 'pipelines' | 'workspaces';
+type UpgradeFeature = 'members' | 'pipelines' | 'workspaces' | 'squads';
 
 interface UpgradeDialogProps {
     open: boolean;
@@ -25,12 +25,14 @@ const FEATURE_IMAGES: Record<UpgradeFeature, string> = {
     members: '/team.svg',
     pipelines: '/pipeline.svg',
     workspaces: '/workspace.svg',
+    squads: '/group-solution.svg',
 };
 
 const FEATURE_IMAGE_SIZES: Record<UpgradeFeature, { width: number; height: number }> = {
     members: { width: 400, height: 400 },
     pipelines: { width: 250, height: 250 },
     workspaces: { width: 250, height: 250 },
+    squads: { width: 250, height: 250 },
 };
 
 const UpgradeDialog = ({ open, onOpenChange, feature, currentCount, limitCount }: UpgradeDialogProps) => {
@@ -63,6 +65,13 @@ const UpgradeDialog = ({ open, onOpenChange, feature, currentCount, limitCount }
             ctaDescription: t('upgrade-dialog-workspaces-cta-description'),
             resource: t('upgrade-dialog-workspaces-resource'),
             notifyOwnerTitle: t('upgrade-dialog-notify-owner-workspaces', { name: currentUser?.name ?? '' }),
+        },
+        squads: {
+            title: t('upgrade-dialog-squads-title'),
+            description: t('upgrade-dialog-squads-description', { limit: limitCount ?? 0 }),
+            ctaDescription: t('upgrade-dialog-squads-cta-description'),
+            resource: t('upgrade-dialog-squads-resource'),
+            notifyOwnerTitle: t('upgrade-dialog-notify-owner-squads', { name: currentUser?.name ?? '' }),
         },
     };
 

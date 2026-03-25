@@ -3,10 +3,13 @@ import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, X, ChevronsUpDown, CircleDotIcon, CheckCircle2Icon, CircleIcon, Check } from "lucide-react";
+import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, X, ChevronsUpDown, CircleDotIcon, CheckCircle2Icon, CircleIcon, Check, Users } from "lucide-react";
 import { TaskStatus } from "../types";
 import { TASK_TYPE_OPTIONS } from '../constants/type'
 import { useTaskFilters } from "../hooks/use-task-filters";
+import { useGetSquads } from "../api/squads";
+import { SQUAD_ICONS } from "./squads/CreateSquadFlow";
+import { TaskSquad } from "../types";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { useTranslations } from "next-intl";
@@ -33,6 +36,7 @@ interface DataFiltersProps {
 const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearchChange }: DataFiltersProps) => {
     const workspaceId = useWorkspaceId();
     const { data: members, isLoading } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
+    const { data: squadsData } = useGetSquads({ workspaceId, enabled: workspaceId !== 'create' });
     const t = useTranslations('workspaces');
     const { isFree } = usePlanAccess();
     const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS;
@@ -50,6 +54,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
     const [{
         status,
         assigneeId,
+        squadId,
         dueDate,
         priority,
         label,
@@ -58,12 +63,13 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
     }, setFilters] = useTaskFilters();
 
     // Check if any filter is active
-    const hasActiveFilters = status || assigneeId || dueDate || priority || (label && label.length > 0) || type || completed;
+    const hasActiveFilters = status || assigneeId || squadId || dueDate || priority || (label && label.length > 0) || type || completed;
 
     const clearAllFilters = () => {
         setFilters({
             status: null,
             assigneeId: null,
+            squadId: null,
             dueDate: null,
             priority: null,
             label: null,
@@ -82,6 +88,10 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
 
     const onAssigneeChange = (value: string) => {
         setFilters({ assigneeId: value === 'all' ? null : value as string })
+    }
+
+    const onSquadChange = (value: string) => {
+        setFilters({ squadId: value === 'all' ? null : value })
     }
 
     const onPriorityChange = (value: string) => {
@@ -171,6 +181,39 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                     ))}
                 </SelectContent>
             </Select>
+            {!isFree && (
+                <Select
+                    value={squadId ?? 'all'}
+                    onValueChange={(value) => onSquadChange(value)}
+                >
+                    <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
+                        <div className="flex items-center pr-2">
+                            <Users className="size-4 mr-2" />
+                            <SelectValue placeholder={t('all-squads')} />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">{t('all-squads')}</SelectItem>
+                        {(squadsData?.documents?.length ?? 0) > 0 && <SelectSeparator />}
+                        {squadsData?.documents?.map(squad => {
+                            const sq = squad as unknown as TaskSquad;
+                            const rawMeta = (() => { try { return sq.metadata ? (JSON.parse(sq.metadata) as { color?: string | null; icon?: string | null }) : null; } catch { return null; } })();
+                            const color = rawMeta?.color ?? null;
+                            const rawIcon = rawMeta?.icon ?? null;
+                            const iconDef = rawIcon ? SQUAD_ICONS.find(i => i.id === rawIcon) : null;
+                            const IconComp = iconDef?.icon;
+                            return (
+                                <SelectItem key={squad.$id} value={squad.$id}>
+                                    <div className="flex items-center gap-x-2">
+                                        {IconComp && <IconComp className="size-4" style={color ? { color } : undefined} />}
+                                        <span style={color ? { color } : undefined}>{squad.name}</span>
+                                    </div>
+                                </SelectItem>
+                            );
+                        })}
+                    </SelectContent>
+                </Select>
+            )}
             <Select
                 value={priority?.toString() ?? 'all'}
                 onValueChange={(value) => onPriorityChange(value)}

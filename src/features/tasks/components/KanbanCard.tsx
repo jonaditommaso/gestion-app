@@ -1,6 +1,7 @@
 import { MoreHorizontalIcon, TextIcon, Clock, ListChecks, CircleCheckBig, Layers } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
+import { SQUAD_ICONS } from "./squads/CreateSquadFlow";
 import { Separator } from "@/components/ui/separator";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import TaskDate from "./TaskDate";
@@ -214,6 +215,27 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                                 {task.label}
                             </span>
                         ) : null}
+                    </div>
+                )}
+                {task.squads && task.squads.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                        {task.squads.map(squad => {
+                            const rawMeta = (() => { try { return squad.metadata ? (JSON.parse(squad.metadata) as { color?: string | null; icon?: string | null }) : null; } catch { return null; } })();
+                            const color = rawMeta?.color ?? null;
+                            const rawIcon = rawMeta?.icon ?? null;
+                            const iconDef = rawIcon ? SQUAD_ICONS.find(i => i.id === rawIcon) : null;
+                            const IconComp = iconDef?.icon;
+                            return (
+                                <span
+                                    key={squad.$id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md bg-secondary text-secondary-foreground"
+                                    style={color ? { backgroundColor: `${color}22`, color, border: `1px solid ${color}44` } : undefined}
+                                >
+                                    {IconComp && <IconComp className="size-3 shrink-0" />}
+                                    {squad.name}
+                                </span>
+                            );
+                        })}
                     </div>
                 )}
             </div>

@@ -17,6 +17,7 @@ import { workspaceOptions } from "@/features/workspaces/constants/workspace-opti
 import { useTranslations } from "next-intl";
 import AddWorkspaceMembersModal from "./AddWorkspaceMembersModal";
 import WorkspaceInfoModal from "./WorkspaceInfoModal";
+import SquadsModal from "./SquadsModal";
 import { WorkspaceType } from "@/features/workspaces/types";
 import WorkspaceCustomize from "./WorkspaceCustomize";
 import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
@@ -48,6 +49,7 @@ const WorkspaceView = () => {
     const [optionsView, setOptionsView] = useState<string | null>(null);
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
+    const [showSquadsModal, setShowSquadsModal] = useState(false);
 
     const openSettings = () => {
         setOptionsView('general');
@@ -71,6 +73,8 @@ const WorkspaceView = () => {
             setShowAddMembersModal(true);
         } else if (key === 'information') {
             setShowInfoModal(true);
+        } else if (key === 'manage-squads') {
+            setShowSquadsModal(true);
         } else {
             console.log(key);
         }
@@ -162,6 +166,11 @@ const WorkspaceView = () => {
                     workspace={currentWorkspace as WorkspaceType}
                 />
             )}
+
+            <SquadsModal
+                open={showSquadsModal}
+                onOpenChange={setShowSquadsModal}
+            />
         </div>
     );
 }

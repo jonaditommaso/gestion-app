@@ -33,16 +33,30 @@ export const createTaskSchema = zod.object({
 export const getTaskSchema = zod.object({
     workspaceId: zod.string(),
     assigneeId: zod.string().nullish(),
+    squadId: zod.string().nullish(),
     status: zod.nativeEnum(TaskStatus).nullish(),
-    statusCustomId: zod.string().nullish(), // Para filtrar por custom status específico
+    statusCustomId: zod.string().nullish(),
     search: zod.string().nullish(),
     dueDate: zod.string().nullish(),
     priority: zod.coerce.number().int().min(1).max(5).nullish(),
     label: zod.string().nullish(),
     type: zod.string().nullish(),
     completed: zod.string().nullish(),
-    archived: zod.enum(['true', 'false', 'all']).nullish(), // Filtrar por estado de archivado
-    limit: zod.coerce.number().int().min(1).max(5000).nullish() // Límite de resultados
+    archived: zod.enum(['true', 'false', 'all']).nullish(),
+    limit: zod.coerce.number().int().min(1).max(5000).nullish()
+})
+
+export const createSquadSchema = zod.object({
+    name: zod.string().trim().min(1, 'Required'),
+    workspaceId: zod.string().trim().min(1, 'Required'),
+    leadMemberId: zod.string().optional().nullable(),
+    metadata: zod.string().optional().nullable(),
+})
+
+export const updateSquadSchema = zod.object({
+    name: zod.string().trim().min(1, 'Required').optional(),
+    leadMemberId: zod.string().optional().nullable(),
+    metadata: zod.string().optional().nullable(),
 })
 
 export const createTaskShareSchema = zod.object({

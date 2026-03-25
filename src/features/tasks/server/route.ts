@@ -3,9 +3,9 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASK_SQUADS_ASSIGNEES_ID, TASK_SQUADS_ID, TASK_SQUADS_MEMBERS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { Task, TaskShare, TaskShareType, TaskStatus, WorkspaceMember } from "../types";
+import { Task, TaskShare, TaskShareType, TaskStatus, TaskSquad, TaskSquadAssignee, TaskSquadMember, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Databases, Models } from "node-appwrite";
@@ -312,7 +312,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, type, completed, archived, limit } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, squadId, priority, label, type, completed, archived, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -406,8 +406,18 @@ const app = new Hono()
                     [Query.equal('workspaceMemberId', assigneeId), Query.limit(5000)]
                 );
                 const assigneeTaskIds = assigneeTasksResult.documents.map(ta => ta.taskId);
-                // Filtrar taskIds para incluir solo los que están asignados al miembro
                 taskIds = taskIds.filter(id => assigneeTaskIds.includes(id));
+            }
+
+            // Si hay filtro por squadId, obtener solo las tareas asignadas a ese squad
+            if (squadId) {
+                const squadAssigneesResult = await databases.listDocuments<TaskSquadAssignee>(
+                    DATABASE_ID,
+                    TASK_SQUADS_ASSIGNEES_ID,
+                    [Query.equal('squadId', squadId), Query.limit(5000)]
+                );
+                const squadTaskIds = squadAssigneesResult.documents.map(sa => sa.taskId);
+                taskIds = taskIds.filter(id => squadTaskIds.includes(id));
             }
 
             // Obtener todas las asignaciones de tareas
@@ -447,22 +457,51 @@ const app = new Hono()
                 }
             }
 
-            // Mapear las tareas con sus assignees
+            // Obtener squads asignados a las tareas
+            const taskSquadAssigneeDocs: TaskSquadAssignee[] = [];
+            if (taskIds.length > 0) {
+                const taskIdChunks = chunkArray(taskIds, 100);
+                for (const taskIdChunk of taskIdChunks) {
+                    const chunk = await databases.listDocuments<TaskSquadAssignee>(
+                        DATABASE_ID,
+                        TASK_SQUADS_ASSIGNEES_ID,
+                        [Query.contains('taskId', taskIdChunk), Query.limit(5000)]
+                    );
+                    taskSquadAssigneeDocs.push(...chunk.documents);
+                }
+            }
+
+            const squadIdsForTasks = [...new Set(taskSquadAssigneeDocs.map(sa => sa.squadId))];
+            let squadDocuments: TaskSquad[] = [];
+            if (squadIdsForTasks.length > 0) {
+                const squadChunks = chunkArray(squadIdsForTasks, 100);
+                for (const chunk of squadChunks) {
+                    const result = await databases.listDocuments<TaskSquad>(
+                        DATABASE_ID,
+                        TASK_SQUADS_ID,
+                        [Query.contains('$id', chunk), Query.limit(500)]
+                    );
+                    squadDocuments.push(...result.documents);
+                }
+            }
+
+            // Mapear las tareas con sus assignees y squads
             const populatedTasks = filteredTasks
-                .filter(task => taskIds.includes(task.$id)) // Filtrar por taskIds (incluye filtro de assigneeId si aplica)
+                .filter(task => taskIds.includes(task.$id))
                 .map(task => {
-                    // Encontrar todas las asignaciones para esta tarea
                     const taskAssignments = taskAssigneesDocuments.filter(ta => ta.taskId === task.$id);
+                    const assignees = taskAssignments.map(ta =>
+                        memberDocuments.find(m => m.$id === ta.workspaceMemberId)
+                    ).filter(Boolean) as WorkspaceMember[];
 
-                    // Obtener los miembros asignados a esta tarea
-                    const assignees = taskAssignments.map(ta => {
-                        return memberDocuments.find(m => m.$id === ta.workspaceMemberId);
-                    }).filter(Boolean); // Eliminar valores undefined
+                    const taskSquadIds = taskSquadAssigneeDocs
+                        .filter(sa => sa.taskId === task.$id)
+                        .map(sa => sa.squadId);
+                    const squads = taskSquadIds
+                        .map(sid => squadDocuments.find(s => s.$id === sid))
+                        .filter(Boolean) as TaskSquad[];
 
-                    return {
-                        ...task,
-                        assignees // Array de assignees en lugar de assignee único
-                    }
+                    return { ...task, assignees, squads };
                 });
 
             return ctx.json({
@@ -692,6 +731,20 @@ const app = new Hono()
                     );
                 } catch (err) {
                     console.error(`Error deleting task assignee ${assignee.$id}:`, err);
+                }
+            }
+
+            // Eliminar todos los squad assignees de la task
+            const squadAssignees = await databases.listDocuments(
+                DATABASE_ID,
+                TASK_SQUADS_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
+            );
+            for (const sa of squadAssignees.documents) {
+                try {
+                    await databases.deleteDocument(DATABASE_ID, TASK_SQUADS_ASSIGNEES_ID, sa.$id);
+                } catch (err) {
+                    console.error(`Error deleting squad assignee ${sa.$id}:`, err);
                 }
             }
 
@@ -1184,10 +1237,28 @@ const app = new Hono()
                 )
                 : { documents: [] };
 
+            // Obtener squads asignados a esta tarea (para el response del PATCH)
+            const patchSquadAssignees = await databases.listDocuments<TaskSquadAssignee>(
+                DATABASE_ID,
+                TASK_SQUADS_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId), Query.limit(100)]
+            );
+            const patchSquadIds = patchSquadAssignees.documents.map(sa => sa.squadId);
+            let patchSquads: TaskSquad[] = [];
+            if (patchSquadIds.length > 0) {
+                const patchSquadsResult = await databases.listDocuments<TaskSquad>(
+                    DATABASE_ID,
+                    TASK_SQUADS_ID,
+                    [Query.contains('$id', patchSquadIds), Query.limit(100)]
+                );
+                patchSquads = patchSquadsResult.documents;
+            }
+
             return ctx.json({
                 data: {
                     ...task,
-                    assignees: assignees.documents
+                    assignees: assignees.documents,
+                    squads: patchSquads,
                 }
             })
         }
@@ -1237,10 +1308,28 @@ const app = new Hono()
                 )
                 : { documents: [] };
 
+            // Obtener squads asignados a esta tarea
+            const taskSquadAssignees = await databases.listDocuments<TaskSquadAssignee>(
+                DATABASE_ID,
+                TASK_SQUADS_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId), Query.limit(100)]
+            );
+            const taskSquadIds = taskSquadAssignees.documents.map(sa => sa.squadId);
+            let squads: TaskSquad[] = [];
+            if (taskSquadIds.length > 0) {
+                const squadsResult = await databases.listDocuments<TaskSquad>(
+                    DATABASE_ID,
+                    TASK_SQUADS_ID,
+                    [Query.contains('$id', taskSquadIds), Query.limit(100)]
+                );
+                squads = squadsResult.documents;
+            }
+
             return ctx.json({
                 data: {
                     ...task,
-                    assignees: assignees.documents
+                    assignees: assignees.documents,
+                    squads,
                 }
             })
         }

@@ -8,6 +8,7 @@ import tasks from '@/features/tasks/server/route'
 import checklist from '@/features/tasks/server/checklist.route'
 import comments from '@/features/tasks/server/comments.route'
 import activityLogs from '@/features/tasks/server/activity-logs.route'
+import squads from '@/features/tasks/server/squads.route'
 import billing from '@/features/billing-management/server/route'
 import settings from '@/features/settings/server/route'
 import team from '@/features/team/server/route'
@@ -33,6 +34,7 @@ const routes = app
   .route('/checklist', checklist)
   .route('/comments', comments)
   .route('/activity-logs', activityLogs)
+  .route('/squads', squads)
   .route('/billing', billing)
   .route('/settings', settings)
   .route('/team', team)

@@ -74,6 +74,13 @@ const PricingComparisonTable = () => {
             enterprise: t('pricing-compare-permissions-granular'),
         },
         {
+            featureKey: 'pricing-compare-squads',
+            free: false,
+            plus: '2',
+            pro: t('pricing-compare-unlimited'),
+            enterprise: t('pricing-compare-unlimited'),
+        },
+        {
             featureKey: 'pricing-compare-exports',
             free: false,
             plus: false,

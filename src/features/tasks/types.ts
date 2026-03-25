@@ -79,6 +79,28 @@ export type Task = Models.Document & {
     archivedBy?: string, // ID of the member who archived the task
     archivedAt?: string, // Date when task was archived
     linkedTaskId?: string, // ID of the task this task originated from (e.g., spike that led to this task)
+    squads?: TaskSquad[], // Populated: squads assigned to this task
+}
+
+export type TaskSquad = Models.Document & {
+    name: string;
+    workspaceId: string;
+    createdByMemberId: string;
+    leadMemberId?: string;
+    metadata?: string | null;
+    // Populated fields
+    members?: WorkspaceMember[];
+    leadMember?: WorkspaceMember;
+}
+
+export type TaskSquadMember = Models.Document & {
+    squadId: string;
+    memberId: string;
+}
+
+export type TaskSquadAssignee = Models.Document & {
+    taskId: string;
+    squadId: string;
 }
 
 export type TaskShare = Models.Document & {

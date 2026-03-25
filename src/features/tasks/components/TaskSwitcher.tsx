@@ -40,6 +40,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const [{
         status,
         assigneeId,
+        squadId,
         dueDate,
         priority,
         label,
@@ -47,7 +48,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
         completed
     }] = useTaskFilters();
 
-    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate, priority, label, type, completed, enabled: workspaceId !== 'create' });
+    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, squadId, dueDate, priority, label, type, completed, enabled: workspaceId !== 'create' });
 
     // Filtro local por nombre
     const filteredTasks = useMemo(() => {

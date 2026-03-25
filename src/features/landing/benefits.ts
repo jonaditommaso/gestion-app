@@ -54,6 +54,10 @@ export const plusBenefits = [
         triggerText: 'pricing-plus-benefit-8-title',
         contentText: 'pricing-plus-benefit-8-description'
     },
+    {
+        triggerText: 'pricing-plus-benefit-9-title',
+        contentText: 'pricing-plus-benefit-9-description'
+    },
 ]
 
 export const proBenefits = [
@@ -92,6 +96,10 @@ export const proBenefits = [
     {
         triggerText: 'pricing-pro-benefit-9-title',
         contentText: 'pricing-pro-benefit-9-description'
+    },
+    {
+        triggerText: 'pricing-pro-benefit-10-title',
+        contentText: 'pricing-pro-benefit-10-description'
     },
 ]
 
