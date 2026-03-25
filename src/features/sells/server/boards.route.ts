@@ -21,10 +21,21 @@ interface SalesBoardDocument extends Models.Document {
     name: string;
     currencies: string; // stored as comma-separated string in Appwrite
     activeGoalId: string | null;
+    labels: string | null; // stored as JSON string in Appwrite
 }
 
 const parseCurrencies = (raw: string): string[] =>
     raw ? raw.split(',').filter(Boolean) : [];
+
+const parseLabels = (raw: string | null): { id: string; name: string; color: string }[] => {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
 
 interface SalesGoalDocument extends Models.Document {
     boardId: string;
@@ -70,6 +81,7 @@ const app = new Hono()
             currencies: parseCurrencies(doc.currencies),
             activeGoalId: doc.activeGoalId ?? null,
             createdAt: doc.$createdAt,
+            labels: parseLabels(doc.labels ?? null),
         }));
 
         return ctx.json({ data: { documents: boards, total: boards.length } });
@@ -120,6 +132,7 @@ const app = new Hono()
                     currencies: parseCurrencies(doc.currencies),
                     activeGoalId: null,
                     createdAt: doc.$createdAt,
+                    labels: [],
                 },
             });
         }
@@ -168,6 +181,7 @@ const app = new Hono()
                     currencies: parseCurrencies(doc.currencies),
                     activeGoalId: doc.activeGoalId ?? null,
                     createdAt: doc.$createdAt,
+                    labels: parseLabels(doc.labels ?? null),
                 },
             });
         }

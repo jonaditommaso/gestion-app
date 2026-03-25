@@ -2641,6 +2641,22 @@
             "updated": "Bacheca aggiornata",
             "update-error": "Errore nell'aggiornamento della bacheca"
         },
+        "labels": {
+            "dialog-title": "Etichette della bacheca",
+            "dialog-description": "Crea e gestisci etichette per categorizzare i deal di questa bacheca.",
+            "input-placeholder": "Nome etichetta...",
+            "created": "Etichetta creata",
+            "updated": "Etichetta aggiornata",
+            "deleted": "Etichetta eliminata",
+            "delete-confirm-title": "Elimina etichetta",
+            "delete-confirm-message": "Sei sicuro di voler eliminare questa etichetta?",
+            "filter-label": "Etichetta:",
+            "field-label": "Etichetta",
+            "none": "Nessuna etichetta",
+            "create-new": "Crea nuova",
+            "create-button": "Aggiungi",
+            "used-count": "etichette usate"
+        },
         "detail": {
             "next-step": "Prossimo passo",
             "next-step-short": "Pros.",

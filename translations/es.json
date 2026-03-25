@@ -2655,6 +2655,22 @@
             "updated": "Tablero actualizado",
             "update-error": "Error al actualizar el tablero"
         },
+        "labels": {
+            "dialog-title": "Etiquetas del tablero",
+            "dialog-description": "Crea y administra etiquetas para categorizar los tratos de este tablero.",
+            "input-placeholder": "Nombre de etiqueta...",
+            "created": "Etiqueta creada",
+            "updated": "Etiqueta actualizada",
+            "deleted": "Etiqueta eliminada",
+            "delete-confirm-title": "Eliminar etiqueta",
+            "delete-confirm-message": "¿Estás seguro de que deseas eliminar esta etiqueta?",
+            "filter-label": "Etiqueta:",
+            "field-label": "Etiqueta",
+            "none": "Sin etiqueta",
+            "create-new": "Crear nueva",
+            "create-button": "Agregar",
+            "used-count": "etiquetas usadas"
+        },
         "detail": {
             "next-step": "Próximo paso",
             "next-step-short": "Próx.",

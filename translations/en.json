@@ -2653,6 +2653,22 @@
             "updated": "Board updated",
             "update-error": "Error updating board"
         },
+        "labels": {
+            "dialog-title": "Board Labels",
+            "dialog-description": "Create and manage labels to categorize deals on this board.",
+            "input-placeholder": "Label name...",
+            "created": "Label created",
+            "updated": "Label updated",
+            "deleted": "Label deleted",
+            "delete-confirm-title": "Delete label",
+            "delete-confirm-message": "Are you sure you want to delete this label?",
+            "filter-label": "Label:",
+            "field-label": "Label",
+            "none": "No label",
+            "create-new": "Create new",
+            "create-button": "Add",
+            "used-count": "labels used"
+        },
         "detail": {
             "next-step": "Next step",
             "next-step-short": "Next",

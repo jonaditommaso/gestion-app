@@ -57,6 +57,7 @@ import {
   Search,
   Settings,
   Settings2,
+  Tag,
   Target,
   Trash2,
   TrendingUp,
@@ -80,8 +81,10 @@ import SalesBoardSwitcher from "./SalesBoardSwitcher";
 import CreateSalesBoardDialog from "./CreateSalesBoardDialog";
 import SalesBoardOnboarding from "./SalesBoardOnboarding";
 import BoardSettingsDialog from "./BoardSettingsDialog";
+import BoardLabelsDialog from "./BoardLabelsDialog";
 import UpgradeDialog from "@/components/UpgradeDialog";
-import type { Deal, DealCurrency, DealStage, DealOutcome, Seller, SalesBoard, SalesGoal, WorkItemPriority, ActivityEntry } from "../types";
+import { LABEL_COLORS } from "@/app/workspaces/constants/label-colors";
+import type { BoardLabel, Deal, DealCurrency, DealStage, DealOutcome, Seller, SalesBoard, SalesGoal, WorkItemPriority, ActivityEntry } from "../types";
 import { computeHealthScore } from "../utils/health";
 import { useGetSalesBoards } from "../api/use-get-sales-boards";
 import { useGetSalesGoals } from "../api/use-get-sales-goals";
@@ -91,6 +94,7 @@ import { useGetDealSellers } from "../api/use-get-deal-sellers";
 import { useCreateDeal } from "../api/use-create-deal";
 import { useDeleteDeal } from "../api/use-delete-deal";
 import { useUpdateDeal } from "../api/use-update-deal";
+import { useUpdateSalesBoard } from "../api/use-update-sales-board";
 import { useCreateDealSeller } from "../api/use-create-deal-seller";
 import { useDeleteDealSeller } from "../api/use-delete-deal-seller";
 import { useAddDealAssignee } from "../api/use-add-deal-assignee";
@@ -130,6 +134,7 @@ type ServerDealDocument = {
   outcome: string;
   nextStep: string;
   linkedDraftId: string | null;
+  labelId: string | null;
   assignees: Array<{ id: string; memberId: string; name: string; email: string; avatarId: string | null }>;
   activities: ActivityEntry[];
 };
@@ -172,6 +177,8 @@ const SalesPipelineView = () => {
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [selectedAssignee, setSelectedAssignee] = useState<string>("all");
   const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState<boolean>(false);
+  const [isBoardLabelsOpen, setIsBoardLabelsOpen] = useState<boolean>(false);
+  const [selectedLabelFilter, setSelectedLabelFilter] = useState<string | "all">("all");
   const [tableStageFilter, setTableStageFilter] = useState<DealStage[]>([...STAGE_ORDER]);
   const [tablePriorityFilter, setTablePriorityFilter] = useState<WorkItemPriority[]>([1, 2, 3]);
   const [tableOutcomeFilter, setTableOutcomeFilter] = useState<DealOutcome[]>(["PENDING", "WON", "LOST"]);
@@ -187,6 +194,7 @@ const SalesPipelineView = () => {
   const { mutate: createDealMutation } = useCreateDeal();
   const { mutate: deleteDealMutation } = useDeleteDeal();
   const { mutate: updateDealMutation } = useUpdateDeal();
+  const { mutate: updateBoardMutation } = useUpdateSalesBoard();
   const { mutate: createSellerMutation } = useCreateDealSeller();
   const { mutate: deleteSellerMutation } = useDeleteDealSeller();
   const { mutate: addAssigneeMutation } = useAddDealAssignee();
@@ -197,6 +205,7 @@ const SalesPipelineView = () => {
   const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
   const isAtBoardLimit = limits.pipelines !== -1 && boards.length >= limits.pipelines;
   const selectedBoard: SalesBoard | undefined = boards.find((b) => b.id === selectedBoardId);
+  const boardLabels: BoardLabel[] = selectedBoard?.labels ?? [];
   const goals: SalesGoal[] = (goalsData?.documents ?? []) as SalesGoal[];
   const activeGoal: SalesGoal | undefined = goals[0];
   const goalCurrency: DealCurrency = ((activeGoal?.currency ?? "USD") as DealCurrency);
@@ -212,8 +221,10 @@ const SalesPipelineView = () => {
   );
 
   useEffect(() => {
-    const firstBoard = boardsData?.documents[0];
-    if (!selectedBoardId && firstBoard) {
+    const docs = boardsData?.documents ?? [];
+    const firstBoard = docs[0];
+    const isCurrentValid = docs.some((b) => (b as { id: string }).id === selectedBoardId);
+    if (!isCurrentValid && firstBoard) {
       setSelectedBoardId((firstBoard as { id: string }).id);
     }
   }, [boardsData, selectedBoardId]);
@@ -241,6 +252,7 @@ const SalesPipelineView = () => {
       nextStep: doc.nextStep,
       outcome: (doc.outcome as DealOutcome) ?? "PENDING",
       linkedDraftId: doc.linkedDraftId ?? null,
+      labelId: doc.labelId ?? null,
       activities: doc.activities,
     }));
     setBoardDeals(groupDealsByStage(mapped));
@@ -385,9 +397,9 @@ const SalesPipelineView = () => {
   };
 
   const handleCreateDeal = (values: CreateDealFormValues): void => {
-    const { assigneeIds, ...dealData } = values;
+    const { assigneeIds, labelId, ...dealData } = values;
     createDealMutation(
-      { json: dealData },
+      { json: { ...dealData, ...(labelId ? { labelId } : {}) } },
       {
         onSuccess: (response) => {
           if ("data" in response && response.data && "id" in response.data && assigneeIds.length > 0) {
@@ -571,6 +583,7 @@ const SalesPipelineView = () => {
   const applyBoardDealFilter = (deal: Deal, query: string): boolean => {
     if (selectedCurrency !== "all" && deal.currency !== selectedCurrency) return false;
     if (selectedAssignee !== "all" && !deal.assignees.includes(selectedAssignee)) return false;
+    if (selectedLabelFilter !== "all" && deal.labelId !== selectedLabelFilter) return false;
     if (dateFromStr && (deal.expectedCloseDate ?? "") < dateFromStr) return false;
     if (dateToStr && (deal.expectedCloseDate ?? "9999") > dateToStr) return false;
     if (!query) return true;
@@ -656,15 +669,26 @@ const SalesPipelineView = () => {
               }}
             />
             {selectedBoard && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 shrink-0"
-                title={t("board.settings-title")}
-                onClick={() => setIsBoardSettingsOpen(true)}
-              >
-                <Settings2 className="size-4" />
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-8 shrink-0"
+                  title={t("board.settings-title")}
+                  onClick={() => setIsBoardSettingsOpen(true)}
+                >
+                  <Settings2 className="size-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-8 shrink-0"
+                  title={t("labels.dialog-title")}
+                  onClick={() => setIsBoardLabelsOpen(true)}
+                >
+                  <Tag className="size-4" />
+                </Button>
+              </>
             )}
           </div>
           {/* <h1 className="text-2xl font-bold">{t("title")}</h1>
@@ -838,6 +862,44 @@ const SalesPipelineView = () => {
             {t("sellers.title")}
           </Button>
         </div>
+        {boardLabels.length > 0 && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Tag className="size-3.5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">{t("labels.filter-label")}</span>
+            <button
+              type="button"
+              onClick={() => setSelectedLabelFilter("all")}
+              className={cn(
+                "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                selectedLabelFilter === "all"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:border-foreground/50"
+              )}
+            >
+              {t("filters.all-assignees")}
+            </button>
+            {boardLabels.map((label) => (
+              <button
+                key={label.id}
+                type="button"
+                onClick={() => setSelectedLabelFilter(selectedLabelFilter === label.id ? "all" : label.id)}
+                className={cn(
+                  "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                  selectedLabelFilter === label.id
+                    ? "border-transparent"
+                    : "border-border"
+                )}
+                style={
+                  selectedLabelFilter === label.id
+                    ? { backgroundColor: label.color, color: (LABEL_COLORS.find((c) => c.value === label.color)?.textColor ?? "#000") }
+                    : {}
+                }
+              >
+                {label.name}
+              </button>
+            ))}
+          </div>
+        )}
         <TabsList className={cn("grid w-full", (isFree || !isPro) ? "grid-cols-2 md:w-[360px]" : "grid-cols-3 md:w-[540px]")}>
           <TabsTrigger value="pipeline" className="gap-1.5 items-center">
             <KanbanSquare className="size-3.5" />
@@ -1015,6 +1077,19 @@ const SalesPipelineView = () => {
                                       {t("attention-required")}
                                     </div>
                                   )}
+                                  {deal.labelId && (() => {
+                                    const lbl = boardLabels.find((l) => l.id === deal.labelId);
+                                    if (!lbl) return null;
+                                    const colorDef = LABEL_COLORS.find((c) => c.value === lbl.color);
+                                    return (
+                                      <div
+                                        className="mt-2 rounded-md px-2 py-0.5 text-[11px] font-semibold w-fit"
+                                        style={{ backgroundColor: lbl.color, color: colorDef?.textColor ?? "#000" }}
+                                      >
+                                        {lbl.name}
+                                      </div>
+                                    );
+                                  })()}
                                   {deal.outcome !== "PENDING" && (
                                     <div className={cn(
                                       "mt-2 rounded-md border px-2 py-1 text-[11px] font-semibold",
@@ -1426,6 +1501,12 @@ const SalesPipelineView = () => {
         availableCurrencies={Array.isArray(selectedBoard?.currencies) && selectedBoard.currencies.length > 0 ? selectedBoard.currencies : ["USD"]}
         sellers={sellers}
         initialStage={createDealStage}
+        boardLabels={boardLabels}
+        onCreateLabel={selectedBoard ? (label) => {
+          const newLabel: BoardLabel = { id: `BLABEL_${Date.now()}`, ...label };
+          const updatedLabels = [...boardLabels, newLabel];
+          updateBoardMutation({ param: { boardId: selectedBoard.id }, json: { labels: JSON.stringify(updatedLabels) } });
+        } : undefined}
       />
 
       <ManageSellersDialog
@@ -1451,6 +1532,11 @@ const SalesPipelineView = () => {
         }}
         onAddActivity={(dealId, content, type) => {
           addActivityMutation({ param: { dealId }, json: { content, ...(type ? { type } : {}) } });
+        }}
+        boardLabels={boardLabels}
+        onChangeLabel={(dealId, labelId) => {
+          updateDeal(dealId, (d) => ({ ...d, labelId: labelId ?? null }));
+          updateDealMutation({ param: { dealId }, json: { labelId: labelId ?? null } });
         }}
       />
 
@@ -1495,6 +1581,13 @@ const SalesPipelineView = () => {
           onOpenChange={setIsBoardSettingsOpen}
           board={selectedBoard}
           sellerCount={sellers.length}
+        />
+      )}
+      {selectedBoard && (
+        <BoardLabelsDialog
+          open={isBoardLabelsOpen}
+          onOpenChange={setIsBoardLabelsOpen}
+          board={selectedBoard}
         />
       )}
     </main>

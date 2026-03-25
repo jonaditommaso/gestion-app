@@ -46,6 +46,7 @@ interface DealDocument extends Models.Document {
     nextStep: string;
     teamId: string;
     linkedDraftId: string | null;
+    labelId: string | null;
 }
 
 interface DealCommentDocument extends Models.Document {
@@ -325,6 +326,7 @@ const app = new Hono()
             outcome: doc.outcome ?? "PENDING",
             nextStep: doc.nextStep,
             linkedDraftId: doc.linkedDraftId ?? null,
+            labelId: doc.labelId ?? null,
             createdAt: doc.$createdAt,
             assignees: (assigneesByDealId[doc.$id] ?? []).map((a) => {
                 const seller = sellersById[a.memberId];
@@ -389,6 +391,7 @@ const app = new Hono()
                 lastStageChangedAt: null,
                 outcome: doc.outcome ?? "PENDING",
                 nextStep: doc.nextStep,
+                labelId: doc.labelId ?? null,
                 assignees: [] as {
                     id: string;
                     memberId: string;

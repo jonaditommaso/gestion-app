@@ -13,8 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { cn } from "@/lib/utils";
+import { LABEL_COLORS } from "@/app/workspaces/constants/label-colors";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,6 +30,7 @@ import {
   Pencil,
   Plus,
   Send,
+  Tag,
   Trophy,
   Undo2,
   X,
@@ -32,7 +39,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
-import type { ActivityEntry, Deal, DealOutcome, DealStage, Seller } from "../types";
+import type { ActivityEntry, BoardLabel, Deal, DealOutcome, DealStage, Seller } from "../types";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
 
@@ -46,6 +53,8 @@ interface DealDetailModalProps {
   onSaveNextStep: (dealId: string, nextStep: string) => void;
   onAddActivity: (dealId: string, content: string, type?: "step-completed") => void;
   onMarkOutcome: (id: string, outcome: DealOutcome) => void;
+  boardLabels?: BoardLabel[];
+  onChangeLabel?: (dealId: string, labelId: string | null) => void;
 }
 
 const getPriorityClassName = (priority: Deal["priority"]): string => {
@@ -87,6 +96,8 @@ const DealDetailModal = ({
   onSaveNextStep,
   onAddActivity,
   onMarkOutcome,
+  boardLabels = [],
+  onChangeLabel,
 }: DealDetailModalProps) => {
   const t = useTranslations("sales");
 
@@ -223,6 +234,21 @@ const DealDetailModal = ({
             >
               {t(`stages.${deal.status}`)}
             </Badge>
+            {deal.labelId && boardLabels.length > 0 && (() => {
+              const lbl = boardLabels.find((l) => l.id === deal.labelId);
+              if (!lbl) return null;
+              const colorDef = LABEL_COLORS.find((c) => c.hex === lbl.color);
+              return (
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-0 text-[11px] font-semibold"
+                  style={{ backgroundColor: lbl.color, color: colorDef?.textColor ?? "#ffffff" }}
+                >
+                  <Tag className="size-3" />
+                  {lbl.name}
+                </Badge>
+              );
+            })()}
             {deal.linkedDraftId && (
               <Link href="/billing-management" onClick={() => onOpenChange(false)}>
                 <Badge
@@ -271,6 +297,54 @@ const DealDetailModal = ({
                 </span>
               </div>
             </div>
+
+            {boardLabels.length > 0 && onChangeLabel && (
+              <div>
+                <p className="text-xs text-muted-foreground">{t("labels.field-label")}</p>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="mt-1 flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-semibold hover:bg-accent transition-colors"
+                      style={(() => {
+                        const lbl = boardLabels.find((l) => l.id === deal.labelId);
+                        if (!lbl) return {};
+                        const colorDef = LABEL_COLORS.find((c) => c.hex === lbl.color);
+                        return { backgroundColor: lbl.color, color: colorDef?.textColor ?? "#ffffff", borderColor: "transparent" };
+                      })()}
+                    >
+                      <Tag className="size-3" />
+                      {boardLabels.find((l) => l.id === deal.labelId)?.name ?? t("labels.none")}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-44 p-1" align="start">
+                    <button
+                      type="button"
+                      onClick={() => onChangeLabel(deal.id, null)}
+                      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent transition-colors"
+                    >
+                      <X className="size-3" />
+                      {t("labels.none")}
+                    </button>
+                    {boardLabels.map((lbl) => {
+                      const colorDef = LABEL_COLORS.find((c) => c.hex === lbl.color);
+                      return (
+                        <button
+                          key={lbl.id}
+                          type="button"
+                          onClick={() => onChangeLabel(deal.id, lbl.id)}
+                          className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs hover:opacity-90 transition-opacity"
+                          style={{ backgroundColor: lbl.color, color: colorDef?.textColor ?? "#ffffff" }}
+                        >
+                          <Tag className="size-3" />
+                          {lbl.name}
+                        </button>
+                      );
+                    })}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
             {deal.outcome === "PENDING" && (
               <>

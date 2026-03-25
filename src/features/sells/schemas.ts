@@ -18,6 +18,7 @@ export const createDealSchema = z.object({
     expectedCloseDate: z.string().nullable().optional().default(null),
     nextStep: z.string().optional().default(""),
     outcome: z.enum(DEAL_OUTCOMES).optional().default("PENDING"),
+    labelId: z.string().nullable().optional().default(null),
 });
 
 export const updateDealSchema = createDealSchema.partial().extend({
@@ -49,6 +50,7 @@ export const updateSalesBoardSchema = z.object({
     name: z.string().trim().min(1, "Required").optional(),
     currencies: z.array(z.enum(DEAL_CURRENCIES)).min(1).optional(),
     activeGoalId: z.string().nullable().optional(),
+    labels: z.string().nullable().optional(),
 });
 
 export const createSalesGoalSchema = z.object({

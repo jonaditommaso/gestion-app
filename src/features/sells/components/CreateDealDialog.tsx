@@ -15,10 +15,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { TooltipContainer } from "@/components/TooltipContainer";
+import { LABEL_COLORS, MAX_LABEL_NAME_LENGTH } from "@/app/workspaces/constants/label-colors";
+import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { ChevronDown, UserX } from "lucide-react";
+import { ChevronDown, Tag, UserX, X } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-import type { DealCurrency, DealStage, Seller, WorkItemPriority } from "../types";
+import type { BoardLabel, DealCurrency, DealStage, Seller, WorkItemPriority } from "../types";
 
 export type CreateDealFormValues = {
   title: string;
@@ -34,6 +36,7 @@ export type CreateDealFormValues = {
   expectedCloseDate: string | null;
   nextStep: string;
   assigneeIds: string[];
+  labelId: string | null;
 };
 
 type FormErrors = {
@@ -49,9 +52,20 @@ interface CreateDealDialogProps {
   availableCurrencies?: DealCurrency[];
   sellers?: Seller[];
   initialStage?: DealStage;
+  boardLabels?: BoardLabel[];
+  onCreateLabel?: (label: Omit<BoardLabel, "id">) => void;
 }
 
-const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencies, sellers = [], initialStage = "LEADS" }: CreateDealDialogProps) => {
+const CreateDealDialog = ({
+  open,
+  onOpenChange,
+  onCreateDeal,
+  availableCurrencies,
+  sellers = [],
+  initialStage = "LEADS",
+  boardLabels = [],
+  onCreateLabel,
+}: CreateDealDialogProps) => {
   const t = useTranslations("sales");
   const currencyList: DealCurrency[] = Array.isArray(availableCurrencies) ? availableCurrencies : [];
   const defaultCurrency: DealCurrency = currencyList[0] ?? "USD";
@@ -68,6 +82,9 @@ const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencie
   const [closeDate, setCloseDate] = useState<Date | undefined>(undefined);
   const [nextStep, setNextStep] = useState<string>("");
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
+  const [newLabelColor, setNewLabelColor] = useState<string>("");
+  const [newLabelName, setNewLabelName] = useState<string>("");
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
@@ -84,6 +101,9 @@ const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencie
       setCloseDate(undefined);
       setNextStep("");
       setSelectedAssignees([]);
+      setSelectedLabelId(null);
+      setNewLabelColor("");
+      setNewLabelName("");
       setErrors({});
     }
   }, [open, availableCurrencies]);
@@ -135,6 +155,7 @@ const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencie
         : "",
       nextStep: nextStep.trim(),
       assigneeIds: selectedAssignees,
+      labelId: selectedLabelId,
     });
     onOpenChange(false);
   };
@@ -229,7 +250,7 @@ const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencie
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3 items-start">
             <div className="space-y-1.5">
               <Label htmlFor="deal-amount">
                 {t("new-deal-dialog.fields.amount")}{" "}
@@ -260,6 +281,20 @@ const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencie
                   {currencyList.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("new-deal-dialog.fields.stage")}</Label>
+              <Select value={status} onValueChange={(value: DealStage) => setStatus(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="LEADS">{t("stages.LEADS")}</SelectItem>
+                  <SelectItem value="QUALIFICATION">{t("stages.QUALIFICATION")}</SelectItem>
+                  <SelectItem value="NEGOTIATION">{t("stages.NEGOTIATION")}</SelectItem>
+                  <SelectItem value="CLOSED">{t("stages.CLOSED")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -295,18 +330,121 @@ const CreateDealDialog = ({ open, onOpenChange, onCreateDeal, availableCurrencie
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>{t("new-deal-dialog.fields.stage")}</Label>
-              <Select value={status} onValueChange={(value: DealStage) => setStatus(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="LEADS">{t("stages.LEADS")}</SelectItem>
-                  <SelectItem value="QUALIFICATION">{t("stages.QUALIFICATION")}</SelectItem>
-                  <SelectItem value="NEGOTIATION">{t("stages.NEGOTIATION")}</SelectItem>
-                  <SelectItem value="CLOSED">{t("stages.CLOSED")}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>{t("labels.field-label")}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm hover:bg-accent"
+                  >
+                    {selectedLabelId ? (() => {
+                      const lbl = boardLabels.find((l) => l.id === selectedLabelId);
+                      if (!lbl) return <span className="text-muted-foreground truncate">{t("labels.none")}</span>;
+                      const colorDef = LABEL_COLORS.find((c) => c.value === lbl.color);
+                      return (
+                        <span
+                          className="truncate rounded px-1.5 py-0.5 text-xs font-semibold"
+                          style={{ backgroundColor: lbl.color, color: colorDef?.textColor ?? "#000" }}
+                        >
+                          {lbl.name}
+                        </span>
+                      );
+                    })() : (
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <Tag className="size-3.5 shrink-0" />
+                        <span className="truncate text-sm">{t("labels.none")}</span>
+                      </span>
+                    )}
+                    <ChevronDown className="size-3.5 shrink-0 opacity-50" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-1" align="start">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLabelId(null)}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent",
+                      selectedLabelId === null && "font-medium"
+                    )}
+                  >
+                    <X className="size-3.5 text-muted-foreground" />
+                    {t("labels.none")}
+                  </button>
+                  {boardLabels.map((lbl) => {
+                    const colorDef = LABEL_COLORS.find((c) => c.value === lbl.color);
+                    return (
+                      <button
+                        key={lbl.id}
+                        type="button"
+                        onClick={() => setSelectedLabelId(lbl.id === selectedLabelId ? null : lbl.id)}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent",
+                          selectedLabelId === lbl.id && "font-medium"
+                        )}
+                      >
+                        <span
+                          className="inline-block size-3 rounded-sm shrink-0"
+                          style={{ backgroundColor: lbl.color }}
+                        />
+                        <span
+                          className="truncate rounded px-1 text-xs font-medium"
+                          style={{ backgroundColor: lbl.color, color: colorDef?.textColor ?? "#000" }}
+                        >
+                          {lbl.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {onCreateLabel && (
+                    <>
+                      <div className="my-1 border-t" />
+                      <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t("labels.create-new")}
+                      </p>
+                      <div className="flex flex-wrap gap-1 px-2 pb-1">
+                        {LABEL_COLORS.map((colorDef) => (
+                          <button
+                            key={colorDef.value}
+                            type="button"
+                            onClick={() => setNewLabelColor(colorDef.value)}
+                            className={cn(
+                              "size-5 rounded transition-transform hover:scale-110",
+                              newLabelColor === colorDef.value && "ring-2 ring-offset-1 ring-foreground"
+                            )}
+                            style={{ backgroundColor: colorDef.value }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex gap-1 px-2 pb-2">
+                        <Input
+                          value={newLabelName}
+                          onChange={(e) => setNewLabelName(e.target.value)}
+                          placeholder={t("labels.input-placeholder")}
+                          maxLength={MAX_LABEL_NAME_LENGTH}
+                          className="h-7 text-xs"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") e.preventDefault();
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="h-7 shrink-0 px-2 text-xs"
+                          disabled={!newLabelColor || !newLabelName.trim()}
+                          onClick={() => {
+                            if (!newLabelColor || !newLabelName.trim()) return;
+                            onCreateLabel({ name: newLabelName.trim(), color: newLabelColor });
+                            setNewLabelName("");
+                            setNewLabelColor("");
+                          }}
+                        >
+                          {t("labels.create-button")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-1.5">
               <Label>{t("new-deal-dialog.fields.assignees")}</Label>

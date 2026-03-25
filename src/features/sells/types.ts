@@ -30,6 +30,12 @@ export type WorkItem = {
   assignees: string[];
 };
 
+export type BoardLabel = {
+  id: string;
+  name: string;
+  color: string;
+};
+
 export type SalesBoard = {
   id: string;
   teamId: string;
@@ -37,6 +43,7 @@ export type SalesBoard = {
   currencies: DealCurrency[];
   activeGoalId: string | null;
   createdAt: string;
+  labels?: BoardLabel[];
 };
 
 export type SalesGoal = {
@@ -67,4 +74,5 @@ export type Deal = WorkItem & {
   outcome: DealOutcome;
   activities: ActivityEntry[];
   linkedDraftId?: string | null;
+  labelId?: string | null;
 };
