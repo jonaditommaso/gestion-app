@@ -68,6 +68,7 @@ import {
   HeartHandshake,
   Loader,
   XCircle,
+  CirclePile,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import CreateDealDialog, { type CreateDealFormValues } from "./CreateDealDialog";
@@ -99,6 +100,9 @@ import { useCreateDealSeller } from "../api/use-create-deal-seller";
 import { useDeleteDealSeller } from "../api/use-delete-deal-seller";
 import { useAddDealAssignee } from "../api/use-add-deal-assignee";
 import { useAddDealActivity } from "../api/use-add-deal-activity";
+import { useGetSellSquads } from "../api/use-get-sell-squads";
+import ManageSellSquadsDialog from "./ManageSellSquadsDialog";
+import type { SellSquad } from "../types";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
 
@@ -173,6 +177,8 @@ const SalesPipelineView = () => {
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [healthDialogDeal, setHealthDialogDeal] = useState<Deal | null>(null);
   const [isManageSellersOpen, setIsManageSellersOpen] = useState<boolean>(false);
+  const [isManageSellSquadsOpen, setIsManageSellSquadsOpen] = useState<boolean>(false);
+  const [selectedSquadFilter, setSelectedSquadFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [selectedAssignee, setSelectedAssignee] = useState<string>("all");
@@ -191,6 +197,7 @@ const SalesPipelineView = () => {
   const { mutate: mutateSetGoal } = useSetSalesGoal();
   const { data: dealsData } = useGetDeals();
   const { data: sellersData } = useGetDealSellers();
+  const { data: sellSquadsData } = useGetSellSquads();
   const { mutate: createDealMutation } = useCreateDeal();
   const { mutate: deleteDealMutation } = useDeleteDeal();
   const { mutate: updateDealMutation } = useUpdateDeal();
@@ -209,6 +216,11 @@ const SalesPipelineView = () => {
   const goals: SalesGoal[] = (goalsData?.documents ?? []) as SalesGoal[];
   const activeGoal: SalesGoal | undefined = goals[0];
   const goalCurrency: DealCurrency = ((activeGoal?.currency ?? "USD") as DealCurrency);
+
+  const sellSquads = (sellSquadsData?.documents ?? []) as SellSquad[];
+  const selectedSquadDealIds: string[] | null = selectedSquadFilter !== "all"
+    ? (sellSquads.find(sq => sq.$id === selectedSquadFilter)?.dealIds ?? [])
+    : null;
 
   const sellers: Seller[] = ((sellersData as { documents: ServerSellerDocument[] } | undefined)?.documents ?? []).map(
     (doc) => ({
@@ -583,6 +595,7 @@ const SalesPipelineView = () => {
   const applyBoardDealFilter = (deal: Deal, query: string): boolean => {
     if (selectedCurrency !== "all" && deal.currency !== selectedCurrency) return false;
     if (selectedAssignee !== "all" && !deal.assignees.includes(selectedAssignee)) return false;
+    if (selectedSquadFilter !== "all" && !(selectedSquadDealIds ?? []).includes(deal.id)) return false;
     if (selectedLabelFilter !== "all" && deal.labelId !== selectedLabelFilter) return false;
     if (dateFromStr && (deal.expectedCloseDate ?? "") < dateFromStr) return false;
     if (dateToStr && (deal.expectedCloseDate ?? "9999") > dateToStr) return false;
@@ -601,6 +614,7 @@ const SalesPipelineView = () => {
     const query = tableQuery.trim().toLowerCase();
     if (selectedCurrency !== "all" && deal.currency !== selectedCurrency) return false;
     if (selectedAssignee !== "all" && !deal.assignees.includes(selectedAssignee)) return false;
+    if (selectedSquadFilter !== "all" && !(selectedSquadDealIds ?? []).includes(deal.id)) return false;
     if (dateFromStr && (deal.expectedCloseDate ?? "") < dateFromStr) return false;
     if (dateToStr && (deal.expectedCloseDate ?? "9999") > dateToStr) return false;
     if (tableStageFilter.length < STAGE_ORDER.length && !tableStageFilter.includes(deal.status)) return false;
@@ -861,7 +875,63 @@ const SalesPipelineView = () => {
             <Users className="size-3.5" />
             {t("sellers.title")}
           </Button>
+          {sellers.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 gap-1.5 text-xs"
+              onClick={() => setIsManageSellSquadsOpen(true)}
+            >
+              <CirclePile className="size-3.5" />
+              {t("squads.manage-btn")}
+            </Button>
+          )}
         </div>
+        {sellSquads.length > 0 && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground">{t("squads.filter-label")}</span>
+            <button
+              type="button"
+              onClick={() => setSelectedSquadFilter("all")}
+              className={cn(
+                "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                selectedSquadFilter === "all"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:border-foreground/50"
+              )}
+            >
+              {t("squads.filter-all")}
+            </button>
+            {sellSquads.map(squad => {
+              const parsedMeta = (() => {
+                try { return squad.metadata ? (JSON.parse(squad.metadata) as { color?: string | null }) : null; }
+                catch { return null; }
+              })();
+              const squadColor = parsedMeta?.color ?? null;
+              const isActive = selectedSquadFilter === squad.$id;
+              return (
+                <button
+                  key={squad.$id}
+                  type="button"
+                  onClick={() => setSelectedSquadFilter(isActive ? "all" : squad.$id)}
+                  className={cn(
+                    "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                    isActive ? "border-transparent" : "border-border"
+                  )}
+                  style={
+                    isActive && squadColor
+                      ? { backgroundColor: squadColor, color: "#fff", borderColor: squadColor }
+                      : isActive
+                        ? undefined
+                        : {}
+                  }
+                >
+                  {squad.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
         {boardLabels.length > 0 && (
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <Tag className="size-3.5 text-muted-foreground" />
@@ -1517,6 +1587,11 @@ const SalesPipelineView = () => {
           createSellerMutation({ json: { ...rest, avatarId: userId } })
         }
         onRemoveSeller={(id) => deleteSellerMutation({ param: { sellerId: id } })}
+      />
+
+      <ManageSellSquadsDialog
+        open={isManageSellSquadsOpen}
+        onOpenChange={setIsManageSellSquadsOpen}
       />
 
       <DealDetailModal

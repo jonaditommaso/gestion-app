@@ -57,6 +57,29 @@ export type SalesGoal = {
   totalDealsWon: number;
 };
 
+export type SellSquad = {
+  $id: string;
+  teamId: string;
+  name: string;
+  leadSellerId: string | null;
+  metadata: string | null;
+  members: Seller[];
+  leadSeller?: Seller;
+  dealIds: string[];
+};
+
+export type SellSquadMember = {
+  $id: string;
+  squadId: string;
+  sellerId: string;
+};
+
+export type SellSquadAssignee = {
+  $id: string;
+  squadId: string;
+  dealId: string;
+};
+
 export type Deal = WorkItem & {
   amount: number;
   currency: DealCurrency;

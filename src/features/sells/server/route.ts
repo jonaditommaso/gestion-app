@@ -22,6 +22,7 @@ import {
     updateDealSchema,
 } from "../schemas";
 import boardsApp from "./boards.route";
+import squadsApp from "./squads.route"
 import {
     notifyDealAssignee,
     notifyDealAssignees,
@@ -84,6 +85,7 @@ interface SalesGoalDocument extends Models.Document {
 const app = new Hono()
 
     .route("/boards", boardsApp)
+    .route("/squads", squadsApp)
 
     // ── Sellers ─────────────────────────────────────────────────────────────────
     .get("/sellers", sessionMiddleware, async (ctx) => {

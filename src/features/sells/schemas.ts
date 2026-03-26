@@ -53,6 +53,18 @@ export const updateSalesBoardSchema = z.object({
     labels: z.string().nullable().optional(),
 });
 
+export const createSellSquadSchema = z.object({
+    name: z.string().trim().min(1, 'Required'),
+    leadSellerId: z.string().nullable().optional(),
+    metadata: z.string().nullable().optional(),
+});
+
+export const updateSellSquadSchema = z.object({
+    name: z.string().trim().min(1).optional(),
+    leadSellerId: z.string().nullable().optional(),
+    metadata: z.string().nullable().optional(),
+});
+
 export const createSalesGoalSchema = z.object({
     boardId: z.string().trim().min(1, "Required"),
     targetAmount: z.coerce.number().int().positive(),
