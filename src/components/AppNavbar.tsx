@@ -77,7 +77,7 @@ const AppNavbar = () => {
             {allContexts.length > 0 && <DropdownMenuSeparator />}
             {currentRole === 'OWNER' && (
               <DropdownMenuItem
-                className="flex items-center gap-2 !cursor-pointer text-blue-600 hover:!text-blue-500"
+                className="flex items-center gap-2 !cursor-pointer text-[#f59e0b] hover:!text-[#f59e0b]/80"
                 onClick={() => router.push('/pricing')}
               >
                 <Rocket className="w-4 h-4 shrink-0" />
