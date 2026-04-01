@@ -39,7 +39,7 @@ const CreateTaskButton = () => {
 
     const Trigger = (
         <Button
-            className={cn("w-full py-11 h-auto flex-col gap-1", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
+            className={cn("w-full h-28 flex-col gap-1", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
             variant="outline"
             onClick={handleOpen}
         >

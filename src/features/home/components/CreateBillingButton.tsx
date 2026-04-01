@@ -18,7 +18,7 @@ const CreateBillingButton = () => {
         <>
             <AddOperationModal isOpen={isOpen} setIsOpen={setIsOpen} />
             <Button
-                className="w-full py-11 h-auto"
+                className="w-full h-28"
                 variant="outline"
                 onClick={() => setIsOpen(true)}
             >
