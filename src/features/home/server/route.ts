@@ -159,7 +159,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { title, content, bgColor, isModern, hasLines } = ctx.req.valid('json');
+            const { title, content, bgColor, isModern, hasLines, isPinned, pinnedAt } = ctx.req.valid('json');
 
             if (!title && !content) {
                 return ctx.json({ error: 'Cannot create an empty note' }, 400)
@@ -180,8 +180,11 @@ const app = new Hono()
                     bgColor,
                     isModern,
                     hasLines,
+                    isPinned,
+                    pinnedAt,
                     teamId: context.org.appwriteTeamId,
                     memberId,
+                    userId: user.$id // think about if we need this or if memberId is enough to identify the user for notes (userId is the old way)
                 }
             );
 
