@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import EditNoteModal from "./EditNoteModal";
 import { useUpdateNote } from "../../api/use-update-note";
 import { useDeleteNote } from "../../api/use-delete-note";
+import { useCreateNote } from "../../api/use-create-note";
 import { AnimatePresence } from "motion/react";
 import { NoteData } from "../../types";
 import { Separator } from "@/components/ui/separator";
@@ -31,17 +32,25 @@ const NOTE_VIEW_IDS: GlobalNoteViewId[] = [
     'meets',
 ];
 
+const ONBOARDING_NOTE_ID = '__onboarding__';
+const ONBOARDING_COLORS = ['bg-[#2662d9]', 'bg-[#2eb88a]', 'bg-[#e88c30]', 'bg-[#af57db]', 'bg-[#e23670]'];
+
 const MyNotes = () => {
     const { data, isPending } = useGetNotes();
     const { data: homeConfig } = useGetHomeConfig();
     const { mutate: updateNote } = useUpdateNote();
     const { mutate: deleteNote } = useDeleteNote();
+    const { mutate: createNote } = useCreateNote();
     const { mutate: createHomeConfig, isPending: isCreatingHomeConfig } = useCreateHomeConfig();
     const { mutate: updateHomeConfig, isPending: isUpdatingHomeConfig } = useUpdateHomeConfig();
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedNote, setSelectedNote] = useState<NoteData | null>(null);
+    const [isOnboardingEdit, setIsOnboardingEdit] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [onboardingColor] = useState(
+        () => ONBOARDING_COLORS[Math.floor(Math.random() * ONBOARDING_COLORS.length)]
+    );
 
     const t = useTranslations('home')
 
@@ -70,6 +79,49 @@ const MyNotes = () => {
     const isSavingSettings = isCreatingHomeConfig || isUpdatingHomeConfig;
 
     const filteredNotes = data?.documents.filter(note => !note.isGlobal) || [];
+
+    const noteOnboardingDone = parsedOverrides.noteOnboardingDone === true;
+    const showOnboardingNote = !isPending && data !== undefined && filteredNotes.length === 0 && !noteOnboardingDone;
+
+    const onboardingNote: NoteData = {
+        $id: ONBOARDING_NOTE_ID,
+        title: t('note-onboarding-title'),
+        content: t('note-onboarding-content'),
+        bgColor: onboardingColor,
+        isModern: true,
+        hasLines: true,
+        isPinned: false,
+        isGlobal: false,
+        userId: '',
+        $collectionId: '',
+        $databaseId: '',
+        $createdAt: '',
+        $updatedAt: '',
+        $permissions: [],
+    };
+
+    const handleMarkOnboardingDone = () => {
+        const configPayload = {
+            widgets: JSON.stringify({
+                ...parsedOverrides,
+                noteOnboardingDone: true,
+            })
+        };
+        if (homeConfig?.$id) {
+            updateHomeConfig({ json: configPayload });
+        } else {
+            createHomeConfig({ json: configPayload });
+        }
+    };
+
+    const handleEditNote = (note: NoteData) => {
+        if (note.$id === ONBOARDING_NOTE_ID) {
+            setIsOnboardingEdit(true);
+        } else {
+            setIsOnboardingEdit(false);
+        }
+        setSelectedNote(note);
+    };
 
     const pinnedNotes = filteredNotes
         .filter(note => note.isPinned)
@@ -141,6 +193,20 @@ const MyNotes = () => {
                         </div>
                         <Separator />
                         <div className="flex flex-col gap-4">
+                            {showOnboardingNote && (
+                                <div className="grid grid-cols-2 gap-2 justify-center">
+                                    <AnimatePresence>
+                                        <Note
+                                            key={ONBOARDING_NOTE_ID}
+                                            note={onboardingNote}
+                                            onEdit={handleEditNote}
+                                            onDelete={handleMarkOnboardingDone}
+                                            onUpdateColor={() => {}}
+                                            hideReminder
+                                        />
+                                    </AnimatePresence>
+                                </div>
+                            )}
                             {pinnedNotes.length > 0 && (
                                 <div className="grid grid-cols-2 gap-2 justify-center">
                                     <AnimatePresence>
@@ -148,7 +214,7 @@ const MyNotes = () => {
                                             <Note
                                                 key={note.$id}
                                                 note={note as NoteData}
-                                                onEdit={setSelectedNote}
+                                                onEdit={handleEditNote}
                                                 onDelete={(id) => deleteNote({ param: { noteId: id } })}
                                                 onUpdateColor={handleUpdateColor}
                                             />
@@ -166,7 +232,7 @@ const MyNotes = () => {
                                             <Note
                                                 key={note.$id}
                                                 note={note as NoteData}
-                                                onEdit={setSelectedNote}
+                                                onEdit={handleEditNote}
                                                 onDelete={(id) => deleteNote({ param: { noteId: id } })}
                                                 onUpdateColor={handleUpdateColor}
                                             />
@@ -184,7 +250,10 @@ const MyNotes = () => {
                 <EditNoteModal
                     note={selectedNote}
                     isOpen={!!selectedNote}
-                    onClose={() => setSelectedNote(null)}
+                    onClose={() => { setSelectedNote(null); setIsOnboardingEdit(false); }}
+                    isOnboarding={isOnboardingEdit}
+                    onSaveAsNew={(data) => createNote({ json: data })}
+                    onDismiss={handleMarkOnboardingDone}
                 />
             )}
 

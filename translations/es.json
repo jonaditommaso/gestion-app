@@ -2304,6 +2304,8 @@
         "remove-reminder": "Eliminar recordatorio",
         "note-created": "Nota creada con éxito",
         "failed-create-note": "Lo sentimos, hubo un error creando la nota",
+        "note-onboarding-title": "Bienvenido a Gestionate",
+        "note-onboarding-content": "Usa las notas para capturar ideas, recordatorios y todo lo importante. Toca una nota para editarla, fijarla o cambiar su color.",
         "note-updated": "Nota actualizada con éxito",
         "failed-update-note": "Lo sentimos, hubo un error actualizando la nota",
         "note-deleted": "Nota eliminada con éxito",

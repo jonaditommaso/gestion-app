@@ -71,6 +71,7 @@ export interface HomeConfigOverrides {
     taskWidgetStatusId?: string; // ID del status para el widget de tareas
     defaultWorkspaceId?: string;
     defaultBoardId?: string;
+    noteOnboardingDone?: boolean;
 }
 
 export interface HomeConfigDocument {

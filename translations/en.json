@@ -2302,6 +2302,8 @@
         "remove-reminder": "Remove reminder",
         "note-created": "Note successfully created",
         "failed-create-note": "Sorry, there was an error creating the note",
+        "note-onboarding-title": "Welcome to Gestionate",
+        "note-onboarding-content": "Use notes to capture ideas, reminders, and anything important. Tap a note to edit it, pin it, or change its color.",
         "note-updated": "Note updated successfully",
         "failed-update-note": "Sorry, there was an error updating the note",
         "note-deleted": "Note deleted successfully",

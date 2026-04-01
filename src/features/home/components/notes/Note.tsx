@@ -19,9 +19,10 @@ interface NoteProps {
     onEdit: (note: NoteData) => void;
     onDelete: (id: string) => void;
     onUpdateColor: (id: string, color: string) => void;
+    hideReminder?: boolean;
 }
 
-const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
+const Note = ({ note, onEdit, onDelete, onUpdateColor, hideReminder }: NoteProps) => {
     const { title, content, bgColor, $id, isPinned, isModern, hasLines, reminderAt, reminderNotified } = note;
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const [reminderPopoverOpen, setReminderPopoverOpen] = useState(false);
@@ -189,6 +190,7 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                         <Pencil className={iconClass} />
                     </Button>
 
+                    {!hideReminder && (
                     <Popover open={reminderPopoverOpen} onOpenChange={setReminderPopoverOpen}>
                         <PopoverTrigger asChild>
                             <Button
@@ -206,6 +208,7 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                             onClose={() => setReminderPopoverOpen(false)}
                         />
                     </Popover>
+                    )}
 
                 <Button
                     variant="ghost"

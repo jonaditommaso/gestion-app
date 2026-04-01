@@ -2294,6 +2294,8 @@
         "remove-reminder": "Rimuovi promemoria",
         "note-created": "Nota creata con successo",
         "failed-create-note": "Ci dispiace, si è verificato un errore durante la creazione della nota",
+        "note-onboarding-title": "Benvenuto in Gestionate",
+        "note-onboarding-content": "Usa le note per catturare idee, promemoria e tutto ciò che è importante. Tocca una nota per modificarla, fissarla o cambiarne il colore.",
         "set-up-metting": "Organizzare un incontro",
         "meet-title": "Titolo dell'incontro",
         "weekly-meeting": "Riunione settimanale...",

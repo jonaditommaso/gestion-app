@@ -20,9 +20,12 @@ interface EditNoteModalProps {
     note: NoteData;
     isOpen: boolean;
     onClose: () => void;
+    isOnboarding?: boolean;
+    onSaveAsNew?: (data: { title: string; content: string; bgColor: string; isModern: boolean; hasLines: boolean }) => void;
+    onDismiss?: () => void;
 }
 
-const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
+const EditNoteModal = ({ note, isOpen, onClose, isOnboarding, onSaveAsNew, onDismiss }: EditNoteModalProps) => {
     const [title, setTitle] = useState(note.title || '');
     const [content, setContent] = useState(note.content);
     const [bgColor, setBgColor] = useState(note.bgColor);
@@ -60,6 +63,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
     }, [isOpen, note, content]);
 
     const handleBlur = () => {
+        if (isOnboarding) return;
         if ((!title && !content)) {
             return;
         }
@@ -72,11 +76,25 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
     };
 
     const handleClose = () => {
+        if (isOnboarding) {
+            const hasChanged = title !== (note.title || '') || content !== note.content || bgColor !== note.bgColor;
+            if (hasChanged && onSaveAsNew) {
+                onSaveAsNew({ title, content, bgColor, isModern: note.isModern ?? false, hasLines: note.hasLines ?? false });
+                onDismiss?.();
+            }
+            onClose();
+            return;
+        }
         handleBlur();
         onClose();
     };
 
     const handleDelete = () => {
+        if (isOnboarding) {
+            onDismiss?.();
+            onClose();
+            return;
+        }
         deleteNote({ param: { noteId: note.$id } });
         onClose();
     };
@@ -84,7 +102,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
     const handleColorChange = (value: string) => {
         setBgColor(value);
         setPopoverIsOpen(false);
-        if (value !== note.bgColor && (title || content)) {
+        if (!isOnboarding && value !== note.bgColor && (title || content)) {
             updateNote({
                 param: { noteId: note.$id },
                 json: { title, content, bgColor: value }
@@ -94,6 +112,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
 
     const handlePinNote = () => {
         setIsPinned(true);
+        if (isOnboarding) return;
         updateNote({
             param: { noteId: note.$id },
             json: {
@@ -105,6 +124,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
 
     const handleUnpinNote = () => {
         setIsPinned(false);
+        if (isOnboarding) return;
         updateNote({
             param: { noteId: note.$id },
             json: {
@@ -116,6 +136,7 @@ const EditNoteModal = ({ note, isOpen, onClose }: EditNoteModalProps) => {
 
     const handleRemoveGlobal = () => {
         setIsGlobal(false);
+        if (isOnboarding) return;
         updateNote({
             param: { noteId: note.$id },
             json: {
