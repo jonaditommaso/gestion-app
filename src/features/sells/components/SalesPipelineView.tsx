@@ -875,7 +875,7 @@ const SalesPipelineView = () => {
             <Users className="size-3.5" />
             {t("sellers.title")}
           </Button>
-          {sellers.length > 0 && (
+          {!isFree && sellers.length > 0 && (
             <Button
               variant="outline"
               size="sm"
