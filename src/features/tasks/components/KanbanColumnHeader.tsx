@@ -1,6 +1,6 @@
 import { TaskStatus } from "../types";
 import React, { useState, useEffect } from "react";
-import { CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotIcon, CircleIcon, MoreHorizontalIcon, PencilIcon, PlusIcon, ArrowRightIcon, TrashIcon, ArrowLeftIcon } from "lucide-react";
+import { CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotIcon, CircleIcon, MoreHorizontalIcon, PencilIcon, PlusIcon, ArrowRightIcon, TrashIcon, ArrowLeftIcon, ArchiveIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShowCardCountType, STATUS_TO_LABEL_KEY, STATUS_TO_LIMIT_KEYS, ColumnLimitType } from "@/app/workspaces/constants/workspace-config-keys";
 import { useTaskFilters } from "../hooks/use-task-filters";
@@ -35,6 +35,8 @@ interface KanbanColumnHeaderProps {
     statusInfo?: CustomStatus;
     onEditColumn?: () => void;
     onMoveAllCards?: (targetStatusId: string) => void;
+    onDeleteAllCards?: () => void;
+    onArchiveAllCards?: () => void;
     onDeleteColumn?: () => void;
     /** All available statuses for move cards menu */
     availableStatuses?: CustomStatus[];
@@ -55,7 +57,7 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.CUSTOM]: <CircleDashedIcon className="size-[18px] text-gray-400" />, // Fallback, custom statuses use their own icon
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, isArchiveColumn = false, taskCountByStatus = {} }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteAllCards, onArchiveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, isArchiveColumn = false, taskCountByStatus = {} }: KanbanColumnHeaderProps) => {
 
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
@@ -194,17 +196,38 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                             <ArrowRightIcon className="size-4 mr-2" />
                                             {t('move-all-cards')}
                                         </DropdownMenuItem>
+                                        {!isArchiveColumn && (
+                                            <DropdownMenuItem
+                                                onClick={onArchiveAllCards}
+                                                disabled={taskCount === 0}
+                                                className="cursor-pointer whitespace-nowrap"
+                                            >
+                                                <ArchiveIcon className="size-4 mr-2" />
+                                                {t('archive-all-cards')}
+                                            </DropdownMenuItem>
+                                        )}
                                         <DropdownMenuSeparator />
                                     </>
                                 )}
                                 {canDelete && (
-                                    <DropdownMenuItem
-                                        onClick={onDeleteColumn}
-                                        className="text-destructive focus:text-destructive cursor-pointer"
-                                    >
-                                        <TrashIcon className="size-4 mr-2" />
-                                        {t('delete-column')}
-                                    </DropdownMenuItem>
+                                    <>
+                                        <DropdownMenuItem
+                                            onClick={onDeleteAllCards}
+                                            disabled={taskCount === 0}
+                                            className="text-destructive focus:text-destructive cursor-pointer whitespace-nowrap"
+                                        >
+                                            <TrashIcon className="size-4 mr-2" />
+                                            {t('delete-all-cards')}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            onClick={onDeleteColumn}
+                                            className="text-destructive focus:text-destructive cursor-pointer"
+                                        >
+                                            <TrashIcon className="size-4 mr-2" />
+                                            {t('delete-column')}
+                                        </DropdownMenuItem>
+                                    </>
                                 )}
                             </>
                         ) : (

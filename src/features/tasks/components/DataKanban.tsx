@@ -67,6 +67,18 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         'destructive'
     );
 
+    const [ConfirmDeleteAllCardsDialog, confirmDeleteAllCards] = useConfirm(
+        t('delete-all-cards-confirm-title'),
+        t('delete-all-cards-confirm-message'),
+        'destructive'
+    );
+
+    const [ConfirmArchiveAllCardsDialog, confirmArchiveAllCards] = useConfirm(
+        t('archive-all-cards-confirm-title'),
+        t('archive-all-cards-confirm-message'),
+        'default'
+    );
+
     const { mutate: deleteTask } = useDeleteTask();
     const { mutate: bulkUpdateTasks } = useBulkUpdateTasks();
     const { mutate: updateTask } = useUpdateTask();
@@ -401,6 +413,37 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const isCustomStatus = useCallback((statusId: string): boolean => {
         return statusId.startsWith('CUSTOM_');
     }, []);
+
+    const handleDeleteAllCards = async (statusId: string) => {
+        const confirmed = await confirmDeleteAllCards();
+        if (!confirmed) return;
+
+        const tasksInColumn = tasks[statusId] || [];
+        for (const task of tasksInColumn) {
+            deleteTask({ param: { taskId: task.$id } });
+        }
+
+        setTasks(prev => ({ ...prev, [statusId]: [] }));
+    };
+
+    const handleArchiveAllCards = async (statusId: string) => {
+        const confirmed = await confirmArchiveAllCards();
+        if (!confirmed) return;
+
+        const tasksInColumn = tasks[statusId] || [];
+        for (const task of tasksInColumn) {
+            updateTask({
+                param: { taskId: task.$id },
+                json: {
+                    archived: true,
+                    archivedAt: new Date(),
+                    archivedBy: currentMemberId,
+                }
+            });
+        }
+
+        setTasks(prev => ({ ...prev, [statusId]: [] }));
+    };
 
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
@@ -818,6 +861,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             statusInfo={statusObj}
                                                             onEditColumn={() => handleOpenEditColumn(statusObj)}
                                                             onMoveAllCards={(targetStatusId) => handleMoveAllCards(statusObj.id, targetStatusId)}
+                                                            onDeleteAllCards={() => handleDeleteAllCards(statusObj.id)}
+                                                            onArchiveAllCards={() => handleArchiveAllCards(statusObj.id)}
                                                             onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
                                                             availableStatuses={orderedStatuses}
                                                             isRigidLimitReached={isRigidLimitReached}
@@ -898,6 +943,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
             />
 
             <ConfirmDeleteDialog />
+            <ConfirmDeleteAllCardsDialog />
+            <ConfirmArchiveAllCardsDialog />
 
             {selectedTaskId && (
                 <TaskDetailsModal
