@@ -9,6 +9,7 @@ import { createAdminClient } from "@/lib/appwrite";
 import { getActiveContext } from "@/features/team/server/utils";
 import { google } from 'googleapis';
 import { cookies } from "next/headers";
+import { setCookie } from "hono/cookie";
 import dayjs from "dayjs";
 
 const app = new Hono()
@@ -557,11 +558,11 @@ const app = new Hono()
             const user = ctx.get('user');
 
             const cookieStore = await cookies();
-            const accessToken = cookieStore.get('google_access_token')?.value;
+            let accessToken = cookieStore.get('google_access_token')?.value;
             const expiresAt = parseInt(cookieStore.get('google_access_token_exp')?.value ?? '0');
 
-            if (!user?.prefs.google_calendar_scope || ((!accessToken || Date.now() > expiresAt) && !user?.prefs.google_refresh_token)) { // escenario 1, no hay ni token ni refresh, o falta el scope de calendar
-
+            if (!user?.prefs.google_calendar_scope || ((!accessToken || Date.now() > expiresAt) && !user?.prefs.google_refresh_token)) {
+                // Fallback: missing scope or no tokens at all — return OAuth auth URL
                 const oauth2Client = new google.auth.OAuth2(
                     GOOGLE_CLIENT_ID,
                     GOOGLE_CLIENT_SECRET,
@@ -573,36 +574,98 @@ const app = new Hono()
                     'email',
                     'profile',
                     'https://www.googleapis.com/auth/calendar.events'
-                ]
+                ];
 
                 const url = oauth2Client.generateAuthUrl({
                     access_type: 'offline',
-                    prompt: 'consent', // CHEQUEAR SI ES NECESARIO O ESTAMOS AGREGANDO UNA CAPA AL PEDO.
+                    prompt: 'consent',
                     client_id: GOOGLE_CLIENT_ID,
                     scope: scopes,
                     state: JSON.stringify({ dateStart, invited, title, duration, userId })
                 });
 
-                return ctx.json({ data: url })
+                return ctx.json({ data: url });
             }
 
-            const params = new URLSearchParams();
+            // Refresh access token inline if expired
+            if (!accessToken || Date.now() > expiresAt) {
+                const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        client_id: GOOGLE_CLIENT_ID!,
+                        client_secret: GOOGLE_CLIENT_SECRET!,
+                        redirect_uri: GOOGLE_REDIRECT_URI!,
+                        grant_type: 'refresh_token',
+                        refresh_token: user.prefs.google_refresh_token,
+                    }),
+                });
 
-            params.set("invited", invited);
-            params.set("dateStart", dateStart.toISOString());
-            params.set("title", title);
-            params.set("duration", duration);
-            params.set("userId", userId);
+                const tokenData = await tokenRes.json();
+                accessToken = tokenData.access_token;
 
-            if ((Date.now() > expiresAt || !accessToken) && user?.prefs.google_refresh_token) { // escenario 2, no hay token o expiro pero tenes el refresh en las prefs
-                params.set("use-refresh", 'true');
+                setCookie(ctx, 'google_access_token', tokenData.access_token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: true,
+                    maxAge: 60 * 60,
+                });
+                setCookie(ctx, 'google_access_token_exp', String(Date.now() + tokenData.expires_in * 1000), {
+                    path: '/',
+                    httpOnly: true,
+                    secure: true,
+                    maxAge: tokenData.expires_in,
+                });
             }
 
-            if (accessToken && Date.now() < expiresAt) { // escenario 3, todo ok, el access tiene validez
-                params.set("use-access-token", 'true');
+            const date = dayjs(dateStart);
+
+            if (date.isBefore(dayjs())) {
+                return ctx.json({ error: 'Date is in the past' }, 400);
             }
 
-            return ctx.json({ data: `${GOOGLE_REDIRECT_URI}?${params.toString()}` })
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const [amount, unit] = duration.split('-');
+            const eventEnd = date.add(Number(amount), unit === 'minute' ? unit : 'hour');
+
+            const oAuth2Client = new google.auth.OAuth2();
+            oAuth2Client.setCredentials({ access_token: accessToken });
+
+            const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+            const response = await calendar.events.insert({
+                calendarId: 'primary',
+                requestBody: {
+                    summary: title,
+                    start: { dateTime: date.toISOString(), timeZone },
+                    end: { dateTime: eventEnd.toISOString(), timeZone },
+                    attendees: [{ email: invited }],
+                    conferenceData: {
+                        createRequest: {
+                            requestId: `meet-${Date.now()}`,
+                            conferenceSolutionKey: { type: 'hangoutsMeet' },
+                        },
+                    },
+                },
+                conferenceDataVersion: 1,
+            });
+
+            const databases = ctx.get('databases');
+
+            await databases.createDocument(
+                DATABASE_ID,
+                MEETS_ID,
+                ID.unique(),
+                {
+                    userId,
+                    title,
+                    with: invited,
+                    url: response.data?.hangoutLink ?? '',
+                    date: date.toISOString(),
+                }
+            );
+
+            return ctx.json({ data: response.data?.hangoutLink ?? '' });
         }
     )
 
