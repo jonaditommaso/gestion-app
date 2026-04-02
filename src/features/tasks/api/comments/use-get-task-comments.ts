@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 interface UseGetTaskCommentsProps {
     taskId: string;
@@ -10,9 +11,13 @@ export const useGetTaskComments = ({
     taskId,
     enabled = true
 }: UseGetTaskCommentsProps) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['task-comments', taskId],
+        queryKey: ['task-comments', taskId, isDemo],
         queryFn: async () => {
+            if (isDemo) return { total: 0, documents: [] };
+
             const response = await client.api.comments.$get({
                 query: { taskId }
             });
@@ -25,7 +30,7 @@ export const useGetTaskComments = ({
 
             return data;
         },
-        enabled: enabled && !!taskId
+        enabled: !isLoadingUser && enabled && !!taskId
     })
 
     return query;

@@ -15,8 +15,8 @@ export const userButtonOptions: UserButtonOptionType[]  = [
         text: 'my-account',
         icon: <UserCog className="size-4 mr-2" />,
         action: 'my-account',
-        color: '',//'text-neutral-950',
-        hoverColor: ''// 'hover:!text-zinc-700'
+        color: '',
+        hoverColor: ''
     },
     {
         key: 'organization-settings',

@@ -33,7 +33,7 @@ export const useRegister = (options?: { onSuccess?: () => void }) => {
             if (onSuccessRef.current) {
                 onSuccessRef.current();
             } else if ('isDemo' in data && data.isDemo) {
-                router.push('/');
+                router.refresh();
             } else {
                 router.push('/onboarding');
             }

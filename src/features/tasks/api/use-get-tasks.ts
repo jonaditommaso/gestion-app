@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 import { TaskStatus } from "../types";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
 interface UseGetTasksProps {
     workspaceId?: string,
@@ -33,6 +35,9 @@ export const useGetTasks = ({
     limit,
     enabled = true
 }: UseGetTasksProps) => {
+    const { isDemo } = useAppContext();
+    const demoData = useDemoData();
+
     const query = useQuery({
         queryKey: [
             'tasks',
@@ -50,6 +55,15 @@ export const useGetTasks = ({
             limit
         ],
         queryFn: async () => {
+            if (isDemo) {
+                const docs = demoData.tasks.filter(t => {
+                    if (workspaceId && t.workspaceId !== workspaceId) return false;
+                    if (status && t.status !== status) return false;
+                    return true;
+                });
+                return { total: docs.length, documents: docs };
+            }
+
             const response = await client.api.tasks.$get(
                 {
                     query: {
@@ -79,7 +93,7 @@ export const useGetTasks = ({
         },
         retry: false,
         refetchOnMount: true,
-        enabled
+        enabled: isDemo || enabled
     })
 
     return query;

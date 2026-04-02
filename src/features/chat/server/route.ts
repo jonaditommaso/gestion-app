@@ -7,7 +7,7 @@ import { chatWithTools } from "@/ai/function-calling";
 import { PLUS_TOOLS } from "@/ai/tools/index";
 import { executeAction } from "@/ai/handlers";
 import type { ChatCompletionTool } from "groq-sdk/resources/chat/completions";
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { DATABASE_ID, CHAT_CONVERSATIONS_ID, CHAT_MESSAGES_ID, ROLES_PERMISSIONS_ID } from "@/config";
 import { createConversationSchema, sendChatMessageSchema } from "../schemas";
 import { getActiveContext } from "@/features/team/server/utils";
@@ -82,6 +82,7 @@ const app = new Hono()
         '/conversations',
         zValidator('json', createConversationSchema),
         sessionMiddleware,
+        demoGuard,
         async (ctx) => {
             const databases = ctx.get('databases');
             const user = ctx.get('user');
@@ -203,6 +204,7 @@ const app = new Hono()
         '/',
         zValidator('json', sendChatMessageSchema),
         sessionMiddleware,
+        demoGuard,
         async (ctx) => {
             const databases = ctx.get('databases');
             const user = ctx.get('user');

@@ -3,6 +3,8 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
 type ResponseType = InferResponseType<(typeof client.api.sells)[":dealId"]["$delete"]>;
 type RequestType = InferRequestType<(typeof client.api.sells)[":dealId"]["$delete"]>;
@@ -10,9 +12,16 @@ type RequestType = InferRequestType<(typeof client.api.sells)[":dealId"]["$delet
 export const useDeleteDeal = () => {
     const queryClient = useQueryClient();
     const t = useTranslations("sales");
+    const { isDemo } = useAppContext();
+    const { deleteDeal } = useDemoData();
 
     return useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ param }) => {
+            if (isDemo) {
+                deleteDeal(param.dealId);
+                return { success: true } as unknown as ResponseType;
+            }
+
             const response = await client.api.sells[":dealId"]["$delete"]({ param });
 
             if (!response.ok) {

@@ -1,4 +1,4 @@
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { ID, Models, Query } from "node-appwrite";
@@ -111,6 +111,7 @@ const app = new Hono()
     .post(
         "/sellers",
         sessionMiddleware,
+        demoGuard,
         zValidator("json", createDealSellerSchema),
         async (ctx) => {
             const databases = ctx.get("databases");
@@ -151,7 +152,7 @@ const app = new Hono()
         }
     )
 
-    .delete("/sellers/:sellerId", sessionMiddleware, async (ctx) => {
+    .delete("/sellers/:sellerId", sessionMiddleware, demoGuard, async (ctx) => {
         const databases = ctx.get("databases");
         const user = ctx.get("user");
         const { sellerId } = ctx.req.param();
@@ -355,6 +356,7 @@ const app = new Hono()
     .post(
         "/",
         sessionMiddleware,
+        demoGuard,
         zValidator("json", createDealSchema),
         async (ctx) => {
             const databases = ctx.get("databases");
@@ -417,6 +419,7 @@ const app = new Hono()
     .patch(
         "/:dealId",
         sessionMiddleware,
+        demoGuard,
         zValidator("json", updateDealSchema),
         async (ctx) => {
             const databases = ctx.get("databases");
@@ -601,7 +604,7 @@ const app = new Hono()
         }
     )
 
-    .delete("/:dealId", sessionMiddleware, async (ctx) => {
+    .delete("/:dealId", sessionMiddleware, demoGuard, async (ctx) => {
         const databases = ctx.get("databases");
         const user = ctx.get("user");
         const { dealId } = ctx.req.param();

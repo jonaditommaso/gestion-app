@@ -68,6 +68,16 @@ export const sessionMiddleware = createMiddleware<ContextType>(
     }
 )
 
+export const demoGuard = createMiddleware<ContextType>(
+    async (ctx, next) => {
+        const user = ctx.get('user');
+        if (user?.prefs?.isDemo === true) {
+            return ctx.json({ error: 'demo_not_allowed' }, 403);
+        }
+        await next();
+    }
+)
+
 export const sessionMfaMiddleware = createMiddleware<ContextType>(
     async (ctx, next) => {
         const client = new Client()

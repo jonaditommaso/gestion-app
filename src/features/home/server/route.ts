@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
 import { Client, Databases, ID, Query } from "node-appwrite";
 import { DATABASE_ID, DEAL_COMMENTS_ID, DEAL_SELLERS_ID, DEALS_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MEMBERS_ID, MESSAGES_ID, NOTES_ID, TASK_ACTIVITY_LOGS_ID, TASKS_ID, USER_HOME_CONFIG_ID, WORKSPACES_ID } from "@/config";
@@ -278,6 +278,7 @@ const app = new Hono()
         '/messages',
         zValidator('json', messagesSchema),
         sessionMiddleware,
+        demoGuard,
         async ctx => {
             const user = ctx.get('user');
             const databases = ctx.get('databases');

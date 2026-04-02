@@ -4,11 +4,16 @@ import { getActiveContext } from "@/features/team/server/utils";
 import { createAdminClient } from "@/lib/appwrite";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { DEMO_WORKSPACE_DEV_ID } from "@/lib/demo-data";
 
 const WorkspacesView = async () => {
     const user = await getCurrent();
 
     if (!user) redirect('/login');
+
+    if (user.prefs?.isDemo === true) {
+        redirect(`/workspaces/${DEMO_WORKSPACE_DEV_ID}`);
+    }
 
     const { databases } = await createAdminClient();
     const cookieStore = await cookies();

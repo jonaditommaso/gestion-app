@@ -171,9 +171,9 @@ const app = new Hono<ContextType>()
         '/register',
         zValidator('json', registerSchema),
         async ctx => {
-            const { name, email, password, plan, billingCycle, company, isDemo } = ctx.req.valid('json');
+            const { name, email, password, isDemo } = ctx.req.valid('json');
 
-            const { account, users, teams } = await createAdminClient();
+            const { account, users } = await createAdminClient();
 
             const newUser = await account.create(
                 ID.unique(),
@@ -182,28 +182,7 @@ const app = new Hono<ContextType>()
                 name
             );
 
-            if (isDemo && company) {
-
-                const newTeam = await teams.create(
-                    ID.unique(),
-                    company
-                );
-
-                await teams.createMembership(
-                    newTeam.$id,
-                    ['OWNER'],
-                    email,
-                );
-
-                await teams.updatePrefs(newTeam.$id, { plan, billingCycle, isDemo });
-
-                await users.updatePrefs(newUser.$id, {
-                    isDemo: true,
-                    image: undefined,
-                });
-            } else {
-                await users.updatePrefs(newUser.$id, { isDemo: !!isDemo });
-            }
+            await users.updatePrefs(newUser.$id, { isDemo: !!isDemo });
 
             const session = await account.createEmailPasswordSession(
                 email,

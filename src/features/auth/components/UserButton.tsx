@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 import { useAppContext } from "@/context/AppContext";
 
 const UserButton = () => {
-    const { currentUser: user, isLoadingUser: isLoading, teamContext } = useAppContext();
+    const { currentUser: user, isLoadingUser: isLoading, teamContext, isDemo } = useAppContext();
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
     const router = useRouter();
@@ -100,7 +100,7 @@ const UserButton = () => {
                     </div>
                 </div>
                 {userButtonOptions
-                    .filter(option => option.action !== 'organization-settings' || organizationRole === 'OWNER')
+                    .filter(option => option.action !== 'organization-settings' || (!isDemo && organizationRole === 'OWNER'))
                     .map(option => {
                     return (
                         <Fragment key={option.key}>

@@ -38,7 +38,7 @@ const AddNewMember = () => { //we receive the user quickly from server component
     const t = useTranslations('team');
     const { hasPermission, isLoading } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
-    const { teamContext } = useAppContext();
+    const { teamContext, isDemo } = useAppContext();
     const { limits } = usePlanAccess();
     const { data: membersData } = useGetMembers();
     const hasOrg = !!teamContext?.membership;
@@ -198,10 +198,13 @@ const AddNewMember = () => { //we receive the user quickly from server component
                                             <div className="flex items-center justify-end gap-2">
                                                 <Button onClick={() => setStep('choose')} variant='outline' type="button" disabled={isPending}>{t('back')}</Button>
                                                 <Button onClick={() => setIsOpen(false)} variant='outline' type="button" disabled={isPending}>{t('cancel')}</Button>
-                                                <Button disabled={isPending || !isValidInviteEmail}>
+                                                <Button disabled={isPending || !isValidInviteEmail || isDemo}>
                                                     {mode === 'url' ? t('generate-url') : t('send-existing-invite')}
                                                 </Button>
                                             </div>
+                                            {isDemo && (
+                                                <p className="text-xs text-muted-foreground text-right mt-1">{t('demo-action-limited')}</p>
+                                            )}
                                         </div>
                                     </motion.form>
                                 )}

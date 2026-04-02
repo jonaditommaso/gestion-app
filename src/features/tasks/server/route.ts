@@ -1,4 +1,4 @@
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
@@ -514,6 +514,7 @@ const app = new Hono()
     .post(
         '/',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', createTaskSchema),
         async (ctx) => {
             const user = ctx.get('user');
@@ -679,6 +680,7 @@ const app = new Hono()
     .delete(
         '/:taskId',
         sessionMiddleware,
+        demoGuard,
         async ctx => {
             const user = ctx.get('user');
             const databases = ctx.get('databases');
@@ -761,6 +763,7 @@ const app = new Hono()
     .patch(
         '/:taskId',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', createTaskSchema.partial()),
         async (ctx) => {
             const user = ctx.get('user');
@@ -1272,6 +1275,10 @@ const app = new Hono()
             const databases = ctx.get('databases');
 
             const { taskId } = ctx.req.param();
+
+            if (taskId.startsWith('demo-')) {
+                return ctx.json({ error: 'Not found' }, 404);
+            }
 
             const task = await databases.getDocument<Task>(
                 DATABASE_ID,

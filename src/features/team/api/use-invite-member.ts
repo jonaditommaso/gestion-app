@@ -4,6 +4,7 @@ import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
 
 type ResponseType = InferResponseType<typeof client.api.team.invite['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.team.invite['$post']>
@@ -15,9 +16,15 @@ export const useInviteMember = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
     const t = useTranslations('team');
+    const { isDemo } = useAppContext();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json }) => {
+            if (isDemo) {
+                toast.error(t('demo-invite-blocked'));
+                return { success: false } as unknown as ResponseType;
+            }
+
             const response = await client.api.team.invite['$post']({ json });
 
             if (!response.ok) {
@@ -27,7 +34,8 @@ export const useInviteMember = () => {
 
             return await response.json()
         },
-        onSuccess: () => {
+        onSuccess: (data, variables, context) => {
+            if (isDemo) return;
             toast.success(t('invitation-created'))
             router.refresh();
             queryClient.invalidateQueries({ queryKey: ['team'] })

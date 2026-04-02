@@ -1,10 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetOperations = (options?: { enabled?: boolean }) => {
+    const { isDemo } = useAppContext();
+    const demoData = useDemoData();
+
     const query = useQuery({
-        queryKey: ['billing',],
+        queryKey: ['billing'],
         queryFn: async () => {
+            if (isDemo) return { total: demoData.billingOps.length, documents: demoData.billingOps };
+
             const response = await client.api.billing.$get();
 
             if (!response.ok) {
@@ -16,7 +23,7 @@ export const useGetOperations = (options?: { enabled?: boolean }) => {
             return data;
         },
         retry: false,
-        enabled: options?.enabled ?? true,
+        enabled: isDemo || (options?.enabled ?? true),
     })
 
     return query;

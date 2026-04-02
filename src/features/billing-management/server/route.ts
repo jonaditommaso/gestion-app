@@ -1,4 +1,4 @@
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { billingOperationSchema, billingCategoriesSchema, billingOperationUpdateSchema } from '../schemas';
@@ -12,6 +12,7 @@ const app = new Hono()
     .post(
         '/',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', billingOperationSchema),
         async (ctx) => {
             const user = ctx.get('user');
@@ -252,6 +253,7 @@ const app = new Hono()
     .patch(
         '/:billingId',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', billingOperationUpdateSchema),
         async (ctx) => {
             const user = ctx.get('user');
@@ -307,6 +309,7 @@ const app = new Hono()
     .delete(
         '/:billingId',
         sessionMiddleware,
+        demoGuard,
         async (ctx) => {
             const user = ctx.get('user');
             const databases = ctx.get('databases');

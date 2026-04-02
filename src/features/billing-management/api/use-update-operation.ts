@@ -3,6 +3,9 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
+import type { BillingDoc } from "@/lib/demo-data";
 
 type ResponseType = InferResponseType<typeof client.api.billing[':billingId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.billing[':billingId']['$patch']>
@@ -10,9 +13,16 @@ type RequestType = InferRequestType<typeof client.api.billing[':billingId']['$pa
 export const useUpdateOperation = () => {
     const queryClient = useQueryClient();
     const t = useTranslations('billing');
+    const { isDemo } = useAppContext();
+    const { updateBillingOp } = useDemoData();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json, param }) => {
+            if (isDemo) {
+                updateBillingOp(param.billingId, json as Partial<BillingDoc>);
+                return { success: true } as unknown as ResponseType;
+            }
+
             const response = await client.api.billing[':billingId']['$patch']({ json, param });
 
             if (!response.ok) {

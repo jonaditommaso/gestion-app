@@ -10,6 +10,7 @@ import { getLocale } from 'next-intl/server';
 import { ChatBotProvider } from "@/context/ChatBotContext";
 import ChatBotPanel from "@/components/ChatBotPanel";
 import { AppProvider } from "@/context/AppContext";
+import { DemoDataProvider } from "@/context/DemoDataContext";
 import { getCurrent } from "@/features/auth/queries";
 
 const montserrat = Montserrat({
@@ -46,12 +47,14 @@ export default async function RootLayout({
               disableTransitionOnChange
             >
               <AppProvider hasSession={!!user}>
-                <ChatBotProvider>
-                  <AppStructure />
-                  <Toaster />
-                  <ChatBotPanel />
-                  {children}
-                </ChatBotProvider>
+                <DemoDataProvider>
+                  <ChatBotProvider>
+                    <AppStructure />
+                    <Toaster />
+                    <ChatBotPanel />
+                    {children}
+                  </ChatBotProvider>
+                </DemoDataProvider>
               </AppProvider>
             </ThemeProvider>
           </TanstackQueryProvider>
