@@ -14,7 +14,7 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
@@ -26,6 +26,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useDeleteTask } from "../api/use-delete-task";
 import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { useUpdateTask } from "../api/use-update-task";
 import { useGetMembers } from "@/features/members/api/use-get-members";
@@ -50,9 +51,9 @@ const insertPositionStore: InsertPositionStore = {};
 const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanProps) => {
     const config = useWorkspaceConfig();
     const t = useTranslations('workspaces');
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const workspaceId = useWorkspaceId();
-    const { data: membersData } = useGetMembers({ workspaceId });
+    const { data: membersData } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const { mutate: updateWorkspace } = useUpdateWorkspace();
     const { data: workspaces } = useGetWorkspaces();
     const { allStatuses } = useCustomStatuses();
@@ -64,6 +65,18 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         t('delete-column-confirm-title'),
         t('delete-column-confirm-message'),
         'destructive'
+    );
+
+    const [ConfirmDeleteAllCardsDialog, confirmDeleteAllCards] = useConfirm(
+        t('delete-all-cards-confirm-title'),
+        t('delete-all-cards-confirm-message'),
+        'destructive'
+    );
+
+    const [ConfirmArchiveAllCardsDialog, confirmArchiveAllCards] = useConfirm(
+        t('archive-all-cards-confirm-title'),
+        t('archive-all-cards-confirm-message'),
+        'default'
     );
 
     const { mutate: deleteTask } = useDeleteTask();
@@ -109,6 +122,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
 
     // Get workspace-level permissions
     const { canCreateColumn } = useWorkspacePermissions();
+    const { isFree } = usePlanAccess();
 
     const handleUpdateLabel = (status: TaskStatus, label: string) => {
         const labelKey = STATUS_TO_LABEL_KEY[status];
@@ -399,6 +413,37 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const isCustomStatus = useCallback((statusId: string): boolean => {
         return statusId.startsWith('CUSTOM_');
     }, []);
+
+    const handleDeleteAllCards = async (statusId: string) => {
+        const confirmed = await confirmDeleteAllCards();
+        if (!confirmed) return;
+
+        const tasksInColumn = tasks[statusId] || [];
+        for (const task of tasksInColumn) {
+            deleteTask({ param: { taskId: task.$id } });
+        }
+
+        setTasks(prev => ({ ...prev, [statusId]: [] }));
+    };
+
+    const handleArchiveAllCards = async (statusId: string) => {
+        const confirmed = await confirmArchiveAllCards();
+        if (!confirmed) return;
+
+        const tasksInColumn = tasks[statusId] || [];
+        for (const task of tasksInColumn) {
+            updateTask({
+                param: { taskId: task.$id },
+                json: {
+                    archived: true,
+                    archivedAt: new Date(),
+                    archivedBy: currentMemberId,
+                }
+            });
+        }
+
+        setTasks(prev => ({ ...prev, [statusId]: [] }));
+    };
 
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
@@ -763,7 +808,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 }}
                                             >
                                                 {/* Add column divider before columns */}
-                                                {canCreateColumn && (
+                                                {canCreateColumn && !isFree && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
@@ -816,6 +861,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             statusInfo={statusObj}
                                                             onEditColumn={() => handleOpenEditColumn(statusObj)}
                                                             onMoveAllCards={(targetStatusId) => handleMoveAllCards(statusObj.id, targetStatusId)}
+                                                            onDeleteAllCards={() => handleDeleteAllCards(statusObj.id)}
+                                                            onArchiveAllCards={() => handleArchiveAllCards(statusObj.id)}
                                                             onDeleteColumn={() => handleDeleteColumn(statusObj.id)}
                                                             availableStatuses={orderedStatuses}
                                                             isRigidLimitReached={isRigidLimitReached}
@@ -851,7 +898,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 </div>
 
                                                 {/* Add column divider after last column */}
-                                                {canCreateColumn && index === orderedStatuses.length - 1 && (
+                                                {canCreateColumn && !isFree && index === orderedStatuses.length - 1 && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index + 1}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>
@@ -896,6 +943,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
             />
 
             <ConfirmDeleteDialog />
+            <ConfirmDeleteAllCardsDialog />
+            <ConfirmArchiveAllCardsDialog />
 
             {selectedTaskId && (
                 <TaskDetailsModal

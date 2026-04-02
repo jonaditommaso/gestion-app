@@ -10,7 +10,8 @@ import { useResizePanel } from "@/hooks/useResizePanel";
 import { useSendMessage } from "@/features/chat/api/use-send-message";
 import { useGetConversations } from "@/features/chat/api/use-get-conversations";
 import { useDeleteConversation } from "@/features/chat/api/use-delete-conversation";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
 import { MODELS } from "@/ai/config";
@@ -47,11 +48,12 @@ const ChatBotPanel = () => {
   const resizeRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { data: currentUser } = useCurrent();
+  const { currentUser } = useAppContext();
+  const { isFree } = usePlanAccess();
 
   // Obtener conversaciones de la BD
   const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations({
-    enabled: Boolean(currentUser),
+    enabled: Boolean(currentUser) && !isFree,
   });
 
   // Callback cuando se elimina una conversación exitosamente
@@ -317,11 +319,20 @@ const ChatBotPanel = () => {
     }
   };
 
+  const scrollToBottom = useCallback(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+
+    const viewport = root.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement | null;
+    const target = viewport || root;
+    target.scrollTop = target.scrollHeight;
+  }, []);
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+    if (!isOpen || showHistory) return;
+    const frame = window.requestAnimationFrame(scrollToBottom);
+    return () => window.cancelAnimationFrame(frame);
+  }, [messages, isOpen, showHistory, scrollToBottom]);
 
   if (!isOpen) return null;
 
@@ -335,6 +346,7 @@ const ChatBotPanel = () => {
 
       {/* Panel del ChatBot */}
       <div
+        data-testid="chatbot-panel"
         className={`chatbot-panel fixed top-0 right-0 h-full bg-background border-l shadow-2xl z-50 flex flex-col ${
           isResizing ? 'resizing' : ''
         }`}
@@ -372,6 +384,7 @@ const ChatBotPanel = () => {
               onClick={() => setShowHistory(!showHistory)}
               className="h-8 w-8"
               title={t("history")}
+              data-testid="chat-history-toggle"
             >
               <History className="h-4 w-4" />
             </Button>
@@ -381,6 +394,7 @@ const ChatBotPanel = () => {
               onClick={toggleChatBot}
               className="h-8 w-8"
               title={t("close")}
+              data-testid="chatbot-close"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -488,9 +502,16 @@ const ChatBotPanel = () => {
                   ) : (
                     /* Mensaje de la IA - estilo plano con hover */
                     <div className="w-full">
-                      <div className="text-sm leading-relaxed">
-                        <MarkdownContent content={message.content} />
-                      </div>
+                      {isLoading && !message.content.trim() ? (
+                        <div data-testid="chat-loading" className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>{t("assistant-working")}</span>
+                        </div>
+                      ) : (
+                        <div className="text-sm leading-relaxed">
+                          <MarkdownContent content={message.content} />
+                        </div>
+                      )}
                       <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-2 block">
                         {message.modelName || lastModelName}
                       </span>
@@ -525,6 +546,7 @@ const ChatBotPanel = () => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
               disabled={isLoading}
+              data-testid="chatbot-input"
               className="auto-resize-textarea flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               rows={1}
             />

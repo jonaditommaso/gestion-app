@@ -21,7 +21,7 @@ export function DialogContainer({ isOpen, children, setIsOpen, title, descriptio
       {/* <DialogTrigger asChild>
         {triggerText}
       </DialogTrigger> */}
-      <DialogContent className="sm:max-w-[550px] pb-0 focus:outline-none">
+      <DialogContent className="sm:max-w-[560px] pb-0 focus:outline-none">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="text-balance">

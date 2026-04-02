@@ -1,6 +1,7 @@
 'use client'
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { COLOR_PRESETS } from "./constants/color-presets";
 import { MembersProvider } from "@/context/MembersContext";
@@ -12,7 +13,15 @@ interface WorkspacesLayoutProps {
 const WorkspacesLayout = ({ children }: WorkspacesLayoutProps) => {
     const params = useParams();
     const workspaceId = params?.workspaceId as string | undefined;
-    const { data: workspaces } = useGetWorkspaces();
+    const router = useRouter();
+    const { data: workspaces, isLoading } = useGetWorkspaces();
+
+    useEffect(() => {
+        if (isLoading || !workspaceId || workspaceId === 'create') return;
+        if (workspaces && !workspaces.documents.find(ws => ws.$id === workspaceId)) {
+            router.replace('/workspaces');
+        }
+    }, [isLoading, workspaces, workspaceId, router]);
 
     // Get background color from workspace metadata
     const getBackgroundClass = () => {
@@ -43,8 +52,8 @@ const WorkspacesLayout = ({ children }: WorkspacesLayoutProps) => {
         </div>
     );
 
-    // Solo envolver con MembersProvider si hay un workspaceId
-    if (workspaceId) {
+    // Solo envolver con MembersProvider si hay un workspaceId real (no 'create')
+    if (workspaceId && workspaceId !== 'create') {
         return (
             <MembersProvider workspaceId={workspaceId}>
                 {content}

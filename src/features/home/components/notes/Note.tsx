@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import { Bookmark, Palette, Pencil, Pin, PinOff, Trash2 } from "lucide-react";
+import { Bell, Bookmark, Palette, Pencil, Pin, PinOff, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import dynamic from "next/dynamic";
@@ -9,24 +9,29 @@ import { NoteData } from "../../types";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useUpdateNote } from "../../api/use-update-note";
+import { format } from "date-fns";
 
 const ColorNoteSelector = dynamic(() => import('./ColorNoteSelector'))
+const NoteReminderPicker = dynamic(() => import('./NoteReminderPicker'))
 
 interface NoteProps {
     note: NoteData;
     onEdit: (note: NoteData) => void;
     onDelete: (id: string) => void;
     onUpdateColor: (id: string, color: string) => void;
+    hideReminder?: boolean;
 }
 
-const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
-    const { title, content, bgColor, $id, isPinned, isModern, hasLines } = note;
+const Note = ({ note, onEdit, onDelete, onUpdateColor, hideReminder }: NoteProps) => {
+    const { title, content, bgColor, $id, isPinned, isModern, hasLines, reminderAt, reminderNotified } = note;
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+    const [reminderPopoverOpen, setReminderPopoverOpen] = useState(false);
     const t = useTranslations('home');
     const { theme } = useTheme();
     const { mutate: updateNote } = useUpdateNote();
 
     const iconClass = `h-4 w-4 ${theme !== 'dark' && bgColor === 'none' ? 'text-slate-900' : 'text-slate-50'}`;
+    const hasReminder = !!reminderAt;
 
     const handlePinNote = () => {
         updateNote({
@@ -82,6 +87,12 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                 bgColor === 'none' ? 'bg-sidebar' : bgColor
             )}
         >
+            {/* Active reminder badge */}
+            {hasReminder && !reminderNotified && (
+                <div className="absolute top-2 right-2 z-10 pointer-events-none">
+                    <Bell className="h-3 w-3 text-amber-400" />
+                </div>
+            )}
             {isModern && (
                 <>
                     <div
@@ -170,14 +181,34 @@ const Note = ({ note, onEdit, onDelete, onUpdateColor }: NoteProps) => {
                 </Popover>
 
                 <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
-                    onClick={() => onEdit(note)}
-                    title={t('edit-note')}
-                >
-                    <Pencil className={iconClass} />
-                </Button>
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
+                        onClick={() => onEdit(note)}
+                        title={t('edit-note')}
+                    >
+                        <Pencil className={iconClass} />
+                    </Button>
+
+                    {!hideReminder && (
+                    <Popover open={reminderPopoverOpen} onOpenChange={setReminderPopoverOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
+                                title={hasReminder ? format(new Date(reminderAt!), 'dd/MM HH:mm') : t('set-reminder')}
+                            >
+                                <Bell className={hasReminder ? 'h-4 w-4 text-amber-400' : iconClass} />
+                            </Button>
+                        </PopoverTrigger>
+                        <NoteReminderPicker
+                            noteId={$id}
+                            reminderAt={reminderAt}
+                            onClose={() => setReminderPopoverOpen(false)}
+                        />
+                    </Popover>
+                    )}
 
                 <Button
                     variant="ghost"

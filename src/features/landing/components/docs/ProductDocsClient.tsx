@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Settings, FileText, CreditCard, Users } from 'lucide-react';
+import { ChevronDown, ChevronRight, Settings, CreditCard, Users, TrendingUp, Bot, Shield, LayoutDashboard } from 'lucide-react';
 import WorkspacesDocumentation from '@/features/landing/components/docs/WorkspacesDocumentation';
-import RecordsDocumentation from '@/features/landing/components/docs/RecordsDocumentation';
+import SellsDocumentation from '@/features/landing/components/docs/SellsDocumentation';
+import AIAssistantDocumentation from '@/features/landing/components/docs/AIAssistantDocumentation';
 import BillingDocumentation from '@/features/landing/components/docs/BillingDocumentation';
 import TeamDocumentation from '@/features/landing/components/docs/TeamDocumentation';
+import RolesDocumentation from '@/features/landing/components/docs/RolesDocumentation';
+import HomeDocumentation from '@/features/landing/components/docs/HomeDocumentation';
 import { useTranslations } from 'next-intl';
 
 export default function ProductDocsClient() {
@@ -13,9 +16,12 @@ export default function ProductDocsClient() {
     const [activeSection, setActiveSection] = useState("workspace-overview");
     const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
         workspaces: true,
-        records: false,
+        sells: false,
+        'ai-assistant': false,
         billing: false,
-        team: false
+        team: false,
+        roles: false,
+        home: false,
     });
 
     const toggleSection = (sectionId: string) => {
@@ -38,13 +44,23 @@ export default function ProductDocsClient() {
             ]
         },
         {
-            id: "records",
-            title: "Records",
-            icon: <FileText className="h-4 w-4" />,
+            id: "sells",
+            title: "Ventas & CRM",
+            icon: <TrendingUp className="h-4 w-4" />,
             subsections: [
-                { id: "records-overview", title: "Visión General" },
-                { id: "records-create", title: "Crear Tablas" },
-                { id: "records-management", title: "Gestión de Datos" }
+                { id: "sells-overview", title: "Visión General" },
+                { id: "sells-pipeline", title: "Pipeline & Tratos" },
+                { id: "sells-analytics", title: "Analytics & Reportes" }
+            ]
+        },
+        {
+            id: "ai-assistant",
+            title: "AI Agent",
+            icon: <Bot className="h-4 w-4" />,
+            subsections: [
+                { id: "ai-overview", title: "Visión General" },
+                { id: "ai-capabilities", title: "Capacidades por Plan" },
+                { id: "ai-usage", title: "Cómo Usarlo" }
             ]
         },
         {
@@ -66,36 +82,58 @@ export default function ProductDocsClient() {
                 { id: "team-invitations", title: "Invitaciones" },
                 { id: "team-permissions", title: "Permisos" }
             ]
-        }
+        },
+        {
+            id: "roles",
+            title: "Roles & Permisos",
+            icon: <Shield className="h-4 w-4" />,
+            subsections: [
+                { id: "roles-overview", title: "Visión General" },
+                { id: "roles-permissions", title: "Permisos Granulares" }
+            ]
+        },
+        {
+            id: "home",
+            title: "Home Dashboard",
+            icon: <LayoutDashboard className="h-4 w-4" />,
+            subsections: [
+                { id: "home-overview", title: "Visión General" },
+                { id: "home-widgets", title: "Widgets Disponibles" }
+            ]
+        },
     ]
 
     const getContent = () => {
         const workspacesSections = WorkspacesDocumentation();
-        const recordsSections = RecordsDocumentation();
+        const sellsSections = SellsDocumentation();
+        const aiSections = AIAssistantDocumentation();
         const billingSections = BillingDocumentation();
         const teamSections = TeamDocumentation();
+        const rolesSections = RolesDocumentation();
+        const homeSections = HomeDocumentation();
 
-        // Mapear secciones de workspaces
         if (workspacesSections[activeSection as keyof typeof workspacesSections]) {
             return workspacesSections[activeSection as keyof typeof workspacesSections];
         }
-
-        // Mapear secciones de records
-        if (recordsSections[activeSection as keyof typeof recordsSections]) {
-            return recordsSections[activeSection as keyof typeof recordsSections];
+        if (sellsSections[activeSection as keyof typeof sellsSections]) {
+            return sellsSections[activeSection as keyof typeof sellsSections];
         }
-
-        // Mapear secciones de billing
+        if (aiSections[activeSection as keyof typeof aiSections]) {
+            return aiSections[activeSection as keyof typeof aiSections];
+        }
         if (billingSections[activeSection as keyof typeof billingSections]) {
             return billingSections[activeSection as keyof typeof billingSections];
         }
-
-        // Mapear secciones de team
         if (teamSections[activeSection as keyof typeof teamSections]) {
             return teamSections[activeSection as keyof typeof teamSections];
         }
+        if (rolesSections[activeSection as keyof typeof rolesSections]) {
+            return rolesSections[activeSection as keyof typeof rolesSections];
+        }
+        if (homeSections[activeSection as keyof typeof homeSections]) {
+            return homeSections[activeSection as keyof typeof homeSections];
+        }
 
-        // Contenido por defecto
         return (
             <div className="space-y-8">
                 <div>

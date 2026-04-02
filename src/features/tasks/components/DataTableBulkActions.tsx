@@ -20,6 +20,7 @@ import { motion } from "motion/react"
 import { useState } from "react"
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "@/features/roles/constants"
+import { usePlanAccess } from "@/hooks/usePlanAccess"
 
 interface DataTableBulkActionsProps<TData> {
   selectedTasks: TData[]
@@ -48,6 +49,8 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
   const { hasPermission } = useCurrentUserPermissions()
   const canWrite = hasPermission(PERMISSIONS.WRITE)
   const canDelete = hasPermission(PERMISSIONS.DELETE)
+  const { isFree } = usePlanAccess()
+  const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS
   const [DeleteDialog, confirmDelete] = useConfirm(
     t('delete-tasks'),
     t('delete-tasks-confirm', { count: selectedCount }),
@@ -243,7 +246,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
                     <span>{t('bulk-set-type')}</span>
                   </SelectTrigger>
                   <SelectContent>
-                    {TASK_TYPE_OPTIONS.map((type) => {
+                    {taskTypeOptions.map((type) => {
                       const Icon = type.icon
                       return (
                         <SelectItem key={type.value} value={type.value}>

@@ -12,6 +12,8 @@ import { useShowAlertBilling } from "../../hooks/useShowAlertBilling";
 import { ViewType } from "../../types";
 import FollowUpPanel from "../followup/FollowUpPanel";
 import MonthlyComparison from "../details/MonthlyComparison";
+import DraftsTable from "../drafts/DraftsTable";
+import ArchivedTable from "../archived/ArchivedTable";
 import { useGetOperations } from "../../api/use-get-operations";
 import dayjs from "dayjs";
 import { useMemo } from "react";
@@ -55,7 +57,9 @@ const BillingDashboard = () => {
         followup: <FollowUpPanel />,
         categories: <AllCategoriesTable />,
         incomes: <OperationStats type="incomes" />,
-        expenses: <OperationStats type="expenses" />
+        expenses: <OperationStats type="expenses" />,
+        drafts: <DraftsTable />,
+        archived: <ArchivedTable />,
     };
 
     const currentViewContent = views[currentView as keyof typeof views];

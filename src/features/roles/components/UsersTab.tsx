@@ -8,16 +8,20 @@ import { useGetMembers } from "@/features/team/api/use-get-members"
 import { getRoleColor, getPermissionBadgeColor, type RoleType } from "../constants"
 import { useGetFinalRolesPermissions } from "../hooks/useGetFinalRolesPermissions"
 import FadeLoader from "react-spinners/FadeLoader"
-import { MemberUser, RoleUser } from "../types"
+import { RoleUser } from "../types"
 import { useTranslations } from "next-intl"
+import { useGetTeamContext } from "@/features/team/api/use-get-team-context"
 
 export function UsersTab() {
   const t = useTranslations('roles')
   const [selectedUser, setSelectedUser] = useState<RoleUser | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const { data: team, isLoading } = useGetMembers()
+  const { data, isLoading } = useGetMembers()
+  const { data: teamContext } = useGetTeamContext()
   const finalRolePermissions = useGetFinalRolesPermissions();
+  const team = data?.members;
+  const currentUserIsOwner = teamContext?.membership?.role === 'OWNER';
 
   // TODO: update automatically users list when a user's role is changed. Check useUpdateUserRole
 
@@ -47,9 +51,10 @@ export function UsersTab() {
       <FilterUser searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       <div className="grid gap-4">
-        {filteredUsers.map((user: MemberUser) => {
+        {filteredUsers.map((user) => {
 
-          const role = (user.prefs?.role as RoleType) || 'VIEWER'
+          const rawRole = user.prefs?.role as string
+          const role = (rawRole as RoleType) || 'VIEWER'
           const roleConfig = finalRolePermissions.find(r => r.role === role)
           const permissions = roleConfig?.permissions || []
 
@@ -62,6 +67,8 @@ export function UsersTab() {
             status: user.status ? "active" : "inactive",
           } as const
 
+          const showEditButton = !(currentUserIsOwner && rawRole === 'OWNER')
+
           return (
             <UserCard
               key={user.$id}
@@ -69,6 +76,7 @@ export function UsersTab() {
               getRoleColor={(roleName: string) => getRoleColor(roleName as RoleType)}
               getPermissionBadgeColor={getPermissionBadgeColor}
               onViewPermissions={() => handleViewPermissions(roleUser)}
+              showEditButton={showEditButton}
             />
           )
         })}

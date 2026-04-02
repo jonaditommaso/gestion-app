@@ -1,4 +1,4 @@
-import { BarChart3, CreditCard, FileText, FolderPlus, MessageSquare, Users } from "lucide-react";
+import { TrendingUp, CreditCard, FileText, FolderPlus, MessageSquare, Users } from "lucide-react";
 
 export const features = [
     {
@@ -28,11 +28,11 @@ export const features = [
         ]
     },
     {
-        id: 'records',
+        id: 'sells',
         title: 'feature-3-title',
         description: 'feature-3-description',
         color: 'green',
-        icon: <BarChart3 className="h-6 w-6 text-white" />,
+        icon: <TrendingUp className="h-6 w-6 text-white" />,
         items: [
             'feature-3-item-1',
             'feature-3-item-2',

@@ -9,6 +9,8 @@ export interface NoteData {
     pinnedAt?: string | null;
     isGlobal?: boolean;
     globalAt?: string | null;
+    reminderAt?: string | null;
+    reminderNotified?: boolean;
     userId: string;
     $collectionId: string;
     $databaseId: string;

@@ -10,6 +10,7 @@ interface EditableTextProps {
     onSave: (value: string) => void;
     placeholder?: string;
     disabled?: boolean;
+    readOnly?: boolean;
     size?: SizeVariant;
     multiline?: boolean;
     maxLength?: number;
@@ -41,6 +42,7 @@ const EditableText = ({
     onSave,
     placeholder = 'Click to edit...',
     disabled = false,
+    readOnly = false,
     size = 'md',
     multiline = false,
     maxLength,
@@ -93,7 +95,7 @@ const EditableText = ({
         }
     };
 
-    if (isEditing && !disabled) {
+    if (isEditing && !disabled && !readOnly) {
         const baseInputClass = cn(
             'w-full bg-transparent border rounded focus:outline-none focus:ring-2 focus:ring-ring',
             config.text,
@@ -129,13 +131,14 @@ const EditableText = ({
 
     return (
         <div
-            onClick={() => !disabled && setIsEditing(true)}
+            onClick={() => !disabled && !readOnly && setIsEditing(true)}
             className={cn(
                 'cursor-pointer hover:bg-muted/50 rounded transition-all border border-transparent',
                 config.text,
                 config.minHeight,
                 config.padding,
                 disabled && 'cursor-not-allowed opacity-60',
+                readOnly && 'cursor-default',
                 className,
                 displayClassName
             )}

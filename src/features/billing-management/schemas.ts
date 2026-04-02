@@ -15,13 +15,16 @@ const billingOperationBaseSchema = zod.object({
     isRecurring: zod.boolean().optional(),
     recurrenceRule: zod.enum(['WEEKLY', 'MONTHLY']).optional(),
     nextOccurrenceDate: zod.coerce.date().optional(),
-    archived: zod.boolean().optional(),
-    import: zod.number({ required_error: "Import is required" }).positive(),
+    isArchived: zod.boolean().optional(),
+    isDraft: zod.boolean().optional(),
+    import: zod.number({ required_error: "Import is required" }).min(0),
     note: zod.string().optional(),
     category: zod.string().min(1, 'Category is required'),
 })
 
 export const billingOperationSchema = billingOperationBaseSchema.superRefine((values, ctx) => {
+    if (values.isDraft) return;
+
     if (values.dueDate && values.dueDate < values.date) {
         ctx.addIssue({
             code: zod.ZodIssueCode.custom,

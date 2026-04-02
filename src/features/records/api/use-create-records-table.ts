@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
-type ResponseType = InferResponseType<typeof client.api.records['records-table']['$post']>
+type ResponseType = InferResponseType<typeof client.api.records['records-table']['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.records['records-table']['$post']>
 
 export const useCreateRecordsTable = () => {
@@ -14,10 +14,10 @@ export const useCreateRecordsTable = () => {
     const t = useTranslations('records');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({json }) => {
+        mutationFn: async ({ json }) => {
             const response = await client.api.records['records-table']['$post']({ json });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to create records table')
             }
 

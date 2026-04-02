@@ -1,6 +1,7 @@
+import { cache } from 'react';
 import { createSessionClient } from "@/lib/appwrite"
 
-export const getCurrent = async () => {
+export const getCurrent = cache(async () => {
     try {
         const { account } = await createSessionClient();
 
@@ -16,4 +17,4 @@ export const getCurrent = async () => {
     } catch {
         return null;
     }
-}
+})

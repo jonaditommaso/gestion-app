@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { Check, UserPlus, X } from "lucide-react";
 import { useAssignTask } from "../api/use-assign-task";
 import { useUnassignTask } from "../api/use-unassign-task";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 
 interface TaskAssigneesManagerProps {
     taskId: string;
@@ -21,7 +21,7 @@ interface TaskAssigneesManagerProps {
 export const TaskAssigneesManager = ({ taskId, assignees, availableMembers, readOnly = false }: TaskAssigneesManagerProps) => {
     const t = useTranslations('workspaces');
     const [open, setOpen] = useState(false);
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
     const { mutate: assignTask, isPending: isAssigning } = useAssignTask();
     const { mutate: unassignTask, isPending: isUnassigning } = useUnassignTask();
 

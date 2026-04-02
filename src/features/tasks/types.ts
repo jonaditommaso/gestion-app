@@ -14,12 +14,37 @@ export enum TaskShareType {
     EXTERNAL = 'EXTERNAL'
 };
 
+export type SpikeFinding = {
+    id: string;
+    content: string; // HTML rich text
+    createdAt: string; // ISO timestamp
+};
+
+export type TestCaseStatus = 'pending' | 'pass' | 'fail';
+
+export type TestCase = {
+    id: string;
+    name: string;
+    status: TestCaseStatus;
+};
+
+export type TestScenario = {
+    id: string;
+    name: string;
+    cases: TestCase[];
+    collapsed?: boolean;
+};
+
 export type TaskMetadata = {
     imageIds?: string[];
-    // Aquí podemos agregar más campos en el futuro:
-    // attachments?: string[];
-    // mentions?: string[];
-    // tags?: string[];
+    spikeFindings?: SpikeFinding[]; // timeline of findings from spike investigation
+    spikeConclusion?: string; // HTML rich text - conclusion from spike investigation
+    spikeConclusionType?: 'adopt' | 'reject' | 'investigate'; // outcome type of the spike
+    testScenarios?: TestScenario[]; // suites of test cases for test type tasks
+    isTdd?: boolean; // whether this test was written before (TDD) or after development
+    bugExpected?: string; // HTML rich text - expected behavior
+    bugActual?: string; // HTML rich text - actual/current behavior
+    bugRootCause?: string; // plain text - root cause explanation after resolution
 }
 
 export type WorkspaceMember = Models.Document & {
@@ -53,6 +78,29 @@ export type Task = Models.Document & {
     archived?: boolean, // Whether the task is archived
     archivedBy?: string, // ID of the member who archived the task
     archivedAt?: string, // Date when task was archived
+    linkedTaskId?: string, // ID of the task this task originated from (e.g., spike that led to this task)
+    squads?: TaskSquad[], // Populated: squads assigned to this task
+}
+
+export type TaskSquad = Models.Document & {
+    name: string;
+    workspaceId: string;
+    createdByMemberId: string;
+    leadMemberId?: string;
+    metadata?: string | null;
+    // Populated fields
+    members?: WorkspaceMember[];
+    leadMember?: WorkspaceMember;
+}
+
+export type TaskSquadMember = Models.Document & {
+    squadId: string;
+    memberId: string;
+}
+
+export type TaskSquadAssignee = Models.Document & {
+    taskId: string;
+    squadId: string;
 }
 
 export type TaskShare = Models.Document & {

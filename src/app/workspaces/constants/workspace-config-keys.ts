@@ -35,6 +35,11 @@ export enum WorkspaceConfigKey {
     LABEL_IN_REVIEW = 'labelInReview',
     LABEL_DONE = 'labelDone',
 
+    // Urgent Visual Alerts
+    URGENT_VISUAL_ALERTS = 'urgentVisualAlerts',
+    URGENT_WARNING_1_DAYS = 'urgentWarning1Days',
+    URGENT_WARNING_2_DAYS = 'urgentWarning2Days',
+
     // Task Preferences
     REQUIRED_ASSIGNEE = 'requiredAssignee',
     REQUIRED_DUE_DATE = 'requiredDueDate',
@@ -47,6 +52,10 @@ export enum WorkspaceConfigKey {
     MULTI_SELECT_LABELS = 'multiSelectLabels',
     HIDE_EPIC_PROGRESS_BAR = 'hideEpicProgressBar',
     TABLE_PAGE_SIZE = 'tablePageSize',
+
+    // Calendar
+    CALENDAR_VIEW = 'calendarView',
+    CALENDAR_DATE_MODE = 'calendarDateMode',
 
     // Notifications
     NOTIFY_TASK_ASSIGNMENT = 'notifyTaskAssignment',
@@ -80,6 +89,22 @@ export enum ColumnLimitType {
 export enum DateFormatType {
     SHORT = 'short',
     LONG = 'long',
+}
+
+/**
+ * Calendar view types
+ */
+export enum CalendarViewType {
+    MONTH = 'month',
+    WEEK = 'week',
+}
+
+/**
+ * Calendar date mode types
+ */
+export enum CalendarDateModeType {
+    DUE_DATE = 'dueDate',
+    CREATED_AT = 'createdAt',
 }
 
 /**
@@ -126,6 +151,11 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.LABEL_IN_REVIEW]: null,
     [WorkspaceConfigKey.LABEL_DONE]: null,
 
+    // Urgent visual alerts
+    [WorkspaceConfigKey.URGENT_VISUAL_ALERTS]: true,
+    [WorkspaceConfigKey.URGENT_WARNING_1_DAYS]: 1,
+    [WorkspaceConfigKey.URGENT_WARNING_2_DAYS]: 2,
+
     // Task preferences
     [WorkspaceConfigKey.REQUIRED_ASSIGNEE]: false,
     [WorkspaceConfigKey.REQUIRED_DUE_DATE]: false,
@@ -138,6 +168,10 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.MULTI_SELECT_LABELS]: false, // single select by default
     [WorkspaceConfigKey.HIDE_EPIC_PROGRESS_BAR]: false, // show progress bar by default
     [WorkspaceConfigKey.TABLE_PAGE_SIZE]: 10, // 10 items per page by default
+
+    // Calendar defaults
+    [WorkspaceConfigKey.CALENDAR_VIEW]: CalendarViewType.MONTH,
+    [WorkspaceConfigKey.CALENDAR_DATE_MODE]: CalendarDateModeType.CREATED_AT,
 
     // Notifications - assignment and reminders enabled by default
     [WorkspaceConfigKey.NOTIFY_TASK_ASSIGNMENT]: true,

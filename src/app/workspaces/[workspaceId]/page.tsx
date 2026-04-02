@@ -4,7 +4,7 @@ import { useWorkspaceId } from "../hooks/use-workspace-id";
 import { Settings2 } from "lucide-react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,7 @@ import { workspaceOptions } from "@/features/workspaces/constants/workspace-opti
 import { useTranslations } from "next-intl";
 import AddWorkspaceMembersModal from "./AddWorkspaceMembersModal";
 import WorkspaceInfoModal from "./WorkspaceInfoModal";
+import SquadsModal from "./SquadsModal";
 import { WorkspaceType } from "@/features/workspaces/types";
 import WorkspaceCustomize from "./WorkspaceCustomize";
 import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
@@ -30,6 +31,8 @@ const WorkspaceView = () => {
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isCreatingWorkspace = searchParams.get('creating') === 'true' || workspaceId === 'create';
 
     useEffect(() => {
         if (workspaceId === 'create' && !canWrite) {
@@ -37,9 +40,16 @@ const WorkspaceView = () => {
         }
     }, [workspaceId, canWrite, router]);
 
+    useEffect(() => {
+        if (workspaceId === 'create' && !isLoading && workspaces?.documents && workspaces.documents.length > 0) {
+            router.replace(`/workspaces/${workspaces.documents[0].$id}?creating=true`);
+        }
+    }, [workspaceId, isLoading, workspaces, router]);
+
     const [optionsView, setOptionsView] = useState<string | null>(null);
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
+    const [showSquadsModal, setShowSquadsModal] = useState(false);
 
     const openSettings = () => {
         setOptionsView('general');
@@ -47,11 +57,9 @@ const WorkspaceView = () => {
 
     if (workspaceId === 'create') {
         if (!canWrite) return null;
-        return (
-            <div className="w-[40%] mt-10">
-                <CreateWorkspaceForm />
-            </div>
-        );
+        // Still loading or about to redirect to existing workspace
+        if (isLoading || (workspaces?.documents && workspaces.documents.length > 0)) return null;
+        // No workspaces: fall through to normal render — isCreatingWorkspace will show the overlay
     }
 
     const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
@@ -65,6 +73,8 @@ const WorkspaceView = () => {
             setShowAddMembersModal(true);
         } else if (key === 'information') {
             setShowInfoModal(true);
+        } else if (key === 'manage-squads') {
+            setShowSquadsModal(true);
         } else {
             console.log(key);
         }
@@ -73,6 +83,7 @@ const WorkspaceView = () => {
     // usar DropdownMenuRadioGroup para cambiar de workspace
     return (
         <div className="w-[90%] ml-5">
+            <div className={isCreatingWorkspace ? "pointer-events-none select-none blur-sm" : undefined}>
             <div className="flex items-center gap-2">
                 {isLoading || !currentWorkspace
                 ? <Skeleton className="w-60 h-10" />
@@ -132,6 +143,15 @@ const WorkspaceView = () => {
                 <WorkspaceCustomize workspace={currentWorkspace as WorkspaceType} />
             )}
             {!optionsView && workspaces && <TaskSwitcher openSettings={openSettings} />}
+            </div>
+
+            {isCreatingWorkspace && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/10 backdrop-blur-sm">
+                    <div className="px-4">
+                        <CreateWorkspaceForm />
+                    </div>
+                </div>
+            )}
 
             <AddWorkspaceMembersModal
                 open={showAddMembersModal}
@@ -146,6 +166,11 @@ const WorkspaceView = () => {
                     workspace={currentWorkspace as WorkspaceType}
                 />
             )}
+
+            <SquadsModal
+                open={showSquadsModal}
+                onOpenChange={setShowSquadsModal}
+            />
         </div>
     );
 }

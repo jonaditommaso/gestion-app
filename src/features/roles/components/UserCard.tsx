@@ -6,12 +6,15 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Edit } from "lucide-react"
 import type { RoleUser } from "../types"
+import { usePlanAccess } from "@/hooks/usePlanAccess"
+import { getEffectivePermissions } from "../constants"
 
 interface UserCardProps {
   user: RoleUser
   getRoleColor: (roleName: string) => string
   getPermissionBadgeColor: (permission: string) => string
   onViewPermissions: (user: RoleUser) => void
+  showEditButton?: boolean
 }
 
 export function UserCard({
@@ -19,7 +22,12 @@ export function UserCard({
   getRoleColor,
   getPermissionBadgeColor,
   onViewPermissions,
+  showEditButton = true,
 }: UserCardProps) {
+  const { plan } = usePlanAccess();
+  const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
+  const displayPermissions = isPro ? getEffectivePermissions(user.permissions) : user.permissions;
+  const MAX_VISIBLE = 3;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -46,7 +54,7 @@ export function UserCard({
               <div className="flex items-center gap-2 mt-2">
                 <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
                 <div className="flex flex-wrap gap-1">
-                  {user.permissions.slice(0, 3).map((permission) => (
+                  {displayPermissions.slice(0, MAX_VISIBLE).map((permission) => (
                     <Badge
                       key={permission}
                       variant="outline"
@@ -55,9 +63,9 @@ export function UserCard({
                       {permission}
                     </Badge>
                   ))}
-                  {user.permissions.length > 3 && (
+                  {displayPermissions.length > MAX_VISIBLE && (
                     <Badge variant="outline" className="text-xs">
-                      +{user.permissions.length - 3}
+                      +{displayPermissions.length - MAX_VISIBLE}
                     </Badge>
                   )}
                 </div>
@@ -68,9 +76,11 @@ export function UserCard({
             {/* <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
               <Eye className="w-4 h-4" />
             </Button> */}
-            <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
-              <Edit className="w-4 h-4" />
-            </Button>
+            {showEditButton && (
+              <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
             {/* <Button
               variant="outline"
               size="sm"

@@ -1,13 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
-export const useGetMessages = () => {
+export const useGetMessages = (options?: { enabled?: boolean }) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+    const demoData = useDemoData();
+
     const query = useQuery({
-        queryKey: ['messages'],
+        queryKey: ['messages', isDemo],
         queryFn: async () => {
+            if (isDemo) {
+                return { documents: demoData.messages, total: demoData.messages.length };
+            }
+
             const response = await client.api.messages.$get();
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to fetch messages')
             }
 
@@ -15,7 +24,8 @@ export const useGetMessages = () => {
 
             return data;
         },
-        refetchOnMount: false
+        refetchOnMount: false,
+        enabled: !isLoadingUser && (options?.enabled ?? true),
     })
 
     return query;

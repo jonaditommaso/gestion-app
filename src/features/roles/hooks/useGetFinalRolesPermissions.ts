@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useGetRolesPermissions } from "../api/use-get-role-permissions";
-import { Permission, rolePermissions, RoleType } from "../constants";
+import { rolePermissions, RoleType } from "../constants";
 
-export const useGetFinalRolesPermissions = () => {
-    const { data: customRolePermissions } = useGetRolesPermissions();
+export const useGetFinalRolesPermissions = (enabled?: boolean) => {
+    const { data: customRolePermissions } = useGetRolesPermissions({ enabled });
 
     const finalRolePermissions = useMemo(() => rolePermissions.map(defaultRole => {
         const customConfig = customRolePermissions?.documents?.find(custom => custom.role === defaultRole.role);
@@ -11,11 +11,11 @@ export const useGetFinalRolesPermissions = () => {
         if (customConfig) {
             return {
                 role: customConfig.role as RoleType,
-                permissions: customConfig.permissions as Permission[],
-                $id: customConfig.$id
+                permissions: customConfig.permissions as string[],
+                $id: customConfig.$id as string
             };
         }
-        return defaultRole;
+        return { ...defaultRole, permissions: defaultRole.permissions as string[] };
     }), [customRolePermissions]);
 
     return finalRolePermissions;

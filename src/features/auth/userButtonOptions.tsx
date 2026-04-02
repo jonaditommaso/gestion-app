@@ -1,33 +1,30 @@
-import { LogOut, Settings } from "lucide-react";
-import { redirect } from "next/navigation";
+import { Building2, LogOut, UserCog } from "lucide-react";
 
 type UserButtonOptionType = {
     key: string;
     text: string;
     icon: JSX.Element;
-    action: 'logout' | (() => void);
+    action: 'logout' | 'my-account' | 'organization-settings';
     color: string;
     hoverColor: string;
-    permission?: string;
 };
 
 export const userButtonOptions: UserButtonOptionType[]  = [
-    // {
-    //     key: 'plan',
-    //     text: 'Mejora tu plan',
-    //     icon: <Rocket className="size-4 mr-2" />,
-    //     action: () => redirect('/pricing'),
-    //     color: 'text-blue-600',
-    //     hoverColor: 'hover:!text-blue-400',
-    //     permission: 'admin'
-    // }, --> restore when upgrading works
     {
-        key: 'settings',
-        text: 'settings',
-        icon: <Settings className="size-4 mr-2" /> ,
-        action: () => redirect('/settings'),
-        color: '',//'text-neutral-950',
-        hoverColor: ''// 'hover:!text-zinc-700'
+        key: 'my-account',
+        text: 'my-account',
+        icon: <UserCog className="size-4 mr-2" />,
+        action: 'my-account',
+        color: '',
+        hoverColor: ''
+    },
+    {
+        key: 'organization-settings',
+        text: 'organization-settings',
+        icon: <Building2 className="size-4 mr-2" />,
+        action: 'organization-settings',
+        color: '',
+        hoverColor: ''
     },
     {
         key: 'logout',

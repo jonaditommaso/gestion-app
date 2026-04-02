@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useChangePassword } from "@/features/settings/api/use-change-password";
+import { useMfaConfirm } from "@/hooks/use-mfa-confirm";
 import { useTranslations } from "next-intl";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 const PasswordEdition = () => {
     const t = useTranslations('settings');
     const { mutate: changePassword, isPending } = useChangePassword();
+    const [MfaDialog, confirmMfa] = useMfaConfirm();
 
     const [isOpen, setIsOpen] = useState(false);
     const [currentPassword, setCurrentPassword] = useState('');
@@ -24,7 +26,7 @@ const PasswordEdition = () => {
         setRepeatPassword('');
     }
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (newPassword.length < 8) {
@@ -36,6 +38,9 @@ const PasswordEdition = () => {
             toast.error(t('passwords-do-not-match'));
             return;
         }
+
+        const mfaOk = await confirmMfa();
+        if (!mfaOk) return;
 
         changePassword(
             {
@@ -118,6 +123,7 @@ const PasswordEdition = () => {
             <Button variant="outline" onClick={() => setIsOpen(true)}>
                 {t('modify')}
             </Button>
+            <MfaDialog />
         </>
     );
 }

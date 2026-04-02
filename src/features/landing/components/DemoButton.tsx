@@ -7,7 +7,7 @@ import { useRegister } from "@/features/auth/api/use-register";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { generateInviteCode } from "@/lib/utils";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { ClockAlert, Rocket, Settings, Users } from "lucide-react";
+import { ClockAlert, Rocket, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -24,7 +24,7 @@ const DemoButton = ({ text, fit }: { text: string, fit?: boolean }) => {
                 name: 'Demo User',
                 email: `user${generateInviteCode(6)}@demo.com`,
                 password: 'Demo12345678',
-                plan: 'free',
+                plan: 'pro',
                 isDemo: true
             }
         })
@@ -44,19 +44,13 @@ const DemoButton = ({ text, fit }: { text: string, fit?: boolean }) => {
                         </div>
                         <p className="mb-4">{t('demo-info-description-3')}</p>
                         <div className="flex items-start">
-                            <Users size={24} className="mr-2 text-sky-800"  />
+                            <Settings size={22} className="mr-2 text-zinc-500" />
                             <p className="font-medium">{t('demo-info-description-4')}</p>
                         </div>
                         <p className="mb-4">{t('demo-info-description-5')}</p>
                         <div className="flex items-start">
-                            <Settings size={22} className="mr-2 text-zinc-500" />
-                            <p className="font-medium">{t('demo-info-description-6')}</p>
-                        </div>
-                        <p className="mb-4">{t('demo-info-description-7')}</p>
-                        <p className="font-medium mb-4">{t('demo-info-description-8')}</p>
-                        <div className="flex items-start">
                             <Rocket size={22} className="mr-2 text-blue-600" />
-                            <p className="font-medium">{t('demo-info-description-9')}</p>
+                            <p className="font-medium">{t('demo-info-description-6')}</p>
                         </div>
                     </CardContent>
                     <Separator />

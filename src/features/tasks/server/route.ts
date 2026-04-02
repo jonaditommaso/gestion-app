@@ -1,11 +1,11 @@
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASK_SQUADS_ASSIGNEES_ID, TASK_SQUADS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { Task, TaskShare, TaskShareType, TaskStatus, WorkspaceMember } from "../types";
+import { Task, TaskShare, TaskShareType, TaskStatus, TaskSquad, TaskSquadAssignee, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Databases, Models } from "node-appwrite";
@@ -16,6 +16,7 @@ import { WorkspaceType } from "@/features/workspaces/types";
 import { WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
 import { chunkArray, extractMentionedMemberIds, getWorkspaceNotificationSetting, notifyMentionedMembers, notifyTaskAssignees } from "@/features/notifications/helpers";
+import { getActiveContext } from "@/features/team/server/utils";
 
 interface TaskAssignee extends Models.Document {
     taskId: string;
@@ -99,6 +100,211 @@ const getStatusDisplayName = async (
 const app = new Hono()
 
     .get(
+        '/org-summary',
+        sessionMiddleware,
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) {
+                return ctx.json({ data: { overdueCount: 0, unassignedFeaturedCount: 0, overdueByWorkspace: [], unassignedFeaturedByWorkspace: [] } });
+            }
+
+            // Todos los workspaces de la organización activa
+            const workspacesResult = await databases.listDocuments(
+                DATABASE_ID,
+                WORKSPACES_ID,
+                [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(500)]
+            );
+
+            const workspaceIds = workspacesResult.documents.map((w) => w.$id);
+
+            if (workspaceIds.length === 0) {
+                return ctx.json({ data: { overdueCount: 0, unassignedFeaturedCount: 0, overdueByWorkspace: [], unassignedFeaturedByWorkspace: [] } });
+            }
+
+            // Traer todas las tareas no-DONE de la org, en chunks de 100 (límite de Appwrite para Query.contains)
+            const allTasks: Task[] = [];
+            const workspaceIdChunks = chunkArray(workspaceIds, 100);
+
+            for (const chunk of workspaceIdChunks) {
+                const result = await databases.listDocuments<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    [
+                        Query.contains('workspaceId', chunk),
+                        Query.notEqual('status', TaskStatus.DONE),
+                        Query.limit(5000),
+                    ]
+                );
+                allTasks.push(...result.documents);
+            }
+
+            // Excluir archivadas (igual que el endpoint principal)
+            const activeTasks = allTasks.filter((t) => t.archived !== true);
+
+            // Tareas vencidas: dueDate < hoy
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            const overdueCount = activeTasks.filter(
+                (t) => t.dueDate && new Date(t.dueDate) < todayStart
+            ).length;
+
+            // Tareas destacadas sin asignado
+            const featuredTasks = activeTasks.filter((t) => t.featured);
+            const featuredTaskIds = featuredTasks.map((t) => t.$id);
+
+            const assignedFeaturedTaskIds: string[] = [];
+
+            if (featuredTaskIds.length > 0) {
+                const featuredChunks = chunkArray(featuredTaskIds, 100);
+                for (const chunk of featuredChunks) {
+                    const assigneesResult = await databases.listDocuments(
+                        DATABASE_ID,
+                        TASK_ASSIGNEES_ID,
+                        [Query.contains('taskId', chunk), Query.limit(5000)]
+                    );
+                    assignedFeaturedTaskIds.push(
+                        ...assigneesResult.documents.map((a) => a.taskId as string)
+                    );
+                }
+            }
+
+            const unassignedFeaturedIds = featuredTaskIds.filter(
+                (id) => !assignedFeaturedTaskIds.includes(id)
+            );
+
+            const unassignedFeaturedCount = unassignedFeaturedIds.length;
+
+            // Breakdown por workspace
+            const workspaceNameMap = Object.fromEntries(
+                workspacesResult.documents.map((w) => [w.$id, w.name as string])
+            );
+
+            const overdueByWorkspace: { workspaceId: string; workspaceName: string; count: number }[] = [];
+            const wsIdsWithOverdue = [...new Set(
+                activeTasks
+                    .filter((t) => t.dueDate && new Date(t.dueDate) < todayStart)
+                    .map((t) => t.workspaceId)
+            )];
+            for (const wsId of wsIdsWithOverdue) {
+                const count = activeTasks.filter(
+                    (t) => t.workspaceId === wsId && t.dueDate && new Date(t.dueDate) < todayStart
+                ).length;
+                overdueByWorkspace.push({ workspaceId: wsId, workspaceName: workspaceNameMap[wsId] ?? wsId, count });
+            }
+
+            const unassignedFeaturedByWorkspace: { workspaceId: string; workspaceName: string; count: number }[] = [];
+            const unassignedFeaturedTasks = featuredTasks.filter((t) => unassignedFeaturedIds.includes(t.$id));
+            const wsIdsWithUnassignedFeatured = [...new Set(unassignedFeaturedTasks.map((t) => t.workspaceId))];
+            for (const wsId of wsIdsWithUnassignedFeatured) {
+                const count = unassignedFeaturedTasks.filter((t) => t.workspaceId === wsId).length;
+                unassignedFeaturedByWorkspace.push({ workspaceId: wsId, workspaceName: workspaceNameMap[wsId] ?? wsId, count });
+            }
+
+            return ctx.json({ data: { overdueCount, unassignedFeaturedCount, overdueByWorkspace, unassignedFeaturedByWorkspace } });
+        }
+    )
+
+    .get(
+        '/org-dashboard',
+        sessionMiddleware,
+        async (ctx) => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) {
+                return ctx.json({ data: { workspaceHealth: [], workspaceVelocity: [] } });
+            }
+
+            const workspacesResult = await databases.listDocuments(
+                DATABASE_ID,
+                WORKSPACES_ID,
+                [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(500)]
+            );
+
+            const workspaceIds = workspacesResult.documents.map((w) => w.$id);
+
+            if (workspaceIds.length === 0) {
+                return ctx.json({ data: { workspaceHealth: [], workspaceVelocity: [] } });
+            }
+
+            const workspaceIdChunks = chunkArray(workspaceIds, 100);
+
+            // 1. Tareas activas (no DONE, no archivadas) para workspace health
+            const allActiveTasks: Task[] = [];
+            for (const chunk of workspaceIdChunks) {
+                const result = await databases.listDocuments<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    [
+                        Query.contains('workspaceId', chunk),
+                        Query.notEqual('status', TaskStatus.DONE),
+                        Query.limit(5000),
+                    ]
+                );
+                allActiveTasks.push(...result.documents);
+            }
+            const activeTasks = allActiveTasks.filter((t) => t.archived !== true);
+
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            const workspaceHealth = workspacesResult.documents
+                .map((w) => {
+                    const wsTasks = activeTasks.filter((t) => t.workspaceId === w.$id);
+                    const overdueCount = wsTasks.filter(
+                        (t) => t.dueDate && new Date(t.dueDate) < todayStart
+                    ).length;
+                    return {
+                        workspaceId: w.$id,
+                        workspaceName: w.name as string,
+                        totalActive: wsTasks.length,
+                        overdueCount,
+                    };
+                })
+                .filter((ws) => ws.totalActive > 0);
+
+            // 2. Tareas completadas en los últimos 7 días para velocidad
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            sevenDaysAgo.setHours(0, 0, 0, 0);
+
+            const doneTasks: Task[] = [];
+            for (const chunk of workspaceIdChunks) {
+                const result = await databases.listDocuments<Task>(
+                    DATABASE_ID,
+                    TASKS_ID,
+                    [
+                        Query.contains('workspaceId', chunk),
+                        Query.equal('status', TaskStatus.DONE),
+                        Query.limit(2000),
+                    ]
+                );
+                doneTasks.push(...result.documents);
+            }
+
+            const recentDone = doneTasks.filter(
+                (t) => t.completedAt && new Date(t.completedAt) >= sevenDaysAgo
+            );
+
+            const workspaceVelocity = workspacesResult.documents
+                .map((w) => ({
+                    workspaceId: w.$id,
+                    workspaceName: w.name as string,
+                    completedLastWeek: recentDone.filter((t) => t.workspaceId === w.$id).length,
+                }))
+                .filter((ws) => ws.completedLastWeek > 0)
+                .sort((a, b) => b.completedLastWeek - a.completedLastWeek);
+
+            return ctx.json({ data: { workspaceHealth, workspaceVelocity } });
+        }
+    )
+
+    .get(
         '/',
         sessionMiddleware,
         zValidator('query', getTaskSchema),
@@ -106,7 +312,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, priority, label, type, completed, archived, limit } = ctx.req.valid('query');
+            const { search, status, statusCustomId, workspaceId, dueDate, assigneeId, squadId, priority, label, type, completed, archived, limit } = ctx.req.valid('query');
 
             const member = await getMember({
                 databases,
@@ -200,8 +406,18 @@ const app = new Hono()
                     [Query.equal('workspaceMemberId', assigneeId), Query.limit(5000)]
                 );
                 const assigneeTaskIds = assigneeTasksResult.documents.map(ta => ta.taskId);
-                // Filtrar taskIds para incluir solo los que están asignados al miembro
                 taskIds = taskIds.filter(id => assigneeTaskIds.includes(id));
+            }
+
+            // Si hay filtro por squadId, obtener solo las tareas asignadas a ese squad
+            if (squadId) {
+                const squadAssigneesResult = await databases.listDocuments<TaskSquadAssignee>(
+                    DATABASE_ID,
+                    TASK_SQUADS_ASSIGNEES_ID,
+                    [Query.equal('squadId', squadId), Query.limit(5000)]
+                );
+                const squadTaskIds = squadAssigneesResult.documents.map(sa => sa.taskId);
+                taskIds = taskIds.filter(id => squadTaskIds.includes(id));
             }
 
             // Obtener todas las asignaciones de tareas
@@ -241,22 +457,51 @@ const app = new Hono()
                 }
             }
 
-            // Mapear las tareas con sus assignees
+            // Obtener squads asignados a las tareas
+            const taskSquadAssigneeDocs: TaskSquadAssignee[] = [];
+            if (taskIds.length > 0) {
+                const taskIdChunks = chunkArray(taskIds, 100);
+                for (const taskIdChunk of taskIdChunks) {
+                    const chunk = await databases.listDocuments<TaskSquadAssignee>(
+                        DATABASE_ID,
+                        TASK_SQUADS_ASSIGNEES_ID,
+                        [Query.contains('taskId', taskIdChunk), Query.limit(5000)]
+                    );
+                    taskSquadAssigneeDocs.push(...chunk.documents);
+                }
+            }
+
+            const squadIdsForTasks = [...new Set(taskSquadAssigneeDocs.map(sa => sa.squadId))];
+            const squadDocuments: TaskSquad[] = [];
+            if (squadIdsForTasks.length > 0) {
+                const squadChunks = chunkArray(squadIdsForTasks, 100);
+                for (const chunk of squadChunks) {
+                    const result = await databases.listDocuments<TaskSquad>(
+                        DATABASE_ID,
+                        TASK_SQUADS_ID,
+                        [Query.contains('$id', chunk), Query.limit(500)]
+                    );
+                    squadDocuments.push(...result.documents);
+                }
+            }
+
+            // Mapear las tareas con sus assignees y squads
             const populatedTasks = filteredTasks
-                .filter(task => taskIds.includes(task.$id)) // Filtrar por taskIds (incluye filtro de assigneeId si aplica)
+                .filter(task => taskIds.includes(task.$id))
                 .map(task => {
-                    // Encontrar todas las asignaciones para esta tarea
                     const taskAssignments = taskAssigneesDocuments.filter(ta => ta.taskId === task.$id);
+                    const assignees = taskAssignments.map(ta =>
+                        memberDocuments.find(m => m.$id === ta.workspaceMemberId)
+                    ).filter(Boolean) as WorkspaceMember[];
 
-                    // Obtener los miembros asignados a esta tarea
-                    const assignees = taskAssignments.map(ta => {
-                        return memberDocuments.find(m => m.$id === ta.workspaceMemberId);
-                    }).filter(Boolean); // Eliminar valores undefined
+                    const taskSquadIds = taskSquadAssigneeDocs
+                        .filter(sa => sa.taskId === task.$id)
+                        .map(sa => sa.squadId);
+                    const squads = taskSquadIds
+                        .map(sid => squadDocuments.find(s => s.$id === sid))
+                        .filter(Boolean) as TaskSquad[];
 
-                    return {
-                        ...task,
-                        assignees // Array de assignees en lugar de assignee único
-                    }
+                    return { ...task, assignees, squads };
                 });
 
             return ctx.json({
@@ -269,12 +514,13 @@ const app = new Hono()
     .post(
         '/',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', createTaskSchema),
         async (ctx) => {
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId, duplicatedFromId, linkedTaskId } = ctx.req.valid('json');
 
             const member = await getMember({
                 databases,
@@ -284,6 +530,13 @@ const app = new Hono()
 
             if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            if (type === 'epic' || type === 'spike' || type === 'test') {
+                const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                if (orgContext?.org?.plan === 'FREE') {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
             }
 
             const highestPositionTask = await databases.listDocuments(
@@ -328,6 +581,7 @@ const app = new Hono()
                     featured: featured || false,
                     metadata: metadata || null,
                     parentId: parentId || null,
+                    ...(linkedTaskId ? { linkedTaskId } : {}),
                 }
             )
 
@@ -387,6 +641,33 @@ const app = new Hono()
                 });
             }
 
+            // Create activity log for task creation (non-blocking)
+            if (parentId) {
+                createActivityLog({
+                    databases,
+                    taskId: task.$id,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.SUBTASK_CREATED,
+                    payload: { taskName: name }
+                }).catch(err => console.error('Error creating activity log:', err));
+            } else if (duplicatedFromId) {
+                createActivityLog({
+                    databases,
+                    taskId: task.$id,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.TASK_DUPLICATED,
+                    payload: { originalTaskId: duplicatedFromId, newTaskName: name }
+                }).catch(err => console.error('Error creating activity log:', err));
+            } else {
+                createActivityLog({
+                    databases,
+                    taskId: task.$id,
+                    actorMemberId: member.$id,
+                    action: ActivityAction.TASK_CREATED,
+                    payload: { taskName: name }
+                }).catch(err => console.error('Error creating activity log:', err));
+            }
+
             return ctx.json({
                 data: {
                     ...task,
@@ -399,6 +680,7 @@ const app = new Hono()
     .delete(
         '/:taskId',
         sessionMiddleware,
+        demoGuard,
         async ctx => {
             const user = ctx.get('user');
             const databases = ctx.get('databases');
@@ -454,6 +736,20 @@ const app = new Hono()
                 }
             }
 
+            // Eliminar todos los squad assignees de la task
+            const squadAssignees = await databases.listDocuments(
+                DATABASE_ID,
+                TASK_SQUADS_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId)]
+            );
+            for (const sa of squadAssignees.documents) {
+                try {
+                    await databases.deleteDocument(DATABASE_ID, TASK_SQUADS_ASSIGNEES_ID, sa.$id);
+                } catch (err) {
+                    console.error(`Error deleting squad assignee ${sa.$id}:`, err);
+                }
+            }
+
             await databases.deleteDocument(
                 DATABASE_ID,
                 TASKS_ID,
@@ -467,6 +763,7 @@ const app = new Hono()
     .patch(
         '/:taskId',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', createTaskSchema.partial()),
         async (ctx) => {
             const user = ctx.get('user');
@@ -491,6 +788,18 @@ const app = new Hono()
 
             if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            // Check plan limits when changing to a restricted type
+            if (
+                updates.type !== undefined &&
+                updates.type !== existingTask.type &&
+                (updates.type === 'epic' || updates.type === 'spike' || updates.type === 'test')
+            ) {
+                const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                if (orgContext?.org?.plan === 'FREE') {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
             }
 
             // Si se está actualizando metadata, eliminar imágenes que ya no están presentes
@@ -715,6 +1024,158 @@ const app = new Hono()
                 );
             }
 
+            // Archive change
+            if (updates.archived !== undefined && updates.archived !== existingTask.archived) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.TASK_ARCHIVED,
+                        payload: {
+                            archived: updates.archived
+                        }
+                    })
+                );
+            }
+
+            // Linked task change
+            if (updates.linkedTaskId !== undefined && updates.linkedTaskId !== existingTask.linkedTaskId) {
+                activityLogPromises.push(
+                    createActivityLog({
+                        databases,
+                        taskId,
+                        actorMemberId: member.$id,
+                        action: ActivityAction.LINKED_TASK_UPDATED,
+                        payload: {
+                            subAction: updates.linkedTaskId ? 'linked' : 'unlinked',
+                            ...(updates.linkedTaskId ? { linkedTaskId: updates.linkedTaskId } : {}),
+                        }
+                    })
+                );
+            }
+
+            // Metadata field changes (bug, spike, test panels)
+            if (updates.metadata !== undefined) {
+                const oldMeta = parseTaskMetadata(existingTask.metadata);
+                const newMeta = parseTaskMetadata(updates.metadata);
+
+                // Bug panel fields
+                if (oldMeta.bugExpected !== newMeta.bugExpected) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.BUG_UPDATED,
+                        payload: { subAction: newMeta.bugExpected ? 'expected_set' : 'expected_cleared' }
+                    }));
+                }
+                if (oldMeta.bugActual !== newMeta.bugActual) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.BUG_UPDATED,
+                        payload: { subAction: newMeta.bugActual ? 'actual_set' : 'actual_cleared' }
+                    }));
+                }
+                if (oldMeta.bugRootCause !== newMeta.bugRootCause) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.BUG_UPDATED,
+                        payload: { subAction: newMeta.bugRootCause ? 'root_cause_set' : 'root_cause_cleared' }
+                    }));
+                }
+
+                // Spike panel fields
+                const oldFindings = oldMeta.spikeFindings || [];
+                const newFindings = newMeta.spikeFindings || [];
+                if (newFindings.length > oldFindings.length) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: 'finding_added' }
+                    }));
+                } else if (newFindings.length < oldFindings.length) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: 'finding_removed' }
+                    }));
+                }
+                if (oldMeta.spikeConclusion !== newMeta.spikeConclusion) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: newMeta.spikeConclusion ? 'conclusion_set' : 'conclusion_cleared' }
+                    }));
+                }
+                if (oldMeta.spikeConclusionType !== newMeta.spikeConclusionType && newMeta.spikeConclusionType !== undefined) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.SPIKE_UPDATED,
+                        payload: { subAction: 'conclusion_type_changed', value: newMeta.spikeConclusionType }
+                    }));
+                }
+
+                // Test panel fields — TDD mode
+                if (oldMeta.isTdd !== newMeta.isTdd && newMeta.isTdd !== undefined) {
+                    activityLogPromises.push(createActivityLog({
+                        databases, taskId, actorMemberId: member.$id,
+                        action: ActivityAction.TEST_UPDATED,
+                        payload: { subAction: 'tdd_mode_changed', to: newMeta.isTdd ? 'tdd' : 'post-fix' }
+                    }));
+                }
+
+                // Test panel fields — suites and cases
+                const oldScenarios = oldMeta.testScenarios || [];
+                const newScenarios = newMeta.testScenarios || [];
+
+                for (const newSuite of newScenarios) {
+                    const oldSuite = oldScenarios.find(s => s.id === newSuite.id);
+                    if (!oldSuite) {
+                        activityLogPromises.push(createActivityLog({
+                            databases, taskId, actorMemberId: member.$id,
+                            action: ActivityAction.TEST_UPDATED,
+                            payload: { subAction: 'suite_added', suiteName: newSuite.name }
+                        }));
+                    } else {
+                        const oldCases = oldSuite.cases || [];
+                        const newCases = newSuite.cases || [];
+                        for (const newCase of newCases) {
+                            const oldCase = oldCases.find(c => c.id === newCase.id);
+                            if (!oldCase) {
+                                activityLogPromises.push(createActivityLog({
+                                    databases, taskId, actorMemberId: member.$id,
+                                    action: ActivityAction.TEST_UPDATED,
+                                    payload: { subAction: 'case_added', suiteName: newSuite.name, caseName: newCase.name }
+                                }));
+                            } else if (oldCase.status !== newCase.status) {
+                                activityLogPromises.push(createActivityLog({
+                                    databases, taskId, actorMemberId: member.$id,
+                                    action: ActivityAction.TEST_UPDATED,
+                                    payload: { subAction: 'case_status_changed', suiteName: newSuite.name, caseName: newCase.name, from: oldCase.status, to: newCase.status }
+                                }));
+                            }
+                        }
+                        for (const oldCase of oldCases) {
+                            if (!newCases.find(c => c.id === oldCase.id)) {
+                                activityLogPromises.push(createActivityLog({
+                                    databases, taskId, actorMemberId: member.$id,
+                                    action: ActivityAction.TEST_UPDATED,
+                                    payload: { subAction: 'case_removed', suiteName: newSuite.name, caseName: oldCase.name }
+                                }));
+                            }
+                        }
+                    }
+                }
+                for (const oldSuite of oldScenarios) {
+                    if (!newScenarios.find(s => s.id === oldSuite.id)) {
+                        activityLogPromises.push(createActivityLog({
+                            databases, taskId, actorMemberId: member.$id,
+                            action: ActivityAction.TEST_UPDATED,
+                            payload: { subAction: 'suite_removed', suiteName: oldSuite.name }
+                        }));
+                    }
+                }
+            }
+
             // Execute all activity log creations in parallel (non-blocking)
             Promise.all(activityLogPromises).catch(err => {
                 console.error('Error creating activity logs:', err);
@@ -779,10 +1240,28 @@ const app = new Hono()
                 )
                 : { documents: [] };
 
+            // Obtener squads asignados a esta tarea (para el response del PATCH)
+            const patchSquadAssignees = await databases.listDocuments<TaskSquadAssignee>(
+                DATABASE_ID,
+                TASK_SQUADS_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId), Query.limit(100)]
+            );
+            const patchSquadIds = patchSquadAssignees.documents.map(sa => sa.squadId);
+            let patchSquads: TaskSquad[] = [];
+            if (patchSquadIds.length > 0) {
+                const patchSquadsResult = await databases.listDocuments<TaskSquad>(
+                    DATABASE_ID,
+                    TASK_SQUADS_ID,
+                    [Query.contains('$id', patchSquadIds), Query.limit(100)]
+                );
+                patchSquads = patchSquadsResult.documents;
+            }
+
             return ctx.json({
                 data: {
                     ...task,
-                    assignees: assignees.documents
+                    assignees: assignees.documents,
+                    squads: patchSquads,
                 }
             })
         }
@@ -796,6 +1275,10 @@ const app = new Hono()
             const databases = ctx.get('databases');
 
             const { taskId } = ctx.req.param();
+
+            if (taskId.startsWith('demo-')) {
+                return ctx.json({ error: 'Not found' }, 404);
+            }
 
             const task = await databases.getDocument<Task>(
                 DATABASE_ID,
@@ -832,10 +1315,28 @@ const app = new Hono()
                 )
                 : { documents: [] };
 
+            // Obtener squads asignados a esta tarea
+            const taskSquadAssignees = await databases.listDocuments<TaskSquadAssignee>(
+                DATABASE_ID,
+                TASK_SQUADS_ASSIGNEES_ID,
+                [Query.equal('taskId', taskId), Query.limit(100)]
+            );
+            const taskSquadIds = taskSquadAssignees.documents.map(sa => sa.squadId);
+            let squads: TaskSquad[] = [];
+            if (taskSquadIds.length > 0) {
+                const squadsResult = await databases.listDocuments<TaskSquad>(
+                    DATABASE_ID,
+                    TASK_SQUADS_ID,
+                    [Query.contains('$id', taskSquadIds), Query.limit(100)]
+                );
+                squads = squadsResult.documents;
+            }
+
             return ctx.json({
                 data: {
                     ...task,
-                    assignees: assignees.documents
+                    assignees: assignees.documents,
+                    squads,
                 }
             })
         }

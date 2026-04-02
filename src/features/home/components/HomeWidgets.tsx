@@ -7,13 +7,29 @@ import { MessagesContainer } from "./messages/MessagesContainer";
 import ShortcutButton from "./shortcut/ShortcutButton";
 import CreateMeetButton from "./meets/CreateMeetButton";
 import CalendarEvents from "./CalendarEvents";
+import BillingSnapshotWidget from "./BillingSnapshotWidget";
+import WorkspaceHealthWidget from "./WorkspaceHealthWidget";
+import TeamVelocityWidget from "./TeamVelocityWidget";
+import PipelineHealthWidget from "./PipelineHealthWidget";
+import RecentActivityWidget from "./RecentActivityWidget";
+import UpcomingPaymentsWidget from "./UpcomingPaymentsWidget";
+import CreateDealButton from "./CreateDealButton";
+import CreateTaskButton from "./CreateTaskButton";
+import CreateBillingButton from "./CreateBillingButton";
+import CriticalAlertsBar from "./CriticalAlertsBar";
 import { HomeCustomizationProvider, PersonalizeHomeButton, useHomeCustomization } from "./customization";
 import { useGetMessages } from "../api/use-get-messages";
+import { useGetMeets } from "../api/use-get-meets";
 import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { TaskStatus } from "@/features/tasks/types";
 import { useGetMember } from "@/features/members/api/use-get-member";
-import { WidgetId } from "./customization/types";
+import { WidgetId, FREE_PLAN_WIDGETS } from "./customization/types";
+import { useAppContext } from "@/context/AppContext";
+import { useGetOrgDashboard } from "@/features/tasks/api/use-get-org-dashboard";
+import { useGetOperations } from "@/features/billing-management/api/use-get-operations";
+import { Message } from "./messages/types";
 import { MinusCircle } from "lucide-react";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface EditableWidgetOverlayProps {
     onRemove: () => void;
@@ -45,7 +61,12 @@ interface ConditionalWidgetProps {
 
 const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWidgetProps) => {
     const { isWidgetVisible, config, isEditMode, toggleWidgetVisibility, canToggleWidget } = useHomeCustomization();
+    const { isFree } = usePlanAccess();
     const canToggle = canToggleWidget(widgetId);
+
+    if (isFree && !FREE_PLAN_WIDGETS.includes(widgetId)) {
+        return null;
+    }
 
     if (!isWidgetVisible(widgetId)) {
         return null;
@@ -69,9 +90,15 @@ const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWi
 };
 
 const HomeWidgetsGrid = () => {
-    const { data: messages } = useGetMessages();
+    const { isFree } = usePlanAccess();
+    const { data: messages } = useGetMessages({ enabled: !isFree });
     const { data: member } = useGetMember();
+    const { teamContext } = useAppContext();
     const { config } = useHomeCustomization();
+
+    const organizationRole = teamContext?.membership?.role;
+    const isPrivileged = organizationRole === 'OWNER' || organizationRole === 'ADMIN';
+    const canCreate = organizationRole !== 'VIEWER';
 
     // Obtener el status configurado para el widget de tareas
     const selectedStatusId = config.taskWidgetStatusId || TaskStatus.TODO;
@@ -85,20 +112,36 @@ const HomeWidgetsGrid = () => {
         enabled: !!member?.workspaceId
     });
 
-    const hasMessages = (messages?.total ?? 0) > 0;
+    const hasUnreadMessages = (messages?.documents ?? []).some(
+        (m): m is Message => 'read' in m && !m.read
+    );
     const hasTasks = (tasks?.documents?.length ?? 0) > 0;
 
+    const { data: meets } = useGetMeets({ enabled: !isFree });
+    const hasMeets = (meets?.length ?? 0) > 0;
+
+    const { data: orgDashboard } = useGetOrgDashboard();
+    const hasVelocityData = (orgDashboard?.workspaceVelocity?.length ?? 0) > 0;
+
+    const { data: operationsData } = useGetOperations({ enabled: isPrivileged });
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const hasUpcomingPayments = (operationsData?.documents ?? []).some((op) => {
+        const o = op as { type?: string; status?: string; dueDate?: string | null };
+        return o.type === 'income' && o.status === 'PENDING' && o.dueDate != null && new Date(o.dueDate) >= todayStart;
+    });
+
     return (
-        <div className="gap-4 grid grid-cols-3">
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 pb-4">
             <ConditionalWidget widgetId="my-notes">
                 <MyNotes />
             </ConditionalWidget>
 
-            <ConditionalWidget widgetId="messages" hasData={hasMessages}>
+            <ConditionalWidget widgetId="messages" hasData={hasUnreadMessages}>
                 <MessagesContainer />
             </ConditionalWidget>
 
-            <div className="flex col-span-1 gap-2">
+            <div className="flex flex-wrap col-span-1 gap-2 justify-around">
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
                     <ConditionalWidget widgetId="send-message">
                         <SendMessageButton />
@@ -110,6 +153,21 @@ const HomeWidgetsGrid = () => {
                         <CreateMeetButton />
                     </ConditionalWidget>
                 </div>
+                <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
+                    {canCreate && (
+                        <>
+                            <ConditionalWidget widgetId="new-task">
+                                <CreateTaskButton />
+                            </ConditionalWidget>
+                            <ConditionalWidget widgetId="new-deal">
+                                <CreateDealButton />
+                            </ConditionalWidget>
+                            <ConditionalWidget widgetId="new-billing">
+                                <CreateBillingButton />
+                            </ConditionalWidget>
+                        </>
+                    )}
+                </div>
                 <ConditionalWidget widgetId="calendar">
                     <CalendarDemo />
                 </ConditionalWidget>
@@ -119,9 +177,45 @@ const HomeWidgetsGrid = () => {
                 <TasksWidget />
             </ConditionalWidget>
 
-            <ConditionalWidget widgetId="calendar-events">
+            <ConditionalWidget widgetId="calendar-events" hasData={hasMeets}>
                 <CalendarEvents />
             </ConditionalWidget>
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="billing-snapshot">
+                    <BillingSnapshotWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="workspace-health">
+                    <WorkspaceHealthWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="team-velocity" hasData={hasVelocityData}>
+                    <TeamVelocityWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="pipeline-health">
+                    <PipelineHealthWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="recent-activity">
+                    <RecentActivityWidget />
+                </ConditionalWidget>
+            )}
+
+            {isPrivileged && (
+                <ConditionalWidget widgetId="upcoming-payments" hasData={hasUpcomingPayments}>
+                    <UpcomingPaymentsWidget />
+                </ConditionalWidget>
+            )}
         </div>
     );
 };
@@ -140,6 +234,7 @@ const HomeWidgets = () => {
     return (
         <HomeCustomizationProvider>
             <HomeHeader />
+            <CriticalAlertsBar />
             <HomeWidgetsGrid />
         </HomeCustomizationProvider>
     );

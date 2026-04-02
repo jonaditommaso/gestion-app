@@ -47,6 +47,7 @@ export const useTaskFilters = () => {
     const [filters, setFilters] = useQueryStates({
         status: parseAsString,
         assigneeId: parseAsString,
+        squadId: parseAsString,
         search: parseAsString,
         dueDate: parseAsString,
         priority: parseAsInteger,
@@ -76,6 +77,7 @@ export const useTaskFilters = () => {
     const setFiltersWithLabel = (newFilters: Partial<{
         status: string | null;
         assigneeId: string | null;
+        squadId: string | null;
         search: string | null;
         dueDate: string | null;
         priority: number | null;
@@ -86,6 +88,7 @@ export const useTaskFilters = () => {
         const modifiedFilters: Partial<{
             status: string | null;
             assigneeId: string | null;
+            squadId: string | null;
             search: string | null;
             dueDate: string | null;
             priority: number | null;

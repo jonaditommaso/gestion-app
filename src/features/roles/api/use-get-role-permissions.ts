@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
-export const useGetRolesPermissions = () => {
+export const useGetRolesPermissions = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: ['roles'],
         queryFn: async () => {
@@ -15,6 +15,7 @@ export const useGetRolesPermissions = () => {
 
             return data;
         },
+        enabled: options?.enabled ?? true,
         refetchOnMount: true
     })
 

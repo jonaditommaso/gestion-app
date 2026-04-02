@@ -15,6 +15,8 @@ interface HomeCustomizationContextType {
     toggleIntegration: (integrationId: IntegrationId) => void;
     toggleSmartWidgets: () => void;
     setTaskWidgetStatus: (statusId: string) => void;
+    setDefaultWorkspaceId: (workspaceId: string) => void;
+    setDefaultBoardId: (boardId: string) => void;
     saveChanges: () => void;
     cancelChanges: () => void;
     isSaving: boolean;
@@ -145,6 +147,32 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         });
     }, [createConfig, localConfig, parsedSavedConfig, savedConfig?.$id, updateConfig]);
 
+    const setDefaultWorkspaceId = useCallback((workspaceId: string) => {
+        const current = localConfig ?? parsedSavedConfig;
+        const newConfig: HomeConfig = { ...current, defaultWorkspaceId: workspaceId };
+        setLocalConfig(newConfig);
+        const overrides = configToOverrides(newConfig);
+        const payload = { widgets: JSON.stringify(overrides) };
+        if (savedConfig?.$id) {
+            updateConfig({ json: payload }, { onSettled: () => setLocalConfig(null) });
+        } else {
+            createConfig({ json: payload }, { onSettled: () => setLocalConfig(null) });
+        }
+    }, [createConfig, localConfig, parsedSavedConfig, savedConfig?.$id, updateConfig]);
+
+    const setDefaultBoardId = useCallback((boardId: string) => {
+        const current = localConfig ?? parsedSavedConfig;
+        const newConfig: HomeConfig = { ...current, defaultBoardId: boardId };
+        setLocalConfig(newConfig);
+        const overrides = configToOverrides(newConfig);
+        const payload = { widgets: JSON.stringify(overrides) };
+        if (savedConfig?.$id) {
+            updateConfig({ json: payload }, { onSettled: () => setLocalConfig(null) });
+        } else {
+            createConfig({ json: payload }, { onSettled: () => setLocalConfig(null) });
+        }
+    }, [createConfig, localConfig, parsedSavedConfig, savedConfig?.$id, updateConfig]);
+
     const saveChanges = useCallback(() => {
         // Convertir el config completo a overrides (solo cambios respecto al default)
         const overrides = configToOverrides(config);
@@ -191,6 +219,8 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         toggleIntegration,
         toggleSmartWidgets,
         setTaskWidgetStatus,
+        setDefaultWorkspaceId,
+        setDefaultBoardId,
         saveChanges,
         cancelChanges,
         isSaving,

@@ -2,10 +2,11 @@ import { Hono } from "hono"
 import { zValidator } from '@hono/zod-validator';
 import { loginSchema, mfaSchema, registerSchema, userNameSchema } from "../schemas";
 import { createAdminClient } from "@/lib/appwrite";
-import { ID, Account, AppwriteException, AuthenticationFactor, Client } from "node-appwrite"; //Account, AppwriteException, AuthenticationFactor, Client
+import { ID, Account, AppwriteException, AuthenticationFactor, Client, Query } from "node-appwrite";
 import { deleteCookie, setCookie } from 'hono/cookie';
 import { AUTH_COOKIE } from "../constants";
 import { ContextType, sessionMfaMiddleware, sessionMiddleware } from "@/lib/session-middleware";
+import { DATABASE_ID, SSO_CONFIGS_ID } from "@/config";
 
 // function isErrorResponseWithChallengeId(response: unknown): response is { challengeId: string } {
 //     return typeof response === 'object' && response !== null && 'challengeId' in response;
@@ -30,11 +31,32 @@ const app = new Hono<ContextType>()
         async ctx => {
             const { email, password } = ctx.req.valid('json');
 
-            const { account: adminAccount } = await createAdminClient();
+            const { account: adminAccount, databases } = await createAdminClient();
+
+            const domain = email.split('@')[1]?.toLowerCase();
+            if (domain) {
+                const ssoResult = await databases.listDocuments(
+                    DATABASE_ID,
+                    SSO_CONFIGS_ID,
+                    [Query.equal('domain', domain), Query.equal('enabled', true), Query.limit(1)]
+                );
+                if (ssoResult.total > 0) {
+                    return ctx.json({ error: 'sso_required' }, 403);
+                }
+            }
+
             const session = await adminAccount.createEmailPasswordSession(
                 email,
                 password
             )
+
+            setCookie(ctx, AUTH_COOKIE, session.secret, {
+                path: '/',
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 30
+            })
 
             const client = new Client()
                 .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -42,14 +64,6 @@ const app = new Hono<ContextType>()
                 .setSession(session.secret);
 
             const account = new Account(client);
-
-            setCookie(ctx, AUTH_COOKIE, session.secret, {
-                path: '/',
-                httpOnly: true,
-                secure: isSecure,
-                sameSite: 'strict',
-                maxAge: 60 * 60 * 24 * 30
-            })
 
             try {
                 const current = await account.get();
@@ -157,9 +171,9 @@ const app = new Hono<ContextType>()
         '/register',
         zValidator('json', registerSchema),
         async ctx => {
-            const { name, email, password, plan, company, isDemo } = ctx.req.valid('json');
+            const { name, email, password, isDemo } = ctx.req.valid('json');
 
-            const { account, users, teams } = await createAdminClient();
+            const { account, users } = await createAdminClient();
 
             const newUser = await account.create(
                 ID.unique(),
@@ -168,21 +182,7 @@ const app = new Hono<ContextType>()
                 name
             );
 
-            const newTeam = await teams.create(
-                ID.unique(),
-                company
-            )
-
-            await teams.createMembership(
-                newTeam.$id,
-                ['OWNER'],
-                email,
-            );
-
-            await users.updatePrefs(newUser.$id, { plan, company, role: 'ADMIN', teamId: newTeam.$id, isDemo });
-
-            await teams.updatePrefs(newTeam.$id, { plan, isDemo })
-
+            await users.updatePrefs(newUser.$id, { isDemo: !!isDemo });
 
             const session = await account.createEmailPasswordSession(
                 email,
@@ -193,13 +193,11 @@ const app = new Hono<ContextType>()
                 path: '/',
                 httpOnly: true,
                 secure: isSecure,
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 30
             })
 
-            return ctx.json({ success: true })
-            // console.log({ email, password, name })
-
+            return ctx.json({ success: true, isDemo: !!isDemo })
         }
     )
 
@@ -210,9 +208,55 @@ const app = new Hono<ContextType>()
             const account = ctx.get('account') //obtained by set function in sessionMidleware
 
             deleteCookie(ctx, AUTH_COOKIE);
+            deleteCookie(ctx, 'active-org-id');
             await account.deleteSession('current')
 
             return ctx.json({ success: true })
+        }
+    )
+
+    .get(
+        '/sessions',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+            const sessions = await account.listSessions();
+
+            const data = sessions.sessions.map((session) => ({
+                $id: session.$id,
+                current: session.current,
+                clientName: session.clientName,
+                clientType: session.clientType,
+                osName: session.osName,
+                countryName: session.countryName,
+                expire: session.expire,
+            }));
+
+            return ctx.json({ data });
+        }
+    )
+
+    .post(
+        '/close-all-sessions',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+
+            const sessions = await account.listSessions();
+            const currentSession = sessions.sessions.find((session) => session.current);
+            const otherSessions = sessions.sessions.filter((session) => !session.current);
+
+            for (const session of otherSessions) {
+                await account.deleteSession(session.$id);
+            }
+
+            if (currentSession) {
+                await account.deleteSession('current');
+            }
+
+            deleteCookie(ctx, AUTH_COOKIE);
+
+            return ctx.json({ success: true });
         }
     )
 
@@ -229,6 +273,25 @@ const app = new Hono<ContextType>()
             await users.updateName(user.$id, userName);
 
             return ctx.json({ success: true, message: 'Updated username' });
+        }
+    )
+
+    .post('/mfa/challenge',
+        sessionMiddleware,
+        async ctx => {
+            const account = ctx.get('account');
+
+            if (!account) {
+                return ctx.json({ error: 'Account not found' }, 401);
+            }
+
+            try {
+                const challenge = await account.createMfaChallenge(AuthenticationFactor.Totp);
+                return ctx.json({ challengeId: challenge.$id }, 200);
+            } catch (error) {
+                console.error(error);
+                return ctx.json({ error: 'Failed to create MFA challenge' }, 500);
+            }
         }
     )
 

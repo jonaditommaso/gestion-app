@@ -31,6 +31,7 @@ export const useDuplicateTask = () => {
                 dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
                 metadata: task.metadata || undefined,
                 assigneesIds: task.assignees?.map(a => a.$id) || [],
+                duplicatedFromId: task.$id,
             };
 
             const response = await client.api.tasks.$post({ json: duplicateData });

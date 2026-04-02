@@ -1,35 +1,53 @@
-import { getCurrent } from '@/features/auth/queries';
-import PricingCard from '../../../features/landing/components/PricingCard';
-import { plans } from '../../../features/landing/plans';
-import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+'use client'
+import PricingSection from '../../../features/landing/components/PricingSection';
+import PricingComparisonTable from '../../../features/landing/components/PricingComparisonTable';
 import LandingFooter from '@/features/landing/components/LandingFooter';
+import { useTranslations } from 'next-intl';
+import { useAppContext } from '@/context/AppContext';
+import { usePlanAccess } from '@/hooks/usePlanAccess';
+import { useChangePlan } from '@/features/team/api/use-change-plan';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-const PricingView = async () => {
-    const user = await getCurrent();
-    const t = await getTranslations('pricing')
+const PricingView = () => {
+    const t = useTranslations('pricing');
+    const { currentUser: user, isLoadingUser, teamContext, isLoadingTeamContext: isLoadingTeam } = useAppContext();
+    const { plan } = usePlanAccess();
+    const router = useRouter();
+    const { mutate: changePlan } = useChangePlan(() => router.push('/organization'));
 
-    if(user) redirect('/');
+    const isAuthenticated = !!user;
+    const isOwner = teamContext?.membership?.role === 'OWNER';
+    const isLoading = isLoadingUser || isLoadingTeam;
+
+    useEffect(() => {
+        if (!isLoading && isAuthenticated && !isOwner) {
+            router.replace('/organization');
+        }
+    }, [isLoading, isAuthenticated, isOwner, router]);
+
+    if (isLoading) return null;
+    if (isAuthenticated && !isOwner) return null;
+
+    const currentPlan = isAuthenticated ? plan.toLowerCase() : undefined;
+
+    const handleSelectPlan = (planType: string, billing: 'monthly' | 'annual') => {
+        if (planType !== 'plus' && planType !== 'pro') return;
+        changePlan({ plan: planType, billing });
+    };
 
     return (
         <div className='mt-20 flex flex-col items-center'>
-            <p className="text-4xl font-bold text-balance text-center">
-                {t('pricing-title-1')} <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{t('pricing-title-2')}</span> {t('pricing-title-3')}
-            </p>
-            <div className="container flex gap-3 mt-16 justify-center p-1 max-sm:flex-col mb-10">
-                {plans.map(plan => (
-                    <PricingCard
-                        key={plan.type}
-                        type={plan.type}
-                        description={plan.description}
-                        textButton={plan.textButton}
-                        price={plan.price}
-                        featured={plan.type === 'enterprise' || plan.type === 'pro'}
-                    />
-                ))}
+            {!isAuthenticated && (
+                <p className="text-4xl font-bold text-balance text-center">
+                    {t('pricing-title-1')} <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{t('pricing-title-2')}</span> {t('pricing-title-3')}
+                </p>
+            )}
+            <div className="mt-16 w-full">
+                <PricingSection currentPlan={currentPlan} onSelectPlan={isAuthenticated && isOwner ? handleSelectPlan : undefined} />
             </div>
-
-            <LandingFooter />
+            <PricingComparisonTable />
+            {!isAuthenticated && <LandingFooter />}
         </div>
     );
 }

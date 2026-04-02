@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { rolePermissionsSchema, rolePermissionsUpdateSchema, roleUser } from "./schemas";
 import { zValidator } from "@hono/zod-validator";
 import { sessionMiddleware } from "@/lib/session-middleware";
-import { DATABASE_ID, ROLES_PERMISSIONS_ID } from "@/config";
+import { DATABASE_ID, MEMBERSHIPS_ID, ROLES_PERMISSIONS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { createAdminClient } from "@/lib/appwrite";
+import { getActiveContext } from "@/features/team/server/utils";
 
 const app = new Hono()
 
@@ -15,10 +15,13 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
+
             const rolesPermissions = await databases.listDocuments(
                 DATABASE_ID,
                 ROLES_PERMISSIONS_ID,
-                [Query.equal('teamId', user.prefs.teamId)]
+                [Query.equal('teamId', context.org.appwriteTeamId)]
             );
 
             if (rolesPermissions.total === 0) {
@@ -43,6 +46,9 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
             const rolePermissions = await databases.createDocument(
                 DATABASE_ID,
                 ROLES_PERMISSIONS_ID,
@@ -50,7 +56,7 @@ const app = new Hono()
                 {
                     permissions,
                     role,
-                    teamId: user.prefs.teamId
+                    teamId: context.org.appwriteTeamId
                 }
             );
 
@@ -94,17 +100,34 @@ const app = new Hono()
         zValidator('json', roleUser),
         sessionMiddleware,
         async (ctx) => {
-            const { users } = await createAdminClient();
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
 
             const { role } = ctx.req.valid('json');
             const { id } = ctx.req.param();
 
-            const prefs = await users.getPrefs(id);
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
-            await users.updatePrefs(id, {
-                ...(prefs ?? {}),
-                role: role,
-            });
+            const memberships = await databases.listDocuments(
+                DATABASE_ID,
+                MEMBERSHIPS_ID,
+                [
+                    Query.equal('organizationId', context.org.$id),
+                    Query.equal('userId', id)
+                ]
+            );
+
+            if (memberships.total === 0) {
+                return ctx.json({ error: 'Member not found' }, 404);
+            }
+
+            await databases.updateDocument(
+                DATABASE_ID,
+                MEMBERSHIPS_ID,
+                memberships.documents[0].$id,
+                { role: role.toUpperCase() }
+            );
 
             return ctx.json({ success: true })
 

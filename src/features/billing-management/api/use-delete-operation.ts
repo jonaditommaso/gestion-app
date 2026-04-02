@@ -3,6 +3,8 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
 type ResponseType = InferResponseType<typeof client.api.billing[':billingId']['$delete'], 200>
 type RequestType = InferRequestType<typeof client.api.billing[':billingId']['$delete']>
@@ -10,9 +12,16 @@ type RequestType = InferRequestType<typeof client.api.billing[':billingId']['$de
 export const useDeleteOperation = () => {
     const queryClient = useQueryClient();
     const t = useTranslations('billing');
+    const { isDemo } = useAppContext();
+    const { deleteBillingOp } = useDemoData();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ param }) => {
+            if (isDemo) {
+                deleteBillingOp(param.billingId);
+                return { success: true } as unknown as ResponseType;
+            }
+
             const response = await client.api.billing[':billingId']['$delete']({ param });
 
             if (!response.ok) {

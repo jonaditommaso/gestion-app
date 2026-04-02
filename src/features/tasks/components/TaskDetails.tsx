@@ -1,5 +1,5 @@
 'use client'
-import { Task, TaskStatus, TaskComment } from "../types";
+import { Task, TaskStatus, TaskComment, TaskSquad } from "../types";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
@@ -8,7 +8,7 @@ import MemberAvatar from "@/features/members/components/MemberAvatar";
 import { format, formatDistanceToNow } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import RichTextArea from "@/components/RichTextArea";
@@ -23,7 +23,9 @@ import { checkEmptyContent } from "@/utils/checkEmptyContent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
 import { TaskAssigneesManager } from "./TaskAssigneesManager";
+import { TaskSquadsManager } from "./TaskSquadsManager";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { useGetSquads } from "../api/squads";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
@@ -33,11 +35,16 @@ import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config"
 import { STATUS_TO_LIMIT_KEYS, STATUS_TO_LABEL_KEY, ColumnLimitType, WorkspaceConfigKey } from "@/app/workspaces/constants/workspace-config-keys";
 import { Checklist } from "@/features/checklist";
 import { EpicSubtasks } from "./epic-subtasks";
+import { SpikePanel } from "./SpikePanel";
+import { UrgentPanel } from "./UrgentPanel";
+import { TestPanel } from "./TestPanel";
+import { BugPanel } from "./BugPanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
 import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -67,10 +74,12 @@ export const TaskTitleEditor = ({
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(initialTitle);
     const { mutate: updateTask, isPending } = useUpdateTask();
+    const { isFree } = usePlanAccess();
 
     const currentType = initialType || 'task';
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === currentType)!;
     const TypeIcon = typeOption.icon;
+    const typeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS;
 
     const handleSave = () => {
         if (readOnly) return;
@@ -123,7 +132,7 @@ export const TaskTitleEditor = ({
                         <TypeIcon className={cn(iconSize, typeOption.textColor)} />
                     </SelectTrigger>
                     <SelectContent>
-                        {TASK_TYPE_OPTIONS.map(type => {
+                        {typeOptions.map(type => {
                             const Icon = type.icon;
                             return (
                                 <SelectItem key={type.value} value={type.value}>
@@ -170,11 +179,13 @@ const DATE_LOCALES = { es, en: enUS, it };
 const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: TaskDetailsProps) => {
     const t = useTranslations('workspaces');
     const locale = useLocale() as 'es' | 'en' | 'it';
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const router = useRouter();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId });
+    const { data: squadsData } = useGetSquads({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
+    const { isFree } = usePlanAccess();
 
     // State for managing the current task being viewed
     const [currentTaskId, setCurrentTaskId] = useState<string>(task.$id);
@@ -245,6 +256,29 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const comments = (commentsData?.documents || []) as TaskComment[];
 
     const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
+    const availableSquads = squadsData?.documents ?? [];
+
+    // IDs de members que ya están cubiertos por algún squad asignado a esta task
+    const squadMemberIds = useMemo(() => {
+        const assignedSquads = (displayTask.squads || []) as TaskSquad[];
+        const ids = new Set<string>();
+        assignedSquads.forEach(squad => {
+            (squad.members || []).forEach(m => ids.add(m.$id));
+        });
+        return ids;
+    }, [displayTask.squads]);
+
+    // Assignees visibles: excluir los que ya aparecen en algún squad asignado
+    const visibleAssignees = useMemo(
+        () => (displayTask.assignees || []).filter(a => !squadMemberIds.has(a.$id)),
+        [displayTask.assignees, squadMemberIds]
+    );
+
+    // Members disponibles para asignar individualmente: excluir los del squad
+    const availableMembersFiltered = useMemo(
+        () => (availableMembers || []).filter(m => !squadMemberIds.has(m.$id)),
+        [availableMembers, squadMemberIds]
+    );
 
     // Obtener el valor efectivo del status para el selector
     const effectiveStatusValue = displayTask.status === TaskStatus.CUSTOM && displayTask.statusCustomId
@@ -531,7 +565,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                     )}
                 </div>
 
-                {/* Checklist section or Epic Subtasks */}
+                {/* Checklist section, Epic Subtasks, or Spike Panel */}
                 {displayTask.type === 'epic' ? (
                     <EpicSubtasks
                         epic={displayTask}
@@ -539,12 +573,20 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         availableMembers={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
                         hideProgressBar={config.hideEpicProgressBar}
                     />
+                ) : displayTask.type === 'spike' ? (
+                    <SpikePanel task={displayTask} readOnly={readOnly} />
+                ) : displayTask.type === 'urgent' ? (
+                    <UrgentPanel task={displayTask} />
+                ) : displayTask.type === 'test' ? (
+                    <TestPanel task={displayTask} readOnly={readOnly} />
+                ) : displayTask.type === 'bug' ? (
+                    <BugPanel task={displayTask} readOnly={readOnly} />
                 ) : (
                     <Checklist
                         taskId={displayTask.$id}
                         workspaceId={displayTask.workspaceId}
                         members={availableMembers.map(m => ({ $id: m.$id, name: m.name }))}
-                        readOnly={readOnly}
+                        readOnly={isFree || readOnly}
                         checklistCount={displayTask.checklistCount || 0}
                         savedChecklistTitle={displayTask.checklistTitle}
                         onTitleChange={(newTitle) => {
@@ -977,8 +1019,21 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         </span>
                         <TaskAssigneesManager
                             taskId={displayTask.$id}
-                            assignees={displayTask.assignees || []}
-                            availableMembers={availableMembers}
+                            assignees={visibleAssignees}
+                            availableMembers={availableMembersFiltered}
+                            readOnly={readOnly}
+                        />
+                    </div>
+
+                    {/* Squads */}
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-24">
+                            {t('squads')}
+                        </span>
+                        <TaskSquadsManager
+                            taskId={displayTask.$id}
+                            squads={displayTask.squads || []}
+                            availableSquads={availableSquads}
                             readOnly={readOnly}
                         />
                     </div>

@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import { useCreateTaskShare } from "../api/use-create-task-share";
 import { useBulkCreateTaskShare } from "../api/use-bulk-create-task-share";
@@ -45,9 +45,9 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
     const t = useTranslations('workspaces');
     const locale = useLocale() as 'es' | 'en' | 'it';
     const workspaceId = useWorkspaceId();
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
     const { data: workspaceMembers } = useGetMembers({ workspaceId });
-    const { data: teamMembers } = useGetTeamMembers();
+    const { data: teamData } = useGetTeamMembers();
     const { mutateAsync: createTaskShare } = useCreateTaskShare();
     const { mutateAsync: bulkCreateTaskShare } = useBulkCreateTaskShare();
     const workspaceConfig = useWorkspaceConfig();
@@ -180,7 +180,7 @@ export const ShareTaskModal = ({ taskId, taskName, taskType = 'task', isOpen, on
 
     // Combinar miembros del workspace y del team
     const workspaceMembersList = (workspaceMembers?.documents || []) as unknown as Array<{ $id: string; name: string; email?: string; userId: string }>;
-    const teamMembersList = (teamMembers || []) as unknown as Array<{ $id: string; userName: string; userEmail?: string; userId: string }>;
+    const teamMembersList = (teamData?.members || []) as unknown as Array<{ $id: string; userName: string; userEmail?: string; userId: string }>;
 
     const allMembers: SelectableMember[] = [
         ...workspaceMembersList.map((m) => ({

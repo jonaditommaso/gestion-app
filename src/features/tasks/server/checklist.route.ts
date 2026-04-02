@@ -20,6 +20,7 @@ import { createActivityLog } from "../utils/create-activity-log";
 import { ActivityAction } from "../types/activity-log";
 import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
 import { shouldNotifyTaskAssignment } from "@/features/notifications/helpers";
+import { getActiveContext } from "@/features/team/server/utils";
 
 const app = new Hono()
 
@@ -51,7 +52,6 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401);
             }
 
-            // Get checklist items ordered by position
             const items = await databases.listDocuments<ChecklistItem>(
                 DATABASE_ID,
                 CHECKLIST_ITEMS_ID,
@@ -136,6 +136,11 @@ const app = new Hono()
 
             if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (orgContext?.org?.plan === 'FREE') {
+                return ctx.json({ error: 'Plan limit reached' }, 403);
             }
 
             // Calculate position if not provided

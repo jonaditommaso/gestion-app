@@ -4,6 +4,8 @@ import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
 type ResponseType = InferResponseType<typeof client.api.tasks[':taskId']['$delete'], 200>
 type RequestType = InferRequestType<typeof client.api.tasks[':taskId']['$delete']>
@@ -12,9 +14,16 @@ export const useDeleteTask = () => {
     const router = useRouter()
     const queryClient = useQueryClient();
     const t = useTranslations('workspaces');
+    const { isDemo } = useAppContext();
+    const { deleteTask } = useDemoData();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ param }) => {
+            if (isDemo) {
+                deleteTask(param.taskId);
+                return { data: { $id: param.taskId } } as unknown as ResponseType;
+            }
+
             const response = await client.api.tasks[':taskId']['$delete']({ param });
 
             if(!response.ok) {

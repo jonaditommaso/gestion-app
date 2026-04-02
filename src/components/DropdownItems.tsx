@@ -4,9 +4,13 @@ import { ChevronsUpDown, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
+import { useGetWorkspacesCount } from "@/features/workspaces/api/use-get-workspaces-count";
 import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { useState } from "react";
+import UpgradeDialog from "@/components/UpgradeDialog";
 
 interface DropdownItemsProps {
     itemLogo: string,
@@ -19,15 +23,23 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
     const { theme } = useTheme();
     const t = useTranslations('general');
     const { data: workspaces } = useGetWorkspaces();
+    const { data: workspacesCount } = useGetWorkspacesCount();
     const router = useRouter();
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const { limits } = usePlanAccess();
+    const isAtWorkspaceLimit = limits.workspaces !== -1 && workspacesCount !== undefined && workspacesCount.count >= limits.workspaces;
+    const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
     const handleSelectWorkspace = (workspaceId: string) => {
         router.push(`/workspaces/${workspaceId}`);
     }
 
     const handleCreateNew = () => {
+        if (isAtWorkspaceLimit) {
+            setUpgradeDialogOpen(true);
+            return;
+        }
         router.push('/workspaces/create');
     }
 
@@ -36,7 +48,8 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
     const noOptions = !canWrite && otherWorkspaces?.length === 0;
 
     return (
-        <DropdownMenu>
+        <>
+            <DropdownMenu>
             <DropdownMenuTrigger className="max-w-80 flex items-center gap-2 p-2 border rounded-sm focus:outline-none h-9 bg-background">
                 <div className="border border-zinc-300 w-8 h-7 rounded-md bg-zinc-200 text-white text-xl">{itemLogo}</div>
                 <p className={theme === 'dark' ? 'text-white' : 'text-zinc-700'}>{itemName}</p>
@@ -71,6 +84,14 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
                 </DropdownMenuContent>
             )}
         </DropdownMenu>
+        <UpgradeDialog
+            open={upgradeDialogOpen}
+            onOpenChange={setUpgradeDialogOpen}
+            feature="workspaces"
+            currentCount={workspacesCount?.count ?? 0}
+            limitCount={limits.workspaces}
+        />
+        </>
     );
 }
 

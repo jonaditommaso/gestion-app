@@ -21,6 +21,14 @@ import {
     TaskNameUpdatedPayload,
     TaskSharedPayload,
     TaskFeaturedUpdatedPayload,
+    TaskCreatedPayload,
+    TaskArchivedPayload,
+    SubtaskCreatedPayload,
+    TaskDuplicatedPayload,
+    LinkedTaskUpdatedPayload,
+    BugUpdatedPayload,
+    SpikeUpdatedPayload,
+    TestUpdatedPayload,
 } from "../types/activity-log";
 import {
     MessageSquare,
@@ -36,6 +44,13 @@ import {
     Type,
     Edit3,
     Workflow,
+    Archive,
+    Copy,
+    Plus,
+    Link2,
+    Bug,
+    Zap,
+    FlaskConical,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -85,6 +100,22 @@ const getActionIcon = (action: ActivityAction) => {
             return Share2;
         case ActivityAction.TASK_FEATURED_UPDATED:
             return Star;
+        case ActivityAction.TASK_CREATED:
+            return Plus;
+        case ActivityAction.SUBTASK_CREATED:
+            return Plus;
+        case ActivityAction.TASK_ARCHIVED:
+            return Archive;
+        case ActivityAction.TASK_DUPLICATED:
+            return Copy;
+        case ActivityAction.LINKED_TASK_UPDATED:
+            return Link2;
+        case ActivityAction.BUG_UPDATED:
+            return Bug;
+        case ActivityAction.SPIKE_UPDATED:
+            return Zap;
+        case ActivityAction.TEST_UPDATED:
+            return FlaskConical;
         default:
             return FileText;
     }
@@ -325,6 +356,129 @@ const ActivityLogEntry = ({
                 return payload.to
                     ? t('activity.marked-featured')
                     : t('activity.unmarked-featured');
+            }
+
+            case ActivityAction.TASK_CREATED: {
+                const payload = parsePayload<TaskCreatedPayload>(log.payload);
+                if (!payload) return t('activity.created-task');
+                return t('activity.created-task');
+            }
+
+            case ActivityAction.SUBTASK_CREATED: {
+                const payload = parsePayload<SubtaskCreatedPayload>(log.payload);
+                if (!payload) return t('activity.created-subtask');
+                return (
+                    <span>
+                        {t('activity.created-subtask')} <strong>&quot;{payload.taskName}&quot;</strong>
+                    </span>
+                );
+            }
+
+            case ActivityAction.TASK_ARCHIVED: {
+                const payload = parsePayload<TaskArchivedPayload>(log.payload);
+                if (!payload) return t('activity.archived-task');
+                return payload.archived
+                    ? t('activity.archived-task')
+                    : t('activity.unarchived-task');
+            }
+
+            case ActivityAction.TASK_DUPLICATED: {
+                const payload = parsePayload<TaskDuplicatedPayload>(log.payload);
+                if (!payload) return t('activity.duplicated-task');
+                return t('activity.duplicated-task');
+            }
+
+            case ActivityAction.LINKED_TASK_UPDATED: {
+                const payload = parsePayload<LinkedTaskUpdatedPayload>(log.payload);
+                if (!payload) return t('activity.linked-task');
+                return payload.subAction === 'linked'
+                    ? t('activity.linked-task')
+                    : t('activity.unlinked-task');
+            }
+
+            case ActivityAction.BUG_UPDATED: {
+                const payload = parsePayload<BugUpdatedPayload>(log.payload);
+                if (!payload) return t('activity.updated-task');
+                switch (payload.subAction) {
+                    case 'expected_set': return t('activity.bug-expected-set');
+                    case 'expected_cleared': return t('activity.bug-expected-cleared');
+                    case 'actual_set': return t('activity.bug-actual-set');
+                    case 'actual_cleared': return t('activity.bug-actual-cleared');
+                    case 'root_cause_set': return t('activity.bug-root-cause-set');
+                    case 'root_cause_cleared': return t('activity.bug-root-cause-cleared');
+                    default: return t('activity.updated-task');
+                }
+            }
+
+            case ActivityAction.SPIKE_UPDATED: {
+                const payload = parsePayload<SpikeUpdatedPayload>(log.payload);
+                if (!payload) return t('activity.updated-task');
+                switch (payload.subAction) {
+                    case 'finding_added': return t('activity.spike-finding-added');
+                    case 'finding_removed': return t('activity.spike-finding-removed');
+                    case 'conclusion_set': return t('activity.spike-conclusion-set');
+                    case 'conclusion_cleared': return t('activity.spike-conclusion-cleared');
+                    case 'conclusion_type_changed':
+                        return (
+                            <span>
+                                {t('activity.spike-conclusion-type-changed')}{' '}
+                                <strong>{t(`spike-conclusion-type-${payload.value}`)}</strong>
+                            </span>
+                        );
+                    default: return t('activity.updated-task');
+                }
+            }
+
+            case ActivityAction.TEST_UPDATED: {
+                const payload = parsePayload<TestUpdatedPayload>(log.payload);
+                if (!payload) return t('activity.updated-task');
+                switch (payload.subAction) {
+                    case 'suite_added':
+                        return (
+                            <span>
+                                {t('activity.test-suite-added')}{' '}
+                                {payload.suiteName && <strong>&quot;{payload.suiteName}&quot;</strong>}
+                            </span>
+                        );
+                    case 'suite_removed':
+                        return (
+                            <span>
+                                {t('activity.test-suite-removed')}{' '}
+                                {payload.suiteName && <strong>&quot;{payload.suiteName}&quot;</strong>}
+                            </span>
+                        );
+                    case 'case_added':
+                        return (
+                            <span>
+                                {t('activity.test-case-added')}{' '}
+                                {payload.caseName && <strong>&quot;{payload.caseName}&quot;</strong>}
+                            </span>
+                        );
+                    case 'case_removed':
+                        return (
+                            <span>
+                                {t('activity.test-case-removed')}{' '}
+                                {payload.caseName && <strong>&quot;{payload.caseName}&quot;</strong>}
+                            </span>
+                        );
+                    case 'case_status_changed':
+                        return (
+                            <span>
+                                {t('activity.test-case-status-changed')}{' '}
+                                {payload.caseName && <strong>&quot;{payload.caseName}&quot;</strong>}
+                                {' '}{t('activity.to')}{' '}
+                                <strong>{t(`test-status-${payload.to}`)}</strong>
+                            </span>
+                        );
+                    case 'tdd_mode_changed':
+                        return (
+                            <span>
+                                {t('activity.test-tdd-mode')}{' '}
+                                <strong>{payload.to === 'tdd' ? 'TDD' : t('activity.test-mode-post-fix')}</strong>
+                            </span>
+                        );
+                    default: return t('activity.updated-task');
+                }
             }
 
             default:

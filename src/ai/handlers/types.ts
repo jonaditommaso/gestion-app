@@ -4,6 +4,8 @@
  * =============================================================================
  */
 
+export type MembershipRole = 'OWNER' | 'ADMIN' | 'CREATOR' | 'VIEWER';
+
 /**
  * Contexto que reciben todos los handlers.
  * Contiene todo lo necesario para ejecutar acciones autenticadas.
@@ -14,6 +16,8 @@ export interface ActionContext {
     cookie: string; // Cookie header del request original, para reenviar autenticación al endpoint
     baseUrl: string; // URL base de la app (ej: http://localhost:3000) para llamar a endpoints internos
     args: Record<string, unknown>; // Argumentos parseados del tool call
+    userRole: MembershipRole; // Rol del usuario en la organización activa
+    userPermissions: string[]; // Permisos efectivos del usuario (broad o granulares según config del org)
 }
 
 /**

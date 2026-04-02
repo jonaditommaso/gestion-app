@@ -1,16 +1,18 @@
-import { sessionMiddleware } from "@/lib/session-middleware";
+import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { billingOperationSchema, billingCategoriesSchema, billingOperationUpdateSchema } from '../schemas';
 import { BILLING_OPTIONS_ID, BILLINGS_ID, DATABASE_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import dayjs from "dayjs";
+import { getActiveContext } from "@/features/team/server/utils";
 
 const app = new Hono()
 
     .post(
         '/',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', billingOperationSchema),
         async (ctx) => {
             const user = ctx.get('user');
@@ -31,17 +33,21 @@ const app = new Hono()
                 currency,
                 taxRate,
                 taxAmount,
-                isRecurring,
+                // isRecurring,
                 recurrenceRule,
-                nextOccurrenceDate,
-                archived,
+                // nextOccurrenceDate,
+                isArchived,
+                isDraft,
             } = ctx.req.valid('json');
-
-            const teamId = user?.prefs.teamId;
 
             if (!user) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            const teamId = context.org.appwriteTeamId;
 
             const operationData: {
                 account: string | undefined;
@@ -63,7 +69,8 @@ const app = new Hono()
                 isRecurring?: boolean;
                 recurrenceRule?: 'WEEKLY' | 'MONTHLY';
                 nextOccurrenceDate?: Date;
-                archived?: boolean;
+                isArchived?: boolean;
+                isDraft?: boolean;
             } = {
                 account,
                 category,
@@ -83,21 +90,22 @@ const app = new Hono()
             operationData.currency = currency || 'EUR';
             if (taxRate !== undefined) operationData.taxRate = taxRate;
             if (taxAmount !== undefined) operationData.taxAmount = taxAmount;
-            operationData.isRecurring = isRecurring ?? false;
+            // operationData.isRecurring = isRecurring ?? false;
             if (recurrenceRule) operationData.recurrenceRule = recurrenceRule;
 
-            const recurringBaseDate = dueDate || date;
-            if (operationData.isRecurring && recurrenceRule) {
-                const calculatedNextOccurrence = recurrenceRule === 'WEEKLY'
-                    ? dayjs(recurringBaseDate).add(1, 'week').toDate()
-                    : dayjs(recurringBaseDate).add(1, 'month').toDate();
+            // const recurringBaseDate = dueDate || date;
+            // if (operationData.isRecurring && recurrenceRule) {
+            //     const calculatedNextOccurrence = recurrenceRule === 'WEEKLY'
+            //         ? dayjs(recurringBaseDate).add(1, 'week').toDate()
+            //         : dayjs(recurringBaseDate).add(1, 'month').toDate();
 
-                operationData.nextOccurrenceDate = nextOccurrenceDate || calculatedNextOccurrence;
-            } else if (nextOccurrenceDate) {
-                operationData.nextOccurrenceDate = nextOccurrenceDate;
-            }
+            //     operationData.nextOccurrenceDate = nextOccurrenceDate || calculatedNextOccurrence;
+            // } else if (nextOccurrenceDate) {
+            //     operationData.nextOccurrenceDate = nextOccurrenceDate;
+            // }
 
-            operationData.archived = archived ?? false;
+            operationData.isArchived = isArchived ?? false;
+            operationData.isDraft = isDraft ?? false;
 
             const newOperation = await databases.createDocument(
                 DATABASE_ID,
@@ -145,17 +153,22 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { total: 0, documents: [] } });
+
             try {
                 const operations = await databases.listDocuments(
                     DATABASE_ID,
                     BILLINGS_ID,
                     [
-                        Query.equal('teamId', user.prefs.teamId),
+                        Query.equal('teamId', context.org.appwriteTeamId),
                         Query.orderDesc('$createdAt'),
                     ]
                 );
 
-                const filteredDocuments = operations.documents.filter((operation) => operation.archived !== true);
+                const filteredDocuments = operations.documents.filter(
+                    (operation) => operation.isArchived !== true && operation.isDraft !== true
+                );
 
                 const filteredOperations = {
                     ...operations,
@@ -171,9 +184,76 @@ const app = new Hono()
         }
     )
 
+    .get(
+        '/archived',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            if (!user) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { total: 0, documents: [] } });
+
+            try {
+                const archived = await databases.listDocuments(
+                    DATABASE_ID,
+                    BILLINGS_ID,
+                    [
+                        Query.equal('teamId', context.org.appwriteTeamId),
+                        Query.equal('isArchived', true),
+                        Query.orderDesc('$createdAt'),
+                    ]
+                );
+
+                return ctx.json({ data: archived });
+            } catch (err) {
+                console.error('Error fetching archived operations:', err);
+                return ctx.json({ data: { total: 0, documents: [] } }, 200);
+            }
+        }
+    )
+
+    .get(
+        '/drafts',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+
+            if (!user) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { total: 0, documents: [] } });
+
+            try {
+                const drafts = await databases.listDocuments(
+                    DATABASE_ID,
+                    BILLINGS_ID,
+                    [
+                        Query.equal('teamId', context.org.appwriteTeamId),
+                        Query.equal('isDraft', true),
+                        Query.orderDesc('$createdAt'),
+                    ]
+                );
+
+                return ctx.json({ data: drafts });
+            } catch (err) {
+                console.error('Error fetching drafts:', err);
+                return ctx.json({ data: { total: 0, documents: [] } }, 200);
+            }
+        }
+    )
+
     .patch(
         '/:billingId',
         sessionMiddleware,
+        demoGuard,
         zValidator('json', billingOperationUpdateSchema),
         async (ctx) => {
             const user = ctx.get('user');
@@ -229,6 +309,7 @@ const app = new Hono()
     .delete(
         '/:billingId',
         sessionMiddleware,
+        demoGuard,
         async (ctx) => {
             const user = ctx.get('user');
             const databases = ctx.get('databases');
@@ -260,10 +341,13 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
+
             const billingOptions = await databases.listDocuments(
                 DATABASE_ID,
                 BILLING_OPTIONS_ID,
-                [Query.equal('teamId', user.prefs.teamId)]
+                [Query.equal('teamId', context.org.appwriteTeamId)]
             );
 
             if (billingOptions.total === 0) {
@@ -289,6 +373,9 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
             const options = await databases.createDocument(
                 DATABASE_ID,
                 BILLING_OPTIONS_ID,
@@ -296,7 +383,7 @@ const app = new Hono()
                 {
                     incomeCategories,
                     expenseCategories,
-                    teamId: user.prefs.teamId,
+                    teamId: context.org.appwriteTeamId,
                 }
             )
 

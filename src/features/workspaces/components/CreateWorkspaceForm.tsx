@@ -16,7 +16,7 @@ import { useGetWorkspacesCount } from "../api/use-get-workspaces-count";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2 } from "lucide-react";
 import { FeatureIncluded, FEATURES_INCLUDED } from "../constants/features-included";
-//import { toast } from "sonner";
+
 
 interface CreateWorkspaceFormProps {
     onCancel?: () => void,
@@ -29,7 +29,8 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
     const { mutate, isPending } = useCreateWorkspace();
     const { data: workspacesCount, isLoading: isLoadingCount } = useGetWorkspacesCount();
     const router = useRouter();
-    const t = useTranslations('workspaces')
+    const t = useTranslations('workspaces');
+
 
     const schema = zod.object({
         name: zod.string().trim().min(1, t('field-required'))
@@ -71,7 +72,7 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
 
     return (
         <div>
-            <Card className="w-full h-full">
+            <Card className="w-full h-full min-w-[700px] m-auto">
                 <CardHeader className="flex p-6 pb-4">
                     <CardTitle className="text-xl font-semibold text-center">
                         {t('create-workspace')}
@@ -80,6 +81,9 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
                         {t('workspace-quick-setup')}
                     </p>
                 </CardHeader>
+                <div className="flex justify-center mt-10">
+                    <Image width={300} height={300} alt='new workspace image' src={'/new-workspace.svg'} />
+                </div>
                 <CardContent className="pt-2">
                     {/* Features incluidas */}
                     <div className="mb-6 p-2 pb-4 bg-muted/30 rounded-lg border border-muted">
@@ -137,9 +141,6 @@ const CreateWorkspaceForm = ({  }: CreateWorkspaceFormProps) => {
                     </Form>
                 </CardContent>
             </Card>
-            <div className="flex justify-center mt-10">
-                <Image width={400} height={400} alt='new workspace image' src={'/new-workspace.svg'} />
-            </div>
         </div>
 
     );

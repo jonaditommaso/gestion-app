@@ -23,7 +23,8 @@ export type ContextType = {
         databases: DatabasesType,
         storage: StorageType,
         users: UsersType,
-        user: Models.User<Models.Preferences>
+        user: Models.User<Models.Preferences>,
+        activeOrgId: string | undefined
     }
 }
 
@@ -61,7 +62,18 @@ export const sessionMiddleware = createMiddleware<ContextType>(
         ctx.set('databases', databases)
         ctx.set('storage', storage)
         ctx.set('user', user)
+        ctx.set('activeOrgId', getCookie(ctx, 'active-org-id') ?? undefined)
 
+        await next();
+    }
+)
+
+export const demoGuard = createMiddleware<ContextType>(
+    async (ctx, next) => {
+        const user = ctx.get('user');
+        if (user?.prefs?.isDemo === true) {
+            return ctx.json({ error: 'demo_not_allowed' }, 403);
+        }
         await next();
     }
 )

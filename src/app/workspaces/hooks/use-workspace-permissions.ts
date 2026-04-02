@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useWorkspaceId } from "./use-workspace-id";
 import { useWorkspaceConfig } from "./use-workspace-config";
@@ -21,9 +21,9 @@ type WorkspaceMemberDocument = Models.Document & {
  * Returns permission flags based on workspace config and user role
  */
 export const useWorkspacePermissions = () => {
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const workspaceId = useWorkspaceId();
-    const { data: members } = useGetMembers({ workspaceId });
+    const { data: members } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const config = useWorkspaceConfig();
 
     const permissions = useMemo(() => {

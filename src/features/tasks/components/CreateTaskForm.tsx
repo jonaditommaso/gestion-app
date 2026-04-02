@@ -31,30 +31,35 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { useStatusDisplayName } from "@/app/workspaces/hooks/use-status-display-name";
 import { useEffect, useMemo } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetTasks } from "../api/use-get-tasks";
 import { LabelSelector } from "./LabelSelector";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 interface CreateTaskFormProps {
     memberOptions?: { id: string, name: string }[],
     onCancel: () => void,
     initialStatus?: TaskStatus,
-    initialStatusCustomId?: string
+    initialStatusCustomId?: string,
+    workspaceId?: string,
 }
 
-const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusCustomId }: CreateTaskFormProps) => {
+const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusCustomId, workspaceId: workspaceIdProp }: CreateTaskFormProps) => {
     const { mutate, isPending } = useCreateTask();
-    const workspaceId = useWorkspaceId();
+    const urlWorkspaceId = useWorkspaceId();
+    const workspaceId = workspaceIdProp || urlWorkspaceId;
     const t = useTranslations('workspaces');
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
-    const { data: currentUser } = useCurrent();
+    const { currentUser } = useAppContext();
     const { data: membersData } = useGetMembers({ workspaceId });
     const { data: tasksData } = useGetTasks({ workspaceId });
 
     const config = useWorkspaceConfig();
     const { canEditLabel } = useWorkspacePermissions();
+    const { isFree } = usePlanAccess();
+    const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((type) => type.value !== 'epic' && type.value !== 'spike' && type.value !== 'test') : TASK_TYPE_OPTIONS;
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
@@ -333,7 +338,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                 </FormControl>
                                                 <FormMessage />
                                                 <SelectContent>
-                                                    {TASK_TYPE_OPTIONS.map((type) => {
+                                                    {taskTypeOptions.map((type) => {
                                                         const Icon = type.icon;
                                                         return (
                                                             <SelectItem key={type.value} value={type.value}>

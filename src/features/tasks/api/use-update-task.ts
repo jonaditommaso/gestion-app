@@ -4,6 +4,8 @@ import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Task } from "../types";
+import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
 
 type ResponseType = InferResponseType<typeof client.api.tasks[':taskId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.tasks[':taskId']['$patch']>
@@ -16,9 +18,17 @@ interface MutationContext {
 export const useUpdateTask = () => {
     const queryClient = useQueryClient();
     const t = useTranslations('workspaces');
+    const { isDemo } = useAppContext();
+    const { updateTask } = useDemoData();
 
     const mutation = useMutation<ResponseType, Error, RequestType, MutationContext>({
         mutationFn: async ({ json, param }) => {
+            if (isDemo) {
+                const taskId = param.taskId;
+                updateTask(taskId, json as Partial<Task>);
+                return { data: { $id: taskId, parentId: json.parentId ?? null, type: json.type ?? null } } as unknown as ResponseType;
+            }
+
             const response = await client.api.tasks[':taskId']['$patch']({ json, param });
 
             if (!response.ok) {

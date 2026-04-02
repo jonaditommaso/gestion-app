@@ -1,0 +1,103 @@
+'use client'
+import { useState } from "react";
+import { plans } from "@/features/landing/plans";
+import PricingCard from "./PricingCard";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+import { Minus, Plus, Users } from "lucide-react";
+
+type Billing = 'monthly' | 'annual';
+
+interface PricingSectionProps {
+    currentPlan?: string;
+    onSelectPlan?: (plan: string, billing: 'monthly' | 'annual') => void;
+}
+
+const PricingSection = ({ currentPlan, onSelectPlan }: PricingSectionProps) => {
+    const [billing, setBilling] = useState<Billing>('monthly');
+    const [userCount, setUserCount] = useState(5);
+    const t = useTranslations('pricing');
+
+    return (
+        <div className="flex flex-col items-center gap-8 w-full">
+            <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
+                <button
+                    type="button"
+                    onClick={() => setBilling('monthly')}
+                    className={cn(
+                        'px-5 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200',
+                        billing === 'monthly'
+                            ? 'bg-background shadow text-foreground'
+                            : 'text-muted-foreground hover:text-foreground'
+                    )}
+                >
+                    {t('pricing-monthly')}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setBilling('annual')}
+                    className={cn(
+                        'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200',
+                        billing === 'annual'
+                            ? 'bg-background shadow text-foreground'
+                            : 'text-muted-foreground hover:text-foreground'
+                    )}
+                >
+                    {t('pricing-annual')}
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 font-semibold whitespace-nowrap">
+                        {t('pricing-annual-save')}
+                    </span>
+                </button>
+            </div>
+
+            <div className="flex items-center gap-3 text-sm">
+                <Users className="size-4 text-muted-foreground" />
+                <span className="text-muted-foreground">{t('pricing-users-label')}:</span>
+                <div className="flex items-center border rounded-lg overflow-hidden">
+                    <button
+                        type="button"
+                        onClick={() => setUserCount(c => Math.max(1, c - 1))}
+                        className="px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        aria-label="decrease"
+                    >
+                        <Minus className="size-3.5" />
+                    </button>
+                    <span className="min-w-[2.5rem] text-center font-semibold text-foreground tabular-nums">{userCount}</span>
+                    <button
+                        type="button"
+                        onClick={() => setUserCount(c => Math.min(50, c + 1))}
+                        className="px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        aria-label="increase"
+                    >
+                        <Plus className="size-3.5" />
+                    </button>
+                </div>
+            </div>
+
+            <div className="container flex flex-wrap gap-4 justify-center p-1 max-sm:flex-col mb-10">
+                {plans.map(plan => (
+                    <PricingCard
+                        key={plan.type}
+                        type={plan.type}
+                        description={plan.description}
+                        textButton={plan.textButton}
+                        price={
+                            billing === 'monthly' ? plan.monthlyPrice : plan.annualPrice
+                        }
+                        billing={billing}
+                        userCount={userCount}
+                        includes={plan.includes}
+                        isCurrentPlan={plan.type === currentPlan}
+                        onSelect={
+                            onSelectPlan && plan.type !== 'free' && plan.type !== 'enterprise' && plan.type !== currentPlan
+                                ? () => onSelectPlan(plan.type, billing)
+                                : undefined
+                        }
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default PricingSection;

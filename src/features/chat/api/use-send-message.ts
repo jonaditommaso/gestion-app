@@ -70,9 +70,44 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
                 options?.onFunctionCalled?.(functionCalled);
 
                 // Invalidar queries según la función que se llamó
-                if (functionCalled === 'create_note') {
-                    // Invalidar la query de notas para que se actualice la lista
+                if (functionCalled === 'create_note' || functionCalled === 'update_note' || functionCalled === 'delete_note') {
                     queryClient.invalidateQueries({ queryKey: ['notes'] });
+                }
+
+                if (functionCalled === 'send_message') {
+                    queryClient.invalidateQueries({ queryKey: ['messages'] });
+                }
+
+                if (functionCalled === 'create_task') {
+                    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                }
+
+                if (functionCalled === 'delete_task' || functionCalled === 'update_task' || functionCalled === 'assign_task_member' || functionCalled === 'bulk_move_tasks' || functionCalled === 'archive_task') {
+                    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                }
+
+                if (functionCalled === 'add_task_comment') {
+                    queryClient.invalidateQueries({ queryKey: ['task-comments'] });
+                }
+
+                if (functionCalled === 'add_checklist_item') {
+                    queryClient.invalidateQueries({ queryKey: ['checklist'] });
+                    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                }
+
+                if (functionCalled === 'create_deal' || functionCalled === 'update_deal' || functionCalled === 'delete_deal' || functionCalled === 'bulk_update_deals' || functionCalled === 'manage_deal_assignees') {
+                    queryClient.invalidateQueries({ queryKey: ['deals'] });
+                }
+
+                if (functionCalled === 'add_deal_comment') {
+                    queryClient.invalidateQueries({ queryKey: ['deals'] });
+                }
+
+                if (functionCalled === 'create_billing_operation' || functionCalled === 'update_billing_operation' || functionCalled === 'delete_billing_operation' || functionCalled === 'manage_billing_categories') {
+                    queryClient.invalidateQueries({ queryKey: ['billing'] });
+                    queryClient.invalidateQueries({ queryKey: ['billing-drafts'] });
+                    queryClient.invalidateQueries({ queryKey: ['billing-archived'] });
+                    queryClient.invalidateQueries({ queryKey: ['billing-options'] });
                 }
             }
         },

@@ -9,6 +9,8 @@ import { generateInviteCode } from '@/lib/utils';
 import { getMember } from '../members/utils';
 import { z as zod } from 'zod';
 import { WorkspaceType } from '../types';
+import { getActiveContext } from '@/features/team/server/utils';
+import { planLimits } from '@/features/pricing/plan-limits';
 
 const app = new Hono()
 
@@ -19,25 +21,15 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const members = await databases.listDocuments(
-                DATABASE_ID,
-                MEMBERS_ID,
-                [Query.equal('userId', user.$id)]
-            );
-
-            if (members.total === 0) {
-                return ctx.json({ data: { documents: [], total: 0 } })
-            }
-
-            const workspacesIds = members.documents.map(member => member.workspaceId)
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
             const workspaces = await databases.listDocuments(
                 DATABASE_ID,
                 WORKSPACES_ID,
                 [
                     Query.orderDesc('$createdAt'),
-                    Query.contains('teamId', user.prefs.teamId),
-                    Query.contains('$id', workspacesIds),
+                    Query.equal('teamId', context.org.appwriteTeamId),
                 ]
             );
 
@@ -51,10 +43,13 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ data: { count: 0 } });
+
             const workspaces = await databases.listDocuments(
                 DATABASE_ID,
                 WORKSPACES_ID,
-                [Query.equal('teamId', user.prefs.teamId)]
+                [Query.equal('teamId', context.org.appwriteTeamId)]
             );
 
             return ctx.json({ data: { count: workspaces.total } })
@@ -65,10 +60,25 @@ const app = new Hono()
         zValidator('json', createWorkspaceSchema),
         sessionMiddleware,
         async ctx => {
-            const databases = ctx.get('databases') // obtenemos la db del contexto, porque lo seteamos previamente en el session middleware
+            const databases = ctx.get('databases');
             const user = ctx.get('user');
 
             const { name } = ctx.req.valid('json');
+
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'No active organization' }, 400);
+
+            const workspaceLimit = planLimits[context.org.plan].workspaces;
+            if (workspaceLimit !== -1) {
+                const existing = await databases.listDocuments(
+                    DATABASE_ID,
+                    WORKSPACES_ID,
+                    [Query.equal('teamId', context.org.appwriteTeamId), Query.limit(1)]
+                );
+                if (existing.total >= workspaceLimit) {
+                    return ctx.json({ error: 'Plan limit reached' }, 403);
+                }
+            }
 
             const workspace = await databases.createDocument(
                 DATABASE_ID,
@@ -77,7 +87,7 @@ const app = new Hono()
                 {
                     name,
                     createdBy: user.$id,
-                    teamId: user.prefs.teamId,
+                    teamId: context.org.appwriteTeamId,
                     inviteCode: generateInviteCode(6),
                 }
             );
@@ -123,7 +133,19 @@ const app = new Hono()
             const updateData: Partial<WorkspaceType> = {};
             if (name !== undefined) updateData.name = name;
             if (description !== undefined) updateData.description = description;
-            if (metadata !== undefined) updateData.metadata = metadata;
+            if (metadata !== undefined) {
+                let parsedMeta: Record<string, unknown> = {};
+                try {
+                    parsedMeta = typeof metadata === 'string' ? JSON.parse(metadata) : {};
+                } catch { /* invalid JSON — skip check */ }
+                if ('customStatuses' in parsedMeta) {
+                    const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                    if (orgContext?.org?.plan === 'FREE') {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                    }
+                }
+                updateData.metadata = metadata;
+            }
             if (archived !== undefined) updateData.archived = archived;
 
             const workspace = await databases.updateDocument(

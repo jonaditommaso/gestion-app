@@ -3,7 +3,6 @@
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarMenu,
@@ -22,21 +21,45 @@ import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { Rocket } from "lucide-react";
+import UpgradeCarouselDialog from "@/components/UpgradeCarouselDialog";
+
+const notShowInView = [
+  '/oauth/loading',
+  '/meets/loading',
+  '/onboarding',
+  '/new-org'
+]
 
 const AppSidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useTranslations('general')
+    const { teamContext } = useAppContext();
     const { hasPermission } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
+    const { plan } = usePlanAccess();
+    const hasTeam = !!teamContext?.membership;
+
+    const isOwner = teamContext?.membership?.role === 'OWNER';
+    const showUpgradeRocket = isOwner && plan !== 'ENTERPRISE';
+
+    const isItemVisible = (item: { plans?: string[]; key: string }) => {
+        if (item.plans && !item.plans.includes(plan)) return false;
+        if (item.key === 'roles' && !canManageUsers) return false;
+        return true;
+    };
 
     const handleMouseEnter = () => setIsCollapsed(true);
     const handleMouseLeave = () => setIsCollapsed(false);
 
     const currentView = `/${pathname.split('/')[1]}`
 
-    if (pathname === '/oauth/loading' || pathname === '/meets/loading') return null
+    if (notShowInView.includes(pathname)) return null;
 
     return (
         <SidebarProvider open={isCollapsed}>
@@ -48,7 +71,7 @@ const AppSidebar = () => {
                 collapsible="icon"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                className="pt-14 z-10"
+                className="pt-14 z-30"
             >
                 <SidebarContent>
 
@@ -69,13 +92,15 @@ const AppSidebar = () => {
                         </SidebarGroupContent>
                     </SidebarGroup>
 
+                    {hasTeam && (
+                    <>
                     <SidebarSeparator />
 
                     <SidebarGroup>
                     {/* <SidebarGroupLabel>Application</SidebarGroupLabel> */}
                     <SidebarGroupContent>
                         <SidebarMenu className="gap-3">
-                        {sidebarItems.map((item) => (
+                        {sidebarItems.filter(isItemVisible).map((item) => (
                             <SidebarMenuItem key={t(item.title)} >
                             <SidebarMenuButton asChild>
                                 <Link href={item.url}>
@@ -94,8 +119,7 @@ const AppSidebar = () => {
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-3">
-                            {sidebarBottomItems.map((item) => {
-                                if (item.key === 'roles' && !canManageUsers) return null;
+                            {sidebarBottomItems.filter(isItemVisible).map((item) => {
                                 return (
                                 <SidebarMenuItem key={t(item.title)} >
                                 <SidebarMenuButton asChild>
@@ -109,8 +133,36 @@ const AppSidebar = () => {
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
+                    </>
+                    )}
                 </SidebarContent>
-                <SidebarFooter />
+                {showUpgradeRocket && (
+                    <>
+                        <SidebarSeparator />
+                        <SidebarGroup>
+                            <SidebarGroupContent>
+                                <SidebarMenu className="gap-3">
+                                    <SidebarMenuItem key="upgrade">
+                                        <SidebarMenuButton
+                                            onClick={() => { setUpgradeDialogOpen(true); setIsCollapsed(false); }}
+                                            tooltip="Upgrade"
+                                        >
+                                            <Rocket size={30} color="#f59e0b" />
+                                            <span className=" text-amber-500 font-medium">
+                                                {t('upgrade')}
+                                            </span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                        <UpgradeCarouselDialog
+                            open={upgradeDialogOpen}
+                            onOpenChange={setUpgradeDialogOpen}
+                            plan={plan}
+                        />
+                    </>
+                )}
             </Sidebar>
         </SidebarProvider>
     );

@@ -1,6 +1,7 @@
-import { DATABASE_ID, MEMBERS_ID, NOTIFICATIONS_ID } from "@/config";
+import { DATABASE_ID, MEMBERS_ID, NOTIFICATIONS_ID, WORKSPACES_ID } from "@/config";
 import { MemberRole } from "@/features/workspaces/members/types";
 import { getMember } from "@/features/workspaces/members/utils";
+import { getActiveContext } from "@/features/team/server/utils";
 import { NotificationBodySeparator, NotificationEntity, NotificationEntityType, NotificationI18nKey, NotificationType } from "@/features/notifications/types";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
@@ -144,23 +145,30 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const members = await databases.listDocuments(
+            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            if (!context) return ctx.json({ error: 'Unauthorized' }, 401);
+
+            const workspacesResult = await databases.listDocuments(
                 DATABASE_ID,
-                MEMBERS_ID,
-                [
-                    Query.equal('userId', user.$id),
-                ]
+                WORKSPACES_ID,
+                [Query.equal('teamId', context.org.appwriteTeamId), Query.orderAsc('$createdAt'), Query.limit(1)]
             );
 
-            const member = members.documents[0];
-
-            if (!member) {
-                return ctx.json({ error: 'Unauthorized' }, 401)
+            if (!workspacesResult.documents.length) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
             }
 
-            return ctx.json({
-                data: member
-            })
+            const member = await getMember({
+                databases,
+                workspaceId: workspacesResult.documents[0].$id,
+                userId: user.$id,
+            });
+
+            if (!member) {
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
+
+            return ctx.json({ data: member });
         }
     )
 

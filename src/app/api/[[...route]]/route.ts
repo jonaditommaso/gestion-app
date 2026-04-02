@@ -8,6 +8,7 @@ import tasks from '@/features/tasks/server/route'
 import checklist from '@/features/tasks/server/checklist.route'
 import comments from '@/features/tasks/server/comments.route'
 import activityLogs from '@/features/tasks/server/activity-logs.route'
+import squads from '@/features/tasks/server/squads.route'
 import billing from '@/features/billing-management/server/route'
 import settings from '@/features/settings/server/route'
 import team from '@/features/team/server/route'
@@ -18,6 +19,8 @@ import oauth from '@/features/oauth/server/route'
 import roles from '@/features/roles/server/route'
 import chat from '@/features/chat/server/route'
 import notifications from '@/features/notifications/server/route'
+import sells from '@/features/sells/server/route'
+import sso from '@/features/sso/server/route'
 
 const app = new Hono().basePath('/api')
 
@@ -31,6 +34,7 @@ const routes = app
   .route('/checklist', checklist)
   .route('/comments', comments)
   .route('/activity-logs', activityLogs)
+  .route('/squads', squads)
   .route('/billing', billing)
   .route('/settings', settings)
   .route('/team', team)
@@ -40,6 +44,8 @@ const routes = app
   .route('/oauth', oauth)
   .route('/chat', chat)
   .route('/notifications', notifications)
+  .route('/sells', sells)
+  .route('/sso', sso)
   .route('/', home)
 
 export const GET = handle(app)

@@ -3,14 +3,14 @@ import { useTranslations } from "next-intl";
 import { useUpdateTask } from "./use-update-task";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const useArchiveTask = () => {
     const t = useTranslations('workspaces');
     const { mutate: updateTask, isPending } = useUpdateTask();
     const workspaceId = useWorkspaceId();
-    const { data: user } = useCurrent();
+    const { currentUser: user } = useAppContext();
     const { data: membersData } = useGetMembers({ workspaceId });
     const queryClient = useQueryClient();
 

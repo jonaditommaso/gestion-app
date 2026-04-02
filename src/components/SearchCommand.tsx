@@ -19,6 +19,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const items = [
   { label: "billing", icon: <ReceiptText className="mr-2 h-4 w-4" />, path: "/billing-management", shortcut: "j" },
@@ -27,13 +28,17 @@ const items = [
   { label: "profile", icon: <User className="mr-2 h-4 w-4" />, path: "/settings", shortcut: "p" },
 ];
 
+const PAID_ONLY_LABELS = new Set(['billing', 'records']);
+
 const SearchCommand = () => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
-  const t = useTranslations('app')
+  const t = useTranslations('app');
+  const { isFree } = usePlanAccess();
+  const visibleItems = isFree ? items.filter(item => !PAID_ONLY_LABELS.has(item.label)) : items;
 
   const handleInputClick = () => setIsOpen(true);
 
@@ -70,7 +75,7 @@ const SearchCommand = () => {
       }
 
       // custom shortcuts for item
-      items.forEach(({ shortcut, path }) => {
+      visibleItems.forEach(({ shortcut, path }) => {
         if ((event.ctrlKey || event.metaKey) && event.key === shortcut) {
           event.preventDefault();
           setIsNavigating(true);
@@ -104,7 +109,7 @@ const SearchCommand = () => {
             <CommandEmpty>{t('no-results-found')}</CommandEmpty>
             {/*<CommandSeparator /> */}
             <CommandGroup heading={t('commands')}>
-              {(items ?? []).map((item) => (
+              {(visibleItems ?? []).map((item) => (
                   <CommandItem
                     key={item.label}
                     onSelect={() => handleNavigation(item.path)}

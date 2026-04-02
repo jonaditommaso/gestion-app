@@ -1,13 +1,13 @@
 'use client'
 
-import { useCurrent } from "@/features/auth/api/use-current";
+import { useAppContext } from "@/context/AppContext";
 import FadeLoader from "react-spinners/FadeLoader";
 import { useGetMembers } from "../api/use-get-members";
 import MemberCard from "./MemberCard";
 
 const TeamList = () => {
-    const { data: team, isLoading} = useGetMembers();
-    const { data: currentUser } = useCurrent();
+    const { data, isLoading} = useGetMembers();
+    const { currentUser } = useAppContext();
 
     if(isLoading) return (
         <div className="w-full flex justify-center">
@@ -15,8 +15,8 @@ const TeamList = () => {
         </div>
     )
 
-    const sortedTeam = team
-        ? [...team].sort((a, b) => {
+    const sortedTeam = data?.members
+        ? [...data.members].sort((a, b) => {
             if (a.userId === currentUser?.$id) return -1;
             if (b.userId === currentUser?.$id) return 1;
             return 0;
@@ -35,7 +35,7 @@ const TeamList = () => {
                         name={member.name}
                         email={member.email}
                         position={member.prefs.position}
-                        image={member.prefs.image}
+                        image={member.prefs.image ?? ''}
                         tags={(member.prefs.tags || '').split(',')}
                         role={member.prefs.role}
                         birthday={member.prefs.birthday}
@@ -43,6 +43,8 @@ const TeamList = () => {
                         linkedin={member.prefs.linkedin}
                         memberSince={member.prefs.memberSince}
                         currentProject={member.prefs.currentProject}
+                        orgName={data?.orgName}
+                        appwriteMembershipId={member.appwriteMembershipId}
                     />
                 )})
             }

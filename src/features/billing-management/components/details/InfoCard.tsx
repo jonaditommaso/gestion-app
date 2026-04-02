@@ -61,7 +61,7 @@ const InfoCard = ({ numberMoney, type }: InfoCardProps) => {
                     <CircleIcon Icon={types[type].icon} color={types[type].color} />
                 </div>
                 <p className="text-3xl ">
-                    <span className="text-xl">€</span> {numberMoney} {/* <span className="text-xs">+3%</span>*/}
+                    <span className="text-xl">€</span> {Number(numberMoney).toFixed(2)} {/* <span className="text-xs">+3%</span>*/}
                 </p>
             </CardContent>
             <CardFooter className="justify-center">

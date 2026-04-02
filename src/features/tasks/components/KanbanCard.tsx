@@ -1,6 +1,7 @@
 import { MoreHorizontalIcon, TextIcon, Clock, ListChecks, CircleCheckBig, Layers } from "lucide-react";
 import { Task } from "../types";
 import TaskActions from "./TaskActions";
+import { SQUAD_ICONS } from "./squads/CreateSquadFlow";
 import { Separator } from "@/components/ui/separator";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
 import TaskDate from "./TaskDate";
@@ -38,6 +39,9 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     const prevCompletedAt = useRef(task.completedAt);
     const isCompact = config[WorkspaceConfigKey.COMPACT_CARDS];
     const dateFormat = config[WorkspaceConfigKey.DATE_FORMAT];
+    const urgentVisualAlerts = config[WorkspaceConfigKey.URGENT_VISUAL_ALERTS] as boolean;
+    const urgentWarning1Days = (config[WorkspaceConfigKey.URGENT_WARNING_1_DAYS] as number) ?? 1;
+    const urgentWarning2Days = (config[WorkspaceConfigKey.URGENT_WARNING_2_DAYS] as number) ?? 2;
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
     const PriorityIcon = priorityOption.icon
     const typeOption = TASK_TYPE_OPTIONS.find(t => t.value === (task.type || 'task'))!
@@ -57,6 +61,15 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
 
     // Use optimistic state if available, otherwise use server state
     const isCompleted = optimisticCompleted !== null ? optimisticCompleted : !!task.completedAt;
+
+    // Compute urgent alert level (0 = none, 1 = orange warning, 2 = red critical)
+    const urgentAlertLevel = (() => {
+        if (!urgentVisualAlerts || task.type !== 'urgent' || isCompleted) return 0;
+        const daysSinceCreated = differenceInDays(new Date(), new Date(task.$createdAt));
+        if (daysSinceCreated >= urgentWarning2Days) return 2;
+        if (daysSinceCreated >= urgentWarning1Days) return 1;
+        return 0;
+    })();
 
     // Reset optimistic state when server value changes
     useEffect(() => {
@@ -99,9 +112,16 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
 
     return (
         <div
-            className={`p-2.5 mb-1.5 rounded shadow-md space-y-3 cursor-pointer hover:shadow-lg transition ${
-                task.featured ? 'bg-yellow-50/80 dark:bg-yellow-950/20' : 'bg-card'
-            }`}
+            className={cn(
+                "p-2.5 mb-1.5 rounded shadow-md space-y-3 cursor-pointer hover:shadow-lg transition",
+                urgentAlertLevel === 2
+                    ? "bg-red-50/80 dark:bg-red-950/20 border-2 border-red-500"
+                    : urgentAlertLevel === 1
+                        ? "bg-orange-50/80 dark:bg-orange-950/20 border-2 border-orange-400"
+                        : task.featured
+                            ? "bg-yellow-50/80 dark:bg-yellow-950/20"
+                            : "bg-card"
+            )}
             onClick={() => onOpenTask?.(task.$id)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -195,6 +215,27 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                                 {task.label}
                             </span>
                         ) : null}
+                    </div>
+                )}
+                {task.squads && task.squads.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                        {task.squads.map(squad => {
+                            const rawMeta = (() => { try { return squad.metadata ? (JSON.parse(squad.metadata) as { color?: string | null; icon?: string | null }) : null; } catch { return null; } })();
+                            const color = rawMeta?.color ?? null;
+                            const rawIcon = rawMeta?.icon ?? null;
+                            const iconDef = rawIcon ? SQUAD_ICONS.find(i => i.id === rawIcon) : null;
+                            const IconComp = iconDef?.icon;
+                            return (
+                                <span
+                                    key={squad.$id}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md bg-secondary text-secondary-foreground"
+                                    style={color ? { backgroundColor: `${color}22`, color, border: `1px solid ${color}44` } : undefined}
+                                >
+                                    {IconComp && <IconComp className="size-3 shrink-0" />}
+                                    {squad.name}
+                                </span>
+                            );
+                        })}
                     </div>
                 )}
             </div>

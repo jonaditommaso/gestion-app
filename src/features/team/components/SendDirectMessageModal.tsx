@@ -1,8 +1,8 @@
 'use client'
 import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useCurrent } from "@/features/auth/api/use-current";
 import { useCreateMessage } from "@/features/home/api/use-create-message";
 import { useTranslations } from "next-intl";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -15,22 +15,23 @@ interface SendDirectMessageModalProps {
 }
 
 const SendDirectMessageModal = ({ isOpen, setIsOpen, recipientId, recipientName }: SendDirectMessageModalProps) => {
-    const { data: user } = useCurrent();
     const { mutate: createMessage, isPending } = useCreateMessage();
+    const [subject, setSubject] = useState('');
     const [messageContent, setMessageContent] = useState('');
     const t = useTranslations('home');
 
     const handleSend = () => {
-        if (!messageContent.trim() || !user?.prefs?.teamId) return;
+        if (!subject.trim() || !messageContent.trim()) return;
 
         createMessage({
             json: {
                 toTeamMemberIds: [recipientId],
+                subject: subject.trim(),
                 content: messageContent,
-                teamId: user.prefs.teamId,
             }
         }, {
             onSuccess: () => {
+                setSubject('');
                 setMessageContent('');
                 setIsOpen(false);
             }
@@ -44,6 +45,12 @@ const SendDirectMessageModal = ({ isOpen, setIsOpen, recipientId, recipientName 
             isOpen={isOpen}
             setIsOpen={setIsOpen}
         >
+            <Input
+                placeholder={t('subject-placeholder')}
+                maxLength={100}
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+            />
             <Textarea
                 placeholder={t('message')}
                 maxLength={256}
@@ -55,7 +62,7 @@ const SendDirectMessageModal = ({ isOpen, setIsOpen, recipientId, recipientName 
                 <Button onClick={() => setIsOpen(false)} disabled={isPending} variant="secondary">
                     {t('cancel')}
                 </Button>
-                <Button onClick={handleSend} disabled={isPending || !messageContent.trim()}>
+                <Button onClick={handleSend} disabled={isPending || !subject.trim() || !messageContent.trim()}>
                     {t('send-message')}
                 </Button>
             </div>

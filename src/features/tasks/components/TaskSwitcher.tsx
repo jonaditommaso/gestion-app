@@ -40,6 +40,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const [{
         status,
         assigneeId,
+        squadId,
         dueDate,
         priority,
         label,
@@ -47,7 +48,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
         completed
     }] = useTaskFilters();
 
-    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, dueDate, priority, label, type, completed });
+    const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({ workspaceId, status, assigneeId, squadId, dueDate, priority, label, type, completed, enabled: workspaceId !== 'create' });
 
     // Filtro local por nombre
     const filteredTasks = useMemo(() => {
@@ -141,7 +142,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                                 />
                             </TabsContent>
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
-                                <DataCalendar data={(filteredTasks as Task[]).filter(task => task.dueDate)} />
+                                <DataCalendar data={filteredTasks as Task[]} />
                             </TabsContent>
                         </>
 

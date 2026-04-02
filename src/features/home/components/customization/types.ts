@@ -6,7 +6,16 @@ export type WidgetId =
     | 'create-meet'
     | 'calendar'
     | 'todo-tasks'
-    | 'calendar-events';
+    | 'calendar-events'
+    | 'billing-snapshot'
+    | 'workspace-health'
+    | 'team-velocity'
+    | 'pipeline-health'
+    | 'recent-activity'
+    | 'upcoming-payments'
+    | 'new-deal'
+    | 'new-task'
+    | 'new-billing';
 
 export type IntegrationId =
     | 'spotify'
@@ -46,6 +55,8 @@ export interface HomeConfig {
     integrations: IntegrationConfig[];
     notesSettings: NotesSettings;
     taskWidgetStatusId?: string; // ID del status para el widget de tareas (default: TODO)
+    defaultWorkspaceId?: string; // Workspace por defecto para crear tareas
+    defaultBoardId?: string; // Pipeline por defecto para crear deals
 }
 
 // Tipos para guardar solo los overrides (cambios respecto al default)
@@ -58,11 +69,15 @@ export interface HomeConfigOverrides {
     integrations?: Record<IntegrationId, PartialIntegrationConfig>;
     notesSettings?: Partial<NotesSettings>;
     taskWidgetStatusId?: string; // ID del status para el widget de tareas
+    defaultWorkspaceId?: string;
+    defaultBoardId?: string;
+    noteOnboardingDone?: boolean;
 }
 
 export interface HomeConfigDocument {
     $id: string;
-    userId: string;
+    memberId: string;
+    organizationId: string;
     widgets: string; // JSON stringified HomeConfig
     noteGlobalPinOnboarded?: boolean;
     $collectionId: string;
@@ -72,15 +87,33 @@ export interface HomeConfigDocument {
     $permissions: string[];
 }
 
+export const FREE_PLAN_WIDGETS: WidgetId[] = [
+    'my-notes',
+    'shortcut',
+    'calendar',
+    'todo-tasks',
+    'new-deal',
+    'new-task',
+];
+
 export const DEFAULT_WIDGETS: WidgetConfig[] = [
     { id: 'my-notes', visible: true, canToggle: false },
-    { id: 'messages', visible: true, canToggle: false },
+    { id: 'messages', visible: true, canToggle: true },
     { id: 'send-message', visible: true, canToggle: false },
     { id: 'shortcut', visible: true, canToggle: false },
     { id: 'create-meet', visible: true, canToggle: false },
-    { id: 'calendar', visible: true, canToggle: true },
+    { id: 'calendar', visible: false, canToggle: true },
     { id: 'todo-tasks', visible: true, canToggle: true },
     { id: 'calendar-events', visible: true, canToggle: false },
+    { id: 'billing-snapshot', visible: true, canToggle: true },
+    { id: 'workspace-health', visible: true, canToggle: true },
+    { id: 'team-velocity', visible: true, canToggle: true },
+    { id: 'pipeline-health', visible: true, canToggle: true },
+    { id: 'recent-activity', visible: true, canToggle: true },
+    { id: 'upcoming-payments', visible: true, canToggle: true },
+    { id: 'new-deal', visible: true, canToggle: false },
+    { id: 'new-task', visible: true, canToggle: false },
+    { id: 'new-billing', visible: true, canToggle: false },
 ];
 
 export const DEFAULT_INTEGRATIONS: IntegrationConfig[] = [
@@ -111,6 +144,15 @@ export const WIDGET_LABELS: Record<WidgetId, { en: string; es: string; it: strin
     'calendar': { en: 'Calendar', es: 'Calendario', it: 'Calendario' },
     'todo-tasks': { en: 'To Do Tasks', es: 'Tareas pendientes', it: 'Attività da fare' },
     'calendar-events': { en: 'Calendar Events', es: 'Eventos de calendario', it: 'Eventi del calendario' },
+    'billing-snapshot': { en: 'Billing Snapshot', es: 'Resumen financiero', it: 'Riepilogo finanziario' },
+    'workspace-health': { en: 'Workspace Health', es: 'Salud de workspaces', it: 'Salute dei workspace' },
+    'team-velocity': { en: "This Week's Activity", es: 'Actividad de la semana', it: 'Attività della settimana' },
+    'pipeline-health': { en: 'Pipeline Health', es: 'Estado del pipeline', it: 'Stato pipeline' },
+    'recent-activity': { en: 'Recent Activity', es: 'Actividad reciente', it: 'Attività recente' },
+    'upcoming-payments': { en: 'Upcoming Payments', es: 'Cobros próximos', it: 'Pagamenti in arrivo' },
+    'new-deal': { en: 'New Deal', es: 'Nuevo deal', it: 'Nuovo deal' },
+    'new-task': { en: 'New Task', es: 'Nueva tarea', it: 'Nuova attività' },
+    'new-billing': { en: 'New Invoice', es: 'Nueva factura', it: 'Nuova fattura' },
 };
 
 export const INTEGRATION_LABELS: Record<IntegrationId, { en: string; es: string; it: string }> = {
@@ -186,6 +228,14 @@ export function configToOverrides(config: HomeConfig): HomeConfigOverrides {
         overrides.taskWidgetStatusId = config.taskWidgetStatusId;
     }
 
+    if (config.defaultWorkspaceId) {
+        overrides.defaultWorkspaceId = config.defaultWorkspaceId;
+    }
+
+    if (config.defaultBoardId) {
+        overrides.defaultBoardId = config.defaultBoardId;
+    }
+
     return overrides;
 }
 
@@ -216,7 +266,9 @@ export function mergeConfigWithOverrides(overrides: HomeConfigOverrides): HomeCo
             defaultNewNoteModern: overrides.notesSettings?.defaultNewNoteModern ?? DEFAULT_NOTES_SETTINGS.defaultNewNoteModern,
             defaultNewNoteLines: overrides.notesSettings?.defaultNewNoteLines ?? DEFAULT_NOTES_SETTINGS.defaultNewNoteLines,
         },
-        taskWidgetStatusId: overrides.taskWidgetStatusId, // undefined usará TODO por defecto
+        taskWidgetStatusId: overrides.taskWidgetStatusId,
+        defaultWorkspaceId: overrides.defaultWorkspaceId,
+        defaultBoardId: overrides.defaultBoardId,
     };
 
     return config;

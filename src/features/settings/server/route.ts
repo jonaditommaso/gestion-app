@@ -6,6 +6,7 @@ import { zValidator } from "@hono/zod-validator";
 import { changePasswordSchema, mfaCodeSchema } from "../schemas";
 import { IMAGES_BUCKET_ID } from "@/config";
 import { z } from "zod";
+import { DEMO_ORG_MEMBERS } from "@/lib/demo-data";
 
 const app = new Hono()
 
@@ -139,6 +140,27 @@ const app = new Hono()
             const user = ctx.get('user');
 
             const { userId } = ctx.req.param();
+
+            // Demo members: return their pravatar URL directly without any DB lookup
+            if (userId?.startsWith('demo-')) {
+                const demoMember = DEMO_ORG_MEMBERS.find(m => m.userId === userId);
+                const imageUrl = demoMember?.prefs?.image;
+                if (!imageUrl) {
+                    return ctx.json({ success: false, message: 'No image found for the user' }, 400);
+                }
+                try {
+                    const remoteRes = await fetch(imageUrl);
+                    if (!remoteRes.ok) {
+                        return ctx.json({ success: false, message: 'Error fetching remote image' }, 500);
+                    }
+                    const contentType = remoteRes.headers.get('content-type') || 'image/jpeg';
+                    const buffer = await remoteRes.arrayBuffer();
+                    return new Response(buffer, { headers: { 'Content-Type': contentType } });
+                } catch (err) {
+                    console.error('Error fetching demo member image:', err);
+                    return ctx.json({ success: false, message: 'Error fetching remote image' }, 500);
+                }
+            }
 
             const { users } = await createAdminClient();
 
