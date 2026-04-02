@@ -3,9 +3,9 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASK_SQUADS_ASSIGNEES_ID, TASK_SQUADS_ID, TASK_SQUADS_MEMBERS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASK_SQUADS_ASSIGNEES_ID, TASK_SQUADS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
-import { Task, TaskShare, TaskShareType, TaskStatus, TaskSquad, TaskSquadAssignee, TaskSquadMember, WorkspaceMember } from "../types";
+import { Task, TaskShare, TaskShareType, TaskStatus, TaskSquad, TaskSquadAssignee, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
 import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Databases, Models } from "node-appwrite";
@@ -472,7 +472,7 @@ const app = new Hono()
             }
 
             const squadIdsForTasks = [...new Set(taskSquadAssigneeDocs.map(sa => sa.squadId))];
-            let squadDocuments: TaskSquad[] = [];
+            const squadDocuments: TaskSquad[] = [];
             if (squadIdsForTasks.length > 0) {
                 const squadChunks = chunkArray(squadIdsForTasks, 100);
                 for (const chunk of squadChunks) {

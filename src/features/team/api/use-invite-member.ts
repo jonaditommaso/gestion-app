@@ -34,7 +34,7 @@ export const useInviteMember = () => {
 
             return await response.json()
         },
-        onSuccess: (data, variables, context) => {
+        onSuccess: () => {
             if (isDemo) return;
             toast.success(t('invitation-created'))
             router.refresh();
