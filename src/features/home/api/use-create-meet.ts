@@ -16,8 +16,13 @@ export const useCreateMeet = () => {
 
             return await response.json()
         },
-        onSuccess: ({data}) => {
-            window.location.href = data
+        onSuccess: ({ data }) => {
+            // setTimeout allows React to re-render (pendingMutations → 0)
+            // before the navigation triggers beforeunload, avoiding the
+            // "unsaved changes" browser alert from usePendingChangesWarning.
+            setTimeout(() => {
+                window.location.href = data;
+            }, 0);
         },
         onError: () => {
             toast.error(t('failed-create-meet'))// there is no json key

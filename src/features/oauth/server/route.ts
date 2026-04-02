@@ -19,6 +19,7 @@ const app = new Hono()
       let title;
       let duration;
       let userId;
+      let authOnly = false;
 
       if (state) {
         try {
@@ -28,6 +29,7 @@ const app = new Hono()
           invited = parsed.invited;
           duration = parsed.duration;
           userId = parsed.userId;
+          authOnly = parsed.auth_only === true;
 
         } catch (err) {
           console.error('Error parsing state', err);
@@ -90,10 +92,11 @@ const app = new Hono()
 
         const tokenData = await tokenRes.json();
 
-        if (!prefs?.google_refresh_token) {
+        if (!prefs?.google_refresh_token || !prefs?.google_calendar_scope) {
           await users.updatePrefs(userId, {
             ...(prefs ?? {}),
-            google_refresh_token: tokenData.refresh_token
+            ...(tokenData.refresh_token ? { google_refresh_token: tokenData.refresh_token } : {}),
+            google_calendar_scope: true,
           });
         }
 
@@ -110,6 +113,10 @@ const app = new Hono()
           secure: true,
           maxAge: tokenData.expires_in
         });
+
+        if (authOnly) {
+          return c.redirect(`${NEXT_PUBLIC_APP_URL}/oauth/close`);
+        }
 
         return c.redirect(`${NEXT_PUBLIC_APP_URL}/api/meet?${queryParams.toString()}`);
       } catch (err) {

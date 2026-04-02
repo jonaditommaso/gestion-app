@@ -516,6 +516,37 @@ const app = new Hono()
         }
     )
 
+    .get(
+        '/meet-auth-url',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+
+            const oauth2Client = new google.auth.OAuth2(
+                GOOGLE_CLIENT_ID,
+                GOOGLE_CLIENT_SECRET,
+                GOOGLE_REDIRECT_URI,
+            );
+
+            const scopes = [
+                'openid',
+                'email',
+                'profile',
+                'https://www.googleapis.com/auth/calendar.events'
+            ];
+
+            const url = oauth2Client.generateAuthUrl({
+                access_type: 'offline',
+                prompt: 'consent',
+                client_id: GOOGLE_CLIENT_ID,
+                scope: scopes,
+                state: JSON.stringify({ auth_only: true, userId: user.$id })
+            });
+
+            return ctx.json({ data: url });
+        }
+    )
+
     .post(
         '/meet-validation-permission',
         zValidator('json', meetSchema),
@@ -529,7 +560,7 @@ const app = new Hono()
             const accessToken = cookieStore.get('google_access_token')?.value;
             const expiresAt = parseInt(cookieStore.get('google_access_token_exp')?.value ?? '0');
 
-            if ((!accessToken || Date.now() > expiresAt) && !user?.prefs.google_refresh_token) { // escenario 1, no hay ni token ni refresh
+            if (!user?.prefs.google_calendar_scope || ((!accessToken || Date.now() > expiresAt) && !user?.prefs.google_refresh_token)) { // escenario 1, no hay ni token ni refresh, o falta el scope de calendar
 
                 const oauth2Client = new google.auth.OAuth2(
                     GOOGLE_CLIENT_ID,
@@ -590,6 +621,10 @@ const app = new Hono()
             const userId = url.searchParams.get('userId');
 
             const date = dayjs(dateStart)
+
+            if (date.isBefore(dayjs())) {
+                return ctx.redirect('/?error=meet_past_date');
+            }
 
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 

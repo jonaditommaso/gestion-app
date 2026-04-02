@@ -25,6 +25,14 @@ const CustomTimePicker = ({ date, setDate, className }: TimePickerProps) => {
       date ? (date.getHours() >= 12 ? "PM" : "AM") : "AM",
     )
 
+    React.useEffect(() => {
+      if (date) {
+        setSelectedHour(date.getHours() % 12 || 12)
+        setSelectedMinute(roundToNearestFive(date.getMinutes()))
+        setSelectedPeriod(date.getHours() >= 12 ? "PM" : "AM")
+      }
+    }, [date])
+
     // Create hours array (1-12)
     const hours = Array.from({ length: 12 }, (_, i) => i + 1)
 
