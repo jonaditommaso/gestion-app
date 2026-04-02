@@ -45,7 +45,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
     return map;
   }, [teamData?.members]);
 
-  const unreadMessages: Message[] = (messages?.documents ?? [])
+  const unreadMessages: Message[] = ((messages?.documents ?? []) as unknown as Message[])
   .filter((m): m is Message => 'content' in m && 'toTeamMemberId' in m && 'read' in m && !m.read);
 
   const handleMarkAsRead = () => {

@@ -237,7 +237,7 @@ const DealDetailModal = ({
             {deal.labelId && boardLabels.length > 0 && (() => {
               const lbl = boardLabels.find((l) => l.id === deal.labelId);
               if (!lbl) return null;
-              const colorDef = LABEL_COLORS.find((c) => c.hex === lbl.color);
+              const colorDef = LABEL_COLORS.find((c) => c.value === lbl.color);
               return (
                 <Badge
                   variant="outline"
@@ -309,7 +309,7 @@ const DealDetailModal = ({
                       style={(() => {
                         const lbl = boardLabels.find((l) => l.id === deal.labelId);
                         if (!lbl) return {};
-                        const colorDef = LABEL_COLORS.find((c) => c.hex === lbl.color);
+                        const colorDef = LABEL_COLORS.find((c) => c.value === lbl.color);
                         return { backgroundColor: lbl.color, color: colorDef?.textColor ?? "#ffffff", borderColor: "transparent" };
                       })()}
                     >
@@ -327,7 +327,7 @@ const DealDetailModal = ({
                       {t("labels.none")}
                     </button>
                     {boardLabels.map((lbl) => {
-                      const colorDef = LABEL_COLORS.find((c) => c.hex === lbl.color);
+                      const colorDef = LABEL_COLORS.find((c) => c.value === lbl.color);
                       return (
                         <button
                           key={lbl.id}

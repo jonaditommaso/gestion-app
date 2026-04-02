@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '@/features/tasks/styles/date-calendar.css'
-import CustomToolbar from "@/features/tasks/components/CustomToolbar";
+import BillingToolbar from "./BillingToolbar";
 import EventCard from "./EventCard";
 import { useGetOperations } from "../../api/use-get-operations";
 import FadeLoader from "react-spinners/FadeLoader";
@@ -216,7 +216,7 @@ const BillingCalendar = () => {
                             status={event.status || 'PENDING'}
                         />
                     ),
-                    toolbar: () => <CustomToolbar date={value} onNavigate={handleNavigate} />
+                    toolbar: () => <BillingToolbar date={value} onNavigate={handleNavigate} />
                 }}
             />
         </>
