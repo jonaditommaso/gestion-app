@@ -33,25 +33,25 @@ const featureConfigs = [
   {
     id: 'workspace',
     icon: FcParallelTasks,
-    image: '/present-workspaces.png',
+    image: '/tasks-kanban.png',
     gradient: 'from-blue-500/10 to-purple-500/10'
   },
   {
     id: 'sells',
     icon: FcMoneyTransfer,
-    image: '/present-billing.png',
+    image: '/sells-kanban.png',
     gradient: 'from-emerald-500/10 to-teal-500/10'
   },
   {
     id: 'operations',
     icon: FcBullish,
-    image: '/present-billing.png',
+    image: '/billing-dashboard.png',
     gradient: 'from-orange-500/10 to-red-500/10'
   },
   {
     id: 'chatbot',
     icon: FcSms,
-    image: '/present-workspaces.png',
+    image: '/chatbot-empty.png',
     gradient: 'from-violet-500/10 to-pink-500/10'
   }
 ];
