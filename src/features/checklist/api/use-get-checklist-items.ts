@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 interface UseGetChecklistItemsProps {
     taskId: string;
@@ -7,9 +8,13 @@ interface UseGetChecklistItemsProps {
 }
 
 export const useGetChecklistItems = ({ taskId, enabled = true }: UseGetChecklistItemsProps) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['checklist', taskId],
+        queryKey: ['checklist', taskId, isDemo],
         queryFn: async () => {
+            if (isDemo) return { documents: [], total: 0 };
+
             const response = await client.api.checklist.$get({
                 query: { taskId }
             });
@@ -21,7 +26,7 @@ export const useGetChecklistItems = ({ taskId, enabled = true }: UseGetChecklist
             const { data } = await response.json();
             return data;
         },
-        enabled: enabled && !!taskId,
+        enabled: !isLoadingUser && enabled && !!taskId,
     });
 
     return query;

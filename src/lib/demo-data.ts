@@ -296,9 +296,9 @@ type DemoSellerDoc = {
 export const DEMO_SELLERS_DATA: { total: number; documents: DemoSellerDoc[] } = {
     total: 3,
     documents: [
-        { $id: 'demo-seller-01', memberId: DEMO_MEMBER_ALICE_ID, name: 'Alice Martín', email: 'alice@demo.com', avatarId: null },
-        { $id: 'demo-seller-02', memberId: DEMO_MEMBER_BOB_ID, name: 'Bob García', email: 'bob@demo.com', avatarId: null },
-        { $id: 'demo-seller-03', memberId: DEMO_MEMBER_CAROL_ID, name: 'Carol López', email: 'carol@demo.com', avatarId: null },
+        { $id: DEMO_MEMBER_ALICE_ID, memberId: DEMO_MEMBER_ALICE_ID, name: 'Alice Martín', email: 'alice@demo.com', avatarId: null },
+        { $id: DEMO_MEMBER_BOB_ID, memberId: DEMO_MEMBER_BOB_ID, name: 'Bob García', email: 'bob@demo.com', avatarId: null },
+        { $id: DEMO_MEMBER_CAROL_ID, memberId: DEMO_MEMBER_CAROL_ID, name: 'Carol López', email: 'carol@demo.com', avatarId: null },
     ],
 };
 
@@ -309,6 +309,8 @@ export type BillingDoc = Models.Document & {
     category: string;
     status: 'PENDING' | 'PAID' | 'OVERDUE';
     date: string;
+    dueDate?: string;
+    invoiceNumber?: string;
     partyName?: string;
     paymentMethod?: string;
     isArchived?: boolean;
@@ -346,34 +348,57 @@ const makeBillingDoc = (
 });
 
 const DEMO_BILLING_LIST: BillingDoc[] = [
+    // March 2026 (previous month)
     makeBillingDoc('demo-bill-01', 'income', 48000, 'Sales', 'PAID', 'TechCorp Inc.', {
         paymentMethod: 'BANK_TRANSFER',
-        date: '2025-03-28T00:00:00.000Z',
+        date: '2026-03-28T00:00:00.000Z',
+        $updatedAt: '2026-04-09T10:00:00.000Z',
+        invoiceNumber: 'INV-2026-001',
         note: 'Enterprise License Q1',
     }),
     makeBillingDoc('demo-bill-02', 'income', 8000, 'Sales', 'PAID', 'Global Retail Co.', {
         paymentMethod: 'BANK_TRANSFER',
-        date: '2025-03-28T00:00:00.000Z',
+        date: '2026-03-28T00:00:00.000Z',
+        invoiceNumber: 'INV-2026-002',
     }),
     makeBillingDoc('demo-bill-03', 'expense', 2400, 'Infrastructure', 'PAID', 'AWS', {
         paymentMethod: 'CREDIT_CARD',
-        date: '2025-03-01T00:00:00.000Z',
+        date: '2026-03-01T00:00:00.000Z',
+        invoiceNumber: 'AWS-MAR-2026',
         note: 'Monthly cloud hosting',
     }),
     makeBillingDoc('demo-bill-04', 'expense', 1200, 'Software', 'PAID', 'GitHub', {
         paymentMethod: 'CREDIT_CARD',
-        date: '2025-03-01T00:00:00.000Z',
+        date: '2026-03-01T00:00:00.000Z',
+        invoiceNumber: 'GH-MAR-2026',
     }),
+    makeBillingDoc('demo-bill-07', 'expense', 3500, 'Salaries', 'PENDING', 'Freelancer Pool', {
+        date: '2026-03-15T00:00:00.000Z',
+        dueDate: '2026-03-31T00:00:00.000Z',
+        invoiceNumber: 'FREEL-2026-01',
+        note: 'Q1 contractor invoices',
+    }),
+    // April 2026 (current month)
     makeBillingDoc('demo-bill-05', 'income', 12500, 'Sales', 'PENDING', 'Innova Solutions', {
-        date: '2025-04-15T00:00:00.000Z',
+        date: '2026-04-05T00:00:00.000Z',
+        dueDate: '2026-04-14T00:00:00.000Z',
+        invoiceNumber: 'INV-2026-003',
         note: 'SaaS Platform Upgrade invoice',
     }),
     makeBillingDoc('demo-bill-06', 'expense', 800, 'Marketing', 'PENDING', 'Google Ads', {
-        date: '2025-04-30T00:00:00.000Z',
+        date: '2026-04-01T00:00:00.000Z',
+        dueDate: '2026-04-30T00:00:00.000Z',
     }),
-    makeBillingDoc('demo-bill-07', 'expense', 3500, 'Salaries', 'OVERDUE', 'Freelancer Pool', {
-        date: '2025-03-15T00:00:00.000Z',
-        note: 'Q1 contractor invoices',
+    // February 2026 (for projection average)
+    makeBillingDoc('demo-bill-08', 'income', 22000, 'Sales', 'PAID', 'MegaClient Corp', {
+        paymentMethod: 'BANK_TRANSFER',
+        date: '2026-02-20T00:00:00.000Z',
+        invoiceNumber: 'INV-2026-FEB-01',
+    }),
+    makeBillingDoc('demo-bill-09', 'expense', 3600, 'Infrastructure', 'PAID', 'Cloud Services', {
+        paymentMethod: 'CREDIT_CARD',
+        date: '2026-02-01T00:00:00.000Z',
+        note: 'Monthly infrastructure costs',
     }),
 ];
 
@@ -385,12 +410,16 @@ export const DEMO_BILLING_DATA: Models.DocumentList<BillingDoc> = {
 const DEMO_BILLING_DRAFTS_LIST: BillingDoc[] = [
     makeBillingDoc('demo-draft-01', 'income', 35000, 'Sales', 'PENDING', 'FinServ Ltd.', {
         isDraft: true,
-        date: '2025-05-01T00:00:00.000Z',
+        date: '2026-04-01T00:00:00.000Z',
+        dueDate: '2026-05-01T00:00:00.000Z',
+        invoiceNumber: 'DRAFT-2026-001',
         note: 'Cloud Migration Consulting - draft proposal',
     }),
     makeBillingDoc('demo-draft-02', 'income', 5500, 'Sales', 'PENDING', 'StartupXYZ', {
         isDraft: true,
-        date: '2025-05-15T00:00:00.000Z',
+        date: '2026-04-01T00:00:00.000Z',
+        dueDate: '2026-05-15T00:00:00.000Z',
+        invoiceNumber: 'DRAFT-2026-002',
         note: 'Marketing Automation Tool quote',
     }),
 ];
@@ -410,6 +439,28 @@ const DEMO_BILLING_ARCHIVED_LIST: BillingDoc[] = [
 export const DEMO_BILLING_ARCHIVED_DATA: Models.DocumentList<BillingDoc> = {
     total: DEMO_BILLING_ARCHIVED_LIST.length,
     documents: DEMO_BILLING_ARCHIVED_LIST,
+};
+
+// ─── Billing Options (Categories) ────────────────────────────────────────────
+type BillingOptionsDoc = Models.Document & {
+    teamId: string;
+    incomeCategories: string[];
+    expenseCategories: string[];
+};
+
+export const DEMO_BILLING_OPTIONS: Models.DocumentList<BillingOptionsDoc> = {
+    total: 1,
+    documents: [
+        {
+            ...baseDoc,
+            $id: 'demo-billing-options-01',
+            $createdAt: '2025-01-01T00:00:00.000Z',
+            $updatedAt: '2025-01-01T00:00:00.000Z',
+            teamId: 'demo-team',
+            incomeCategories: ['Sales', 'Services', 'Consulting', 'Other Income'],
+            expenseCategories: ['Infrastructure', 'Software', 'Marketing', 'Salaries', 'Operations'],
+        },
+    ],
 };
 
 // ─── Records / Tables ─────────────────────────────────────────────────────────
@@ -726,5 +777,105 @@ export const DEMO_MESSAGES: Message[] = [
         toTeamMemberId: DEMO_TEAM_MEM_YOU_ID,
         teamId: 'demo-team-id',
         read: true,
+    },
+];
+
+// ─── Notes ───────────────────────────────────────────────────────────────────
+import type { NoteData } from '@/features/home/types';
+
+export const DEMO_NOTES: NoteData[] = [
+    {
+        $id: 'demo-note-01',
+        $createdAt: '2025-03-01T08:00:00.000Z',
+        $updatedAt: '2025-03-01T08:00:00.000Z',
+        $collectionId: 'demo',
+        $databaseId: 'demo',
+        $permissions: [],
+        userId: 'demo-user-placeholder',
+        title: 'Q2 Priorities',
+        content: 'Focus on platform stability, onboarding new enterprise clients, and closing the FinServ deal before end of April.',
+        bgColor: 'bg-[#2662d9]',
+        isModern: true,
+        hasLines: false,
+        isPinned: true,
+        pinnedAt: '2025-03-01T08:00:00.000Z',
+        isGlobal: false,
+    },
+    {
+        $id: 'demo-note-02',
+        $createdAt: '2025-03-05T10:30:00.000Z',
+        $updatedAt: '2025-03-05T10:30:00.000Z',
+        $collectionId: 'demo',
+        $databaseId: 'demo',
+        $permissions: [],
+        userId: 'demo-user-placeholder',
+        title: 'Team Standup Notes',
+        content: 'Alice: CI/CD progress. Bob: API docs review. Carol: Campaign assets ready for sign-off.',
+        bgColor: 'none',
+        isModern: false,
+        hasLines: true,
+        isPinned: false,
+        isGlobal: false,
+    },
+    {
+        $id: 'demo-note-03',
+        $createdAt: '2025-03-10T14:00:00.000Z',
+        $updatedAt: '2025-03-10T14:00:00.000Z',
+        $collectionId: 'demo',
+        $databaseId: 'demo',
+        $permissions: [],
+        userId: 'demo-user-placeholder',
+        title: 'Product Ideas',
+        content: 'Bulk task import from CSV, Kanban swimlanes by assignee, calendar sync with Google.',
+        bgColor: 'bg-[#2eb88a]',
+        isModern: true,
+        hasLines: false,
+        isPinned: false,
+        isGlobal: true,
+        globalAt: '2025-03-10T14:00:00.000Z',
+    },
+];
+
+export const DEMO_NOTES_INITIAL = DEMO_NOTES;
+
+// ─── Recent Activity ──────────────────────────────────────────────────────────
+import type { RecentActivityItem } from '@/features/home/api/use-get-recent-activity';
+
+export const DEMO_RECENT_ACTIVITY: RecentActivityItem[] = [
+    {
+        id: 'act-demo-01',
+        type: 'deal_won',
+        actorName: 'Alice Martín',
+        action: 'closed',
+        title: 'SaaS Expansion',
+        amount: 25000,
+        currency: 'USD',
+        timestamp: '2025-03-14T10:00:00.000Z',
+    },
+    {
+        id: 'act-demo-02',
+        type: 'task_activity',
+        actorName: 'Bob García',
+        action: 'completed',
+        title: 'Deploy v2.4 to production',
+        timestamp: '2025-03-13T16:30:00.000Z',
+    },
+    {
+        id: 'act-demo-03',
+        type: 'deal_created',
+        actorName: 'Carol López',
+        action: 'created',
+        title: 'Cloud Migration Consulting',
+        amount: 35000,
+        currency: 'USD',
+        timestamp: '2025-03-12T09:15:00.000Z',
+    },
+    {
+        id: 'act-demo-04',
+        type: 'task_activity',
+        actorName: 'Alice Martín',
+        action: 'updated',
+        title: 'Q2 Marketing Campaign',
+        timestamp: '2025-03-11T11:45:00.000Z',
     },
 ];

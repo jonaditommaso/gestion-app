@@ -1,8 +1,11 @@
 'use client'
 
 import { useQuery } from "@tanstack/react-query";
+import { useAppContext } from "@/context/AppContext";
 
 export const useProfilePicture = (id?: string | undefined, hasImage: boolean = true) => {
+    const { isDemo } = useAppContext();
+
     const { data: imageUrl, isPending } = useQuery({
         queryKey: ['image-profile', id],
         queryFn: async () => {
@@ -19,7 +22,7 @@ export const useProfilePicture = (id?: string | undefined, hasImage: boolean = t
         },
         retry: false,
         staleTime: 0, // Siempre refetch cuando se invalida
-        enabled: hasImage
+        enabled: hasImage && !isDemo
     });
 
     return { imageUrl: imageUrl ?? undefined, isPending: hasImage ? isPending : false }
