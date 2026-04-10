@@ -1,10 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 export const useGetRolesPermissions = (options?: { enabled?: boolean }) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['roles'],
+        queryKey: ['roles', isDemo],
         queryFn: async () => {
+            if (isDemo) return { documents: [], total: 0 };
+
             const response = await client.api.roles.$get();
 
             if (!response.ok) {
@@ -15,7 +20,7 @@ export const useGetRolesPermissions = (options?: { enabled?: boolean }) => {
 
             return data;
         },
-        enabled: options?.enabled ?? true,
+        enabled: !isLoadingUser && (options?.enabled ?? true),
         refetchOnMount: true
     })
 

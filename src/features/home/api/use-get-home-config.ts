@@ -1,10 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 export const useGetHomeConfig = () => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['home-config'],
+        queryKey: ['home-config', isDemo],
         queryFn: async () => {
+            if (isDemo) return null;
+
             const response = await client.api['home-config'].$get();
 
             if (!response.ok) {
@@ -15,7 +20,8 @@ export const useGetHomeConfig = () => {
 
             return data;
         },
-        refetchOnMount: false
+        refetchOnMount: false,
+        enabled: !isLoadingUser,
     })
 
     return query;

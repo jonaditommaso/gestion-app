@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 interface UseGetArchivedTasksProps {
     workspaceId: string;
@@ -7,9 +8,13 @@ interface UseGetArchivedTasksProps {
 }
 
 export const useGetArchivedTasks = ({ workspaceId, enabled = true }: UseGetArchivedTasksProps) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['archived-tasks', workspaceId],
+        queryKey: ['archived-tasks', workspaceId, isDemo],
         queryFn: async () => {
+            if (isDemo) return { documents: [], total: 0 };
+
             const response = await client.api.tasks.$get({
                 query: {
                     workspaceId,
@@ -25,7 +30,7 @@ export const useGetArchivedTasks = ({ workspaceId, enabled = true }: UseGetArchi
 
             return data.data;
         },
-        enabled: enabled && !!workspaceId,
+        enabled: !isLoadingUser && enabled && !!workspaceId,
     });
 
     return query;

@@ -1,10 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 export const useGetOrgTasksSummary = (options?: { enabled?: boolean }) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['tasks', 'org-summary'],
+        queryKey: ['tasks', 'org-summary', isDemo],
         queryFn: async () => {
+            if (isDemo) {
+                return {
+                    overdueCount: 3,
+                    unassignedFeaturedCount: 2,
+                    overdueByWorkspace: [],
+                    unassignedFeaturedByWorkspace: [],
+                };
+            }
+
             const response = await client.api.tasks['org-summary'].$get();
 
             if (!response.ok) {
@@ -16,7 +28,7 @@ export const useGetOrgTasksSummary = (options?: { enabled?: boolean }) => {
             return data;
         },
         retry: false,
-        enabled: options?.enabled ?? true,
+        enabled: !isLoadingUser && (options?.enabled ?? true),
     });
 
     return query;

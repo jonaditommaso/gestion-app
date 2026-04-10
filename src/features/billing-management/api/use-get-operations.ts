@@ -4,11 +4,11 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetOperations = (options?: { enabled?: boolean }) => {
-    const { isDemo } = useAppContext();
+    const { isDemo, isLoadingUser } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
-        queryKey: ['billing'],
+        queryKey: ['billing', isDemo],
         queryFn: async () => {
             if (isDemo) return { total: demoData.billingOps.length, documents: demoData.billingOps };
 
@@ -23,7 +23,7 @@ export const useGetOperations = (options?: { enabled?: boolean }) => {
             return data;
         },
         retry: false,
-        enabled: isDemo || (options?.enabled ?? true),
+        enabled: !isLoadingUser && (isDemo || (options?.enabled ?? true)),
     })
 
     return query;

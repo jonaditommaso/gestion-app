@@ -24,12 +24,12 @@ import { signUpWithGithub, signUpWithGoogle } from "@/lib/oauth";
 import Image from "next/image";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger
-} from "@/components/ui/tooltip";
+// import {
+//     Tooltip,
+//     TooltipContent,
+//     TooltipProvider,
+//     TooltipTrigger
+// } from "@/components/ui/tooltip";
 
 const SignUpCard = () => {
     const router = useRouter();
@@ -38,7 +38,7 @@ const SignUpCard = () => {
     const billing = searchParams.get("billing") || 'monthly';
     const t = useTranslations('auth');
     const isMobile = useIsMobile();
-    const googleSignUpWarning = t('google-signup-test-warning');
+    // const googleSignUpWarning = t('google-signup-test-warning');
 
     const [planSelected, setPlanSelected] = useState<null | string>(null);
 
@@ -193,7 +193,7 @@ const SignUpCard = () => {
                         <FcGoogle className="mr-2 size-5" />
                         {t('register-with')} Google
                     </Button>
-                    <TooltipProvider>
+                    {/* <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <span
@@ -207,7 +207,7 @@ const SignUpCard = () => {
                                 <p>{googleSignUpWarning}</p>
                             </TooltipContent>
                         </Tooltip>
-                    </TooltipProvider>
+                    </TooltipProvider> */}
                 </div>
                 <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub(plan)}>
                     <FaGithub className="mr-2 size-5" />

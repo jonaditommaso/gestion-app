@@ -24,19 +24,19 @@ import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger
-} from "@/components/ui/tooltip";
+// import {
+//     Tooltip,
+//     TooltipContent,
+//     TooltipProvider,
+//     TooltipTrigger
+// } from "@/components/ui/tooltip";
 
 const LoginCard = () => {
     const { mutate, isPending } = useLogin();
     const t = useTranslations('auth');
     const tSso = useTranslations('sso');
     const isMobile = useIsMobile();
-    const googleSignInWarning = t('google-signin-test-warning');
+    // const googleSignInWarning = t('google-signin-test-warning');
     const [ssoRequired, setSsoRequired] = useState(false);
 
     const form = useForm<zod.infer<typeof loginSchema>>({
@@ -134,7 +134,7 @@ const LoginCard = () => {
                         <FcGoogle className="mr-2 size-5" />
                         {t('login-with')} Google
                     </Button>
-                    <TooltipProvider>
+                    {/* <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <span
@@ -148,7 +148,7 @@ const LoginCard = () => {
                                 <p>{googleSignInWarning}</p>
                             </TooltipContent>
                         </Tooltip>
-                    </TooltipProvider>
+                    </TooltipProvider> */}
                 </div>
                 <Button size={isMobile ? 'sm' : 'lg'} className="w-full" variant='outline' disabled={isPending} onClick={() => signUpWithGithub()}>
                     <FaGithub className="mr-2 size-5" />

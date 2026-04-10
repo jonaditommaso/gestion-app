@@ -4,11 +4,11 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetDrafts = () => {
-    const { isDemo } = useAppContext();
+    const { isDemo, isLoadingUser } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
-        queryKey: ['billing-drafts'],
+        queryKey: ['billing-drafts', isDemo],
         queryFn: async () => {
             if (isDemo) return { total: demoData.billingDrafts.length, documents: demoData.billingDrafts };
 
@@ -23,6 +23,7 @@ export const useGetDrafts = () => {
             return data;
         },
         retry: false,
+        enabled: !isLoadingUser,
     });
 
     return query;

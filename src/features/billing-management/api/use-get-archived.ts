@@ -4,11 +4,11 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetArchived = () => {
-    const { isDemo } = useAppContext();
+    const { isDemo, isLoadingUser } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
-        queryKey: ['billing-archived'],
+        queryKey: ['billing-archived', isDemo],
         queryFn: async () => {
             if (isDemo) return { total: demoData.billingArchived.length, documents: demoData.billingArchived };
 
@@ -23,6 +23,7 @@ export const useGetArchived = () => {
             return data;
         },
         retry: false,
+        enabled: !isLoadingUser,
     });
 
     return query;

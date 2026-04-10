@@ -1,10 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
+import { useAppContext } from "@/context/AppContext";
 
 export const useGetMeets = (options?: { enabled?: boolean }) => {
+    const { isDemo, isLoadingUser } = useAppContext();
+
     const query = useQuery({
-        queryKey: ['meets'],
+        queryKey: ['meets', isDemo],
         queryFn: async () => {
+            if (isDemo) return [];
+
             const response = await client.api.meets.$get();
 
             if (!response.ok) {
@@ -16,7 +21,7 @@ export const useGetMeets = (options?: { enabled?: boolean }) => {
             return data;
         },
         refetchOnMount: false,
-        enabled: options?.enabled ?? true,
+        enabled: !isLoadingUser && (options?.enabled ?? true),
     })
 
     return query;

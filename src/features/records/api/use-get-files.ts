@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 import { useParams } from "next/navigation";
+import { useAppContext } from "@/context/AppContext";
 
 export const useGetFiles = () => {
     const params = useParams();
     const recordId: string = params.recordId as string
+    const { isDemo, isLoadingUser } = useAppContext();
 
     const query = useQuery({
-        queryKey: ['files'],
+        queryKey: ['files', recordId, isDemo],
         queryFn: async () => {
+            if (isDemo) return { documents: [], total: 0 };
+
             const response = await client.api.records.files[':recordId'].$get({ param: { recordId } });
 
             if (!response.ok) {
@@ -20,7 +24,7 @@ export const useGetFiles = () => {
             return data;
         },
         refetchOnMount: true,
-        enabled: !!recordId
+        enabled: !isLoadingUser && !!recordId
     })
 
     return query;

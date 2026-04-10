@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useState } from 'react';
 import type { Task } from '@/features/tasks/types';
 import type { BillingDoc, DealWithAssignees } from '@/lib/demo-data';
 import type { Message } from '@/features/home/components/messages/types';
+import type { NoteData } from '@/features/home/types';
 import {
     DEMO_TASKS_INITIAL,
     DEMO_DEALS_INITIAL,
@@ -11,6 +12,7 @@ import {
     DEMO_BILLING_DRAFTS_INITIAL,
     DEMO_BILLING_ARCHIVED_INITIAL,
     DEMO_MESSAGES,
+    DEMO_NOTES_INITIAL,
 } from '@/lib/demo-data';
 
 type DemoDataContextType = {
@@ -20,6 +22,7 @@ type DemoDataContextType = {
     billingDrafts: BillingDoc[];
     billingArchived: BillingDoc[];
     messages: Message[];
+    notes: NoteData[];
     addTask: (task: Task) => void;
     updateTask: (id: string, patch: Partial<Task>) => void;
     deleteTask: (id: string) => void;
@@ -30,6 +33,9 @@ type DemoDataContextType = {
     updateBillingOp: (id: string, patch: Partial<BillingDoc>) => void;
     deleteBillingOp: (id: string) => void;
     addMessage: (msg: Message) => void;
+    addNote: (note: NoteData) => void;
+    updateNote: (id: string, patch: Partial<NoteData>) => void;
+    deleteNote: (id: string) => void;
 };
 
 const DemoDataContext = createContext<DemoDataContextType | undefined>(undefined);
@@ -41,6 +47,7 @@ export const DemoDataProvider = ({ children }: { children: React.ReactNode }) =>
     const [billingDrafts] = useState<BillingDoc[]>(DEMO_BILLING_DRAFTS_INITIAL);
     const [billingArchived] = useState<BillingDoc[]>(DEMO_BILLING_ARCHIVED_INITIAL);
     const [messages, setMessages] = useState<Message[]>(DEMO_MESSAGES);
+    const [notes, setNotes] = useState<NoteData[]>(DEMO_NOTES_INITIAL);
 
     const addTask = useCallback((task: Task) => setTasks(prev => [task, ...prev]), []);
     const updateTask = useCallback((id: string, patch: Partial<Task>) =>
@@ -62,13 +69,20 @@ export const DemoDataProvider = ({ children }: { children: React.ReactNode }) =>
 
     const addMessage = useCallback((msg: Message) => setMessages(prev => [msg, ...prev]), []);
 
+    const addNote = useCallback((note: NoteData) => setNotes(prev => [note, ...prev]), []);
+    const updateNote = useCallback((id: string, patch: Partial<NoteData>) =>
+        setNotes(prev => prev.map(n => n.$id === id ? { ...n, ...patch } : n)), []);
+    const deleteNote = useCallback((id: string) =>
+        setNotes(prev => prev.filter(n => n.$id !== id)), []);
+
     return (
         <DemoDataContext.Provider value={{
-            tasks, deals, billingOps, billingDrafts, billingArchived, messages,
+            tasks, deals, billingOps, billingDrafts, billingArchived, messages, notes,
             addTask, updateTask, deleteTask,
             addDeal, updateDeal, deleteDeal,
             addBillingOp, updateBillingOp, deleteBillingOp,
             addMessage,
+            addNote, updateNote, deleteNote,
         }}>
             {children}
         </DemoDataContext.Provider>
