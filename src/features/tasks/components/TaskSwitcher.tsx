@@ -90,7 +90,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                 defaultValue={currentTab}
                 onValueChange={setCurrentTab}
             >
-                <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'}`}>
+                <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'} min-h-0`}>
                     <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
                         <TabsList className="w-full lg:w-auto">
                             <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto bg-background">
@@ -124,6 +124,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                         />
                     <Separator className="my-4" />
 
+                    <div className="flex-1 min-h-0">
                     {isLoadingTasks ? (
                         <div className="w-full border rounded-lg h-[200px] flex flex-col items-center justify-center">
                             <Loader className="size-5 animate-spin text-muted-foreground" />
@@ -133,7 +134,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                             <TabsContent value="table" className="mt-0 overflow-auto">
                                 <DataTable columns={columns} data={filteredTasks as Task[]} />
                             </TabsContent>
-                            <TabsContent value="kanban" className="mt-0 max-h-[40rem]">
+                            <TabsContent value="kanban" className="mt-0 h-full overflow-hidden">
                                 <DataKanban
                                     data={filteredTasks as Task[]}
                                     addTask={handleNewTask}
@@ -147,6 +148,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                         </>
 
                     )}
+                    </div>
                 </div>
             </Tabs>
        </div>
