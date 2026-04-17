@@ -8,6 +8,7 @@ import ListActions from './ListActions'
 import MediaActions from './MediaActions'
 import LinkDialog from './LinkDialog'
 import MentionDialog from './MentionDialog'
+import DriveFileButton from './DriveFileButton'
 
 interface RichTextAreaProps {
     value?: string | null
@@ -428,6 +429,76 @@ const RichTextArea = ({
         }, 0)
     }
 
+    const handleDriveInsert = (url: string, name: string, isImage: boolean) => {
+        setTimeout(() => {
+            editorRef.current?.focus()
+
+            const selection = window.getSelection()
+            let range: Range | null = null
+
+            if (selection && selection.rangeCount > 0 && editorRef.current?.contains(selection.anchorNode)) {
+                range = selection.getRangeAt(0)
+            } else {
+                // Picker cerró y se perdió el foco: insertar al final del editor
+                range = document.createRange()
+                if (editorRef.current) {
+                    range.selectNodeContents(editorRef.current)
+                    range.collapse(false)
+                    selection?.removeAllRanges()
+                    selection?.addRange(range)
+                }
+            }
+
+            if (!range) return
+
+            if (isImage) {
+                const img = document.createElement('img')
+                img.src = url
+                img.alt = name
+                img.style.maxWidth = '100%'
+                img.style.height = 'auto'
+                img.style.borderRadius = '8px'
+                img.style.margin = '8px 0'
+                img.style.display = 'block'
+
+                range.insertNode(img)
+                const br = document.createElement('br')
+                if (img.nextSibling) {
+                    img.parentNode?.insertBefore(br, img.nextSibling)
+                } else {
+                    img.parentNode?.appendChild(br)
+                }
+                const newRange = document.createRange()
+                newRange.setStartAfter(br)
+                newRange.setEndAfter(br)
+                selection?.removeAllRanges()
+                selection?.addRange(newRange)
+            } else {
+                const link = document.createElement('a')
+                link.href = url
+                link.target = '_blank'
+                link.rel = 'noopener noreferrer'
+                link.style.color = '#3b82f6'
+                link.style.textDecoration = 'underline'
+                link.textContent = name
+
+                range.insertNode(link)
+                const space = document.createTextNode('\u00A0')
+                if (link.nextSibling) {
+                    link.parentNode?.insertBefore(space, link.nextSibling)
+                } else {
+                    link.parentNode?.appendChild(space)
+                }
+                const newRange = document.createRange()
+                newRange.setStart(space, 1)
+                newRange.setEnd(space, 1)
+                selection?.removeAllRanges()
+                selection?.addRange(newRange)
+            }
+            updateContent()
+        }, 50)
+    }
+
     return (
         <div className={cn('border rounded-md overflow-hidden', className)}>
             {/* Hidden file input */}
@@ -462,6 +533,7 @@ const RichTextArea = ({
                 <MediaActions
                     linkComponent={<LinkDialog onInsertLink={handleLink} />}
                     mentionComponent={<MentionDialog memberOptions={memberOptions} onInsertMention={insertMention} />}
+                    driveComponent={<DriveFileButton onInsert={handleDriveInsert} />}
                     onImage={handleImage}
                     onDivider={handleDivider}
                 />
@@ -477,13 +549,14 @@ const RichTextArea = ({
                 onKeyUp={checkActiveFormats}
                 onFocus={checkActiveFormats}
                 className={cn(
-                    'h-[200px] overflow-y-scroll p-3 focus:outline-none',
+                    'min-h-[120px] max-h-[400px] overflow-y-auto p-3 focus:outline-none',
                     'prose prose-sm max-w-none',
                     '[&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-muted-foreground [&:empty]:before:pointer-events-none',
                     '[&_hr]:my-4',
                     '[&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-2',
                     '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-2',
                     '[&_li]:my-1',
+                    '[&_img]:max-w-full [&_img]:max-h-[240px] [&_img]:w-auto [&_img]:object-contain',
                     '[&_span[data-mention-id]]:inline-flex [&_span[data-mention-id]]:items-center [&_span[data-mention-id]]:rounded-sm [&_span[data-mention-id]]:bg-primary/10 [&_span[data-mention-id]]:px-1 [&_span[data-mention-id]]:py-0.5 [&_span[data-mention-id]]:text-primary'
                 )}
                 data-placeholder={placeholder}

@@ -939,4 +939,156 @@ const app = new Hono()
         }
     )
 
+    .get(
+        '/drive-auth-url',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+
+            const oauth2Client = new google.auth.OAuth2(
+                GOOGLE_CLIENT_ID,
+                GOOGLE_CLIENT_SECRET,
+                GOOGLE_REDIRECT_URI,
+            );
+
+            const url = oauth2Client.generateAuthUrl({
+                access_type: 'offline',
+                prompt: 'consent',
+                client_id: GOOGLE_CLIENT_ID,
+                scope: ['https://www.googleapis.com/auth/drive.readonly'],
+                include_granted_scopes: true,
+                state: JSON.stringify({ drive_auth_only: true, userId: user.$id })
+            });
+
+            return ctx.json({ data: url });
+        }
+    )
+
+
+    .get(
+        '/drive-access-token',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+
+            if (!user?.prefs?.google_drive_scope) {
+                return ctx.json({ error: 'Drive permission not granted' }, 403);
+            }
+
+            const cookieStore = await cookies();
+            let accessToken = cookieStore.get('google_access_token')?.value;
+            const expiresAt = parseInt(cookieStore.get('google_access_token_exp')?.value ?? '0');
+
+            if (!accessToken || Date.now() > expiresAt) {
+                if (!user.prefs.google_refresh_token) {
+                    return ctx.json({ error: 'No refresh token available' }, 401);
+                }
+
+                const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        client_id: GOOGLE_CLIENT_ID!,
+                        client_secret: GOOGLE_CLIENT_SECRET!,
+                        redirect_uri: GOOGLE_REDIRECT_URI!,
+                        grant_type: 'refresh_token',
+                        refresh_token: user.prefs.google_refresh_token,
+                    }),
+                });
+
+                const tokenData = await tokenRes.json();
+                accessToken = tokenData.access_token;
+
+                setCookie(ctx, 'google_access_token', tokenData.access_token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: true,
+                    maxAge: 60 * 60,
+                });
+                setCookie(ctx, 'google_access_token_exp', String(Date.now() + tokenData.expires_in * 1000), {
+                    path: '/',
+                    httpOnly: true,
+                    secure: true,
+                    maxAge: tokenData.expires_in,
+                });
+            }
+
+            return ctx.json({ data: accessToken });
+        }
+    )
+
+    .get(
+        '/drive-file',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+
+            if (!user?.prefs?.google_drive_scope) {
+                return ctx.json({ error: 'Drive permission not granted' }, 403);
+            }
+
+            const fileId = ctx.req.query('fileId');
+            if (!fileId) {
+                return ctx.json({ error: 'fileId is required' }, 400);
+            }
+
+            if (!user.prefs.google_refresh_token) {
+                return ctx.json({ error: 'No refresh token available' }, 401);
+            }
+
+            const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    client_id: GOOGLE_CLIENT_ID!,
+                    client_secret: GOOGLE_CLIENT_SECRET!,
+                    redirect_uri: GOOGLE_REDIRECT_URI!,
+                    grant_type: 'refresh_token',
+                    refresh_token: user.prefs.google_refresh_token,
+                }),
+            });
+
+            const tokenData = await tokenRes.json() as { access_token?: string; error?: string };
+
+            if (!tokenData.access_token) {
+                return ctx.json({ error: 'Failed to refresh access token', detail: tokenData.error }, 401);
+            }
+
+            const driveRes = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
+            );
+
+            if (!driveRes.ok) {
+                const driveError = await driveRes.text();
+                console.error('[drive-file] Drive API error:', driveRes.status, driveError);
+                return ctx.json({ error: 'Failed to fetch file from Drive', detail: driveError }, 502);
+            }
+
+            const contentType = driveRes.headers.get('content-type') ?? 'application/octet-stream';
+            const buffer = await driveRes.arrayBuffer();
+
+            return new Response(buffer, {
+                headers: {
+                    'Content-Type': contentType,
+                    'Cache-Control': 'private, max-age=3600',
+                },
+            });
+        }
+    )
+
+    .delete(
+        '/drive-revoke',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { users } = await createAdminClient();
+            const prefs = user.prefs ?? {};
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { google_drive_scope: _, ...rest } = prefs;
+            await users.updatePrefs(user.$id, rest);
+            return ctx.json({ data: true });
+        }
+    )
+
 export default app;

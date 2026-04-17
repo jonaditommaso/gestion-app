@@ -20,6 +20,7 @@ const app = new Hono()
       let duration;
       let userId;
       let authOnly = false;
+      let driveAuthOnly = false;
 
       if (state) {
         try {
@@ -30,6 +31,7 @@ const app = new Hono()
           duration = parsed.duration;
           userId = parsed.userId;
           authOnly = parsed.auth_only === true;
+          driveAuthOnly = parsed.drive_auth_only === true;
 
         } catch (err) {
           console.error('Error parsing state', err);
@@ -92,7 +94,13 @@ const app = new Hono()
 
         const tokenData = await tokenRes.json();
 
-        if (!prefs?.google_refresh_token || !prefs?.google_calendar_scope) {
+        if (driveAuthOnly) {
+          await users.updatePrefs(userId, {
+            ...(prefs ?? {}),
+            ...(tokenData.refresh_token ? { google_refresh_token: tokenData.refresh_token } : {}),
+            google_drive_scope: true,
+          });
+        } else if (!prefs?.google_refresh_token || !prefs?.google_calendar_scope) {
           await users.updatePrefs(userId, {
             ...(prefs ?? {}),
             ...(tokenData.refresh_token ? { google_refresh_token: tokenData.refresh_token } : {}),
@@ -114,7 +122,7 @@ const app = new Hono()
           maxAge: tokenData.expires_in
         });
 
-        if (authOnly) {
+        if (authOnly || driveAuthOnly) {
           return c.redirect(`${NEXT_PUBLIC_APP_URL}/oauth/close`);
         }
 
