@@ -825,6 +825,119 @@ const app = new Hono()
                 },
             });
         }
+    )
+
+    .get(
+        '/gmail-auth-url',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { google } = await import('googleapis');
+            const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = await import('@/config');
+
+            const oauth2Client = new google.auth.OAuth2(
+                GOOGLE_CLIENT_ID,
+                GOOGLE_CLIENT_SECRET,
+                GOOGLE_REDIRECT_URI,
+            );
+
+            const url = oauth2Client.generateAuthUrl({
+                access_type: 'offline',
+                prompt: 'consent',
+                scope: ['https://www.googleapis.com/auth/gmail.send'],
+                include_granted_scopes: true,
+                state: JSON.stringify({ gmail_auth_only: true, userId: user.$id }),
+            });
+
+            return ctx.json({ data: url });
+        }
+    )
+
+    .post(
+        '/send-email',
+        sessionMiddleware,
+        demoGuard,
+        async ctx => {
+            const user = ctx.get('user');
+
+            if (!user?.prefs?.google_gmail_scope) {
+                return ctx.json({ error: 'Gmail permission not granted' }, 403);
+            }
+
+            if (!user.prefs.google_refresh_token) {
+                return ctx.json({ error: 'No refresh token available' }, 401);
+            }
+
+            const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = await import('@/config');
+
+            const body = await ctx.req.json() as { to: string; subject: string; html: string };
+            const { to, subject, html } = body;
+
+            if (!to || !subject || !html) {
+                return ctx.json({ error: 'to, subject and html are required' }, 400);
+            }
+
+            const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    client_id: GOOGLE_CLIENT_ID!,
+                    client_secret: GOOGLE_CLIENT_SECRET!,
+                    redirect_uri: GOOGLE_REDIRECT_URI!,
+                    grant_type: 'refresh_token',
+                    refresh_token: user.prefs.google_refresh_token,
+                }),
+            });
+
+            const tokenData = await tokenRes.json() as { access_token?: string; error?: string };
+
+            if (!tokenData.access_token) {
+                return ctx.json({ error: 'Failed to refresh access token', detail: tokenData.error }, 401);
+            }
+
+            const fromHeader = `From: ${user.email}\r\n`;
+            const toHeader = `To: ${to}\r\n`;
+            const subjectHeader = `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=\r\n`;
+            const mimeVersion = `MIME-Version: 1.0\r\n`;
+            const contentType = `Content-Type: text/html; charset=UTF-8\r\n`;
+            const rawMessage = `${fromHeader}${toHeader}${subjectHeader}${mimeVersion}${contentType}\r\n${html}`;
+            const encoded = Buffer.from(rawMessage).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+            const gmailRes = await fetch(
+                'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${tokenData.access_token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ raw: encoded }),
+                }
+            );
+
+            if (!gmailRes.ok) {
+                const detail = await gmailRes.text();
+                console.error('[send-email] Gmail API error:', gmailRes.status, detail);
+                return ctx.json({ error: 'Failed to send email', detail }, 502);
+            }
+
+            return ctx.json({ data: true });
+
+        })
+
+    .delete(
+        '/gmail-revoke',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { createAdminClient } = await import('@/lib/appwrite');
+            const { users } = await createAdminClient();
+            const prefs = user.prefs ?? {};
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { google_gmail_scope: _, ...rest } = prefs;
+            await users.updatePrefs(user.$id, rest);
+            return ctx.json({ data: true });
+        }
     );
 
 export default app;

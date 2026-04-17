@@ -2565,7 +2565,8 @@
             "mark-won": "Segna come vinto",
             "mark-lost": "Segna come perso",
             "mark-pending": "Riporta in sospeso",
-            "delete": "Elimina"
+            "delete": "Elimina",
+            "send-email": "Invia email"
         },
         "attention-required": "Attenzione richiesta",
         "add-here": "Aggiungi trattativa",
@@ -2694,6 +2695,7 @@
             "cancel-edit": "Annulla",
             "step-completed-activity": "Passo completato: {step}",
             "step-done-label": "Passo completato",
+            "email-sent-label": "Email inviata",
             "activity": "Attività",
             "activity-placeholder": "Registra un'attività...",
             "no-activity": "Nessuna attività registrata",
@@ -2702,7 +2704,10 @@
             "outcome-label": "Esito",
             "linked-draft": "Bozza generata",
             "amount": "Valore",
-            "assignees": "Assegnati"
+            "assignees": "Assegnati",
+            "send-email-responsible": "Invia email al responsabile",
+            "add-responsible": "Aggiungi responsabile",
+            "responsible-email-placeholder": "responsabile@azienda.com"
         },
         "filters": {
             "date-from": "Da",
@@ -2822,6 +2827,25 @@
             "cancel": "Annulla",
             "create": "Crea squad",
             "upgrade-to-create": "Aggiorna per creare squad"
+        },
+        "email": {
+            "dialog-title": "Invia email",
+            "to": "A",
+            "to-placeholder": "destinatario@esempio.com",
+            "subject": "Oggetto",
+            "subject-placeholder": "Oggetto dell'email",
+            "body": "Messaggio",
+            "body-placeholder": "Scrivi il tuo messaggio...",
+            "send-button": "Invia",
+            "sent-success": "Email inviata con successo",
+            "sent-error": "Errore nell'invio dell'email",
+            "gmail-permission-description": "Per inviare email, devi autorizzare l'accesso al tuo account Gmail.",
+            "gmail-authorize-button": "Autorizza Gmail",
+            "gmail-waiting-auth": "In attesa di autorizzazione... Chiudi la scheda una volta concesso l'accesso.",
+            "gmail-permission-granted": "Gmail autorizzato",
+            "gmail-permission-granted-description": "Il tuo account Gmail è collegato. Puoi ora comporre e inviare email.",
+            "gmail-continue-compose": "Continua a comporre",
+            "gmail-reconnect-button": "Riconnetti Gmail"
         }
     },
     "organization": {

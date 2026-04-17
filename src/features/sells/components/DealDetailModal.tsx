@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   Clock,
   FileEdit,
+  Mail,
   Pencil,
   Plus,
   Send,
@@ -40,6 +41,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
 import type { ActivityEntry, BoardLabel, Deal, DealOutcome, DealStage, Seller } from "../types";
+import SendEmailDialog from "./SendEmailDialog";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
 
@@ -51,8 +53,9 @@ interface DealDetailModalProps {
   sellers: Seller[];
   onMoveToStage: (id: string, stage: DealStage) => void;
   onSaveNextStep: (dealId: string, nextStep: string) => void;
-  onAddActivity: (dealId: string, content: string, type?: "step-completed") => void;
+  onAddActivity: (dealId: string, content: string, type?: "step-completed" | "email-sent") => void;
   onMarkOutcome: (id: string, outcome: DealOutcome) => void;
+  onSaveResponsibleEmail: (dealId: string, email: string) => void;
   boardLabels?: BoardLabel[];
   onChangeLabel?: (dealId: string, labelId: string | null) => void;
 }
@@ -96,12 +99,16 @@ const DealDetailModal = ({
   onSaveNextStep,
   onAddActivity,
   onMarkOutcome,
+  onSaveResponsibleEmail,
   boardLabels = [],
   onChangeLabel,
 }: DealDetailModalProps) => {
   const t = useTranslations("sales");
 
   const [closeDate, setCloseDate] = useState<Date | undefined>(undefined);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [isAddingResponsible, setIsAddingResponsible] = useState(false);
+  const [responsibleEmailDraft, setResponsibleEmailDraft] = useState("");
 
   const [nextStepText, setNextStepText] = useState<string>("");
   const [isEditingNextStep, setIsEditingNextStep] = useState<boolean>(false);
@@ -213,6 +220,15 @@ const DealDetailModal = ({
   const availableToAdd = sellers.filter((s) => !deal.assignees.includes(s.id));
   const otherStages = STAGE_ORDER.filter((s) => s !== deal.status);
 
+  const handleSaveResponsibleEmail = (): void => {
+    const trimmed = responsibleEmailDraft.trim();
+    if (!trimmed) return;
+    onUpdateDeal(deal.id, (d) => ({ ...d, companyResponsabileEmail: trimmed }));
+    onSaveResponsibleEmail(deal.id, trimmed);
+    setIsAddingResponsible(false);
+    setResponsibleEmailDraft("");
+  };
+
   const resolveAuthorName = (author: string): string => {
     const seller = sellers.find((s) => s.memberId === author);
     return seller?.name ?? t("detail.activity-you");
@@ -223,6 +239,7 @@ const DealDetailModal = ({
   );
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
@@ -604,8 +621,63 @@ const DealDetailModal = ({
             )}
           </div>
 
-          {/* Right — activity log */}
+          {/* Right — email + activity log */}
           <div className="flex flex-col gap-3">
+
+            {/* Email responsible block */}
+            {deal.companyResponsabileEmail ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-1.5 text-xs"
+                onClick={() => setEmailDialogOpen(true)}
+              >
+                <Mail className="size-3" />
+                {t("detail.send-email-responsible")}
+              </Button>
+            ) : isAddingResponsible ? (
+              <div className="space-y-2">
+                <Input
+                  value={responsibleEmailDraft}
+                  onChange={(e) => setResponsibleEmailDraft(e.target.value)}
+                  placeholder={t("detail.responsible-email-placeholder")}
+                  className="h-8 text-sm"
+                  type="email"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveResponsibleEmail();
+                    if (e.key === "Escape") { setIsAddingResponsible(false); setResponsibleEmailDraft(""); }
+                  }}
+                />
+                <div className="flex gap-1.5">
+                  <Button size="sm" className="h-7 text-xs" onClick={handleSaveResponsibleEmail}>
+                    {t("detail.save-changes")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => { setIsAddingResponsible(false); setResponsibleEmailDraft(""); }}
+                  >
+                    {t("detail.cancel-edit")}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-1.5 text-xs text-muted-foreground"
+                onClick={() => setIsAddingResponsible(true)}
+              >
+                <Plus className="size-3" />
+                {t("detail.add-responsible")}
+              </Button>
+            )}
+
+            <Separator />
+
+            {/* Activity log */}
             <p className="text-sm font-medium">{t("detail.activity")}</p>
 
             <form className="flex gap-2" onSubmit={handleAddActivity}>
@@ -633,7 +705,9 @@ const DealDetailModal = ({
                     "rounded-md border p-2.5",
                     entry.type === "step-completed"
                       ? "border-[hsl(var(--chart-2)/0.3)] bg-[hsl(var(--chart-2)/0.08)]"
-                      : "border-border bg-muted/40"
+                      : entry.type === "email-sent"
+                        ? "border-[hsl(var(--chart-1)/0.3)] bg-[hsl(var(--chart-1)/0.08)]"
+                        : "border-border bg-muted/40"
                   )}
                 >
                   {entry.type === "step-completed" && (
@@ -641,6 +715,14 @@ const DealDetailModal = ({
                       <CheckCircle2 className="size-3.5 text-[hsl(var(--chart-2))]" />
                       <span className="text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--chart-2))]">
                         {t("detail.step-done-label")}
+                      </span>
+                    </div>
+                  )}
+                  {entry.type === "email-sent" && (
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <Mail className="size-3.5 text-[hsl(var(--chart-1))]" />
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--chart-1))]">
+                        {t("detail.email-sent-label")}
                       </span>
                     </div>
                   )}
@@ -658,6 +740,26 @@ const DealDetailModal = ({
         </div>
       </DialogContent>
     </Dialog>
+
+    <SendEmailDialog
+      open={emailDialogOpen}
+      onOpenChange={setEmailDialogOpen}
+      defaultTo={deal.companyResponsabileEmail}
+      dealTitle={deal.title}
+      onEmailSent={(subject, to) => {
+        const content = `${subject} → ${to}`;
+        const newEntry: ActivityEntry = {
+          id: `act-${Date.now()}`,
+          content,
+          author: "You",
+          timestamp: new Date().toISOString(),
+          type: "email-sent",
+        };
+        onUpdateDeal(deal.id, (d) => ({ ...d, activities: [newEntry, ...d.activities] }));
+        onAddActivity(deal.id, content, 'email-sent');
+      }}
+    />
+    </>
   );
 };
 

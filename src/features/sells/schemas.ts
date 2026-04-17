@@ -27,7 +27,7 @@ export const updateDealSchema = createDealSchema.partial().extend({
 
 export const addDealActivitySchema = z.object({
     content: z.string().trim().min(1, "Required"),
-    type: z.enum(["step-completed"]).optional(),
+    type: z.enum(["step-completed", "email-sent"]).optional(),
 });
 
 export const createDealSellerSchema = z.object({

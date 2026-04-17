@@ -2577,7 +2577,8 @@
             "mark-won": "Mark as won",
             "mark-lost": "Mark as lost",
             "mark-pending": "Revert to pending",
-            "delete": "Delete"
+            "delete": "Delete",
+            "send-email": "Send email"
         },
         "attention-required": "Attention required",
         "add-here": "Add deal",
@@ -2706,6 +2707,7 @@
             "cancel-edit": "Cancel",
             "step-completed-activity": "Step completed: {step}",
             "step-done-label": "Step completed",
+            "email-sent-label": "Email sent",
             "activity": "Activity",
             "activity-placeholder": "Log an activity...",
             "no-activity": "No activity logged",
@@ -2714,7 +2716,10 @@
             "outcome-label": "Outcome",
             "linked-draft": "Draft generated",
             "amount": "Value",
-            "assignees": "Assignees"
+            "assignees": "Assignees",
+            "send-email-responsible": "Send email to responsible",
+            "add-responsible": "Add responsible",
+            "responsible-email-placeholder": "responsible@company.com"
         },
         "filters": {
             "date-from": "From",
@@ -2834,6 +2839,25 @@
             "cancel": "Cancel",
             "create": "Create squad",
             "upgrade-to-create": "Upgrade to create squads"
+        },
+        "email": {
+            "dialog-title": "Send email",
+            "to": "To",
+            "to-placeholder": "recipient@example.com",
+            "subject": "Subject",
+            "subject-placeholder": "Email subject",
+            "body": "Message",
+            "body-placeholder": "Write your message...",
+            "send-button": "Send",
+            "sent-success": "Email sent successfully",
+            "sent-error": "Failed to send email",
+            "gmail-permission-description": "To send emails, you need to authorize access to your Gmail account.",
+            "gmail-authorize-button": "Authorize Gmail",
+            "gmail-waiting-auth": "Waiting for authorization... Close the tab once you've granted access.",
+            "gmail-permission-granted": "Gmail authorized",
+            "gmail-permission-granted-description": "Your Gmail account is now connected. You can compose and send emails.",
+            "gmail-continue-compose": "Continue to compose",
+            "gmail-reconnect-button": "Reconnect Gmail"
         }
     },
     "organization": {

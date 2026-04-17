@@ -2579,7 +2579,8 @@
             "mark-won": "Marcar como ganado",
             "mark-lost": "Marcar como perdido",
             "mark-pending": "Revertir a pendiente",
-            "delete": "Eliminar"
+            "delete": "Eliminar",
+            "send-email": "Enviar email"
         },
         "attention-required": "Atención requerida",
         "add-here": "Agregar trato",
@@ -2708,6 +2709,7 @@
             "cancel-edit": "Cancelar",
             "step-completed-activity": "Paso completado: {step}",
             "step-done-label": "Paso completado",
+            "email-sent-label": "Email enviado",
             "activity": "Actividad",
             "activity-placeholder": "Registrar actividad...",
             "no-activity": "Sin actividad registrada",
@@ -2716,7 +2718,10 @@
             "outcome-label": "Resultado",
             "linked-draft": "Borrador generado",
             "amount": "Valor",
-            "assignees": "Asignados"
+            "assignees": "Asignados",
+            "send-email-responsible": "Enviar email al responsable",
+            "add-responsible": "Agregar responsable",
+            "responsible-email-placeholder": "responsable@empresa.com"
         },
         "filters": {
             "date-from": "Desde",
@@ -2836,6 +2841,25 @@
             "cancel": "Cancelar",
             "create": "Crear squad",
             "upgrade-to-create": "Actualiza para crear squads"
+        },
+        "email": {
+            "dialog-title": "Enviar email",
+            "to": "Para",
+            "to-placeholder": "destinatario@ejemplo.com",
+            "subject": "Asunto",
+            "subject-placeholder": "Asunto del email",
+            "body": "Mensaje",
+            "body-placeholder": "Escribe tu mensaje...",
+            "send-button": "Enviar",
+            "sent-success": "Email enviado correctamente",
+            "sent-error": "Error al enviar el email",
+            "gmail-permission-description": "Para enviar emails, necesitas autorizar el acceso a tu cuenta de Gmail.",
+            "gmail-authorize-button": "Autorizar Gmail",
+            "gmail-waiting-auth": "Esperando autorización... Cierra la pestaña una vez que hayas otorgado el acceso.",
+            "gmail-permission-granted": "Gmail autorizado",
+            "gmail-permission-granted-description": "Tu cuenta de Gmail está conectada. Ya puedes redactar y enviar emails.",
+            "gmail-continue-compose": "Continuar a redactar",
+            "gmail-reconnect-button": "Reconectar Gmail"
         }
     },
     "organization": {
