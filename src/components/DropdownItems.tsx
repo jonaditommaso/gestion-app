@@ -4,6 +4,7 @@ import { ChevronsUpDown, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
+import { WorkspaceType } from "@/features/workspaces/types";
 import { useGetWorkspacesCount } from "@/features/workspaces/api/use-get-workspaces-count";
 import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
@@ -43,7 +44,7 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
         router.push('/workspaces/create');
     }
 
-    const otherWorkspaces = workspaces?.documents.filter(ws => ws.$id !== currentWorkspaceId);
+    const otherWorkspaces = workspaces?.documents.filter(ws => ws.$id !== currentWorkspaceId) as WorkspaceType[] | undefined;
 
     const noOptions = !canWrite && otherWorkspaces?.length === 0;
 
