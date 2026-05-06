@@ -78,9 +78,7 @@ const DataCalendar = ({ data }: DataCalendarProps) => {
         try {
             const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
             if (currentWorkspace?.metadata) {
-                return typeof currentWorkspace.metadata === 'string'
-                    ? JSON.parse(currentWorkspace.metadata)
-                    : { ...currentWorkspace.metadata };
+                return JSON.parse(currentWorkspace.metadata);
             }
         } catch {
             // ignore
