@@ -45,6 +45,8 @@ export type TaskMetadata = {
     bugExpected?: string; // HTML rich text - expected behavior
     bugActual?: string; // HTML rich text - actual/current behavior
     bugRootCause?: string; // plain text - root cause explanation after resolution
+    githubBranch?: string; // linked GitHub branch name
+    githubRepo?: string; // linked GitHub repo fullName (owner/repo)
 }
 
 export type WorkspaceMember = Models.Document & {

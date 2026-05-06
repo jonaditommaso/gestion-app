@@ -26,6 +26,7 @@ import { TaskStatus } from "@/features/tasks/types";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { GitHubIntegrationSection } from "@/features/github/components/GitHubIntegrationSection";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -1151,6 +1152,23 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                             disabled={isConfigPending(WorkspaceConfigKey.INVITE_MEMBERS_ADMIN_ONLY) || isAdminMode || !canWrite}
                         />
                     </div>
+                </CardContent>
+            </Card>
+            )}
+
+            {/* GitHub Integration */}
+            {!isFree && (
+            <Card id="github-section">
+                <CardHeader>
+                    <CardTitle>{t('github-section-title')}</CardTitle>
+                    <CardDescription>{t('github-section-description')}</CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-6">
+                    <GitHubIntegrationSection
+                        workspaceId={workspace.$id}
+                        canWrite={canWrite}
+                    />
                 </CardContent>
             </Card>
             )}

@@ -18,7 +18,7 @@ const BASE_PREFIXES: Record<string, string[]> = {
   read:         ["view_"],
   write:        ["create_", "edit_", "send_", "public_", "feature_", "schedule_", "move_", "mark_", "duplicate_", "comment_", "share_", "set_", "add_"],
   delete:       ["delete_", "archive_", "restore_", "revert_"],
-  manage_users: ["invite_", "remove_", "manage_"],
+  manage_users: ["invite_", "remove_", "manage_", "connect_"],
 }
 
 const BASE_VALUES = new Set(Object.values(PERMISSIONS) as string[])

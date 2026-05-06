@@ -3,8 +3,9 @@ import CreateWorkspaceForm from "@/features/workspaces/components/CreateWorkspac
 import { useWorkspaceId } from "../hooks/use-workspace-id";
 import { Settings2 } from "lucide-react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,8 +32,15 @@ const WorkspaceView = () => {
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
     const isCreatingWorkspace = searchParams.get('creating') === 'true' || workspaceId === 'create';
+
+    const [optionsView, setOptionsView] = useState<string | null>(null);
+    const [showAddMembersModal, setShowAddMembersModal] = useState(false);
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [showSquadsModal, setShowSquadsModal] = useState(false);
+    const githubScrollPendingRef = useRef(false);
 
     useEffect(() => {
         if (workspaceId === 'create' && !canWrite) {
@@ -46,10 +54,33 @@ const WorkspaceView = () => {
         }
     }, [workspaceId, isLoading, workspaces, router]);
 
-    const [optionsView, setOptionsView] = useState<string | null>(null);
-    const [showAddMembersModal, setShowAddMembersModal] = useState(false);
-    const [showInfoModal, setShowInfoModal] = useState(false);
-    const [showSquadsModal, setShowSquadsModal] = useState(false);
+    // Step 1: detect ?github_connected=true, persist intent, clean URL, refresh session
+    useEffect(() => {
+        if (searchParams.get('github_connected') !== 'true') return;
+        sessionStorage.setItem('github_open_settings', '1');
+        router.replace(pathname);
+        router.refresh();
+    }, [searchParams, router, pathname]);
+
+    // Step 2: on mount (after possible refresh), open settings and arm scroll ref
+    useEffect(() => {
+        if (sessionStorage.getItem('github_open_settings') !== '1') return;
+        sessionStorage.removeItem('github_open_settings');
+        setOptionsView('general');
+        githubScrollPendingRef.current = true;
+        toast.success(t('github-connected-success'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Step 3: after every render, scroll if pending and element is in the DOM
+    useEffect(() => {
+        if (!githubScrollPendingRef.current) return;
+        const el = document.getElementById('github-section');
+        if (el) {
+            githubScrollPendingRef.current = false;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
 
     const openSettings = () => {
         setOptionsView('general');
@@ -88,8 +119,8 @@ const WorkspaceView = () => {
                 {isLoading || !currentWorkspace
                 ? <Skeleton className="w-60 h-10" />
                 : <DropdownItems
-                    itemLogo={currentWorkspace.name[0].toUpperCase()}
-                    itemName={currentWorkspace.name}
+                    itemLogo={(currentWorkspace as WorkspaceType).name[0].toUpperCase()}
+                    itemName={(currentWorkspace as WorkspaceType).name}
                     itemType="workspace"
                     currentWorkspaceId={workspaceId}
                   />}

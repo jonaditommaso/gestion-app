@@ -16,7 +16,10 @@ import { useUpdateTask } from "../api/use-update-task";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { cn } from "@/lib/utils";
 import { useUploadTaskImage } from "../api/use-upload-task-image";
-import { getImageIds, stringifyTaskMetadata } from "../utils/metadata-helpers";
+import { getImageIds, stringifyTaskMetadata, parseTaskMetadata, updateGithubBranch } from "../utils/metadata-helpers";
+import { useGetGithubStatus } from "@/features/github/api/use-get-github-status";
+import { GitHubBranchSelector } from "@/features/github/components/GitHubBranchSelector";
+import { GitHubDevelopmentPanel } from "@/features/github/components/GitHubDevelopmentPanel";
 import { useHandleImageUpload } from "../hooks/useHandleImageUpload";
 import { processDescriptionImages } from "../utils/processDescriptionImages";
 import { checkEmptyContent } from "@/utils/checkEmptyContent";
@@ -186,6 +189,8 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const { data: squadsData } = useGetSquads({ workspaceId });
     const { canEditLabel } = useWorkspacePermissions();
     const { isFree } = usePlanAccess();
+    const { data: githubStatus } = useGetGithubStatus(workspaceId);
+    const githubRepos = githubStatus?.repos ?? [];
 
     // State for managing the current task being viewed
     const [currentTaskId, setCurrentTaskId] = useState<string>(task.$id);
@@ -213,6 +218,14 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
 
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
+
+    const taskMetadata = parseTaskMetadata(displayTask.metadata);
+    const handleBranchChange = (branch: string | undefined, repo: string | undefined) => {
+        updateTask({
+            json: { metadata: updateGithubBranch(displayTask.metadata, branch, repo) },
+            param: { taskId: displayTask.$id },
+        });
+    };
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const config = useWorkspaceConfig();
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
@@ -255,7 +268,10 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
 
     const comments = (commentsData?.documents || []) as TaskComment[];
 
-    const availableMembers = ((membersData?.documents || []) as Task['assignees']) || [];
+    const availableMembers = useMemo(
+        (): NonNullable<Task['assignees']> => (membersData?.documents ?? []) as NonNullable<Task['assignees']>,
+        [membersData?.documents]
+    );
     const availableSquads = squadsData?.documents ?? [];
 
     // IDs de members que ya están cubiertos por algún squad asignado a esta task
@@ -597,6 +613,20 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         }}
                     />
                 )}
+
+                {/* GitHub Development Panel */}
+                {(() => {
+                    const repoToUse = githubRepos.find(r => r.fullName === taskMetadata.githubRepo);
+                    if (!repoToUse || !taskMetadata.githubBranch) return null;
+                    return (
+                        <GitHubDevelopmentPanel
+                            workspaceId={workspaceId}
+                            owner={repoToUse.owner}
+                            repo={repoToUse.name}
+                            branch={taskMetadata.githubBranch}
+                        />
+                    );
+                })()}
 
                 {/* Activity section with tabs */}
                 <div>
@@ -1077,7 +1107,26 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                             )}
                         </div>
                     </div>
+                {/* GitHub Branch */}
+                {githubRepos.length > 0 && (
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-fit">
+                            {t('github-branch-label')}
+                        </span>
+                        <div className="flex-1 min-w-0 ml-4 flex items-center gap-1">
+                            {/* <GitBranch className="size-4 shrink-0 text-muted-foreground" /> */}
+                            <GitHubBranchSelector
+                                workspaceId={workspaceId}
+                                repos={githubRepos}
+                                value={{ branch: taskMetadata.githubBranch, repo: taskMetadata.githubRepo }}
+                                onChange={handleBranchChange}
+                                disabled={isPending || readOnly}
+                            />
+                        </div>
+                    </div>
+                )}
                 </div>
+
 
                 {/* Divider */}
                 <div className="border-t pt-6">

@@ -11,6 +11,7 @@ import { z as zod } from 'zod';
 import { WorkspaceType } from '../types';
 import { getActiveContext } from '@/features/team/server/utils';
 import { planLimits } from '@/features/pricing/plan-limits';
+import { stripGithubTokenFromMetadata } from '@/features/github/server/route';
 
 const app = new Hono()
 
@@ -33,7 +34,12 @@ const app = new Hono()
                 ]
             );
 
-            return ctx.json({ data: workspaces })
+            const safeDocuments = workspaces.documents.map(ws => ({
+                ...ws,
+                metadata: stripGithubTokenFromMetadata(ws.metadata as string | undefined),
+            }));
+
+            return ctx.json({ data: { ...workspaces, documents: safeDocuments } })
         }
     )
     .get(
