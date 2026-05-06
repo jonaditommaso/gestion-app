@@ -67,9 +67,9 @@ export async function mockChatTextResponse(
                 'Content-Type': 'text/event-stream',
                 'Cache-Control': 'no-cache',
                 'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
-                'X-Model-Name': opts.modelName ?? 'Groq · Kimi K2',
+                'X-Model-Name': opts.modelName ?? 'Groq · GPT-OSS 120B',
             },
-            body: Buffer.from(responseText),
+            body: new TextEncoder().encode(responseText),
         });
     });
 }
@@ -94,10 +94,10 @@ export async function mockChatToolCallResponse(
                 'Content-Type': 'text/event-stream',
                 'Cache-Control': 'no-cache',
                 'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
-                'X-Model-Name': 'Groq · Kimi K2',
+                'X-Model-Name': 'Groq · GPT-OSS 120B',
                 'X-Function-Called': functionCalled,
             },
-            body: Buffer.from(responseText),
+            body: new TextEncoder().encode(responseText),
         });
     });
 }

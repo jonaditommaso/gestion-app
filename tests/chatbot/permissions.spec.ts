@@ -66,7 +66,7 @@ async function mockPermissionDeniedResponse(
             headers: {
                 'Content-Type': 'text/event-stream',
                 'X-Conversation-Id': 'conv-perm-001',
-                'X-Model-Name': 'Groq · Kimi K2',
+                'X-Model-Name': 'Groq · GPT-OSS 120B',
             },
             body: encoder.encode(message),
         });
@@ -90,7 +90,7 @@ async function mockSuccessfulActionResponse(
             headers: {
                 'Content-Type': 'text/event-stream',
                 'X-Conversation-Id': 'conv-perm-success',
-                'X-Model-Name': 'Groq · Kimi K2',
+                'X-Model-Name': 'Groq · GPT-OSS 120B',
                 'X-Function-Called': functionCalled,
             },
             body: encoder.encode(confirmationText),
@@ -238,7 +238,7 @@ test.describe('Permisos - Restricciones por plan', () => {
                 headers: {
                     'Content-Type': 'text/event-stream',
                     'X-Conversation-Id': 'conv-plus-001',
-                    'X-Model-Name': 'Groq · Kimi K2',
+                    'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
                 body: encoder.encode(PLAN_LIMITATION_RESPONSE),
             });
@@ -283,7 +283,7 @@ test.describe('Permisos - Acciones no soportadas', () => {
                 headers: {
                     'Content-Type': 'text/event-stream',
                     'X-Conversation-Id': 'conv-unsupported-001',
-                    'X-Model-Name': 'Groq · Kimi K2',
+                    'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
                 body: encoder.encode(UNSUPPORTED_RESPONSE),
             });

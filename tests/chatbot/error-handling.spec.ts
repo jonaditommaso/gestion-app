@@ -59,7 +59,7 @@ async function mockChatErrorResponse(
             headers: {
                 'Content-Type': 'text/event-stream',
                 'X-Conversation-Id': 'conv-error-001',
-                'X-Model-Name': 'Groq · Kimi K2',
+                'X-Model-Name': 'Groq · GPT-OSS 120B',
             },
             body: encoder.encode(errorMessage),
         });
@@ -184,7 +184,7 @@ test.describe('Manejo de errores - Respuestas vacías o edge cases', () => {
                 headers: {
                     'Content-Type': 'text/event-stream',
                     'X-Conversation-Id': 'conv-empty-001',
-                    'X-Model-Name': 'Groq · Kimi K2',
+                    'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
                 body: encoder.encode(''),
             });
@@ -235,7 +235,7 @@ test.describe('Manejo de errores - Respuestas vacías o edge cases', () => {
                 headers: {
                     'Content-Type': 'text/event-stream',
                     'X-Conversation-Id': 'conv-partial-001',
-                    'X-Model-Name': 'Groq · Kimi K2',
+                    'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
                 body: encoder.encode('Esta es una respuesta parcial que se cortó'),
             });

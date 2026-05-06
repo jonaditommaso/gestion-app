@@ -67,7 +67,7 @@ test.describe('Chatbot UI - Respuestas de texto', () => {
         await setupPaidUserWithChat(page);
         await mockChatTextResponse(page, 'Respuesta de prueba', {
             conversationId: 'conv-003',
-            modelName: 'Groq · Kimi K2',
+            modelName: 'Groq · GPT-OSS 120B',
         });
         await openChatPanel(page);
         await sendChatMessage(page, 'Prueba');
@@ -185,7 +185,7 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
                     headers: {
                         'Content-Type': 'text/event-stream',
                         'X-Conversation-Id': conversationId,
-                        'X-Model-Name': 'Groq · Kimi K2',
+                        'X-Model-Name': 'Groq · GPT-OSS 120B',
                     },
                     body: encoder.encode('Primera respuesta del chatbot.'),
                 });
@@ -197,7 +197,7 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
                     headers: {
                         'Content-Type': 'text/event-stream',
                         'X-Conversation-Id': conversationId,
-                        'X-Model-Name': 'Groq · Kimi K2',
+                        'X-Model-Name': 'Groq · GPT-OSS 120B',
                     },
                     body: encoder.encode('Segunda respuesta: conversationId recibido.'),
                 });
@@ -241,7 +241,7 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
                 headers: {
                     'Content-Type': 'text/event-stream',
                     'X-Conversation-Id': 'conv-multi-001',
-                    'X-Model-Name': 'Groq · Kimi K2',
+                    'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
                 body: encoder.encode(responseText),
             });

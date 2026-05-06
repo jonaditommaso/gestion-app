@@ -23,7 +23,7 @@ function getGroqClient() {
  */
 export const groqService: AIService = {
     model: GROQ_MODEL,
-    displayName: 'Groq Moonshotai Kimi K2',
+    displayName: 'Groq · GPT-OSS 120B',
 
     async chat(messages: ChatMessage[]) {
         const groq = getGroqClient();
