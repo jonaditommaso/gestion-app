@@ -69,7 +69,7 @@ export async function mockChatTextResponse(
                 'X-Conversation-Id': opts.conversationId ?? 'conv-mock-001',
                 'X-Model-Name': opts.modelName ?? 'Groq · GPT-OSS 120B',
             },
-            body: new TextEncoder().encode(responseText),
+            body: responseText,
         });
     });
 }
@@ -97,7 +97,7 @@ export async function mockChatToolCallResponse(
                 'X-Model-Name': 'Groq · GPT-OSS 120B',
                 'X-Function-Called': functionCalled,
             },
-            body: new TextEncoder().encode(responseText),
+            body: responseText,
         });
     });
 }
