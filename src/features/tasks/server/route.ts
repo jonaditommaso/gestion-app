@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bulkCreateTaskShareSchema, createTaskSchema, createTaskShareSchema, getTaskSchema } from "../schemas";
 import { getMember } from "@/features/workspaces/members/utils";
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASK_SQUADS_ASSIGNEES_ID, TASK_SQUADS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
+import { CHECKLIST_ITEM_ASSIGNEES_ID, CHECKLIST_ITEMS_ID, DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, MESSAGES_ID, NOTIFICATIONS_ID, TASK_ASSIGNEES_ID, TASK_SHARES_ID, TASK_SQUADS_ASSIGNEES_ID, TASK_SQUADS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { Task, TaskShare, TaskShareType, TaskStatus, TaskSquad, TaskSquadAssignee, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
@@ -747,6 +747,33 @@ const app = new Hono()
                     await databases.deleteDocument(DATABASE_ID, TASK_SQUADS_ASSIGNEES_ID, sa.$id);
                 } catch (err) {
                     console.error(`Error deleting squad assignee ${sa.$id}:`, err);
+                }
+            }
+
+            // Eliminar todos los checklist items de la task (y sus assignees)
+            const checklistItems = await databases.listDocuments(
+                DATABASE_ID,
+                CHECKLIST_ITEMS_ID,
+                [Query.equal('taskId', taskId)]
+            );
+
+            for (const item of checklistItems.documents) {
+                try {
+                    const itemAssignees = await databases.listDocuments(
+                        DATABASE_ID,
+                        CHECKLIST_ITEM_ASSIGNEES_ID,
+                        [Query.equal('itemId', item.$id)]
+                    );
+                    for (const ia of itemAssignees.documents) {
+                        await databases.deleteDocument(DATABASE_ID, CHECKLIST_ITEM_ASSIGNEES_ID, ia.$id);
+                    }
+                } catch (err) {
+                    console.error(`Error deleting checklist item assignees for ${item.$id}:`, err);
+                }
+                try {
+                    await databases.deleteDocument(DATABASE_ID, CHECKLIST_ITEMS_ID, item.$id);
+                } catch (err) {
+                    console.error(`Error deleting checklist item ${item.$id}:`, err);
                 }
             }
 
