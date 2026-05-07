@@ -938,6 +938,85 @@ const app = new Hono()
             await users.updatePrefs(user.$id, rest);
             return ctx.json({ data: true });
         }
-    );
+    )
+
+    // ── Trello integration ───────────────────────────────────────────────────────
+    .get('/trello/auth-url', sessionMiddleware, async ctx => {
+        const { TRELLO_API_KEY, TRELLO_REDIRECT_URI } = await import('@/config');
+        if (!TRELLO_API_KEY || !TRELLO_REDIRECT_URI) {
+            return ctx.json({ error: 'Trello not configured' }, 500);
+        }
+        const url = new URL('https://trello.com/1/authorize');
+        url.searchParams.set('expiration', 'never');
+        url.searchParams.set('name', 'Gestionate');
+        url.searchParams.set('scope', 'read');
+        url.searchParams.set('response_type', 'token');
+        url.searchParams.set('key', TRELLO_API_KEY);
+        url.searchParams.set('return_url', TRELLO_REDIRECT_URI);
+        return ctx.json({ data: url.toString() });
+    })
+
+    .post('/trello/save-token', sessionMiddleware, async ctx => {
+        const body = await ctx.req.json() as { token?: string };
+        const token = body.token?.trim();
+        if (!token) return ctx.json({ error: 'Missing token' }, 400);
+        const user = ctx.get('user');
+        const { createAdminClient } = await import('@/lib/appwrite');
+        const { users } = await createAdminClient();
+        await users.updatePrefs(user.$id, { ...(user.prefs ?? {}), trello_token: token });
+        return ctx.json({ data: true });
+    })
+
+    .get('/trello/boards', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const token = user.prefs?.trello_token as string | undefined;
+        if (!token) return ctx.json({ error: 'Not connected to Trello' }, 401);
+        const { TRELLO_API_KEY } = await import('@/config');
+        const res = await fetch(
+            `https://api.trello.com/1/members/me/boards?key=${TRELLO_API_KEY}&token=${token}&fields=id,name&filter=open`,
+        );
+        if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello boards' }, 502);
+        const boards = await res.json() as Array<{ id: string; name: string }>;
+        return ctx.json({ data: boards });
+    })
+
+    .get('/trello/lists/:boardId', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const token = user.prefs?.trello_token as string | undefined;
+        if (!token) return ctx.json({ error: 'Not connected to Trello' }, 401);
+        const { TRELLO_API_KEY } = await import('@/config');
+        const { boardId } = ctx.req.param();
+        const res = await fetch(
+            `https://api.trello.com/1/boards/${boardId}/lists?key=${TRELLO_API_KEY}&token=${token}&fields=id,name&filter=open`,
+        );
+        if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello lists' }, 502);
+        const lists = await res.json() as Array<{ id: string; name: string }>;
+        return ctx.json({ data: lists });
+    })
+
+    .get('/trello/cards/:listId', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const token = user.prefs?.trello_token as string | undefined;
+        if (!token) return ctx.json({ error: 'Not connected to Trello' }, 401);
+        const { TRELLO_API_KEY } = await import('@/config');
+        const { listId } = ctx.req.param();
+        const res = await fetch(
+            `https://api.trello.com/1/lists/${listId}/cards?key=${TRELLO_API_KEY}&token=${token}&fields=id,name,desc,due`,
+        );
+        if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello cards' }, 502);
+        const cards = await res.json() as Array<{ id: string; name: string; desc: string; due: string | null }>;
+        return ctx.json({ data: cards });
+    })
+
+    .delete('/trello/disconnect', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const { createAdminClient } = await import('@/lib/appwrite');
+        const { users } = await createAdminClient();
+        const prefs = user.prefs ?? {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { trello_token: _, ...rest } = prefs;
+        await users.updatePrefs(user.$id, rest);
+        return ctx.json({ data: true });
+    });
 
 export default app;

@@ -28,8 +28,10 @@ import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import TaskDetailsModal from "./TaskDetailsModal";
+import TaskTrelloImportDialog, { type TrelloCard } from "./TaskTrelloImportDialog";
 import { useUpdateTask } from "../api/use-update-task";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { useCreateTask } from "../api/use-create-task";
 
 interface DataKanbanProps {
     data: Task[],
@@ -60,6 +62,9 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
     const [editingStatus, setEditingStatus] = useState<CustomStatus | undefined>(undefined);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [trelloImportTarget, setTrelloImportTarget] = useState<{ status: string; label: string } | null>(null);
+
+    const { mutate: createTaskMutation } = useCreateTask();
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-column-confirm-title'),
@@ -443,6 +448,29 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
 
         setTasks(prev => ({ ...prev, [statusId]: [] }));
+    };
+
+    const handleTrelloImport = async (cards: TrelloCard[], status: string): Promise<void> => {
+        const isCustom = status.startsWith('CUSTOM_');
+        for (const card of cards) {
+            await new Promise<void>((resolve) => {
+                createTaskMutation(
+                    {
+                        json: {
+                            name: card.name,
+                            status: isCustom ? TaskStatus.CUSTOM : status as TaskStatus,
+                            statusCustomId: isCustom ? status : null,
+                            workspaceId,
+                            dueDate: card.due ? new Date(card.due) : null,
+                            priority: 3,
+                            description: card.desc || null,
+                            assigneesIds: [],
+                        },
+                    },
+                    { onSuccess: () => resolve(), onError: () => resolve() }
+                );
+            });
+        }
     };
 
     const [tasks, setTasks] = useState<TasksState>(() => {
@@ -868,6 +896,10 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             isRigidLimitReached={isRigidLimitReached}
                                                             isArchiveColumn={isArchiveColumn}
                                                             taskCountByStatus={taskCountByStatus}
+                                                            onImportFromTrello={() => setTrelloImportTarget({
+                                                                status: statusObj.id,
+                                                                label: statusObj.label,
+                                                            })}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">
                                                             {(provided) => (
@@ -953,6 +985,13 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                     onClose={() => setSelectedTaskId(null)}
                 />
             )}
+            <TaskTrelloImportDialog
+                open={!!trelloImportTarget}
+                onOpenChange={(open) => { if (!open) setTrelloImportTarget(null); }}
+                targetStatus={trelloImportTarget?.status ?? TaskStatus.TODO}
+                targetStatusLabel={trelloImportTarget?.label ?? ''}
+                onImport={handleTrelloImport}
+            />
         </>
     );
 }
