@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Task, TaskStatus } from "../types";
 import {
     DragDropContext,
@@ -32,6 +33,7 @@ import TaskTrelloImportDialog, { type TrelloCard } from "./TaskTrelloImportDialo
 import { useUpdateTask } from "../api/use-update-task";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useCreateTask } from "../api/use-create-task";
+import { client } from "@/lib/rpc";
 
 interface DataKanbanProps {
     data: Task[],
@@ -64,7 +66,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [trelloImportTarget, setTrelloImportTarget] = useState<{ status: string; label: string } | null>(null);
 
-    const { mutate: createTaskMutation } = useCreateTask();
+    const { mutateAsync: createTaskAsync } = useCreateTask();
+    const queryClient = useQueryClient();
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-column-confirm-title'),
@@ -453,24 +456,52 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const handleTrelloImport = async (cards: TrelloCard[], status: string): Promise<void> => {
         const isCustom = status.startsWith('CUSTOM_');
         for (const card of cards) {
-            await new Promise<void>((resolve) => {
-                createTaskMutation(
-                    {
-                        json: {
-                            name: card.name,
-                            status: isCustom ? TaskStatus.CUSTOM : status as TaskStatus,
-                            statusCustomId: isCustom ? status : null,
-                            workspaceId,
-                            dueDate: card.due ? new Date(card.due) : null,
-                            priority: 3,
-                            description: card.desc || null,
-                            assigneesIds: [],
-                        },
+            const result = await createTaskAsync(
+                {
+                    json: {
+                        name: card.name,
+                        status: isCustom ? TaskStatus.CUSTOM : status as TaskStatus,
+                        statusCustomId: isCustom ? status : null,
+                        workspaceId,
+                        dueDate: card.due ? new Date(card.due) : null,
+                        priority: 3,
+                        description: card.desc || null,
+                        assigneesIds: [],
                     },
-                    { onSuccess: () => resolve(), onError: () => resolve() }
-                );
-            });
+                },
+            ).catch(() => null);
+
+            if (result && 'data' in result && result.data && '$id' in result.data) {
+                const taskId = result.data.$id as string;
+                const checklists = card.checklists ?? [];
+                for (const checklist of checklists) {
+                    for (let i = 0; i < checklist.checkItems.length; i++) {
+                        const checkItem = checklist.checkItems[i];
+                        const postResponse = await client.api.checklist['$post']({
+                            json: {
+                                taskId,
+                                workspaceId,
+                                title: checkItem.name,
+                                position: (i + 1) * 1024,
+                                checklistTitle: i === 0 ? checklist.name : undefined,
+                            },
+                        }).catch(() => null);
+
+                        if (checkItem.state === 'complete' && postResponse?.ok) {
+                            const created = await postResponse.json().catch(() => null);
+                            const itemId = created && 'data' in created && created.data?.$id as string | undefined;
+                            if (itemId) {
+                                await client.api.checklist[':itemId']['$patch']({
+                                    param: { itemId },
+                                    json: { completed: true },
+                                }).catch(() => null);
+                            }
+                        }
+                    }
+                }
+            }
         }
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
     };
 
     const [tasks, setTasks] = useState<TasksState>(() => {

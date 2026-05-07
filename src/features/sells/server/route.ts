@@ -1001,10 +1001,10 @@ const app = new Hono()
         const { TRELLO_API_KEY } = await import('@/config');
         const { listId } = ctx.req.param();
         const res = await fetch(
-            `https://api.trello.com/1/lists/${listId}/cards?key=${TRELLO_API_KEY}&token=${token}&fields=id,name,desc,due`,
+            `https://api.trello.com/1/lists/${listId}/cards?key=${TRELLO_API_KEY}&token=${token}&fields=id,name,desc,due&checklists=all`,
         );
         if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello cards' }, 502);
-        const cards = await res.json() as Array<{ id: string; name: string; desc: string; due: string | null }>;
+        const cards = await res.json() as Array<{ id: string; name: string; desc: string; due: string | null; checklists?: Array<{ id: string; name: string; checkItems: Array<{ id: string; name: string; state: string }> }> }>;
         return ctx.json({ data: cards });
     })
 
