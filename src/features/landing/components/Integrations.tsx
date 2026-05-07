@@ -19,10 +19,10 @@ const integrations = [
         status: 'Activo'
     },
     {
-        name: 'Spotify',
-        logo: '/logos/spotify-logo.png',
+        name: 'Trello',
+        logo: '/integrations/trello.png',
         description: 'integration-3',
-        status: 'Próximamente'
+        status: 'Activo'
     },
     {
         name: 'GitHub',

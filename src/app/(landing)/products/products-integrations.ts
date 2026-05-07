@@ -39,43 +39,49 @@ export const productsIntegrations = [
         name: 'Slack',
         logo: '/integrations/slack.png',
         color: '#611f69',
-        bgColor: 'rgba(97, 31, 105, 0.1)'
+        bgColor: 'rgba(97, 31, 105, 0.1)',
+        comingSoon: true
     },
 
     {
         name: 'Jira',
         logo: '/integrations/jira.png',
         color: '#0052cc',
-        bgColor: 'rgba(0, 82, 204, 0.1)'
+        bgColor: 'rgba(0, 82, 204, 0.1)',
+        comingSoon: true
     },
+    // {
+    //     name: 'Mailchimp',
+    //     logo: '/integrations/mailchimp.png',
+    //     color: '#ffe01b',
+    //     bgColor: 'rgba(255, 224, 27, 0.15)'
+    // },
     {
-        name: 'Mailchimp',
-        logo: '/integrations/mailchimp.png',
-        color: '#ffe01b',
-        bgColor: 'rgba(255, 224, 27, 0.15)'
+        name: 'Spotify',
+        logo: '/integrations/spotify.png',
+        color: '#1db954',
+        bgColor: 'rgba(29, 185, 84, 0.1)',
+        comingSoon: true
     },
     {
         name: 'Dropbox',
         logo: '/integrations/dropbox.png',
         color: '#0061ff',
-        bgColor: 'rgba(0, 97, 255, 0.1)'
+        bgColor: 'rgba(0, 97, 255, 0.1)',
+        comingSoon: true
     },
     {
         name: 'Microsoft Teams',
         logo: '/integrations/teams.png',
         color: '#6264a7',
-        bgColor: 'rgba(98, 100, 167, 0.1)'
+        bgColor: 'rgba(98, 100, 167, 0.1)',
+        comingSoon: true
     },
     {
         name: 'Notion',
         logo: '/integrations/notion.png',
         color: '#000000',
-        bgColor: 'rgba(0, 0, 0, 0.1)'
+        bgColor: 'rgba(0, 0, 0, 0.1)',
+        comingSoon: true
     },
-    // {
-    //     name: 'Spotify',
-    //     logo: '/integrations/spotify.png',
-    //     color: '#1db954',
-    //     bgColor: 'rgba(29, 185, 84, 0.1)'
-    // }
 ]
