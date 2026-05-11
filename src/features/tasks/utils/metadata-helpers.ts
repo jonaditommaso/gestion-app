@@ -39,3 +39,19 @@ export const updateImageIds = (currentMetadata: string | undefined, imageIds: st
         imageIds: imageIds.length > 0 ? imageIds : undefined
     });
 };
+
+/**
+ * Actualiza el branch y repo de GitHub en la metadata
+ */
+export const updateGithubBranch = (
+    currentMetadata: string | undefined,
+    githubBranch: string | undefined,
+    githubRepo: string | undefined
+): string => {
+    const metadata = parseTaskMetadata(currentMetadata);
+    return stringifyTaskMetadata({
+        ...metadata,
+        githubBranch: githubBranch || undefined,
+        githubRepo: githubRepo || undefined,
+    });
+};

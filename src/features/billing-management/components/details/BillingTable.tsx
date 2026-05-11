@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -280,8 +280,8 @@ export function BillingTable() {
     }
 
     return operation.type === 'income'
-      ? 'bg-[#0bb31420] hover:bg-green-500'
-      : 'bg-[#f0341020] hover:bg-red-500';
+      ? 'bg-[#0bb31420] hover:bg-green-500 cursor-pointer'
+      : 'bg-[#f0341020] hover:bg-red-500 cursor-pointer';
   }
 
   const getStickyActionCellClass = (operation: BillingOperation) => {
@@ -631,7 +631,7 @@ export function BillingTable() {
                     header === 'type' && 'w-[74px] max-w-[74px]',
                     header === 'status' && 'w-[88px] max-w-[88px]',
                     header === 'amount' && 'text-right w-[90px] max-w-[90px]',
-                    header === 'actions' && 'sticky right-0 z-30 border-l-2 border-border bg-background shadow-[-8px_0_8px_-10px_rgba(0,0,0,0.35)]'
+                    header === 'actions' && 'sticky right-0 z-30 border-l-2 border-border bg-background shadow-[-8px_0_8px_-10px_rgba(0,0,0,0.35)] w-[120px] min-w-[120px]'
                   )}
                 >
                     {t(header)}
@@ -641,7 +641,11 @@ export function BillingTable() {
           </TableHeader>
           <TableBody>
             {filteredData.map(operation => (
-              <TableRow key={operation.$id} className={getRowClass(operation)}>
+              <TableRow
+                key={operation.$id}
+                className={getRowClass(operation)}
+                onClick={() => { if (!isRowEditing(operation.$id)) openDetails(operation); }}
+              >
                 <TableCell className="">{operation.invoiceNumber || operation.$id.slice(-6).toUpperCase()}</TableCell>
                 <TableCell className="">{capitalize(operation.type)}</TableCell>
 
@@ -722,7 +726,7 @@ export function BillingTable() {
                   ) : <>$ {operation.import}</>}
                 </TableCell>
 
-                <TableCell className={getStickyActionCellClass(operation)}>
+                <TableCell className={getStickyActionCellClass(operation)} onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 justify-end">
                     {isRowEditing(operation.$id) ? (
                       <>
@@ -735,10 +739,6 @@ export function BillingTable() {
                       </>
                     ) : (
                       <>
-                        <Button size="icon" variant="outline" onClick={() => openDetails(operation)} title={t('view-details')} aria-label={t('view-details')}>
-                          <Eye className="size-4" />
-                        </Button>
-
                         <Button size="icon" variant="outline" onClick={() => downloadOperationDocument(operation)} title={t('download-document')} aria-label={t('download-document')}>
                           <Download className="size-4" />
                         </Button>
@@ -749,42 +749,47 @@ export function BillingTable() {
                           </Button>
                         )}
 
-                        {(canWrite || canDelete) && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="outline"
-                                disabled={isDeleting || isUpdating}
-                                title={t('more-actions')}
-                                aria-label={t('more-actions')}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              disabled={isDeleting || isUpdating}
+                              title={t('more-actions')}
+                              aria-label={t('more-actions')}
+                            >
+                              <MoreVertical className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openDetails(operation)}>
+                              <Eye className="size-4 mr-2" />
+                              {t('view-details')}
+                            </DropdownMenuItem>
+                            {(canWrite || canDelete) && (
+                              <DropdownMenuSeparator />
+                            )}
+                            {canWrite && (
+                              <DropdownMenuItem onClick={() => handleArchive(operation)}>
+                                <Archive className="size-4 mr-2" />
+                                {t('archive')}
+                              </DropdownMenuItem>
+                            )}
+                            {canDelete && (
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  const shouldDelete = await confirmDelete();
+                                  if (shouldDelete) {
+                                    deleteOperation({ param: { billingId: operation.$id } })
+                                  }
+                                }}
                               >
-                                <MoreVertical className="size-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {canWrite && (
-                                <DropdownMenuItem onClick={() => handleArchive(operation)}>
-                                  <Archive className="size-4 mr-2" />
-                                  {t('archive')}
-                                </DropdownMenuItem>
-                              )}
-                              {canDelete && (
-                                <DropdownMenuItem
-                                  onClick={async () => {
-                                    const shouldDelete = await confirmDelete();
-                                    if (shouldDelete) {
-                                      deleteOperation({ param: { billingId: operation.$id } })
-                                    }
-                                  }}
-                                >
-                                  <Trash2 className="size-4 mr-2 text-red-600" />
-                                  {t('delete')}
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
+                                <Trash2 className="size-4 mr-2 text-red-600" />
+                                {t('delete')}
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                   </div>

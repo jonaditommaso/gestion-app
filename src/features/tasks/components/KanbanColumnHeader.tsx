@@ -46,6 +46,8 @@ interface KanbanColumnHeaderProps {
     isArchiveColumn?: boolean;
     /** Task count by status ID for calculating move limits */
     taskCountByStatus?: Record<string, number>;
+    /** Callback to trigger Trello import for this column */
+    onImportFromTrello?: () => void;
 }
 
 const statusIconMap: Record<TaskStatus, React.ReactNode> = {
@@ -57,7 +59,7 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
     [TaskStatus.CUSTOM]: <CircleDashedIcon className="size-[18px] text-gray-400" />, // Fallback, custom statuses use their own icon
 }
 
-const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteAllCards, onArchiveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, isArchiveColumn = false, taskCountByStatus = {} }: KanbanColumnHeaderProps) => {
+const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCountType.ALWAYS, onUpdateLabel, customStatus, statusInfo, onEditColumn, onMoveAllCards, onDeleteAllCards, onArchiveAllCards, onDeleteColumn, availableStatuses = [], isRigidLimitReached = false, isArchiveColumn = false, taskCountByStatus = {}, onImportFromTrello }: KanbanColumnHeaderProps) => {
 
     const t = useTranslations('workspaces');
     const config = useWorkspaceConfig();
@@ -185,6 +187,13 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                             <PencilIcon className="size-4 mr-2" />
                                             {t('edit-column')}
                                         </DropdownMenuItem>
+                                        {onImportFromTrello && (
+                                            <DropdownMenuItem onClick={onImportFromTrello} className="cursor-pointer gap-2">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src="/integrations/trello.png" alt="Trello" width={14} height={14} />
+                                                {t('trello.menu-item')}
+                                            </DropdownMenuItem>
+                                        )}
                                         <DropdownMenuItem
                                             onClick={(e) => {
                                                 e.preventDefault();

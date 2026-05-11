@@ -9,6 +9,7 @@ export type PlanLimits = {
     storage: string;
     storageBytes: number;
     squads: number;
+    githubRepos: number;
 };
 
 export type PlanPrice = {
@@ -17,10 +18,10 @@ export type PlanPrice = {
 };
 
 export const planLimits: Record<OrganizationPlan, PlanLimits> = {
-    FREE: { members: 3, workspaces: 1, pipelines: 1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: 0 },
-    PLUS: { members: 10, workspaces: 3, pipelines: 1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: 2 },
-    PRO: { members: 25, workspaces: -1, pipelines: -1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: -1 },
-    ENTERPRISE: { members: -1, workspaces: -1, pipelines: -1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: -1 },
+    FREE: { members: 3, workspaces: 1, pipelines: 1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: 0, githubRepos: 0 },
+    PLUS: { members: 10, workspaces: 3, pipelines: 1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: 2, githubRepos: 1 },
+    PRO: { members: 25, workspaces: -1, pipelines: -1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: -1, githubRepos: -1 },
+    ENTERPRISE: { members: -1, workspaces: -1, pipelines: -1, tables: 0, records: 0, storage: '—', storageBytes: 0, squads: -1, githubRepos: -1 },
 };
 
 export const planPrices: Record<OrganizationPlan, PlanPrice> = {

@@ -7,11 +7,12 @@ import { ReactNode } from 'react'
 interface MediaActionsProps {
     linkComponent: ReactNode
     mentionComponent: ReactNode
+    driveComponent: ReactNode
     onImage: () => void
     onDivider: () => void
 }
 
-const MediaActions = ({ linkComponent, mentionComponent, onImage, onDivider }: MediaActionsProps) => {
+const MediaActions = ({ linkComponent, mentionComponent, driveComponent, onImage, onDivider }: MediaActionsProps) => {
     const actions = [
         { icon: ImageIcon, translationKey: 'image' as const, onClick: onImage },
         { icon: Minus, translationKey: 'divider' as const, onClick: onDivider },
@@ -21,6 +22,7 @@ const MediaActions = ({ linkComponent, mentionComponent, onImage, onDivider }: M
         <>
             {linkComponent}
             {mentionComponent}
+            {driveComponent}
             {actions.map((action) => (
                 <EditorButton
                     key={action.translationKey}

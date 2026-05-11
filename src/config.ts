@@ -59,6 +59,14 @@ export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI
 
+export const GITHUB_APP_CLIENT_ID = process.env.GITHUB_APP_CLIENT_ID
+export const GITHUB_APP_CLIENT_SECRET = process.env.GITHUB_APP_CLIENT_SECRET
+export const GITHUB_APP_REDIRECT_URI = process.env.GITHUB_APP_REDIRECT_URI
+export const NEXT_PUBLIC_GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+
+export const TRELLO_API_KEY = process.env.TRELLO_API_KEY
+export const TRELLO_REDIRECT_URI = process.env.TRELLO_REDIRECT_URI
+
 export const SSO_CONFIGS_ID = process.env.NEXT_PUBLIC_APPWRITE_SSO_CONFIGS_ID!
 
 export const GROQ_API_KEY = process.env.GROQ_API_KEY!

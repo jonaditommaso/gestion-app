@@ -244,6 +244,7 @@ export const PERMISSION_CATALOG: Array<{ moduleKey: string; permissions: string[
             "edit_column_names_workspace",
             "add_column_workspace",
             "delete_column_workspace",
+            "connect_github",
         ],
     },
 ]
@@ -297,7 +298,8 @@ export function getEffectivePermissions(permissions: string[]): string[] {
             .filter(p =>
                 p.startsWith("invite_") ||
                 p.startsWith("remove_") ||
-                p.startsWith("manage_")
+                p.startsWith("manage_") ||
+                p.startsWith("connect_")
             )
             .forEach(p => effective.add(p))
     }

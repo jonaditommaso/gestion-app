@@ -825,6 +825,198 @@ const app = new Hono()
                 },
             });
         }
-    );
+    )
+
+    .get(
+        '/gmail-auth-url',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { google } = await import('googleapis');
+            const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = await import('@/config');
+
+            const oauth2Client = new google.auth.OAuth2(
+                GOOGLE_CLIENT_ID,
+                GOOGLE_CLIENT_SECRET,
+                GOOGLE_REDIRECT_URI,
+            );
+
+            const url = oauth2Client.generateAuthUrl({
+                access_type: 'offline',
+                prompt: 'consent',
+                scope: ['https://www.googleapis.com/auth/gmail.send'],
+                include_granted_scopes: true,
+                state: JSON.stringify({ gmail_auth_only: true, userId: user.$id }),
+            });
+
+            return ctx.json({ data: url });
+        }
+    )
+
+    .post(
+        '/send-email',
+        sessionMiddleware,
+        demoGuard,
+        async ctx => {
+            const user = ctx.get('user');
+
+            if (!user?.prefs?.google_gmail_scope) {
+                return ctx.json({ error: 'Gmail permission not granted' }, 403);
+            }
+
+            if (!user.prefs.google_refresh_token) {
+                return ctx.json({ error: 'No refresh token available' }, 401);
+            }
+
+            const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = await import('@/config');
+
+            const body = await ctx.req.json() as { to: string; subject: string; html: string };
+            const { to, subject, html } = body;
+
+            if (!to || !subject || !html) {
+                return ctx.json({ error: 'to, subject and html are required' }, 400);
+            }
+
+            const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    client_id: GOOGLE_CLIENT_ID!,
+                    client_secret: GOOGLE_CLIENT_SECRET!,
+                    redirect_uri: GOOGLE_REDIRECT_URI!,
+                    grant_type: 'refresh_token',
+                    refresh_token: user.prefs.google_refresh_token,
+                }),
+            });
+
+            const tokenData = await tokenRes.json() as { access_token?: string; error?: string };
+
+            if (!tokenData.access_token) {
+                return ctx.json({ error: 'Failed to refresh access token', detail: tokenData.error }, 401);
+            }
+
+            const fromHeader = `From: ${user.email}\r\n`;
+            const toHeader = `To: ${to}\r\n`;
+            const subjectHeader = `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=\r\n`;
+            const mimeVersion = `MIME-Version: 1.0\r\n`;
+            const contentType = `Content-Type: text/html; charset=UTF-8\r\n`;
+            const rawMessage = `${fromHeader}${toHeader}${subjectHeader}${mimeVersion}${contentType}\r\n${html}`;
+            const encoded = Buffer.from(rawMessage).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+            const gmailRes = await fetch(
+                'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${tokenData.access_token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ raw: encoded }),
+                }
+            );
+
+            if (!gmailRes.ok) {
+                const detail = await gmailRes.text();
+                console.error('[send-email] Gmail API error:', gmailRes.status, detail);
+                return ctx.json({ error: 'Failed to send email', detail }, 502);
+            }
+
+            return ctx.json({ data: true });
+
+        })
+
+    .delete(
+        '/gmail-revoke',
+        sessionMiddleware,
+        async ctx => {
+            const user = ctx.get('user');
+            const { createAdminClient } = await import('@/lib/appwrite');
+            const { users } = await createAdminClient();
+            const prefs = user.prefs ?? {};
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { google_gmail_scope: _, ...rest } = prefs;
+            await users.updatePrefs(user.$id, rest);
+            return ctx.json({ data: true });
+        }
+    )
+
+    // ── Trello integration ───────────────────────────────────────────────────────
+    .get('/trello/auth-url', sessionMiddleware, async ctx => {
+        const { TRELLO_API_KEY, TRELLO_REDIRECT_URI } = await import('@/config');
+        if (!TRELLO_API_KEY || !TRELLO_REDIRECT_URI) {
+            return ctx.json({ error: 'Trello not configured' }, 500);
+        }
+        const url = new URL('https://trello.com/1/authorize');
+        url.searchParams.set('expiration', 'never');
+        url.searchParams.set('name', 'Gestionate');
+        url.searchParams.set('scope', 'read');
+        url.searchParams.set('response_type', 'token');
+        url.searchParams.set('key', TRELLO_API_KEY);
+        url.searchParams.set('return_url', TRELLO_REDIRECT_URI);
+        return ctx.json({ data: url.toString() });
+    })
+
+    .post('/trello/save-token', sessionMiddleware, async ctx => {
+        const body = await ctx.req.json() as { token?: string };
+        const token = body.token?.trim();
+        if (!token) return ctx.json({ error: 'Missing token' }, 400);
+        const user = ctx.get('user');
+        const { createAdminClient } = await import('@/lib/appwrite');
+        const { users } = await createAdminClient();
+        await users.updatePrefs(user.$id, { ...(user.prefs ?? {}), trello_token: token });
+        return ctx.json({ data: true });
+    })
+
+    .get('/trello/boards', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const token = user.prefs?.trello_token as string | undefined;
+        if (!token) return ctx.json({ error: 'Not connected to Trello' }, 401);
+        const { TRELLO_API_KEY } = await import('@/config');
+        const res = await fetch(
+            `https://api.trello.com/1/members/me/boards?key=${TRELLO_API_KEY}&token=${token}&fields=id,name&filter=open`,
+        );
+        if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello boards' }, 502);
+        const boards = await res.json() as Array<{ id: string; name: string }>;
+        return ctx.json({ data: boards });
+    })
+
+    .get('/trello/lists/:boardId', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const token = user.prefs?.trello_token as string | undefined;
+        if (!token) return ctx.json({ error: 'Not connected to Trello' }, 401);
+        const { TRELLO_API_KEY } = await import('@/config');
+        const { boardId } = ctx.req.param();
+        const res = await fetch(
+            `https://api.trello.com/1/boards/${boardId}/lists?key=${TRELLO_API_KEY}&token=${token}&fields=id,name&filter=open`,
+        );
+        if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello lists' }, 502);
+        const lists = await res.json() as Array<{ id: string; name: string }>;
+        return ctx.json({ data: lists });
+    })
+
+    .get('/trello/cards/:listId', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const token = user.prefs?.trello_token as string | undefined;
+        if (!token) return ctx.json({ error: 'Not connected to Trello' }, 401);
+        const { TRELLO_API_KEY } = await import('@/config');
+        const { listId } = ctx.req.param();
+        const res = await fetch(
+            `https://api.trello.com/1/lists/${listId}/cards?key=${TRELLO_API_KEY}&token=${token}&fields=id,name,desc,due&checklists=all`,
+        );
+        if (!res.ok) return ctx.json({ error: 'Failed to fetch Trello cards' }, 502);
+        const cards = await res.json() as Array<{ id: string; name: string; desc: string; due: string | null; checklists?: Array<{ id: string; name: string; checkItems: Array<{ id: string; name: string; state: string }> }> }>;
+        return ctx.json({ data: cards });
+    })
+
+    .delete('/trello/disconnect', sessionMiddleware, async ctx => {
+        const user = ctx.get('user');
+        const { createAdminClient } = await import('@/lib/appwrite');
+        const { users } = await createAdminClient();
+        const prefs = user.prefs ?? {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { trello_token: _, ...rest } = prefs;
+        await users.updatePrefs(user.$id, rest);
+        return ctx.json({ data: true });
+    });
 
 export default app;

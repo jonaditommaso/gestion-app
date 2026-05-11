@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Task, TaskStatus } from "../types";
 import {
     DragDropContext,
@@ -28,8 +29,11 @@ import { useBulkUpdateTasks } from "../api/use-bulk-update-tasks";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import TaskDetailsModal from "./TaskDetailsModal";
+import TaskTrelloImportDialog, { type TrelloCard } from "./TaskTrelloImportDialog";
 import { useUpdateTask } from "../api/use-update-task";
 import { useGetMembers } from "@/features/members/api/use-get-members";
+import { useCreateTask } from "../api/use-create-task";
+import { client } from "@/lib/rpc";
 
 interface DataKanbanProps {
     data: Task[],
@@ -60,6 +64,10 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
     const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
     const [editingStatus, setEditingStatus] = useState<CustomStatus | undefined>(undefined);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [trelloImportTarget, setTrelloImportTarget] = useState<{ status: string; label: string } | null>(null);
+
+    const { mutateAsync: createTaskAsync } = useCreateTask();
+    const queryClient = useQueryClient();
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-column-confirm-title'),
@@ -445,6 +453,57 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         setTasks(prev => ({ ...prev, [statusId]: [] }));
     };
 
+    const handleTrelloImport = async (cards: TrelloCard[], status: string): Promise<void> => {
+        const isCustom = status.startsWith('CUSTOM_');
+        for (const card of cards) {
+            const result = await createTaskAsync(
+                {
+                    json: {
+                        name: card.name,
+                        status: isCustom ? TaskStatus.CUSTOM : status as TaskStatus,
+                        statusCustomId: isCustom ? status : null,
+                        workspaceId,
+                        dueDate: card.due ? new Date(card.due) : null,
+                        priority: 3,
+                        description: card.desc || null,
+                        assigneesIds: [],
+                    },
+                },
+            ).catch(() => null);
+
+            if (result && 'data' in result && result.data && '$id' in result.data) {
+                const taskId = result.data.$id as string;
+                const checklists = card.checklists ?? [];
+                for (const checklist of checklists) {
+                    for (let i = 0; i < checklist.checkItems.length; i++) {
+                        const checkItem = checklist.checkItems[i];
+                        const postResponse = await client.api.checklist['$post']({
+                            json: {
+                                taskId,
+                                workspaceId,
+                                title: checkItem.name,
+                                position: (i + 1) * 1024,
+                                checklistTitle: i === 0 ? checklist.name : undefined,
+                            },
+                        }).catch(() => null);
+
+                        if (checkItem.state === 'complete' && postResponse?.ok) {
+                            const created = await postResponse.json().catch(() => null);
+                            const itemId = created && 'data' in created && created.data?.$id as string | undefined;
+                            if (itemId) {
+                                await client.api.checklist[':itemId']['$patch']({
+                                    param: { itemId },
+                                    json: { completed: true },
+                                }).catch(() => null);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    };
+
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
             [TaskStatus.BACKLOG]: [],
@@ -770,7 +829,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                 <Droppable droppableId="columns" type="COLUMN" direction="horizontal">
                     {(columnsProvided) => (
                         <div
-                            className="flex p-[2px] px-4 overflow-x-auto h-[calc(100vh-23rem)]"
+                            className="flex p-[2px] px-4 overflow-x-auto h-full"
                             ref={columnsProvided.innerRef}
                             {...columnsProvided.droppableProps}
                         >
@@ -868,6 +927,10 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                             isRigidLimitReached={isRigidLimitReached}
                                                             isArchiveColumn={isArchiveColumn}
                                                             taskCountByStatus={taskCountByStatus}
+                                                            onImportFromTrello={() => setTrelloImportTarget({
+                                                                status: statusObj.id,
+                                                                label: statusObj.label,
+                                                            })}
                                                         />
                                                         <Droppable droppableId={board} type="TASK">
                                                             {(provided) => (
@@ -953,6 +1016,13 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                     onClose={() => setSelectedTaskId(null)}
                 />
             )}
+            <TaskTrelloImportDialog
+                open={!!trelloImportTarget}
+                onOpenChange={(open) => { if (!open) setTrelloImportTarget(null); }}
+                targetStatus={trelloImportTarget?.status ?? TaskStatus.TODO}
+                targetStatusLabel={trelloImportTarget?.label ?? ''}
+                onImport={handleTrelloImport}
+            />
         </>
     );
 }

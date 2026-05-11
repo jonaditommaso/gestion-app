@@ -53,6 +53,7 @@ import {
   Filter,
   History,
   KanbanSquare,
+  Mail,
   Plus,
   Search,
   Settings,
@@ -102,6 +103,7 @@ import { useAddDealAssignee } from "../api/use-add-deal-assignee";
 import { useAddDealActivity } from "../api/use-add-deal-activity";
 import { useGetSellSquads } from "../api/use-get-sell-squads";
 import ManageSellSquadsDialog from "./ManageSellSquadsDialog";
+import SendEmailDialog from "./SendEmailDialog";
 import type { SellSquad } from "../types";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
@@ -184,6 +186,7 @@ const SalesPipelineView = () => {
   const [selectedAssignee, setSelectedAssignee] = useState<string>("all");
   const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState<boolean>(false);
   const [isBoardLabelsOpen, setIsBoardLabelsOpen] = useState<boolean>(false);
+  const [emailDeal, setEmailDeal] = useState<Deal | null>(null);
   const [selectedLabelFilter, setSelectedLabelFilter] = useState<string | "all">("all");
   const [tableStageFilter, setTableStageFilter] = useState<DealStage[]>([...STAGE_ORDER]);
   const [tablePriorityFilter, setTablePriorityFilter] = useState<WorkItemPriority[]>([1, 2, 3]);
@@ -1025,17 +1028,28 @@ const SalesPipelineView = () => {
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <p className="text-sm font-medium leading-tight">{deal.title}</p>
-                                    <DropdownMenu modal={false}>
-                                      <DropdownMenuTrigger asChild>
+                                    <div className="flex items-center gap-0.5 shrink-0">
+                                      {deal.companyResponsabileEmail && (
                                         <Button
                                           variant="ghost"
                                           size="icon"
-                                          className="size-7 shrink-0"
-                                          onClick={(e) => e.stopPropagation()}
+                                          className="size-7"
+                                          onClick={(e) => { e.stopPropagation(); setEmailDeal(deal); }}
                                         >
-                                          <MoreVertical className="size-4" />
+                                          <Mail className="size-3.5" />
                                         </Button>
-                                      </DropdownMenuTrigger>
+                                      )}
+                                      <DropdownMenu modal={false}>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            <MoreVertical className="size-4" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end" className="w-fit">
                                         <DropdownMenuSub>
                                           <DropdownMenuSubTrigger
@@ -1090,6 +1104,7 @@ const SalesPipelineView = () => {
                                         </DropdownMenuItem>
                                       </DropdownMenuContent>
                                     </DropdownMenu>
+                                    </div>
                                   </div>
 
                                   <p className="text-xs text-muted-foreground">{deal.description}</p>
@@ -1427,6 +1442,16 @@ const SalesPipelineView = () => {
                         >
                           <Activity className="size-4" />
                         </Button>
+                        {deal.companyResponsabileEmail && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                            onClick={(e) => { e.stopPropagation(); setEmailDeal(deal); }}
+                          >
+                            <Mail className="size-4" />
+                          </Button>
+                        )}
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -1608,6 +1633,9 @@ const SalesPipelineView = () => {
         onAddActivity={(dealId, content, type) => {
           addActivityMutation({ param: { dealId }, json: { content, ...(type ? { type } : {}) } });
         }}
+        onSaveResponsibleEmail={(dealId, email) => {
+          updateDealMutation({ param: { dealId }, json: { companyResponsabileEmail: email } });
+        }}
         boardLabels={boardLabels}
         onChangeLabel={(dealId, labelId) => {
           updateDeal(dealId, (d) => ({ ...d, labelId: labelId ?? null }));
@@ -1674,6 +1702,19 @@ const SalesPipelineView = () => {
       feature="pipelines"
       currentCount={boards.length}
       limitCount={1}
+    />
+    <SendEmailDialog
+      open={!!emailDeal}
+      onOpenChange={(open) => { if (!open) setEmailDeal(null); }}
+      defaultTo={emailDeal?.companyResponsabileEmail ?? ''}
+      dealTitle={emailDeal?.title ?? ''}
+      onEmailSent={(subject, to) => {
+        if (!emailDeal) return;
+        addActivityMutation({
+          param: { dealId: emailDeal.id },
+          json: { content: `${subject} → ${to}`, type: 'email-sent' },
+        });
+      }}
     />
     </>
   );

@@ -19,7 +19,7 @@ export type ActivityEntry = {
   content: string;
   author: string;
   timestamp: string;
-  type?: "step-completed";
+  type?: "step-completed" | "email-sent";
 };
 
 export type WorkItem = {

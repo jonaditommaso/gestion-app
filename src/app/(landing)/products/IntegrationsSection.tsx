@@ -53,6 +53,14 @@ const IntegrationsSection = () => {
 
                                 {/* Efecto de resplandor sutil */}
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white to-transparent" />
+
+                                {integration.comingSoon && (
+                                    <div className="absolute inset-0 flex items-end justify-center pb-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                                        <span className="bg-amber-100 text-amber-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-200">
+                                            {t('integration-coming-soon')}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

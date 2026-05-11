@@ -8,14 +8,16 @@ import TaskActions from "@/features/tasks/components/TaskActions";
 import { notFound } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 const TaskIdClient = () => {
     const taskId = useTaskId();
+    const { isLoadingUser } = useAppContext();
     const { data, isLoading } = useGetTask({ taskId })
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
 
-    if (isLoading) return <CustomLoader />
+    if (isLoading || isLoadingUser) return <CustomLoader />
 
     if (!data) notFound()
 
