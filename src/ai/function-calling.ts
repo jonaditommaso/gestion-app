@@ -43,12 +43,14 @@ const REPLY_TOOL: ChatCompletionTool = {
 
 const SYSTEM_PROMPT = `You are an assistant for a business management platform. Always respond by calling a function — never with free text.
 
-Modules: Pipeline CRM (deals/ventas/tratos/oportunidades/pipeline) → query_deals, create_deal, update_deal, delete_deal, add_deal_comment, manage_deal_assignees, bulk_update_deals, query_deal_goals. Tasks (tareas/compiti/tickets) → query_tasks, create_task, update_task, delete_task, add_task_comment, add_checklist_item, assign_task_member, bulk_move_tasks, archive_task. Billing (facturas/fatture/invoices/ingresos/gastos) → query_billing_operations, create_billing_operation, update_billing_operation, delete_billing_operation, manage_billing_categories. Notes (notas/note) → create_note, update_note, delete_note. Messages (mensajes) → send_message.
+Modules: Pipeline CRM (deals/ventas/tratos/oportunidades/pipeline) → query_deals, create_deal, update_deal, delete_deal, add_deal_comment, manage_deal_assignees, bulk_update_deals, query_deal_goals. Tasks (tareas/compiti/tickets) → get_workspace_summary, query_tasks, create_task, update_task, delete_task, add_task_comment, add_checklist_item, assign_task_member, bulk_move_tasks, archive_task. Billing (facturas/fatture/invoices/ingresos/gastos) → query_billing_operations, create_billing_operation, update_billing_operation, delete_billing_operation, manage_billing_categories. Notes (notas/note) → create_note, update_note, delete_note. Messages (mensajes) → send_message.
 
 Rules:
 - List/query/filter/show data → call query_* immediately, no clarification.
+- Summary/daily/resumen/overview/estado general/snapshot of a workspace → call get_workspace_summary immediately. NEVER use reply() for these requests.
 - Create/update/delete → call the appropriate function only when you have all required fields. If required fields are missing, call reply(content) to ask the user for them.
 - CRITICAL: reply() is ONLY for asking questions or conversational responses. NEVER use reply() to simulate, confirm, or describe an action as if it was completed. If you must create something, call the actual function.
+- CRITICAL: NEVER invent, assume, or hallucinate data. Only report information retrieved from tool results. If a tool returns no data, say so honestly.
 - NEVER invent or assume values for required fields (like company, amount, currency). If not provided by the user, ask via reply().
 - Missing required fields for create_deal: company, amount, currency. Ask for all missing ones in a single reply.
 - Missing required fields for create_billing_operation: amount, type (income/expense). Ask if missing.
@@ -67,8 +69,8 @@ export async function chatWithTools(messages: ChatMessage[], allowedTools?: Chat
     const groq = getGroqClient();
     const allTools = [...(allowedTools ?? ALL_TOOLS as ChatCompletionTool[]), REPLY_TOOL];
 
-    // Limit history to last 6 messages to stay within model token limits
-    const recentMessages = messages.slice(-6);
+    // Limit history to last 4 messages to stay within model token limits
+    const recentMessages = messages.slice(-4);
 
     const messagesWithSystem: ChatMessage[] = [
         { role: 'system', content: SYSTEM_PROMPT },
@@ -81,7 +83,7 @@ export async function chatWithTools(messages: ChatMessage[], allowedTools?: Chat
             messages: messagesWithSystem,
             model: GROQ_MODEL,
             temperature: 0.1,
-            max_completion_tokens: 2048,
+            max_completion_tokens: 1024,
             tools: allTools,
             tool_choice: 'required',
         });
@@ -99,6 +101,11 @@ export async function chatWithTools(messages: ChatMessage[], allowedTools?: Chat
         ) {
             const text = (err.error as Record<string, unknown>).failed_generation as string;
             return { type: 'text', content: text };
+        }
+        // Rate limit exceeded — return a honest error instead of propagating
+        // to the unconstrained streaming fallback, which could hallucinate.
+        if (err instanceof Groq.APIError && (err.status === 413 || err.status === 429)) {
+            return { type: 'text', content: '⚠️ El servicio está temporalmente ocupado (límite de solicitudes alcanzado). Por favor, intenta de nuevo en unos segundos.' };
         }
         throw err;
     }

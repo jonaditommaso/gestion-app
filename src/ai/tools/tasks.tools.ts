@@ -73,6 +73,10 @@ export interface ArchiveTaskArgs {
     action: 'archive' | 'unarchive';
 }
 
+export interface GetWorkspaceSummaryArgs {
+    workspaceName?: string;
+}
+
 export interface QueryTasksArgs {
     workspaceName?: string;
     status?: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
@@ -381,6 +385,23 @@ export const ARCHIVE_TASK_TOOL = {
     }
 };
 
+export const GET_WORKSPACE_SUMMARY_TOOL = {
+    type: "function" as const,
+    function: {
+        name: "get_workspace_summary",
+        description: "Usa esta función cuando el usuario pida un resumen, daily, estado general, overview o snapshot del workspace. Devuelve conteos reales de tareas por estado, tareas vencidas, en progreso, en revisión y de alta prioridad. NUNCA uses reply() para responder este tipo de solicitudes — llama siempre a esta función.",
+        parameters: {
+            type: "object",
+            properties: {
+                workspaceName: {
+                    type: "string",
+                    description: "Nombre o fragmento del workspace. Omitir si el usuario no lo especificó."
+                }
+            }
+        }
+    }
+};
+
 export const QUERY_TASKS_TOOL = {
     type: "function" as const,
     function: {
@@ -448,4 +469,5 @@ export const TASKS_TOOLS = [
     BULK_MOVE_TASKS_TOOL,
     ARCHIVE_TASK_TOOL,
     QUERY_TASKS_TOOL,
+    GET_WORKSPACE_SUMMARY_TOOL,
 ];
