@@ -46,6 +46,7 @@ const TOOL_PERMISSIONS: Record<string, string[]> = {
 
     // Tasks (module-workspaces)
     query_tasks: [],
+    get_workspace_summary: [],
     create_task: ['create_task', 'write'],
     update_task: ['edit_task', 'write'],
     delete_task: ['delete_task', 'delete'],

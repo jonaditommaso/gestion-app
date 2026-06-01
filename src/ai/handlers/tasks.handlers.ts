@@ -14,6 +14,7 @@ import type {
     BulkMoveTasksArgs,
     ArchiveTaskArgs,
     QueryTasksArgs,
+    GetWorkspaceSummaryArgs,
 } from '../tools/tasks.tools';
 import type { ActionContext, ActionResult } from './types';
 
@@ -846,6 +847,87 @@ export async function handleQueryTasks(ctx: ActionContext): Promise<ActionResult
     }
 }
 
+export async function handleGetWorkspaceSummary(ctx: ActionContext): Promise<ActionResult> {
+    const args = ctx.args as unknown as GetWorkspaceSummaryArgs;
+
+    try {
+        const workspaces = await fetchWorkspaces(ctx.baseUrl, ctx.cookie || '');
+        const resolved = resolveWorkspace(workspaces, args.workspaceName, 'get_workspace_summary');
+        if (!resolved.ok) return resolved.result;
+
+        const allTasks = await fetchTasksForWorkspace(ctx.baseUrl, ctx.cookie || '', resolved.workspace.$id);
+        const activeTasks = allTasks.filter(task => task.archived !== true);
+
+        if (activeTasks.length === 0) {
+            return {
+                success: true,
+                actionName: 'get_workspace_summary',
+                message: `No hay tareas activas en **${resolved.workspace.name}**.`,
+            };
+        }
+
+        const statusCounts: Record<string, number> = { BACKLOG: 0, TODO: 0, IN_PROGRESS: 0, IN_REVIEW: 0, DONE: 0 };
+        for (const task of activeTasks) {
+            const s = task.status || 'TODO';
+            if (s in statusCounts) statusCounts[s]++;
+        }
+
+        const now = new Date();
+        const overdue = activeTasks.filter(task => {
+            if (task.status === 'DONE' || task.completedAt) return false;
+            if (!task.dueDate) return false;
+            return new Date(task.dueDate) < now;
+        });
+
+        const highPriority = activeTasks.filter(task =>
+            task.status !== 'DONE' && !task.completedAt && (task.priority ?? 3) >= 4
+        );
+
+        const inProgress = activeTasks.filter(t => t.status === 'IN_PROGRESS');
+        const inReview = activeTasks.filter(t => t.status === 'IN_REVIEW');
+
+        const total = activeTasks.length;
+        const done = statusCounts['DONE'];
+        const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        let message = `**Resumen de ${resolved.workspace.name}**\n\n`;
+        message += `📊 **${total} tareas activas** · ${progress}% completadas\n\n`;
+        message += `**Por estado:**\n`;
+        message += `- Backlog: ${statusCounts['BACKLOG']}\n`;
+        message += `- Por hacer: ${statusCounts['TODO']}\n`;
+        message += `- En progreso: ${statusCounts['IN_PROGRESS']}\n`;
+        message += `- En revisión: ${statusCounts['IN_REVIEW']}\n`;
+        message += `- Hecho: ${statusCounts['DONE']}\n`;
+
+        if (inProgress.length > 0) {
+            const names = inProgress.slice(0, 5).map(t => `  - ${t.name}`).join('\n');
+            const extra = inProgress.length > 5 ? `\n  - ...y ${inProgress.length - 5} más` : '';
+            message += `\n**En progreso (${inProgress.length}):**\n${names}${extra}\n`;
+        }
+
+        if (inReview.length > 0) {
+            const names = inReview.slice(0, 3).map(t => `  - ${t.name}`).join('\n');
+            const extra = inReview.length > 3 ? `\n  - ...y ${inReview.length - 3} más` : '';
+            message += `\n**En revisión (${inReview.length}):**\n${names}${extra}\n`;
+        }
+
+        if (overdue.length > 0) {
+            const names = overdue.slice(0, 3).map(t => `  - ${t.name} (venció: ${t.dueDate!.slice(0, 10)})`).join('\n');
+            const extra = overdue.length > 3 ? `\n  - ...y ${overdue.length - 3} más` : '';
+            message += `\n⚠️ **Vencidas (${overdue.length}):**\n${names}${extra}\n`;
+        }
+
+        if (highPriority.length > 0) {
+            message += `\n🔴 **Alta prioridad: ${highPriority.length} tarea${highPriority.length > 1 ? 's' : ''} pendiente${highPriority.length > 1 ? 's' : ''}.**\n`;
+        }
+
+        return { success: true, actionName: 'get_workspace_summary', message: message.trim() };
+    } catch (error) {
+        console.error('[GET_WORKSPACE_SUMMARY] Exception:', error);
+        return { success: false, actionName: 'get_workspace_summary', message: '❌ Error al obtener el resumen. Por favor, intenta de nuevo.' };
+    }
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // EXPORTS
 // ═════════════════════════════════════════════════════════════════════════════
@@ -860,4 +942,5 @@ export const TASKS_HANDLERS = {
     bulk_move_tasks: handleBulkMoveTasks,
     archive_task: handleArchiveTask,
     query_tasks: handleQueryTasks,
+    get_workspace_summary: handleGetWorkspaceSummary,
 };
