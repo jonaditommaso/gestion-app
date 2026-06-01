@@ -225,6 +225,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
                                                 {...field}
                                                 placeholder={t('enter-task-name')}
                                                 className="!mt-0"
+                                                autoComplete="off"
                                             />
                                         </FormControl>
                                         <FormMessage />

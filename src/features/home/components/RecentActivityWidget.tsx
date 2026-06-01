@@ -99,7 +99,7 @@ const RecentActivityWidget = () => {
     const items = data ?? [];
 
     return (
-        <Card className="col-span-1">
+        <Card className="col-span-1 max-h-[405px] overflow-hidden overflow-y-scroll">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold">
                     {t('recent-activity-title')}

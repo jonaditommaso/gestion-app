@@ -34,7 +34,7 @@ const SalesBoardSwitcher = ({
         <Button
           variant="outline"
           size="default"
-          className="h-8 max-w-44 gap-1.5 truncate font-medium"
+          className="h-8 w-fit max-w-52 gap-1.5 truncate font-medium"
         >
           <span className="truncate">{activeBoard?.name ?? t("board.unnamed")}</span>
           <ChevronsUpDown className="size-3.5 shrink-0 opacity-60" />

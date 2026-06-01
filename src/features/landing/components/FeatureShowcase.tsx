@@ -31,7 +31,7 @@ const FeatureShowcase = () => {
   };
 
   return (
-    <div className="w-full py-24 bg-gradient-to-b from-slate-900 via-slate-800 to-[#171321] relative overflow-hidden">
+    <div className="w-full py-24 pb-48 bg-gradient-to-b from-slate-900 via-slate-800 to-[#171321] relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
       <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
