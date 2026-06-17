@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import LandingSignUp from "./LandingSignUp";
-import { Separator } from "@/components/ui/separator";
 import DemoButton from "./DemoButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { presentationItems } from "../presentationItems";
@@ -28,7 +27,7 @@ function HeroSection() {
             className="flex flex-col items-center text-white bg-[#11314a] w-full pb-20"
             style={{ backgroundImage: "linear-gradient(10deg, #11314a 40%, black  90%)" }}
         >
-            <div className="sticky top-16">
+            <div className="sticky top-4">
                 <motion.div
                 style={{
                     opacity,
@@ -39,29 +38,28 @@ function HeroSection() {
                 <p className="text-6xl font-bold text-balance text-center whitespace-pre-line tracking-tighter max-sm:text-[28px]">
                     <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{t("title-1")}</span> {t("title-2")}
                 </p>
-                <p className="font-medium mt-5 text-center max-sm:text-sm text-lg text-blue-100/80">
-                    <span className="underline decoration-cyan-400 decoration-2 underline-offset-4">{t("subtitle-1")}</span> {t("subtitle-2")}, <span className="underline decoration-purple-400 decoration-2 underline-offset-4">{t("subtitle-3")}</span> {t("subtitle-4")}
+                <p className="font-medium mt-2 mb-3 text-center max-sm:text-sm text-lg text-blue-100/80">
+                    <span className="text-cyan-400 decoration-cyan-400 decoration-2 underline-offset-4 arc-underline">{t("subtitle-1")}</span> {t("subtitle-2")}, <span className="arc-underline text-purple-400 decoration-purple-400 decoration-2 underline-offset-4">{t("subtitle-3")}</span> {t("subtitle-4")}
                 </p>
                 </motion.div>
 
-                <div className="flex gap-20 w-[75%] justify-center m-auto max-sm:pb-1 max-sm:flex-col max-sm:gap-10">
-                <motion.div style={{ opacity }} className="flex w-full max-w-sm items-center space-x-2">
+                <div className="flex gap-20 w-[80%] justify-center m-auto max-sm:pb-1 max-sm:flex-col max-sm:gap-10">
+                <motion.div style={{ opacity }} className="flex w-full justify-center items-center space-x-2">
                     <div className="flex flex-col items-center gap-2 w-[450px]">
                     <LandingSignUp />
-                    <Separator />
-                    <DemoButton text={t("button-get-demo-1")} />
+                    <div className="flex items-center gap-2 text-sm text-blue-100/80">
+                        <span className='w-fit'>{t("if-you-prefer")}</span>
+                        <DemoButton text={t("button-get-demo-3")} link fit />
+                    </div>
                     </div>
                 </motion.div>
                 </div>
             </div>
 
-            <div
-                className="mt-48 p-8 border rounded-lg z-10"
-                style={{ backgroundImage: "linear-gradient(10deg, #11314a 40%, #22314a  90%)" }}
-            >
+            <div className="relative mt-20 p-2 sm:p-4 rounded-2xl border border-white/10 shadow-[0_0_50px_-12px_rgba(34,49,74,0.4)] mx-auto z-10">
                 <VideoPlayer
                     src="/gestionate-hero.mov"
-                    className="border rounded-md w-full max-w-[990px] mx-auto bg-black/90"
+                    className="rounded-xl w-full mx-auto shadow-2xl border border-white/5"
                     autoPlay={true}
                     muted={true}
                     loop={true}

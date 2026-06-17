@@ -6,7 +6,8 @@ type Service = {
     icon: LucideIcon,
     iconColor: string,
     circleColor: string,
-    circlePosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
+    circlePosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right",
+    shadowColor: string
 }
 
 export const services: Service[] = [
@@ -16,7 +17,8 @@ export const services: Service[] = [
         icon: Calculator,
         iconColor: 'text-orange-500',
         circleColor: 'bg-orange-300',
-        circlePosition: "top-right"
+        circlePosition: "top-right",
+        shadowColor: 'hover:shadow-orange-500/50'
     },
     {
         title: 'service-2',
@@ -24,7 +26,8 @@ export const services: Service[] = [
         icon: TrendingUp,
         iconColor: 'text-green-500',
         circleColor: 'bg-green-300',
-        circlePosition: "top-right"
+        circlePosition: "top-right",
+        shadowColor: 'hover:shadow-green-500/50'
     },
     {
         title: 'service-3',
@@ -32,7 +35,8 @@ export const services: Service[] = [
         icon: ListTodo,
         iconColor: 'text-purple-500',
         circleColor: 'bg-purple-300',
-        circlePosition: "bottom-left"
+        circlePosition: "bottom-left",
+        shadowColor: 'hover:shadow-purple-500/50'
     },
     {
         title: 'service-4',
@@ -40,7 +44,8 @@ export const services: Service[] = [
         icon: Bot,
         iconColor: 'text-blue-500',
         circleColor: 'bg-blue-300',
-        circlePosition: 'top-left'
+        circlePosition: 'top-left',
+        shadowColor: 'hover:shadow-blue-500/50'
     },
     {
         title: 'service-5',
@@ -48,7 +53,8 @@ export const services: Service[] = [
         icon: KeyRound,
         iconColor: 'text-yellow-500',
         circleColor: 'bg-yellow-300',
-        circlePosition: "top-right"
+        circlePosition: "top-right",
+        shadowColor: 'hover:shadow-yellow-500/50'
     },
     {
         title: 'service-6',
@@ -56,6 +62,7 @@ export const services: Service[] = [
         icon: Palette,
         iconColor: 'text-pink-500',
         circleColor: 'bg-pink-300',
-        circlePosition: "bottom-right"
+        circlePosition: "bottom-right",
+        shadowColor: 'hover:shadow-pink-500/50'
     },
 ]

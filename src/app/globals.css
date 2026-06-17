@@ -10,6 +10,22 @@ body {
   scroll-margin-top: 100px;
 }
 
+.arc-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.arc-underline::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: -8px;
+  height: 10px;
+
+  border-top: 2px solid currentColor;
+  border-radius: 50% 50% 0 0;
+}
 
 ::-webkit-scrollbar {
   width: 5px;
