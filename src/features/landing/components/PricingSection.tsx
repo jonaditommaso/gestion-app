@@ -19,7 +19,7 @@ const PricingSection = ({ currentPlan, onSelectPlan }: PricingSectionProps) => {
     const t = useTranslations('pricing');
 
     return (
-        <div className="flex flex-col items-center gap-8 w-full">
+        <div className="flex flex-col items-center gap-4 w-full">
             <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
                 <button
                     type="button"

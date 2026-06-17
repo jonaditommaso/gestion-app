@@ -43,7 +43,7 @@ const PricingView = () => {
                     {t('pricing-title-1')} <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{t('pricing-title-2')}</span> {t('pricing-title-3')}
                 </p>
             )}
-            <div className="mt-16 w-full">
+            <div className="mt-12 w-full">
                 <PricingSection currentPlan={currentPlan} onSelectPlan={isAuthenticated && isOwner ? handleSelectPlan : undefined} />
             </div>
             <PricingComparisonTable />
