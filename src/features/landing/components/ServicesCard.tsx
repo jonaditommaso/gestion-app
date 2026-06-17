@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import ColoredIcon from "./ColoredIcon";
 import { getTranslations } from "next-intl/server";
+import { cn } from "@/lib/utils";
 // import Link from "next/link";
 
 interface ServicesCardProps {
@@ -10,7 +11,8 @@ interface ServicesCardProps {
     serviceIcon: LucideIcon,
     serviceIconColor: string,
     serviceCircleColor: string,
-    circlePosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
+    circlePosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right",
+    shadowColor: string
 }
 
 const ServicesCard = async ({
@@ -19,12 +21,13 @@ const ServicesCard = async ({
     serviceIconColor,
     serviceCircleColor,
     serviceIcon,
-    circlePosition = "top-right"
+    circlePosition = "top-right",
+    shadowColor
 }: ServicesCardProps) => {
     const t = await getTranslations('landing')
 
     return (
-        <Card className="group/card w-[350px] h-[250px] max-sm:h-[250px] flex flex-col items-center justify-center shadow-md hover:shadow-xl services-card my-10 cursor-pointer hover:scale-[1.02] transform transition-all duration-300 ease-in-out will-change-transform border-0 bg-white/80 backdrop-blur-sm relative overflow-hidden">
+        <Card className={cn('group/card w-[350px] h-[250px] max-sm:h-[250px] flex flex-col items-center justify-center rounded-[28px] border border-white/10 bg-white/8 shadow-[0_18px_45px_-25px_rgba(8,15,30,0.85)] hover:shadow-[0_24px_45px_-18px] services-card my-10 cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transform transition-all duration-300 ease-in-out will-change-transform bg-[linear-gradient(135deg,rgba(255,255,255,0.10),rgba(148,163,184,0.05))] relative overflow-hidden', shadowColor)}>
             <CardContent className="flex flex-col items-center justify-start h-full pt-6 px-4 relative z-10">
                 <div className="flex flex-col items-center gap-y-5">
                     <div className="flex items-center justify-center">
@@ -36,12 +39,12 @@ const ServicesCard = async ({
                         />
                     </div>
                     <div className="flex items-center justify-center">
-                        <h3 className="text-center font-semibold text-lg bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent leading-tight group-hover/card:from-slate-900 group-hover/card:via-slate-800 group-hover/card:to-slate-700 transition-all duration-300">
+                        <h3 className="text-center font-semibold text-lg bg-gradient-to-br from-white via-slate-100 to-cyan-100 bg-clip-text text-transparent leading-tight group-hover/card:from-white group-hover/card:via-cyan-50 group-hover/card:to-sky-100 transition-all duration-300">
                             {t(serviceTitle)}
                         </h3>
                     </div>
                     <div className="flex items-center justify-center">
-                        <p className="text-center text-balance text-sm text-slate-600 leading-relaxed max-w-[280px] group-hover/card:text-slate-700 transition-colors duration-300">
+                        <p className="text-center text-balance text-sm text-slate-200 leading-relaxed max-w-[280px] group-hover/card:text-slate-100 transition-colors duration-300">
                             {t(serviceDescription)}
                         </p>
                     </div>

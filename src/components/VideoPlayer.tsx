@@ -82,7 +82,7 @@ function VideoPlayer({
       className={`relative group ${className}`}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
-      style={{ width: '1000px', height: '480px' }}
+      style={{ height: '500px' }}
     >
       <motion.video
         ref={videoRef}

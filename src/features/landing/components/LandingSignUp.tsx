@@ -32,17 +32,25 @@ const LandingSignUp = () => {
             <span className={cn("text-red-400 text-sm text-center mt-2", isInvalid ? "opacity-100 visible" : "opacity-0 invisible")}>
                 {t('enter-valid-email')}
             </span>
-            <form className="flex items-center space-x-2 w-full" onSubmit={handleSubmit} noValidate>
-                <Input
-                    type="email"
-                    placeholder={t('email-placeholder')}
-                    className="focus-visible:ring-0 focus:outline-none bg-white text-black h-10 flex-1 max-sm:h-8 max-sm:text-sm"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
-                />
-                <Button size={isMobile ? 'sm' : 'lg'} type="submit" className="outline outline-1 outline-white decoration-transparent hover:bg-neutral-800 transition-all duration-150">{t('get-started')}</Button>
+            <form className="w-full" onSubmit={handleSubmit} noValidate>
+                <div className="relative flex w-full items-center">
+                    <Input
+                        type="email"
+                        placeholder={t('email-placeholder')}
+                        className="focus-visible:ring-0 focus:outline-none bg-white rounded-2xl text-black h-10 p-6 w-full max-sm:h-8 max-sm:text-sm pr-28 max-sm:pr-24"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        style={{ border: isInvalid ? "1px solid red" : "1px solid #ccc" }}
+                    />
+                    <Button
+                        size={isMobile ? 'sm' : 'lg'}
+                        type="submit"
+                        className="rounded-xl absolute right-1 top-1/2 -translate-y-1/2 z-10 outline outline-1 outline-white decoration-transparent hover:bg-neutral-800 transition-all duration-150"
+                    >
+                        {t('get-started-free')}
+                    </Button>
+                </div>
             </form>
         </>
     );

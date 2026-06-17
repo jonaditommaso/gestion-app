@@ -27,23 +27,20 @@ export default async function Home() {
           <ScrollToTop />
 
           <HeroSection />
-
-          <div className="w-full py-10 bg-[#FFF2F2] mt-[-2px]">
+          <div className="w-full py-10 mt-[-2px] bg-[linear-gradient(180deg,#11314a_0%,#0b263b_45%,#0f172a_100%)] relative overflow-hidden">
             <div className="flex flex-col items-center gap-4 mb-10 max-sm:gap-2">
               <h2 className="font-bold tracking-tight text-4xl max-sm:text-2xl flex flex-wrap justify-center">
                 <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent pr-2 font-extrabold">{t('transform-gestion-title-1')}</span>
-                <span className="relative text-neutral-800">{t('transform-gestion-title-2')}</span>
+                <span className="relative text-white">{t('transform-gestion-title-2')}</span>
               </h2>
-              <p className="font-normal text-2xl text-balance max-sm:text-base max-sm:text-center max-w-[600px] text-center">{t('transform-gestion-description')}</p>
+              <p className="font-normal text-2xl text-balance max-sm:text-base max-sm:text-center max-w-[600px] text-center text-zinc-100">{t('transform-gestion-description')}</p>
             </div>
 
             <div className="relative w-full overflow-hidden">
               {/* Fades laterales */}
-              <div className="pointer-events-none absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-white to-transparent z-10" />
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent z-10" />
 
               {/* Carrusel animado */}
-              <div className="group relative overflow-hidden">
+              <div className="group relative overflow-hidden py-2">
                 <div className="flex gap-6 w-max animate-scroll group-hover:[animation-play-state:paused]">
                   {services.concat(services).map((service, index) => (
                     <div key={index} className="min-w-[300px] flex-shrink-0">
@@ -54,6 +51,7 @@ export default async function Home() {
                         serviceIconColor={service.iconColor}
                         serviceCircleColor={service.circleColor}
                         circlePosition={service.circlePosition}
+                        shadowColor={service.shadowColor}
                       />
                     </div>
                   ))}
@@ -62,7 +60,7 @@ export default async function Home() {
             </div>
 
             {/* Enhanced Integrations Section */}
-            <div className="relative py-20 px-10 bg-[#FFF2F2]">
+            <div className="relative py-20 px-10 ">
               {/* Background pattern */}
               <div className="absolute inset-0 bg-grid-gray-900/[0.02] bg-[size:40px_40px]" />
               <div className="absolute top-0 left-1/3 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl" />

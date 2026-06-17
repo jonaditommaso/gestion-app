@@ -17,8 +17,8 @@ import { Button } from "@/components/ui/button"
 import { useParams, usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { products } from "../products"
-import { useTranslations } from "next-intl"
-import { AlignJustify, BookOpen, Bolt, Languages, Telescope, X, LayoutDashboard } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
+import { AlignJustify, BookOpen, Bolt, ChevronDown, Telescope, X, LayoutDashboard } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LanguagesSelection } from "@/components/LanguagesSelection"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -29,6 +29,7 @@ export function LandingNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations('landing');
+  const currentLocale = useLocale();
   const params = useParams();
   const [open, setOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -56,20 +57,16 @@ export function LandingNavbar() {
   const isWhiteBg = pathname === '/pricing' || pathname === '/docs';
 
   return (
-    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between w-full fixed top-0 left-0 z-50 transition-all duration-300 ${isScrolled || pathname === '/docs' ? "bg-white shadow-md" : "bg-transparent"}`}>
+    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between fixed top-2 inset-x-4 z-50 transition-all duration-300 rounded-lg backdrop-blur-lg bg-white/10 border-b border-white/10 shadow-lg`}>
       {isMobile && <Image src={isScrolled ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
 
       {!isMobile && (
         <NavigationMenuList className="flex gap-1">
-        <Image src={isScrolled || isWhiteBg ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
+        <Image src={isWhiteBg ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
 
         <NavigationMenuItem>
           <NavigationMenuTrigger
-            className={cn(
-              !isScrolled && 'bg-transparent hover:!bg-white text-white focus:!bg-white data-[state=open]:!bg-white',
-              isWhiteBg && 'text-black',
-              'data-[state=open]:bg-white data-[state=open]:text-black'
-            )}
+          className={cn('text-white bg-transparent', isWhiteBg && 'text-black', 'data-[state=open]:bg-white data-[state=open]:text-black')}
           >
             {t('navbar-start')}
           </NavigationMenuTrigger>
@@ -105,11 +102,8 @@ export function LandingNavbar() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger
-            className={cn(
-              !isScrolled && 'bg-transparent hover:!bg-white text-white focus:!bg-white data-[state=open]:!bg-white',
-              isWhiteBg && 'text-black',
-              'data-[state=open]:bg-white data-[state=open]:text-black'
-            )}
+          className={cn('text-white bg-transparent', isWhiteBg && 'text-black', 'data-[state=open]:bg-white data-[state=open]:text-black')}
+
           >
             {t('navbar-products')}
           </NavigationMenuTrigger>
@@ -142,7 +136,7 @@ export function LandingNavbar() {
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
-            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), !isScrolled && 'bg-transparent hover:bg-white text-white', isWhiteBg && 'text-black')}>
+            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'bg-transparent text-white', isWhiteBg && 'text-black')}>
               {t('navbar-pricing')}
             </NavigationMenuLink>
           </Link>
@@ -150,26 +144,34 @@ export function LandingNavbar() {
       </NavigationMenuList>
     )}
 
-      <div className="gap-2 flex items-center">
+      <div className="flex items-center gap-2">
         <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
-          <DropdownMenuTrigger className="outline-none" asChild>
-            <Button variant='outline' size='icon' className="mr-5 max-sm:mr-0">
-              <Languages />
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("mr-3 flex h-9 items-center gap-1 rounded-xl border border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white focus-visible:ring-0 max-sm:mr-0", isWhiteBg && "text-black")}
+            >
+              <span className="text-sm font-semibold uppercase tracking-wide">{currentLocale}</span>
+              <ChevronDown className="h-4 w-4 opacity-80" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="bottom" className="w-fit">
             <LanguagesSelection className="flex-col" label={true} />
           </DropdownMenuContent>
         </DropdownMenu>
-        <Link href={'/login'}>
-          <Button variant='outline'>{t('button-signin')}</Button>
-        </Link>
-        {!isMobile && <Link href={'/pricing'}>
-          <Button variant={isScrolled ? 'default' : 'link'} className={`text-white ${!isScrolled ? 'outline outline-1 outline-white decoration-transparent hover:bg-neutral-800 bg-black transition-all duration-150' : ''}`}>{t('get-started')}</Button>
-        </Link>}
-        {isMobile && (
-           <AlignJustify onClick={() => setIsMobileMenuOpen(true)} />
-        )}
+
+        <div className="flex items-center gap-2 border-l border-white/15 pl-3">
+          <Link href={'/login'}>
+            <Button variant='outline' className="rounded-xl">{t('button-signin')}</Button>
+          </Link>
+          {!isMobile && <Link href={'/pricing'}>
+            <Button variant={isScrolled || isWhiteBg ? 'default' : 'link'} className={cn("text-white rounded-xl")}>{t('get-started')}</Button>
+          </Link>}
+          {isMobile && (
+             <AlignJustify onClick={() => setIsMobileMenuOpen(true)} />
+          )}
+        </div>
       </div>
       {isMobile && isMobileMenuOpen && (
         <div className="fixed inset-0 bg-white z-20 flex flex-col items-center justify-center gap-4 text-2xl">
