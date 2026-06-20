@@ -105,6 +105,7 @@ import { useGetSellSquads } from "../api/use-get-sell-squads";
 import ManageSellSquadsDialog from "./ManageSellSquadsDialog";
 import SendEmailDialog from "./SendEmailDialog";
 import type { SellSquad } from "../types";
+import { useAppContext } from "@/context/AppContext";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
 
@@ -159,11 +160,10 @@ type TableSortKey = "company" | "priority" | "value" | "health";
 type SortDirection = "asc" | "desc";
 const SalesPipelineView = () => {
   const t = useTranslations("sales");
+  const { isDemo } = useAppContext();
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const locale = useLocale();
-  const [boardDeals, setBoardDeals] = useState<Record<DealStage, Deal[]>>(() =>
-    groupDealsByStage([])
-  );
+  const [boardDeals, setBoardDeals] = useState<Record<DealStage, Deal[]>>(() => groupDealsByStage([]));
   const [isCreateDealOpen, setIsCreateDealOpen] = useState<boolean>(false);
   const [createDealStage, setCreateDealStage] = useState<DealStage>("LEADS");
   const [pipelineQuery, setPipelineQuery] = useState<string>("");
@@ -676,6 +676,7 @@ const SalesPipelineView = () => {
             <SalesBoardSwitcher
               boards={boards}
               selectedBoardId={selectedBoardId}
+              isDemo={isDemo}
               onSelect={setSelectedBoardId}
               onCreateNew={() => {
                 if (isAtBoardLimit) {
@@ -693,6 +694,7 @@ const SalesPipelineView = () => {
                   className="size-8 shrink-0"
                   title={t("board.settings-title")}
                   onClick={() => setIsBoardSettingsOpen(true)}
+                  disabled={isDemo}
                 >
                   <Settings2 className="size-4" />
                 </Button>
@@ -702,6 +704,7 @@ const SalesPipelineView = () => {
                   className="size-8 shrink-0"
                   title={t("labels.dialog-title")}
                   onClick={() => setIsBoardLabelsOpen(true)}
+                  disabled={isDemo}
                 >
                   <Tag className="size-4" />
                 </Button>
@@ -774,6 +777,7 @@ const SalesPipelineView = () => {
                     size="sm"
                     onClick={() => setIsSetGoalOpen(true)}
                     className="mt-3 w-full gap-1.5 text-xs"
+                    disabled={isDemo}
                   >
                     <Target className="size-3.5" />
                     {t("metrics.set-goal-cta")}
@@ -1053,8 +1057,8 @@ const SalesPipelineView = () => {
                                       <DropdownMenuContent align="end" className="w-fit">
                                         <DropdownMenuSub>
                                           <DropdownMenuSubTrigger
-                                            disabled={deal.status === "CLOSED" && deal.outcome !== "PENDING"}
-                                            className={cn(deal.status === "CLOSED" && deal.outcome !== "PENDING" && "opacity-50 pointer-events-none")}
+                                            disabled={(deal.status === "CLOSED" && deal.outcome !== "PENDING") || isDemo}
+                                            className={cn((deal.status === "CLOSED" && deal.outcome !== "PENDING") || isDemo && "opacity-50 pointer-events-none")}
                                           >
                                             {t("menu.move-to")}
                                           </DropdownMenuSubTrigger>
@@ -1071,6 +1075,7 @@ const SalesPipelineView = () => {
                                           <DropdownMenuItem
                                             className="cursor-pointer text-emerald-600 focus:text-emerald-600"
                                             onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "WON"); }}
+                                            disabled={isDemo}
                                           >
                                             <Trophy className="mr-2 size-4" />
                                             {t("menu.mark-won")}
@@ -1080,6 +1085,7 @@ const SalesPipelineView = () => {
                                           <DropdownMenuItem
                                             className="cursor-pointer text-destructive focus:text-destructive"
                                             onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "LOST"); }}
+                                            disabled={isDemo}
                                           >
                                             <XCircle className="mr-2 size-4" />
                                             {t("menu.mark-lost")}
@@ -1089,6 +1095,7 @@ const SalesPipelineView = () => {
                                           <DropdownMenuItem
                                             className="cursor-pointer"
                                             onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "PENDING"); }}
+                                            disabled={isDemo}
                                           >
                                             <Undo2 className="mr-2 size-4" />
                                             {t("menu.mark-pending")}
@@ -1098,6 +1105,7 @@ const SalesPipelineView = () => {
                                         <DropdownMenuItem
                                           className="text-destructive focus:text-destructive cursor-pointer"
                                           onClick={(e) => { e.stopPropagation(); deleteDeal(deal.id); }}
+                                          disabled={isDemo}
                                         >
                                           <Trash2 className="mr-2 size-4" />
                                           {t("menu.delete")}
@@ -1474,8 +1482,8 @@ const SalesPipelineView = () => {
                             <DropdownMenuSeparator />
                             <DropdownMenuSub>
                               <DropdownMenuSubTrigger
-                                disabled={deal.status === "CLOSED" && deal.outcome !== "PENDING"}
-                                className={cn(deal.status === "CLOSED" && deal.outcome !== "PENDING" && "opacity-50 pointer-events-none")}
+                                disabled={(deal.status === "CLOSED" && deal.outcome !== "PENDING") || isDemo}
+                                className={cn((deal.status === "CLOSED" && deal.outcome !== "PENDING") || isDemo && "opacity-50 pointer-events-none")}
                               >
                                 {t("menu.move-to")}
                               </DropdownMenuSubTrigger>
@@ -1496,6 +1504,7 @@ const SalesPipelineView = () => {
                               <DropdownMenuItem
                                 className="cursor-pointer text-emerald-600 focus:text-emerald-600"
                                 onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "WON"); }}
+                                disabled={isDemo}
                               >
                                 <Trophy className="mr-2 size-4" />
                                 {t("menu.mark-won")}
@@ -1505,6 +1514,7 @@ const SalesPipelineView = () => {
                               <DropdownMenuItem
                                 className="cursor-pointer text-destructive focus:text-destructive"
                                 onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "LOST"); }}
+                                disabled={isDemo}
                               >
                                 <XCircle className="mr-2 size-4" />
                                 {t("menu.mark-lost")}
@@ -1514,6 +1524,7 @@ const SalesPipelineView = () => {
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={(e) => { e.stopPropagation(); markDealOutcome(deal.id, "PENDING"); }}
+                                disabled={isDemo}
                               >
                                 <Undo2 className="mr-2 size-4" />
                                 {t("menu.mark-pending")}
@@ -1523,6 +1534,7 @@ const SalesPipelineView = () => {
                             <DropdownMenuItem
                               className="cursor-pointer text-destructive focus:text-destructive"
                               onClick={(e) => { e.stopPropagation(); deleteDeal(deal.id); }}
+                              disabled={isDemo}
                             >
                               <Trash2 className="mr-2 size-4" />
                               {t("menu.delete")}

@@ -1,11 +1,11 @@
-import { getCurrent } from "@/features/auth/queries";
+import { getCurrentSession } from "@/features/auth/queries";
 import SalesPipelineView from "@/features/sells/components/SalesPipelineView";
 import { redirect } from "next/navigation";
 
 const SellsPage = async () => {
-  const user = await getCurrent();
+    const hasSession = await getCurrentSession();
 
-  if (!user) redirect('/');
+    if (!hasSession) redirect('/login');
 
   return <SalesPipelineView />;
 };

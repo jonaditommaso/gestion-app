@@ -104,7 +104,7 @@ export const DEFAULT_WIDGETS: WidgetConfig[] = [
     { id: 'create-meet', visible: true, canToggle: false },
     { id: 'calendar', visible: false, canToggle: true },
     { id: 'todo-tasks', visible: true, canToggle: true },
-    { id: 'calendar-events', visible: true, canToggle: false },
+    { id: 'calendar-events', visible: false, canToggle: false },
     { id: 'billing-snapshot', visible: true, canToggle: true },
     { id: 'workspace-health', visible: true, canToggle: true },
     { id: 'team-velocity', visible: true, canToggle: true },

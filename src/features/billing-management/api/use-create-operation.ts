@@ -17,7 +17,7 @@ export const useCreateOperation = () => {
     const { addBillingOp } = useDemoData();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({json}) => {
+        mutationFn: async ({ json }) => {
             if (isDemo) {
                 const newOp: BillingDoc = {
                     $id: `demo-bill-${Date.now()}`,
@@ -39,13 +39,39 @@ export const useCreateOperation = () => {
                     isArchived: false,
                     isDraft: false,
                 };
+
                 addBillingOp(newOp);
+
+                queryClient.setQueryData(['billing', true], (prev: { total: number; documents: BillingDoc[] } | undefined) => {
+                    if (!prev) {
+                        return { total: 1, documents: [newOp] };
+                    }
+
+                    return {
+                        ...prev,
+                        total: prev.total + 1,
+                        documents: [newOp, ...prev.documents],
+                    };
+                });
+
+                queryClient.setQueryData(['billing'], (prev: { total: number; documents: BillingDoc[] } | undefined) => {
+                    if (!prev) {
+                        return { total: 1, documents: [newOp] };
+                    }
+
+                    return {
+                        ...prev,
+                        total: prev.total + 1,
+                        documents: [newOp, ...prev.documents],
+                    };
+                });
+
                 return { success: true } as unknown as ResponseType;
             }
 
             const response = await client.api.billing['$post']({ json });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to create operation')
             }
 
@@ -53,6 +79,8 @@ export const useCreateOperation = () => {
         },
         onSuccess: () => {
             toast.success(t('operation-created'))
+            if (isDemo) return;
+
             queryClient.invalidateQueries({ queryKey: ['billing'] })
         },
         onError: () => {

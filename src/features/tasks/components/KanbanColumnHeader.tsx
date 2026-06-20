@@ -21,6 +21,7 @@ import {
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { useAppContext } from "@/context/AppContext";
 
 
 interface KanbanColumnHeaderProps {
@@ -66,6 +67,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
     const { canCreateTask, canEditLabel } = useWorkspacePermissions();
     const { getIconComponent } = useCustomStatuses();
     const { hasPermission } = useCurrentUserPermissions();
+    const { isDemo } = useAppContext();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canDelete = hasPermission(PERMISSIONS.DELETE);
     const { isFree } = usePlanAccess();
@@ -155,7 +157,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                             canEditLabel && !isFree ? 'hover:bg-muted/80' : 'cursor-default'
                         }`}
                         inputClassName="text-sm font-medium w-full"
-                        disabled={!canWrite || !canEditLabel}
+                        disabled={!canWrite || !canEditLabel || isDemo}
                         readOnly={isFree}
                     />
                 </div>
@@ -183,12 +185,12 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                             <>
                                 {canWrite && !isFree && (
                                     <>
-                                        <DropdownMenuItem onClick={onEditColumn} className="cursor-pointer">
+                                        <DropdownMenuItem onClick={onEditColumn} className="cursor-pointer" disabled={isDemo}>
                                             <PencilIcon className="size-4 mr-2" />
                                             {t('edit-column')}
                                         </DropdownMenuItem>
                                         {onImportFromTrello && (
-                                            <DropdownMenuItem onClick={onImportFromTrello} className="cursor-pointer gap-2">
+                                            <DropdownMenuItem onClick={onImportFromTrello} className="cursor-pointer gap-2" disabled={isDemo}>
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src="/integrations/trello.png" alt="Trello" width={14} height={14} />
                                                 {t('trello.menu-item')}
@@ -199,7 +201,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                                 e.preventDefault();
                                                 setMenuView('move');
                                             }}
-                                            disabled={taskCount === 0}
+                                            disabled={taskCount === 0 || isDemo}
                                             className="cursor-pointer whitespace-nowrap"
                                         >
                                             <ArrowRightIcon className="size-4 mr-2" />
@@ -208,7 +210,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                         {!isArchiveColumn && (
                                             <DropdownMenuItem
                                                 onClick={onArchiveAllCards}
-                                                disabled={taskCount === 0}
+                                                disabled={taskCount === 0 || isDemo}
                                                 className="cursor-pointer whitespace-nowrap"
                                             >
                                                 <ArchiveIcon className="size-4 mr-2" />
@@ -222,7 +224,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                     <>
                                         <DropdownMenuItem
                                             onClick={onDeleteAllCards}
-                                            disabled={taskCount === 0}
+                                            disabled={taskCount === 0 || isDemo}
                                             className="text-destructive focus:text-destructive cursor-pointer whitespace-nowrap"
                                         >
                                             <TrashIcon className="size-4 mr-2" />
@@ -231,6 +233,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem
                                             onClick={onDeleteColumn}
+                                            disabled={isDemo}
                                             className="text-destructive focus:text-destructive cursor-pointer"
                                         >
                                             <TrashIcon className="size-4 mr-2" />
@@ -302,7 +305,7 @@ const KanbanColumnHeader = ({ board, taskCount, addTask, showCount = ShowCardCou
                     </DropdownMenuContent>
                 </DropdownMenu>
                 {canWrite && canCreateTask && !isRigidLimitReached && !isArchiveColumn && (
-                    <Button variant='ghost' size='icon' className="size-5" onClick={addTask}>
+                    <Button variant='ghost' size='icon' className="size-5" onClick={addTask} disabled={isDemo}>
                         <PlusIcon className="size-4 text-neutral-500" />
                     </Button>
                 )}

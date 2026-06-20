@@ -20,6 +20,7 @@ import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUser
 import { PERMISSIONS } from "@/features/roles/constants";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef } from "react";
+import { useAppContext } from "@/context/AppContext";
 
 interface KanbanCardProps {
     task: Task
@@ -35,6 +36,7 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const [isHovered, setIsHovered] = useState(false);
+    const { isDemo } = useAppContext();
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
     const prevCompletedAt = useRef(task.completedAt);
     const isCompact = config[WorkspaceConfigKey.COMPACT_CARDS];
@@ -145,7 +147,7 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                 <div className="flex items-start justify-between gap-x-2">
                     <div className="flex items-center gap-2 overflow-hidden">
                         <AnimatePresence mode="wait">
-                            {canWrite && (isHovered || isCompleted) && (
+                            {canWrite && (isHovered || isCompleted) && !isDemo && (
                                 <motion.div
                                     initial={{ width: 0, opacity: 0 }}
                                     animate={{ width: "auto", opacity: 1 }}

@@ -38,6 +38,7 @@ import { toast } from "sonner"
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "@/features/roles/constants"
 import { usePlanAccess } from "@/hooks/usePlanAccess"
+import { useAppContext } from "@/context/AppContext"
 
 const headers = ['invoice', 'type', 'date', 'due-date', 'category', 'status', 'account', 'party-name', 'amount', 'actions']
 
@@ -83,6 +84,7 @@ export function BillingTable() {
   const { plan } = usePlanAccess();
   const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
   const t = useTranslations('billing')
+  const { isDemo } = useAppContext();
 
   const [dataType, setDataType] = useState(selectedData);
   const [searchTerm, setSearchTerm] = useState('');
@@ -599,12 +601,12 @@ export function BillingTable() {
         <div className="md:col-span-2 lg:col-span-4 flex justify-end mt-4">
           {isPro && (
           <div className="flex items-center">
-            <Button variant="default" className="rounded-r-none bg-emerald-700 hover:bg-emerald-800" onClick={handleExportSelected}>
+            <Button variant="default" className="rounded-r-none bg-emerald-700 hover:bg-emerald-800" onClick={handleExportSelected} disabled={isDemo}>
               {selectedExportFormat === 'csv' ? t('export-csv') : t('export-excel')}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default" size="icon" className="rounded-l-none border-l border-white/30 bg-emerald-700 hover:bg-emerald-800">
+                <Button variant="default" size="icon" className="rounded-l-none border-l border-white/30 bg-emerald-700 hover:bg-emerald-800" disabled={isDemo}>
                   <ChevronDown className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -743,7 +745,7 @@ export function BillingTable() {
                           <Download className="size-4" />
                         </Button>
 
-                        {canWrite && (
+                        {canWrite && !isDemo && (
                           <Button size="icon" variant="outline" onClick={() => handleStartEdit(operation)} title={t('edit')} aria-label={t('edit')}>
                             <Pencil className="size-4" />
                           </Button>
@@ -754,7 +756,7 @@ export function BillingTable() {
                             <Button
                               size="icon"
                               variant="outline"
-                              disabled={isDeleting || isUpdating}
+                              disabled={isDeleting || isUpdating || isDemo}
                               title={t('more-actions')}
                               aria-label={t('more-actions')}
                             >

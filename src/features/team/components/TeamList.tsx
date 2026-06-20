@@ -6,7 +6,7 @@ import { useGetMembers } from "../api/use-get-members";
 import MemberCard from "./MemberCard";
 
 const TeamList = () => {
-    const { data, isLoading} = useGetMembers();
+    const { data, isLoading } = useGetMembers();
     const { currentUser } = useAppContext();
 
     if(isLoading) return (
@@ -24,7 +24,7 @@ const TeamList = () => {
         : [];
 
     return (
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 mt-10">
             {sortedTeam.map(member => {
                 return (
                     //todo pass prefs object directly to avoid multiple passing

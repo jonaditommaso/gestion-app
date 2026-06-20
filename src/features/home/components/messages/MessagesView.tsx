@@ -85,12 +85,12 @@ const MessagesView = () => {
     }, [teamData?.members])
 
     const allReceived: Message[] = useMemo(
-        () => (receivedData?.documents ?? []) as unknown as Message[],
+        () => (receivedData?.documents ?? []) as Message[],
         [receivedData?.documents]
     )
 
     const allSent: Message[] = useMemo(
-        () => (sentData?.documents ?? []) as unknown as Message[],
+        () => (sentData?.documents ?? []) as Message[],
         [sentData?.documents]
     )
 

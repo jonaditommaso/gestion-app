@@ -962,6 +962,7 @@
         "demo-info-description-5": "The email, username, and organization name are generated automatically and are merely illustrative. The account is created with the Pro plan.",
         "demo-info-description-6": "Fast and secure, with no commitments or registration required. Start exploring Gestionate and discover its full potential.",
         "button-signup": "Sign up",
+        "demo-creating-message": "Creating demo environment...",
         "get-started": "Get started",
         "get-started-free": "Get started for free",
         "button-signin": "Login",
@@ -2609,7 +2610,10 @@
         "not-defined": "Undefined",
         "add-organization": "Add organization",
         "messages": "Messages",
-        "upgrade": "Upgrade"
+        "upgrade": "Upgrade",
+        "demo-mode-title": "Demo mode",
+        "demo-mode-description": "Some features may be restricted or hidden.",
+        "close-demo": "Close"
     },
     "sales": {
         "title": "Sales Pipeline",
@@ -3279,6 +3283,7 @@
         "perm-desc-delete-column-workspace": "Delete columns from a workspace"
     },
     "chatbot": {
+        "is-demo-restriction": "This feature is restricted in the demo version.",
         "title": "Gestionate AI",
         "new-chat": "New chat",
         "history": "Conversation history",

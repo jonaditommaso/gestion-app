@@ -3,7 +3,7 @@ import { useChatBot } from "@/context/ChatBotContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { X, Send, BotMessageSquare, Plus, History, Loader2, Trash2 } from "lucide-react";
+import { X, Send, BotMessageSquare, Plus, History, Loader2, Trash2, Info } from "lucide-react";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useResizePanel } from "@/hooks/useResizePanel";
@@ -16,6 +16,7 @@ import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
 import { MODELS } from "@/ai/config";
 import MarkdownContent from "./MarkdownContent";
+import { Alert } from "./ui/alert";
 
 interface Message {
   id: string;
@@ -48,7 +49,7 @@ const ChatBotPanel = () => {
   const resizeRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { currentUser } = useAppContext();
+  const { currentUser, isDemo } = useAppContext();
   const { isFree } = usePlanAccess();
 
   // Obtener conversaciones de la BD
@@ -534,7 +535,14 @@ const ChatBotPanel = () => {
           )}
         </ScrollArea>
 
-        <Separator />
+          {isDemo ? (
+            <Alert variant="default" className='flex items-center gap-2'>
+              <Info className="h-4 w-4 self-center" />
+              <span>{t('is-demo-restriction')}</span>
+            </Alert>
+          ) : (
+            <Separator />
+          )}
 
         {/* Input Area */}
         <div className="p-4">
@@ -545,14 +553,14 @@ const ChatBotPanel = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
-              disabled={isLoading}
+              disabled={isLoading || isDemo}
               data-testid="chatbot-input"
               className="auto-resize-textarea flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               rows={1}
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
+              disabled={!inputValue.trim() || isLoading || isDemo}
               size="icon"
               className="h-10 w-10 shrink-0"
               title={t("send")}

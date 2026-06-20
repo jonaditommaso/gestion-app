@@ -13,6 +13,8 @@ import { useGetMembers } from "@/features/team/api/use-get-members";
 import { Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Seller } from "../types";
+import { useAppContext } from "@/context/AppContext";
+import { cn } from "@/lib/utils";
 
 interface AddSellerParams {
   memberId: string;
@@ -38,6 +40,7 @@ const ManageSellersDialog = ({
 }: ManageSellersDialogProps) => {
   const t = useTranslations("sales");
   const { data: membersData, isLoading: isLoadingMembers } = useGetMembers();
+  const { isDemo } = useAppContext();
   const members = membersData?.members ?? [];
 
   const availableMembers = members.filter(
@@ -58,7 +61,7 @@ const ManageSellersDialog = ({
             <p className="py-2 text-center text-sm text-muted-foreground">{t("sellers.no-sellers")}</p>
           )}
           {sellers.map((seller) => (
-            <div key={seller.id} className="flex items-center justify-between rounded-md border px-3 py-2">
+            <div key={seller.id} className={cn("flex items-center justify-between rounded-md border px-3 py-2", { "opacity-50 pointer-events-none": isDemo })}>
               <div className="flex items-center gap-3">
                 <Avatar className="size-8 shrink-0">
                   {seller.avatarId && <AvatarImage src={`/api/settings/get-image/${seller.avatarId}`} alt={seller.name} className="object-cover" />}
@@ -89,7 +92,7 @@ const ManageSellersDialog = ({
                 <p className="py-2 text-center text-sm text-muted-foreground">{t("sellers.loading-members")}</p>
               ) : (
                 availableMembers.map((member) => (
-                  <div key={member.$id} className="flex items-center justify-between rounded-md border px-3 py-2">
+                  <div key={member.$id} className={cn("flex items-center justify-between rounded-md border px-3 py-2", { "opacity-50 pointer-events-none": isDemo })}>
                     <div className="flex items-center gap-3 min-w-0">
                       <Avatar className="size-8 shrink-0">
                         <AvatarImage src={`/api/settings/get-image/${member.userId}`} alt={member.name} className="object-cover" />

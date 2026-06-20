@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 interface CategoryRowProps {
     category: string,
@@ -35,6 +36,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canDelete = hasPermission(PERMISSIONS.DELETE);
+    const { isDemo } = useAppContext();
 
     const incomeCategories = useMemo(() => data?.documents[0]?.incomeCategories || [], [data])
     const expenseCategories = useMemo(() => data?.documents[0]?.expenseCategories || [], [data])
@@ -131,7 +133,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                     : <p>{category}</p>
                 }
                 <div className="flex gap-2 items-center">
-                    {(canWrite || editingCategory === index) && (
+                    {(canWrite || editingCategory === index) && !isDemo && (
                         <TooltipContainer tooltipText={editingCategory === index ? t('save') : t('edit')}>
                             <span
                                 className={cn("cursor-pointer", editingCategory === undefined ? 'text-blue-600' : (actionDisabled ? disabledClassName : 'text-green-600'))}
@@ -146,7 +148,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                             <span className="cursor-pointer text-red-600" onClick={handleCancel}><XIcon className="size-4" /></span>
                         </TooltipContainer>
                     )}
-                    {canDelete && (
+                    {canDelete && !isDemo && (
                     <Popover open={popoverIsOpen} onOpenChange={setPopoverIsOpen}>
                             <TooltipContainer tooltipText={t('delete')}>
                                 <PopoverTrigger asChild>

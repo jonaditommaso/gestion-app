@@ -21,6 +21,7 @@ import { useState } from "react"
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions"
 import { PERMISSIONS } from "@/features/roles/constants"
 import { usePlanAccess } from "@/hooks/usePlanAccess"
+import { useAppContext } from "@/context/AppContext"
 
 interface DataTableBulkActionsProps<TData> {
   selectedTasks: TData[]
@@ -50,6 +51,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
   const canWrite = hasPermission(PERMISSIONS.WRITE)
   const canDelete = hasPermission(PERMISSIONS.DELETE)
   const { isFree } = usePlanAccess()
+  const { isDemo } = useAppContext()
   const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((opt) => opt.value !== 'epic' && opt.value !== 'spike' && opt.value !== 'test') : TASK_TYPE_OPTIONS
   const [DeleteDialog, confirmDelete] = useConfirm(
     t('delete-tasks'),
@@ -196,7 +198,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
                   variant="ghost"
                   size="sm"
                   onClick={handleBulkFeature}
-                  disabled={isProcessing}
+                  disabled={isProcessing || isDemo}
                   className="h-8"
                 >
                   {shouldFeature ? (
@@ -215,7 +217,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
 
               {/* Set Label */}
               {canWrite && (
-                <Select onValueChange={handleBulkSetLabel} disabled={isProcessing}>
+                <Select onValueChange={handleBulkSetLabel} disabled={isProcessing || isDemo}>
                   <SelectTrigger className="h-8 w-fit gap-2 border-0 shadow-none hover:bg-accent">
                     <Tag className="size-4" />
                     <span>{t('bulk-set-label')}</span>
@@ -240,7 +242,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
 
               {/* Set Type */}
               {canWrite && (
-                <Select onValueChange={handleBulkSetType} disabled={isProcessing}>
+                <Select onValueChange={handleBulkSetType} disabled={isProcessing || isDemo}>
                   <SelectTrigger className="h-8 w-fit gap-2 border-0 shadow-none hover:bg-accent">
                     <Layers className="size-4" />
                     <span>{t('bulk-set-type')}</span>
@@ -267,7 +269,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
                   variant="ghost"
                   size="sm"
                   onClick={handleBulkArchive}
-                  disabled={isProcessing}
+                  disabled={isProcessing || isDemo}
                   className="h-8"
                 >
                   <Archive className="size-4 mr-1" />
@@ -281,7 +283,7 @@ export function DataTableBulkActions<TData extends Record<string, unknown>>({
                   variant="ghost"
                   size="sm"
                   onClick={handleBulkDelete}
-                  disabled={isProcessing}
+                  disabled={isProcessing || isDemo}
                   className="h-8 text-destructive hover:text-destructive"
                 >
                   <Trash2 className="size-4 mr-1" />

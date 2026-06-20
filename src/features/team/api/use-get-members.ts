@@ -3,6 +3,7 @@ import { client } from "@/lib/rpc";
 import { MembershipRole } from "../types";
 import { useAppContext } from "@/context/AppContext";
 import { DEMO_ORG_MEMBERS } from "@/lib/demo-data";
+import { generateRandomCode } from "@/lib/utils";
 
 export type TeamMember = {
     $id: string;
@@ -34,24 +35,25 @@ type TeamMembersResponse = {
 };
 
 export const useGetMembers = () => {
-    const { isDemo, isLoadingUser, currentUser } = useAppContext();
+    const { isDemo } = useAppContext();
 
     const query = useQuery({
         queryKey: ['team', 'member-tag', isDemo],
-        enabled: !isLoadingUser,
+        // enabled: !isLoadingUser,
         queryFn: async () => {
-            if (isDemo && currentUser) {
+            if (isDemo) {
+                const demoEmail = `user${generateRandomCode(6)}@demo.com`;
                 const currentUserMember: TeamMember = {
                     $id: `demo-org-mem-you`,
                     appwriteMembershipId: null,
-                    userId: currentUser.$id,
+                    userId: generateRandomCode(10),
                     organizationId: 'demo-org-id',
                     appwriteTeamId: 'demo-team-id',
-                    name: currentUser.name,
-                    email: currentUser.email,
+                    name: 'Demo User',
+                    email: demoEmail,
                     status: true,
-                    userName: currentUser.name,
-                    userEmail: currentUser.email,
+                    userName: 'Demo User',
+                    userEmail: demoEmail,
                     prefs: {
                         role: 'OWNER',
                         position: 'Demo User',

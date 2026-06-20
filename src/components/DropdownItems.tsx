@@ -12,6 +12,7 @@ import { PERMISSIONS } from "@/features/roles/constants";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { useState } from "react";
 import UpgradeDialog from "@/components/UpgradeDialog";
+import { useAppContext } from "@/context/AppContext";
 
 interface DropdownItemsProps {
     itemLogo: string,
@@ -29,6 +30,7 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const { limits } = usePlanAccess();
+    const { isDemo } = useAppContext();
     const isAtWorkspaceLimit = limits.workspaces !== -1 && workspacesCount !== undefined && workspacesCount.count >= limits.workspaces;
     const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
@@ -77,6 +79,7 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: Dro
                         <DropdownMenuItem
                             className="flex items-center gap-2 p-2 cursor-pointer"
                             onClick={handleCreateNew}
+                            disabled={isDemo}
                         >
                             <Plus className="border rounded-md p-0.5" size={20} />
                             <span>{t('create-new')} {itemType}</span>

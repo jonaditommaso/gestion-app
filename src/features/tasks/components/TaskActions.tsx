@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 export type TaskActionsVariant = 'kanban' | 'modal' | 'page';
 
@@ -51,6 +52,7 @@ const TaskActions = ({
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canDelete = hasPermission(PERMISSIONS.DELETE);
+    const {  isDemo } = useAppContext();
 
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
     const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
@@ -152,6 +154,7 @@ const TaskActions = ({
                         <DropdownMenuItem
                             onClick={onOpenInNewTab}
                             className="font-medium p-[10px] cursor-pointer"
+                            disabled={isDemo}
                         >
                             <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
                             {t('task-details')}
@@ -161,6 +164,7 @@ const TaskActions = ({
                         <DropdownMenuItem
                             onClick={onOpenInNewPage}
                             className="font-medium p-[10px] cursor-pointer"
+                            disabled={isDemo}
                         >
                             <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
                             {t('open-in-new-page')}
@@ -171,6 +175,7 @@ const TaskActions = ({
                     <DropdownMenuItem
                         onClick={() => setIsShareModalOpen(true)}
                         className="font-medium p-[10px] cursor-pointer"
+                        disabled={isDemo}
                     >
                         <Share2Icon className="size-4 mr-2 stroke-2" />
                         {t('share-task')}
@@ -179,6 +184,7 @@ const TaskActions = ({
                         <DropdownMenuItem
                             onClick={onToggleFeatured}
                             className="font-medium p-[10px] cursor-pointer"
+                            disabled={isDemo}
                         >
                             {isFeatured ? (
                                 <>
@@ -196,7 +202,7 @@ const TaskActions = ({
                     {canWrite && !isEpic && (
                         <DropdownMenuItem
                             onClick={onDuplicate}
-                            disabled={isPending || !taskData}
+                            disabled={isPending || !taskData || isDemo}
                             className="font-medium p-[10px] cursor-pointer"
                         >
                             <CopyIcon className="size-4 mr-2 stroke-2" />
@@ -208,7 +214,7 @@ const TaskActions = ({
                     {canWrite && (
                         <DropdownMenuItem
                             onClick={onArchive}
-                            disabled={isPending}
+                            disabled={isPending || isDemo}
                             className="font-medium p-[10px] cursor-pointer"
                         >
                             <ArchiveIcon className="size-4 mr-2 stroke-2" />
@@ -218,7 +224,7 @@ const TaskActions = ({
                     {canDelete && (
                         <DropdownMenuItem
                             onClick={onDelete}
-                            disabled={isPending}
+                            disabled={isPending || isDemo}
                             className="text-amber-700 focus:text-amber-700 font-medium p-[10px] cursor-pointer"
                         >
                             <TrashIcon className="size-4 mr-2 stroke-2" />

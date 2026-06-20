@@ -20,6 +20,7 @@ import { useTranslations } from "next-intl";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 interface TaskSwitcherProps {
     openSettings: () => void;
@@ -35,6 +36,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const t = useTranslations('workspaces');
     const { canCreateTask } = useWorkspacePermissions();
     const { hasPermission } = useCurrentUserPermissions();
+    const { isDemo } = useAppContext();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
 
     const [{
@@ -71,10 +73,12 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     }
 
     const onKanbanChange = useCallback((tasks: { $id: string, status: TaskStatus, statusCustomId?: string | null, position: number }[]) => {
+        if (isDemo) return;
+
         bulkUpdate({
             json: { tasks }
         })
-    }, [bulkUpdate])
+    }, [bulkUpdate, isDemo])
 
     return (
        <div className="mt-2">

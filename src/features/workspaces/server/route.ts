@@ -5,7 +5,7 @@ import { sessionMiddleware } from '@/lib/session-middleware';
 import { DATABASE_ID, MEMBERS_ID, TASKS_ID, WORKSPACES_ID } from '@/config';
 import { ID, Query } from 'node-appwrite';
 import { MemberRole } from '../members/types';
-import { generateInviteCode } from '@/lib/utils';
+import { generateRandomCode } from '@/lib/utils';
 import { getMember } from '../members/utils';
 import { z as zod } from 'zod';
 import { WorkspaceType } from '../types';
@@ -94,7 +94,7 @@ const app = new Hono()
                     name,
                     createdBy: user.$id,
                     teamId: context.org.appwriteTeamId,
-                    inviteCode: generateInviteCode(6),
+                    inviteCode: generateRandomCode(6),
                 }
             );
 
@@ -297,7 +297,7 @@ const app = new Hono()
                 WORKSPACES_ID,
                 workspaceId,
                 {
-                    inviteCode: generateInviteCode(6)
+                    inviteCode: generateRandomCode(6)
                 }
             );
 

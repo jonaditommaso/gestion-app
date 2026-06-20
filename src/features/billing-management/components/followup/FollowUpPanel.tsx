@@ -9,6 +9,7 @@ import { useGetOperations } from "../../api/use-get-operations";
 import { useUpdateOperation } from "../../api/use-update-operation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 interface BillingOperation {
     $id: string;
@@ -26,6 +27,7 @@ const FollowUpPanel = () => {
     const { mutate: updateOperation, isPending } = useUpdateOperation();
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const { isDemo } = useAppContext();
 
     const operations = useMemo(() => (data?.documents || []) as unknown as BillingOperation[], [data]);
 
@@ -57,6 +59,7 @@ const FollowUpPanel = () => {
     }, [operations, todayStart, todayEnd]);
 
     const markAsPaid = (operationId: string) => {
+        if (isDemo) return;
         updateOperation({
             param: { billingId: operationId },
             json: { status: 'PAID' }
@@ -85,7 +88,7 @@ const FollowUpPanel = () => {
                                 <Button
                                     size="sm"
                                     className="mt-2 w-full"
-                                    disabled={isPending}
+                                    disabled={isPending || isDemo}
                                     onClick={() => markAsPaid(operation.$id)}
                                 >
                                     {t('mark-as-paid')}
@@ -112,7 +115,7 @@ const FollowUpPanel = () => {
                                 <Button
                                     size="sm"
                                     className="mt-2 w-full"
-                                    disabled={isPending}
+                                    disabled={isPending || isDemo}
                                     onClick={() => markAsPaid(operation.$id)}
                                 >
                                     {t('mark-as-paid')}

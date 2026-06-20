@@ -26,7 +26,7 @@ const getInitials = (name: string): string => {
     return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
 };
 
-const CreateDealButton = () => {
+const CreateDealButton = ({ isDemo }: { isDemo: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
     const t = useTranslations('home');
@@ -89,6 +89,7 @@ const CreateDealButton = () => {
             className={cn("w-full h-28 flex-col gap-1", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
             variant="outline"
             onClick={handleOpen}
+            disabled={isDemo}
         >
                 <div className="flex items-center gap-2">
                     <Handshake className="h-4 w-4" />

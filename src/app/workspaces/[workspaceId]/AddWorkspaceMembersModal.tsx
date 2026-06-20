@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import FadeLoader from "react-spinners/FadeLoader";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAppContext } from "@/context/AppContext";
 
 type WorkspaceMember = {
     userId: string;
@@ -38,6 +39,7 @@ const AddWorkspaceMembersModal = ({
     const { mutate: addMembers, isPending } = useAddMembers();
     const t = useTranslations('workspaces');
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+    const { isDemo } = useAppContext();
 
     // Extraer los userIds de los miembros actuales del workspace
     const currentMemberIds = (workspaceMembers?.documents as WorkspaceMember[] | undefined)?.map(m => m.userId) || [];
@@ -111,7 +113,7 @@ const AddWorkspaceMembersModal = ({
                                         <div
                                             key={member.$id}
                                             className={`flex items-center gap-3 p-3 rounded-lg border ${
-                                                isCurrentMember
+                                                isCurrentMember || isDemo
                                                     ? 'bg-muted opacity-60 cursor-not-allowed'
                                                     : 'hover:bg-accent cursor-pointer'
                                             }`}

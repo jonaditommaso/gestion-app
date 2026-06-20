@@ -93,7 +93,7 @@ const HomeWidgetsGrid = () => {
     const { isFree } = usePlanAccess();
     const { data: messages } = useGetMessages({ enabled: !isFree });
     const { data: member } = useGetMember();
-    const { teamContext } = useAppContext();
+    const { teamContext, isDemo } = useAppContext();
     const { config } = useHomeCustomization();
 
     const organizationRole = teamContext?.membership?.role;
@@ -133,9 +133,11 @@ const HomeWidgetsGrid = () => {
 
     return (
         <div className="gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 pb-4">
-            <ConditionalWidget widgetId="my-notes">
-                <MyNotes />
-            </ConditionalWidget>
+            {!isDemo && (
+                <ConditionalWidget widgetId="my-notes">
+                    <MyNotes />
+                </ConditionalWidget>
+            )}
 
             <ConditionalWidget widgetId="messages" hasData={hasUnreadMessages}>
                 <MessagesContainer />
@@ -144,7 +146,7 @@ const HomeWidgetsGrid = () => {
             <div className="flex flex-wrap col-span-1 gap-2 justify-around">
                 <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
                     <ConditionalWidget widgetId="send-message">
-                        <SendMessageButton />
+                        <SendMessageButton isDemo={isDemo} />
                     </ConditionalWidget>
                     <ConditionalWidget widgetId="shortcut">
                         <ShortcutButton />
@@ -157,13 +159,13 @@ const HomeWidgetsGrid = () => {
                     {canCreate && (
                         <>
                             <ConditionalWidget widgetId="new-task">
-                                <CreateTaskButton />
+                                <CreateTaskButton isDemo={isDemo} />
                             </ConditionalWidget>
                             <ConditionalWidget widgetId="new-deal">
-                                <CreateDealButton />
+                                <CreateDealButton isDemo={isDemo} />
                             </ConditionalWidget>
                             <ConditionalWidget widgetId="new-billing">
-                                <CreateBillingButton />
+                                <CreateBillingButton isDemo={isDemo} />
                             </ConditionalWidget>
                         </>
                     )}

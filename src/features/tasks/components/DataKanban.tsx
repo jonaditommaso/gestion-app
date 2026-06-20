@@ -55,7 +55,7 @@ const insertPositionStore: InsertPositionStore = {};
 const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanProps) => {
     const config = useWorkspaceConfig();
     const t = useTranslations('workspaces');
-    const { currentUser: user } = useAppContext();
+    const { currentUser: user, isDemo } = useAppContext();
     const workspaceId = useWorkspaceId();
     const { data: membersData } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const { mutate: updateWorkspace } = useUpdateWorkspace();
@@ -804,12 +804,14 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
             return newTasks
         })
 
-        onChangeTasks(updatesPayload)
+        if (!isDemo) {
+            onChangeTasks(updatesPayload)
+        }
 
-        if (sourceStatusId !== destStatusId && movedTaskForAutoArchive) {
+        if (!isDemo && sourceStatusId !== destStatusId && movedTaskForAutoArchive) {
             archiveTaskIfNeeded(movedTaskForAutoArchive, destStatusId);
         }
-    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents, isCustomStatus, archiveTaskIfNeeded])
+    }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents, isCustomStatus, archiveTaskIfNeeded, isDemo])
 
     // Determinar si necesitamos scroll (más de 5 columnas)
     const needsScroll = orderedStatuses.length > 5;
@@ -867,7 +869,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 }}
                                             >
                                                 {/* Add column divider before columns */}
-                                                {canCreateColumn && !isFree && (
+                                                {canCreateColumn && !isFree && !isDemo && (
                                                     <div className="relative flex-shrink-0 w-0 h-full group z-10" data-insert-position={index}>
                                                         <div className="absolute left-0 top-0 bottom-0 w-4 -ml-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <div className="h-full w-[2px] border-l-2 border-dashed border-muted-foreground/30"></div>

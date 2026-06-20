@@ -19,7 +19,7 @@ interface CreateMessageModalProps {
 const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
     const { data, isLoading} = useGetMembers();
     const team = data?.members;
-    const { currentUser: user, isLoadingUser: gettingUser } = useAppContext();
+    const { currentUser: user, isLoadingUser: gettingUser, isDemo } = useAppContext();
     const { mutate: createMessage, isPending: isSending } = useCreateMessage();
     const [membersSelected, setMembersSelected] = useState<string[]>([]);
     const [subject, setSubject] = useState('');
@@ -28,9 +28,9 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
 
     // Filtrar el usuario actual de la lista de miembros
     const availableMembers = useMemo(() => {
-        if (!team || !user) return [];
-        return team.filter(member => member.userId !== user.$id);
-    }, [team, user]);
+        if (!team || (!user && !isDemo)) return [];
+        return team.filter(member => member.userId !== (user ? user.$id : team[0].userId));
+    }, [team, user, isDemo]);
 
     const allSelected = availableMembers.length > 0 && membersSelected.length === availableMembers.length;
 
@@ -51,7 +51,7 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
     };
 
     const handleSend = () => {
-        if(!membersSelected.length || !subject.trim() || !messageContent.trim()) return;
+        if (!membersSelected.length || !subject.trim() || !messageContent.trim()) return;
 
         createMessage({
             json: {
@@ -59,12 +59,14 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
                 subject: subject.trim(),
                 content: messageContent,
             }
+        }, {
+            onSuccess: () => {
+                setMembersSelected([]);
+                setSubject('');
+                setMessageContent('');
+                setIsOpen(false);
+            },
         });
-
-        setMembersSelected([]);
-        setSubject('');
-        setMessageContent('');
-        setIsOpen(false);
     }
 
     return (

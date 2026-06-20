@@ -15,7 +15,7 @@ const SharedTaskPage = () => {
     const params = useParams();
     const token = params.token as string;
     const t = useTranslations('workspaces');
-    const { currentUser } = useAppContext();
+    const { currentUser, isDemo } = useAppContext();
 
     const { data, isLoading, error } = useGetSharedTask({ token });
 
@@ -79,11 +79,13 @@ const SharedTaskPage = () => {
 
     const { task, readOnly } = data;
 
+    const isReadOnly = isDemo || readOnly;
+
     return (
         <div className={`min-h-screen bg-muted/30 ${currentUser ? 'pt-14' : ''}`}>
             <div className="max-w-5xl mx-auto px-6 py-8">
                 {/* Banner de solo lectura */}
-                {readOnly && (
+                {isReadOnly && (
                     <div className="mb-6 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                         <p className="text-sm text-amber-700 dark:text-amber-300 text-center">
                             {t('viewing-read-only')}
@@ -98,12 +100,12 @@ const SharedTaskPage = () => {
                         initialTitle={task.name}
                         initialType={task.type}
                         size="page"
-                        readOnly={readOnly}
+                        readOnly={isReadOnly}
                     />
                 </div>
 
                 {/* Content */}
-                <TaskDetails task={task} readOnly={readOnly} />
+                <TaskDetails task={task} readOnly={isReadOnly} />
             </div>
         </div>
     );

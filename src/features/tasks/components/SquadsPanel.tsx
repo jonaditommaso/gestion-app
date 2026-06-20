@@ -15,6 +15,7 @@ import { TaskSquad, WorkspaceMember } from "../types";
 import CustomLoader from "@/components/CustomLoader";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import UpgradeDialog from "@/components/UpgradeDialog";
+import { useAppContext } from "@/context/AppContext";
 
 const SquadsPanel = () => {
     const t = useTranslations('workspaces');
@@ -25,6 +26,7 @@ const SquadsPanel = () => {
     const { data: squadsData, isLoading: isLoadingSquads } = useGetSquads({ workspaceId });
     const { data: membersData, isLoading: isLoadingMembers } = useGetMembers({ workspaceId });
     const { data: currentUser } = useCurrent();
+    const { isDemo } = useAppContext();
 
     const squads = (squadsData?.documents ?? []) as TaskSquad[];
     const availableMembers = ((membersData?.documents ?? []) as WorkspaceMember[]);
@@ -128,7 +130,7 @@ const SquadsPanel = () => {
                         </div>
                     ) : hasEnoughMembers && canCreateSquad ? (
                         <div className="flex justify-center pt-4">
-                            <Button onClick={() => setIsCreating(true)}>
+                            <Button onClick={() => setIsCreating(true)} disabled={isDemo}>
                                 <Plus className="size-4 mr-1.5" />
                                 {t('squad-create-first')}
                             </Button>

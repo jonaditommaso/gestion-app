@@ -8,6 +8,8 @@ import { Edit } from "lucide-react"
 import type { RoleUser } from "../types"
 import { usePlanAccess } from "@/hooks/usePlanAccess"
 import { getEffectivePermissions } from "../constants"
+import { useAppContext } from "@/context/AppContext"
+import { cn } from "@/lib/utils"
 
 interface UserCardProps {
   user: RoleUser
@@ -25,6 +27,7 @@ export function UserCard({
   showEditButton = true,
 }: UserCardProps) {
   const { plan } = usePlanAccess();
+  const { isDemo } = useAppContext();
   const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
   const displayPermissions = isPro ? getEffectivePermissions(user.permissions) : user.permissions;
   const MAX_VISIBLE = 3;
@@ -72,12 +75,12 @@ export function UserCard({
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className={cn("flex gap-2", isDemo ? 'cursor-not-allowed' : '')}>
             {/* <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
               <Eye className="w-4 h-4" />
             </Button> */}
             {showEditButton && (
-              <Button variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
+              <Button disabled={isDemo} variant="outline" size="sm" onClick={() => onViewPermissions(user)}>
                 <Edit className="w-4 h-4" />
               </Button>
             )}

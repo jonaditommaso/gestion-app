@@ -1,4 +1,4 @@
-import { getCurrent } from "@/features/auth/queries";
+import { getCurrent, getIsDemoUser } from "@/features/auth/queries";
 import { getWorkspaces } from "@/features/workspaces/queries";
 import { getActiveContext } from "@/features/team/server/utils";
 import { createAdminClient } from "@/lib/appwrite";
@@ -8,12 +8,11 @@ import { DEMO_WORKSPACE_DEV_ID } from "@/lib/demo-data";
 
 const WorkspacesView = async () => {
     const user = await getCurrent();
+    const isDemo = await getIsDemoUser();
+
+    if (isDemo) redirect(`/workspaces/${DEMO_WORKSPACE_DEV_ID}`);
 
     if (!user) redirect('/login');
-
-    if (user.prefs?.isDemo === true) {
-        redirect(`/workspaces/${DEMO_WORKSPACE_DEV_ID}`);
-    }
 
     const { databases } = await createAdminClient();
     const cookieStore = await cookies();

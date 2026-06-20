@@ -17,6 +17,7 @@ interface SalesBoardSwitcherProps {
   selectedBoardId: string | null;
   onSelect: (id: string) => void;
   onCreateNew: () => void;
+  isDemo: boolean;
 }
 
 const SalesBoardSwitcher = ({
@@ -24,6 +25,7 @@ const SalesBoardSwitcher = ({
   selectedBoardId,
   onSelect,
   onCreateNew,
+  isDemo,
 }: SalesBoardSwitcherProps) => {
   const t = useTranslations("sales");
   const activeBoard = boards.find((b) => b.id === selectedBoardId);
@@ -57,6 +59,7 @@ const SalesBoardSwitcher = ({
         <DropdownMenuItem
           className="flex items-center gap-2 cursor-pointer"
           onClick={onCreateNew}
+          disabled={isDemo}
         >
           <Plus className="size-4 shrink-0" />
           {t("board.new-board")}

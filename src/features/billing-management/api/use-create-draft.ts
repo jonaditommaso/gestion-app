@@ -3,6 +3,7 @@ import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useAppContext } from "@/context/AppContext";
 
 type ResponseType = InferResponseType<typeof client.api.billing['$post']>
 type RequestType = InferRequestType<typeof client.api.billing['$post']>
@@ -10,9 +11,14 @@ type RequestType = InferRequestType<typeof client.api.billing['$post']>
 export const useCreateDraft = () => {
     const queryClient = useQueryClient();
     const t = useTranslations('billing');
+    const { isDemo } = useAppContext();
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
         mutationFn: async ({ json }) => {
+            if (isDemo) {
+                return { success: true } as unknown as ResponseType;
+            }
+
             const response = await client.api.billing['$post']({ json });
 
             if (!response.ok) {

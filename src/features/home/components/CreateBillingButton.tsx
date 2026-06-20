@@ -10,7 +10,7 @@ const AddOperationModal = dynamic(
     { loading: () => <></> }
 );
 
-const CreateBillingButton = () => {
+const CreateBillingButton = ({ isDemo }: { isDemo: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
     const t = useTranslations('home');
 
@@ -21,6 +21,7 @@ const CreateBillingButton = () => {
                 className="w-full h-28"
                 variant="outline"
                 onClick={() => setIsOpen(true)}
+                disabled={isDemo}
             >
                 <Receipt className="h-4 w-4" />
                 <span>{t('new-billing')}</span>

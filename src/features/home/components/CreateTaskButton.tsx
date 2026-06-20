@@ -17,7 +17,7 @@ const CreateTaskFormWrapper = dynamic(
     { loading: () => <></> }
 );
 
-const CreateTaskButton = () => {
+const CreateTaskButton = ({ isDemo }: { isDemo: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
     const t = useTranslations('home');
@@ -42,6 +42,7 @@ const CreateTaskButton = () => {
             className={cn("w-full h-28 flex-col gap-1", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
             variant="outline"
             onClick={handleOpen}
+            disabled={isDemo}
         >
                 <div className="flex items-center gap-2">
                     <CheckSquare className="h-4 w-4" />

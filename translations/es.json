@@ -964,6 +964,7 @@
         "demo-info-description-5": "El mail, el nombre de usuario y el nombre de la organización se generan automáticamente y son simplemente ilustrativos. La cuenta se crea con el plan Pro.",
         "demo-info-description-6": "Rápido y seguro, sin compromisos ni necesidad de registro. Comenzá a explorar Gestionate y descubrí todo su potencial.",
         "button-signup": "Registrate",
+        "demo-creating-message": "Creando entorno de demostración...",
         "get-started": "Comenzar",
         "get-started-free": "Comenzar gratis",
         "button-signin": "Iniciar sesión",
@@ -2609,7 +2610,10 @@
         "not-defined": "Sin definir",
         "add-organization": "Agregar organización",
         "messages": "Mensajes",
-        "upgrade": "Mejorar plan"
+        "upgrade": "Mejorar plan",
+        "demo-mode-title": "Modo demo",
+        "demo-mode-description": "Algunas funciones pueden estar restringidas u ocultas.",
+        "close-demo": "Cerrar"
     },
     "sales": {
         "title": "Pipeline de Ventas",
@@ -3279,6 +3283,7 @@
         "perm-desc-delete-column-workspace": "Eliminar columnas de un espacio de trabajo"
     },
     "chatbot": {
+        "is-demo-restriction": "Esta función está restringida en la demo.",
         "title": "Gestionate IA",
         "new-chat": "Nuevo chat",
         "history": "Historial de conversaciones",

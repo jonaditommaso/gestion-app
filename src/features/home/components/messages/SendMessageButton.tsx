@@ -8,7 +8,7 @@ import { useGetMembers } from "@/features/team/api/use-get-members";
 import { TooltipContainer } from "@/components/TooltipContainer";
 import { cn } from "@/lib/utils";
 
-const SendMessageButton = () => {
+const SendMessageButton = ({ isDemo }: { isDemo: boolean }) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const t = useTranslations('home');
 
@@ -26,7 +26,9 @@ const SendMessageButton = () => {
         <Button
             className={cn("w-full h-28", actionDisabled ? 'opacity-50 cursor-default hover:bg-transparent' : '')}
             variant='outline'
-            onClick={handleOpen}>
+            onClick={handleOpen}
+            disabled={isDemo}
+        >
             <MessageSquareText /> <span>{t('send-a-message')}</span>
         </Button>
     )

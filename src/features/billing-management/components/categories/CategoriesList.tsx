@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 interface CategoriesListProps {
     categories: string[],
@@ -21,6 +22,7 @@ const CategoriesList = ({ categories, header, type, handleOpenModal }: Categorie
     const t = useTranslations('billing');
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const { isDemo } = useAppContext();
 
     return (
         <Table className="border p-4 min-w-[450px]">
@@ -29,7 +31,7 @@ const CategoriesList = ({ categories, header, type, handleOpenModal }: Categorie
                 <TableHead className={cn("font-semibold text-center grid grid-cols-4 items-center w-[100%]", type === 'income' ? 'text-green-600' : 'text-red-600')}>
                     <span className="col-span-3 ml-8">{t(header)}</span>
                     <span className="col-span-1 text-end">
-                        {canWrite && (
+                        {canWrite && !isDemo && (
                             <Button className="h-[30px] text-gray-700" type="button" variant="outline" size="icon" onClick={() => handleOpenModal(type)}>
                                 <Plus className="h-[1rem] w-[1rem]" />
                             </Button>
