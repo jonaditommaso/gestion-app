@@ -42,7 +42,6 @@ import { Message } from './types'
 import MessageRow from './MessageRow'
 import CreateMessageModal from './CreateMessageModal'
 import '@github/relative-time-element'
-import { useAppContext } from '@/context/AppContext'
 
 type Tab = 'all' | 'inbox' | 'sent' | 'featured'
 
@@ -54,7 +53,6 @@ const MessagesView = () => {
     const { data: sentData, isPending: loadingSent } = useGetSentMessages()
     const { data: teamData } = useGetMembers()
     const { mutate: updateMessage } = useUpdateMessage()
-    const { isDemo } = useAppContext();
 
     const [activeTab, setActiveTab] = useState<Tab>('inbox')
     const [search, setSearch] = useState('')
