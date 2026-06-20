@@ -42,6 +42,7 @@ import { Message } from './types'
 import MessageRow from './MessageRow'
 import CreateMessageModal from './CreateMessageModal'
 import '@github/relative-time-element'
+import { useAppContext } from '@/context/AppContext'
 
 type Tab = 'all' | 'inbox' | 'sent' | 'featured'
 
@@ -53,6 +54,7 @@ const MessagesView = () => {
     const { data: sentData, isPending: loadingSent } = useGetSentMessages()
     const { data: teamData } = useGetMembers()
     const { mutate: updateMessage } = useUpdateMessage()
+    const { isDemo } = useAppContext();
 
     const [activeTab, setActiveTab] = useState<Tab>('inbox')
     const [search, setSearch] = useState('')
@@ -85,12 +87,12 @@ const MessagesView = () => {
     }, [teamData?.members])
 
     const allReceived: Message[] = useMemo(
-        () => (receivedData?.documents ?? []) as unknown as Message[],
+        () => (receivedData?.documents ?? []) as Message[],
         [receivedData?.documents]
     )
 
     const allSent: Message[] = useMemo(
-        () => (sentData?.documents ?? []) as unknown as Message[],
+        () => (sentData?.documents ?? []) as Message[],
         [sentData?.documents]
     )
 

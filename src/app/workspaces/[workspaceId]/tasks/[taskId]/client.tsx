@@ -12,10 +12,10 @@ import { useAppContext } from "@/context/AppContext";
 
 const TaskIdClient = () => {
     const taskId = useTaskId();
-    const { isLoadingUser } = useAppContext();
+    const { isLoadingUser, isDemo } = useAppContext();
     const { data, isLoading } = useGetTask({ taskId })
     const { hasPermission } = useCurrentUserPermissions();
-    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const canWrite = hasPermission(PERMISSIONS.WRITE) && !isDemo;
 
     if (isLoading || isLoadingUser) return <CustomLoader />
 

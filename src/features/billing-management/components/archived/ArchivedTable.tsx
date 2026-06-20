@@ -22,6 +22,7 @@ import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUser
 import { PERMISSIONS } from "@/features/roles/constants";
 import NoData from "@/components/NoData";
 import { cn } from "@/lib/utils";
+import { useAppContext } from "@/context/AppContext";
 
 interface ArchivedOperation {
     $id: string;
@@ -44,6 +45,7 @@ interface ArchivedOperation {
 const ArchivedTable = () => {
     const t = useTranslations('billing');
     const { data, isLoading } = useGetArchived();
+    const { isDemo } = useAppContext();
     const { mutate: updateOperation, isPending: isUpdating } = useUpdateOperation();
     const queryClient = useQueryClient();
     const { hasPermission } = useCurrentUserPermissions();
@@ -147,7 +149,7 @@ const ArchivedTable = () => {
                                             <Button
                                                 size="icon"
                                                 variant="outline"
-                                                disabled={isUpdating}
+                                                disabled={isUpdating || isDemo}
                                                 onClick={() => handleRestore(op.$id)}
                                                 title={t('restore')}
                                             >

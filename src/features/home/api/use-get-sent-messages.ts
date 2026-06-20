@@ -1,15 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
+import { useDemoData } from "@/context/DemoDataContext";
+import { DEMO_TEAM_MEM_YOU_ID } from "@/lib/demo-data";
 
 export const useGetSentMessages = () => {
     const { isDemo, isLoadingUser } = useAppContext();
+    const demoData = useDemoData();
 
     const query = useQuery({
         queryKey: ['messages', 'sent', isDemo],
         queryFn: async () => {
             if (isDemo) {
-                return { documents: [], total: 0 };
+                const documents = demoData.messages.filter(message => message.fromTeamMemberId === DEMO_TEAM_MEM_YOU_ID);
+                return { documents, total: documents.length };
             }
 
             const response = await client.api.messages.sent.$get();

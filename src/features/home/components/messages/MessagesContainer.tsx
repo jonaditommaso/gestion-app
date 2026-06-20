@@ -20,6 +20,7 @@ import FadeLoader from "react-spinners/FadeLoader"
 import { useBulkReadMessages } from "../../api/use-bulk-read-messages"
 import { Message } from './types';
 import { useMemo, useState } from "react";
+import { useAppContext } from "@/context/AppContext"
 
 type CardProps = React.ComponentProps<typeof Card>
 
@@ -30,6 +31,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const locale = useLocale();
   const t = useTranslations('home');
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const { isDemo } = useAppContext();
 
   const senderByMembershipId = useMemo(() => {
     const map = new Map<string, string>();
@@ -101,11 +103,11 @@ export function MessagesContainer({ className, ...props }: CardProps) {
             )}
           </div>
         </CardContent>
-        <CardFooter className='p-2 my-1'>
+        {!isDemo && <CardFooter className='p-2 my-1'>
           <Button className="w-full" disabled={markingReadMessages || !unreadMessages.length} onClick={handleMarkAsRead}>
             <Check /> {t('mark-all-read')}
           </Button>
-        </CardFooter>
+        </CardFooter>}
       </div>
 
       <DialogContainer

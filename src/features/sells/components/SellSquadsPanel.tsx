@@ -13,6 +13,7 @@ import { SellSquad, Seller } from "../types";
 import CustomLoader from "@/components/CustomLoader";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import UpgradeDialog from "@/components/UpgradeDialog";
+import { useAppContext } from "@/context/AppContext";
 
 type ServerSellerDocument = {
     $id: string;
@@ -32,6 +33,7 @@ const SellSquadsPanel = () => {
     const [isCreating, setIsCreating] = useState(false);
     const [editingSquad, setEditingSquad] = useState<SellSquad | null>(null);
     const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+    const { isDemo } = useAppContext();
 
     const { data: squadsData, isLoading: isLoadingSquads } = useGetSellSquads();
     const { data: sellersData, isLoading: isLoadingSellers } = useGetDealSellers();
@@ -140,7 +142,7 @@ const SellSquadsPanel = () => {
                         </div>
                     ) : hasEnoughSellers && canCreateSquad ? (
                         <div className="flex justify-center pt-4">
-                            <Button onClick={() => setIsCreating(true)}>
+                            <Button onClick={() => setIsCreating(true)} disabled={isDemo}>
                                 <Plus className="size-4 mr-1.5" />
                                 {t("squads.create-first")}
                             </Button>

@@ -42,6 +42,7 @@ import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
 import type { ActivityEntry, BoardLabel, Deal, DealOutcome, DealStage, Seller } from "../types";
 import SendEmailDialog from "./SendEmailDialog";
+import { useAppContext } from "@/context/AppContext";
 
 const STAGE_ORDER: DealStage[] = ["LEADS", "QUALIFICATION", "NEGOTIATION", "CLOSED"];
 
@@ -115,6 +116,7 @@ const DealDetailModal = ({
   const [nextStepDraft, setNextStepDraft] = useState<string>("");
   const [isAddingNextStep, setIsAddingNextStep] = useState<boolean>(false);
   const [newNextStepDraft, setNewNextStepDraft] = useState<string>("");
+  const { isDemo } = useAppContext();
 
   const [activityText, setActivityText] = useState<string>("");
 
@@ -386,7 +388,7 @@ const DealDetailModal = ({
                   <Label htmlFor="modal-close-date" className="text-xs">
                     {t("table.close-date")}
                   </Label>
-                  <div className="flex gap-2">
+                  <div className={cn("flex gap-2", isDemo && "opacity-50 pointer-events-none")}>
                     <CustomDatePicker
                       value={closeDate}
                       onChange={(date) => setCloseDate(date)}
@@ -489,6 +491,7 @@ const DealDetailModal = ({
                     size="sm"
                     className="h-7 gap-1 text-xs text-muted-foreground"
                     onClick={() => setIsAddingNextStep(true)}
+                    disabled={isDemo}
                   >
                     <Plus className="size-3" />
                     {t("detail.add-next-step")}
@@ -508,7 +511,7 @@ const DealDetailModal = ({
                   return (
                     <span
                       key={sellerId}
-                      className="flex items-center gap-1.5 rounded-full bg-muted pl-1 pr-1.5 py-0.5 text-xs font-medium"
+                      className={cn("flex items-center gap-1.5 rounded-full bg-muted pl-1 pr-1.5 py-0.5 text-xs font-medium", isDemo && "opacity-50 pointer-events-none")}
                     >
                       <Avatar className="size-4">
                         {seller?.avatarId && (
@@ -536,7 +539,7 @@ const DealDetailModal = ({
                     <button
                       key={seller.id}
                       type="button"
-                      className="flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground hover:border-foreground/50 hover:text-foreground transition-colors"
+                      className={cn("flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground hover:border-foreground/50 hover:text-foreground transition-colors", isDemo && "opacity-50 pointer-events-none")}
                       onClick={() => handleAddAssignee(seller.id)}
                     >
                       <Plus className="size-3" />
@@ -558,6 +561,7 @@ const DealDetailModal = ({
                     size="sm"
                     className="h-7 gap-1 text-xs text-emerald-600 border-emerald-500/40 hover:bg-emerald-500/10"
                     onClick={() => onMarkOutcome(deal.id, "WON")}
+                    disabled={isDemo}
                   >
                     <Trophy className="size-3" />
                     {t("menu.mark-won")}
@@ -569,6 +573,7 @@ const DealDetailModal = ({
                     size="sm"
                     className="h-7 gap-1 text-xs text-destructive border-destructive/40 hover:bg-destructive/10"
                     onClick={() => onMarkOutcome(deal.id, "LOST")}
+                    disabled={isDemo}
                   >
                     <XCircle className="size-3" />
                     {t("menu.mark-lost")}
@@ -580,6 +585,7 @@ const DealDetailModal = ({
                     size="sm"
                     className="h-7 gap-1 text-xs"
                     onClick={() => onMarkOutcome(deal.id, "PENDING")}
+                    disabled={isDemo}
                   >
                     <Undo2 className="size-3" />
                     {t("menu.mark-pending")}
@@ -605,6 +611,7 @@ const DealDetailModal = ({
                           variant="outline"
                           size="sm"
                           className="h-7 gap-1 text-xs"
+                          disabled={isDemo}
                           onClick={() => {
                             onMoveToStage(deal.id, stage);
                             onOpenChange(false);
@@ -686,6 +693,7 @@ const DealDetailModal = ({
                 onChange={(e) => setActivityText(e.target.value)}
                 placeholder={t("detail.activity-placeholder")}
                 className="h-8 text-sm"
+                disabled={isDemo}
               />
               <Button type="submit" size="icon" variant="secondary" className="size-8 shrink-0">
                 <Send className="size-3.5" />

@@ -1,12 +1,12 @@
-import { getCurrent } from "@/features/auth/queries";
+import { getCurrentSession } from "@/features/auth/queries";
 import TeamList from "@/features/team/components/TeamList";
 
 import { redirect } from "next/navigation";
 
 const TeamView = async () => {
-    const user = await getCurrent();
+    const hasSession = await getCurrentSession();
 
-    if(!user) redirect('/login');
+    if (!hasSession) redirect('/login');
 
     return (
         <div className="w-full flex px-10">

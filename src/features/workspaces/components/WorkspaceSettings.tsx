@@ -27,6 +27,7 @@ import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUser
 import { PERMISSIONS } from "@/features/roles/constants";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { GitHubIntegrationSection } from "@/features/github/components/GitHubIntegrationSection";
+import { useAppContext } from "@/context/AppContext";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -40,14 +41,15 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
     const { getStatusDisplayName } = useStatusDisplayName();
     const { allStatuses } = useCustomStatuses();
+    const { isDemo } = useAppContext();
 
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
     const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | 'urgentWarnings' | null>(null); // Track which config key is currently being updated
     const [isArchivedTasksModalOpen, setIsArchivedTasksModalOpen] = useState(false);
 
     const { hasPermission } = useCurrentUserPermissions();
-    const canWrite = hasPermission(PERMISSIONS.WRITE);
-    const canDelete = hasPermission(PERMISSIONS.DELETE);
+    const canWrite = hasPermission(PERMISSIONS.WRITE) && !isDemo;
+    const canDelete = hasPermission(PERMISSIONS.DELETE) && !isDemo;
     const { isFree } = usePlanAccess();
 
     // Parse current config from metadata

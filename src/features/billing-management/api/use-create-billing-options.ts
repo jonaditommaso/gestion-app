@@ -12,10 +12,10 @@ export const useCreateBillingOptions = () => {
     const t = useTranslations('billing');
 
     const mutation = useMutation<ResponseType, Error, RequestType>({
-        mutationFn: async ({json }) => {
-            const response = await client.api.billing.options['$post']({ json});
+        mutationFn: async ({ json }) => {
+            const response = await client.api.billing.options['$post']({ json });
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to update options')
             }
 

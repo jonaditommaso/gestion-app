@@ -7,6 +7,7 @@ import TaskDetailsContent from "./TaskDetailsContent";
 import TaskActions from "./TaskActions";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 interface TaskDetailsModalProps {
     taskId: string;
@@ -17,7 +18,8 @@ interface TaskDetailsModalProps {
 const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) => {
     const { data: task, isLoading } = useGetTask({ taskId });
     const { hasPermission } = useCurrentUserPermissions();
-    const canWrite = hasPermission(PERMISSIONS.WRITE);
+    const { isDemo } = useAppContext();
+    const canWrite = hasPermission(PERMISSIONS.WRITE) && !isDemo;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>

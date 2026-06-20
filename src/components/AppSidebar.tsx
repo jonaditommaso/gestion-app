@@ -39,14 +39,14 @@ const AppSidebar = () => {
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useTranslations('general')
-    const { teamContext } = useAppContext();
+    const { teamContext, isDemo } = useAppContext();
     const { hasPermission } = useCurrentUserPermissions();
     const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
     const { plan } = usePlanAccess();
     const hasTeam = !!teamContext?.membership;
 
     const isOwner = teamContext?.membership?.role === 'OWNER';
-    const showUpgradeRocket = isOwner && plan !== 'ENTERPRISE';
+    const showUpgradeRocket = isOwner && plan !== 'ENTERPRISE' && !isDemo;
 
     const isItemVisible = (item: { plans?: string[]; key: string }) => {
         if (item.plans && !item.plans.includes(plan)) return false;

@@ -35,6 +35,7 @@ import { PERMISSIONS } from "@/features/roles/constants";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { toast } from "sonner";
 import NoData from "@/components/NoData";
+import { useAppContext } from "@/context/AppContext";
 
 type BillingStatus = 'PENDING' | 'PAID' | 'OVERDUE';
 
@@ -69,6 +70,7 @@ const DraftsTable = () => {
     const t = useTranslations('billing');
     const { data, isLoading } = useGetDrafts();
     const { data: billingOptionsData } = useGetBillingOptions();
+    const { isDemo } = useAppContext();
     const { mutate: updateOperation, isPending: isUpdating } = useUpdateOperation();
     const { mutate: deleteOperation, isPending: isDeleting } = useDeleteOperation();
     const queryClient = useQueryClient();
@@ -144,6 +146,7 @@ const DraftsTable = () => {
     };
 
     const handlePublish = (draftId: string) => {
+        if (isDemo) return;
         updateOperation(
             { param: { billingId: draftId }, json: { isDraft: false } },
             {
@@ -155,6 +158,7 @@ const DraftsTable = () => {
     };
 
     const handleDelete = async (draftId: string) => {
+        if (isDemo) return;
         const ok = await confirmDelete();
         if (!ok) return;
 
@@ -325,20 +329,20 @@ const DraftsTable = () => {
                                                 <Button
                                                     size="icon"
                                                     variant="outline"
-                                                    onClick={() => { setDetailsDraft(draft); setDetailsOpen(true); }}
+                                                    onClick={() => { if (isDemo) return; setDetailsDraft(draft); setDetailsOpen(true); }}
                                                     title={t('view-details')}
                                                 >
                                                     <Eye className="size-4" />
                                                 </Button>
                                                 {canWrite && (
                                                     <>
-                                                        <Button size="icon" variant="outline" onClick={() => handleStartEdit(draft)} title={t('edit')}>
+                                                        <Button disabled={isDemo} size="icon" variant="outline" onClick={() => handleStartEdit(draft)} title={t('edit')}>
                                                             <Pencil className="size-4" />
                                                         </Button>
                                                         <Button
                                                             size="icon"
                                                             variant="outline"
-                                                            disabled={isUpdating || isDeleting}
+                                                            disabled={isUpdating || isDeleting || isDemo}
                                                             onClick={() => handlePublish(draft.$id)}
                                                             title={t('publish-draft')}
                                                         >
@@ -350,7 +354,7 @@ const DraftsTable = () => {
                                                     <Button
                                                         size="icon"
                                                         variant="outline"
-                                                        disabled={isUpdating || isDeleting}
+                                                        disabled={isUpdating || isDeleting || isDemo}
                                                         onClick={() => handleDelete(draft.$id)}
                                                         title={t('delete')}
                                                     >

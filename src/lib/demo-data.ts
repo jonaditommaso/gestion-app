@@ -1,5 +1,5 @@
 import { TaskStatus } from '@/features/tasks/types';
-import type { Task, WorkspaceMember } from '@/features/tasks/types';
+import type { Task, WorkspaceMember, TaskMetadata } from '@/features/tasks/types';
 import type { Deal, SalesBoard } from '@/features/sells/types';
 import type { WorkspaceType } from '@/features/workspaces/types';
 import type { Organization, Membership } from '@/features/team/types';
@@ -25,8 +25,8 @@ const DEMO_WORKSPACE_MEMBERS: WorkspaceMember[] = [
     {
         ...baseDoc,
         $id: DEMO_MEMBER_ALICE_ID,
-        $createdAt: '2025-01-10T09:00:00.000Z',
-        $updatedAt: '2025-01-10T09:00:00.000Z',
+        $createdAt: '2026-01-10T09:00:00.000Z',
+        $updatedAt: '2026-01-10T09:00:00.000Z',
         userId: 'demo-user-alice',
         workspaceId: DEMO_WORKSPACE_DEV_ID,
         role: 'OWNER',
@@ -37,8 +37,8 @@ const DEMO_WORKSPACE_MEMBERS: WorkspaceMember[] = [
     {
         ...baseDoc,
         $id: DEMO_MEMBER_BOB_ID,
-        $createdAt: '2025-01-11T09:00:00.000Z',
-        $updatedAt: '2025-01-11T09:00:00.000Z',
+        $createdAt: '2026-01-11T09:00:00.000Z',
+        $updatedAt: '2026-01-11T09:00:00.000Z',
         userId: 'demo-user-bob',
         workspaceId: DEMO_WORKSPACE_DEV_ID,
         role: 'CREATOR',
@@ -49,8 +49,8 @@ const DEMO_WORKSPACE_MEMBERS: WorkspaceMember[] = [
     {
         ...baseDoc,
         $id: DEMO_MEMBER_CAROL_ID,
-        $createdAt: '2025-01-12T09:00:00.000Z',
-        $updatedAt: '2025-01-12T09:00:00.000Z',
+        $createdAt: '2026-01-12T09:00:00.000Z',
+        $updatedAt: '2026-01-12T09:00:00.000Z',
         userId: 'demo-user-carol',
         workspaceId: DEMO_WORKSPACE_MKT_ID,
         role: 'VIEWER',
@@ -67,8 +67,8 @@ export const DEMO_WORKSPACES_DATA: Models.DocumentList<WorkspaceType> = {
         {
             ...baseDoc,
             $id: DEMO_WORKSPACE_DEV_ID,
-            $createdAt: '2025-01-10T08:00:00.000Z',
-            $updatedAt: '2025-01-10T08:00:00.000Z',
+            $createdAt: '2026-01-10T08:00:00.000Z',
+            $updatedAt: '2026-01-10T08:00:00.000Z',
             name: 'Development',
             inviteCode: 'DEMO01',
             description: 'Main development workspace',
@@ -76,8 +76,8 @@ export const DEMO_WORKSPACES_DATA: Models.DocumentList<WorkspaceType> = {
         {
             ...baseDoc,
             $id: DEMO_WORKSPACE_MKT_ID,
-            $createdAt: '2025-01-10T08:05:00.000Z',
-            $updatedAt: '2025-01-10T08:05:00.000Z',
+            $createdAt: '2026-01-10T08:05:00.000Z',
+            $updatedAt: '2026-01-10T08:05:00.000Z',
             name: 'Marketing',
             inviteCode: 'DEMO02',
             description: 'Marketing campaigns and content',
@@ -95,13 +95,13 @@ const makeDemoTask = (
 ): Task => ({
     ...baseDoc,
     $id: id,
-    $createdAt: '2025-02-01T10:00:00.000Z',
-    $updatedAt: '2025-02-01T10:00:00.000Z',
+    $createdAt: '2026-02-01T10:00:00.000Z',
+    $updatedAt: '2026-02-01T10:00:00.000Z',
     name,
     status,
     workspaceId,
     position: 1000,
-    dueDate: '2025-06-30',
+    dueDate: '2026-06-30',
     assignees: [],
     ...extra,
 });
@@ -110,55 +110,108 @@ const DEMO_TASKS_LIST: Task[] = [
     makeDemoTask('demo-task-01', 'Set up CI/CD pipeline', TaskStatus.DONE, DEMO_WORKSPACE_DEV_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[0]],
         priority: 2,
-        dueDate: '2025-04-10',
-        completedAt: '2025-04-09T14:00:00.000Z',
+        dueDate: '2026-04-10',
+        completedAt: '2026-04-09T14:00:00.000Z',
     }),
     makeDemoTask('demo-task-02', 'Implement authentication module', TaskStatus.IN_REVIEW, DEMO_WORKSPACE_DEV_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[1]],
         priority: 1,
-        dueDate: '2025-04-20',
+        dueDate: '2026-04-20',
         featured: true,
     }),
     makeDemoTask('demo-task-03', 'Design database schema', TaskStatus.IN_PROGRESS, DEMO_WORKSPACE_DEV_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[0], DEMO_WORKSPACE_MEMBERS[1]],
         priority: 2,
-        dueDate: '2025-04-25',
+        dueDate: '2026-04-25',
     }),
-    makeDemoTask('demo-task-04', 'Write unit tests for API', TaskStatus.TODO, DEMO_WORKSPACE_DEV_ID, {
+    makeDemoTask('demo-task-04', 'Write unit tests for API', TaskStatus.DONE, DEMO_WORKSPACE_DEV_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[1]],
         priority: 3,
-        dueDate: '2025-05-05',
+        dueDate: '2026-05-05',
     }),
     makeDemoTask('demo-task-05', 'Performance optimization review', TaskStatus.BACKLOG, DEMO_WORKSPACE_DEV_ID, {
         priority: 3,
-        dueDate: '2025-05-15',
+        dueDate: '2026-05-15',
     }),
     makeDemoTask('demo-task-06', 'Fix login redirect bug', TaskStatus.TODO, DEMO_WORKSPACE_DEV_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[0]],
         priority: 1,
-        dueDate: '2025-04-18',
+        dueDate: '2026-04-18',
         type: 'bug',
     }),
     makeDemoTask('demo-task-07', 'Q2 content calendar', TaskStatus.IN_PROGRESS, DEMO_WORKSPACE_MKT_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[2]],
         priority: 2,
-        dueDate: '2025-04-30',
+        dueDate: '2026-04-30',
     }),
     makeDemoTask('demo-task-08', 'Launch email campaign', TaskStatus.TODO, DEMO_WORKSPACE_MKT_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[2]],
         priority: 1,
-        dueDate: '2025-05-10',
+        dueDate: '2026-05-10',
         featured: true,
     }),
     makeDemoTask('demo-task-09', 'SEO audit and strategy', TaskStatus.BACKLOG, DEMO_WORKSPACE_MKT_ID, {
         priority: 3,
-        dueDate: '2025-05-20',
+        dueDate: '2026-05-20',
     }),
     makeDemoTask('demo-task-10', 'Brand guidelines update', TaskStatus.DONE, DEMO_WORKSPACE_MKT_ID, {
         assignees: [DEMO_WORKSPACE_MEMBERS[2]],
         priority: 2,
-        dueDate: '2025-03-28',
-        completedAt: '2025-03-27T11:30:00.000Z',
+        dueDate: '2026-03-28',
+        completedAt: '2026-03-27T11:30:00.000Z',
+    }),
+    makeDemoTask('demo-task-11', 'Evaluate new auth provider', TaskStatus.BACKLOG, DEMO_WORKSPACE_DEV_ID, {
+        assignees: [DEMO_WORKSPACE_MEMBERS[0]],
+        priority: 2,
+        dueDate: '2026-04-22',
+        type: 'spike',
+        description: 'Investigate whether the new authentication provider can support SSO, refresh tokens, and our current enterprise constraints before committing to migration.',
+        metadata: JSON.stringify({
+            spikeFindings: [
+                {
+                    id: 'finding-01',
+                    content: '<p>Initial review shows support for refresh tokens and role-based claims.</p>',
+                    createdAt: '2026-04-01T09:30:00.000Z',
+                },
+            ],
+            spikeConclusion: '<p>Proceed with a small Proof of Concept before a full rollout.</p>',
+            spikeConclusionType: 'investigate',
+        } satisfies TaskMetadata),
+    }),
+    makeDemoTask('demo-task-12', 'Fix checkout timeout regression', TaskStatus.IN_PROGRESS, DEMO_WORKSPACE_DEV_ID, {
+        assignees: [DEMO_WORKSPACE_MEMBERS[1]],
+        priority: 1,
+        dueDate: '2026-04-16',
+        type: 'urgent',
+        description: 'The checkout flow is timing out during payment confirmation, affecting customer purchases in production.',
+        featured: true,
+    }),
+    makeDemoTask('demo-task-13', 'Test: add regression suite for onboarding', TaskStatus.TODO, DEMO_WORKSPACE_DEV_ID, {
+        assignees: [DEMO_WORKSPACE_MEMBERS[0], DEMO_WORKSPACE_MEMBERS[1]],
+        priority: 2,
+        dueDate: '2026-04-24',
+        type: 'test',
+        description: 'Create end-to-end coverage for the onboarding experience before the next release candidate.',
+        metadata: JSON.stringify({
+            testScenarios: [
+                {
+                    id: 'scenario-onboarding',
+                    name: 'New user onboarding',
+                    cases: [
+                        { id: 'case-01', name: 'Sign up with valid email', status: 'pending' },
+                        { id: 'case-02', name: 'Complete profile setup', status: 'pass' },
+                    ],
+                },
+            ],
+            isTdd: true,
+        } satisfies TaskMetadata),
+    }),
+    makeDemoTask('demo-task-14', 'Redesign customer onboarding', TaskStatus.BACKLOG, DEMO_WORKSPACE_DEV_ID, {
+        assignees: [DEMO_WORKSPACE_MEMBERS[0]],
+        priority: 3,
+        dueDate: '2026-05-20',
+        type: 'epic',
+        description: 'Group the registration, verification, and activation improvements into one cross-team initiative.',
     }),
 ];
 
@@ -194,8 +247,8 @@ const makeDemoDeal = (
     companyResponsabileEmail: `contact@${company.toLowerCase().replace(/\s/g, '')}.com`,
     companyResponsabilePhoneNumber: '+1 555 000 0000',
     company,
-    expectedCloseDate: '2025-06-30',
-    lastStageChangedAt: '2025-03-15T10:00:00.000Z',
+    expectedCloseDate: '2026-06-30',
+    lastStageChangedAt: '2026-03-15T10:00:00.000Z',
     healthScore: 75,
     needsAttention: false,
     priority: 2,
@@ -211,41 +264,41 @@ const DEMO_DEALS_LIST: DealWithAssignees[] = [
     makeDemoDeal('demo-deal-01', 'Enterprise License Renewal', 'NEGOTIATION', 'PENDING', 48000, 'TechCorp Inc.', {
         assignees: [{ id: 'da-01', memberId: DEMO_MEMBER_ALICE_ID, name: 'Alice Martín', email: 'alice@demo.com', avatarId: null }],
         healthScore: 85,
-        expectedCloseDate: '2025-05-15',
+        expectedCloseDate: '2026-05-15',
         activities: [
-            { id: 'act-01', content: 'Initial call completed. Client interested.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2025-03-01T10:00:00.000Z' },
-            { id: 'act-02', content: 'Proposal sent.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2025-03-10T14:00:00.000Z' },
+            { id: 'act-01', content: 'Initial call completed. Client interested.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2026-03-01T10:00:00.000Z' },
+            { id: 'act-02', content: 'Proposal sent.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2026-03-10T14:00:00.000Z' },
         ],
     }),
     makeDemoDeal('demo-deal-02', 'SaaS Platform Upgrade', 'QUALIFICATION', 'PENDING', 12500, 'Innova Solutions', {
         assignees: [{ id: 'da-02', memberId: DEMO_MEMBER_BOB_ID, name: 'Bob García', email: 'bob@demo.com', avatarId: null }],
         healthScore: 60,
-        expectedCloseDate: '2025-05-30',
+        expectedCloseDate: '2026-05-30',
         activities: [
-            { id: 'act-03', content: 'Discovery meeting scheduled.', author: DEMO_MEMBER_BOB_ID, timestamp: '2025-03-20T11:00:00.000Z' },
+            { id: 'act-03', content: 'Discovery meeting scheduled.', author: DEMO_MEMBER_BOB_ID, timestamp: '2026-03-20T11:00:00.000Z' },
         ],
     }),
     makeDemoDeal('demo-deal-03', 'Annual Support Contract', 'CLOSED', 'WON', 8000, 'Global Retail Co.', {
         assignees: [{ id: 'da-03', memberId: DEMO_MEMBER_ALICE_ID, name: 'Alice Martín', email: 'alice@demo.com', avatarId: null }],
         healthScore: 100,
-        expectedCloseDate: '2025-03-31',
-        lastStageChangedAt: '2025-03-28T09:00:00.000Z',
+        expectedCloseDate: '2026-03-31',
+        lastStageChangedAt: '2026-03-28T09:00:00.000Z',
         activities: [
-            { id: 'act-04', content: 'Contract signed and payment received.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2025-03-28T09:00:00.000Z', type: 'step-completed' },
+            { id: 'act-04', content: 'Contract signed and payment received.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2026-03-28T09:00:00.000Z', type: 'step-completed' },
         ],
     }),
     makeDemoDeal('demo-deal-04', 'Marketing Automation Tool', 'LEADS', 'PENDING', 5500, 'StartupXYZ', {
         assignees: [{ id: 'da-04', memberId: DEMO_MEMBER_BOB_ID, name: 'Bob García', email: 'bob@demo.com', avatarId: null }],
         healthScore: 40,
         needsAttention: true,
-        expectedCloseDate: '2025-06-15',
+        expectedCloseDate: '2026-06-15',
     }),
     makeDemoDeal('demo-deal-05', 'Data Analytics Package', 'CLOSED', 'LOST', 22000, 'MegaCorp', {
         assignees: [{ id: 'da-05', memberId: DEMO_MEMBER_ALICE_ID, name: 'Alice Martín', email: 'alice@demo.com', avatarId: null }],
         healthScore: 0,
-        expectedCloseDate: '2025-04-01',
+        expectedCloseDate: '2026-04-01',
         activities: [
-            { id: 'act-05', content: 'Client chose competitor solution.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2025-04-01T16:00:00.000Z' },
+            { id: 'act-05', content: 'Client chose competitor solution.', author: DEMO_MEMBER_ALICE_ID, timestamp: '2026-04-01T16:00:00.000Z' },
         ],
     }),
     makeDemoDeal('demo-deal-06', 'Cloud Migration Consulting', 'NEGOTIATION', 'PENDING', 35000, 'FinServ Ltd.', {
@@ -254,10 +307,10 @@ const DEMO_DEALS_LIST: DealWithAssignees[] = [
             { id: 'da-07', memberId: DEMO_MEMBER_BOB_ID, name: 'Bob García', email: 'bob@demo.com', avatarId: null },
         ],
         healthScore: 72,
-        expectedCloseDate: '2025-06-01',
+        expectedCloseDate: '2026-06-01',
         priority: 1,
         activities: [
-            { id: 'act-06', content: 'Technical review completed.', author: DEMO_MEMBER_BOB_ID, timestamp: '2025-03-25T13:00:00.000Z' },
+            { id: 'act-06', content: 'Technical review completed.', author: DEMO_MEMBER_BOB_ID, timestamp: '2026-03-25T13:00:00.000Z' },
         ],
     }),
 ];
@@ -279,7 +332,7 @@ export const DEMO_SALES_BOARD_DATA: { total: number; documents: SalesBoard[] } =
             name: 'Main Pipeline',
             currencies: ['USD'],
             activeGoalId: null,
-            createdAt: '2025-01-10T08:00:00.000Z',
+            createdAt: '2026-01-10T08:00:00.000Z',
             labels: [],
         },
     ],
@@ -332,14 +385,14 @@ const makeBillingDoc = (
 ): BillingDoc => ({
     ...baseDoc,
     $id: id,
-    $createdAt: '2025-03-01T10:00:00.000Z',
-    $updatedAt: '2025-03-01T10:00:00.000Z',
+    $createdAt: '2026-03-01T10:00:00.000Z',
+    $updatedAt: '2026-03-01T10:00:00.000Z',
     type,
     import: amount,
     currency: 'USD',
     category,
     status,
-    date: '2025-03-01T00:00:00.000Z',
+    date: '2026-03-01T00:00:00.000Z',
     partyName,
     teamId: 'demo-team',
     isArchived: false,
@@ -388,6 +441,17 @@ const DEMO_BILLING_LIST: BillingDoc[] = [
     makeBillingDoc('demo-bill-06', 'expense', 800, 'Marketing', 'PENDING', 'Google Ads', {
         date: '2026-04-01T00:00:00.000Z',
         dueDate: '2026-04-30T00:00:00.000Z',
+    }),
+    makeBillingDoc('demo-bill-10', 'income', 18750, 'Services', 'PENDING', 'Northwind Labs', {
+        date: '2026-06-01T00:00:00.000Z',
+        dueDate: '2026-06-24T00:00:00.000Z',
+        invoiceNumber: 'INV-2026-004',
+    }),
+    makeBillingDoc('demo-bill-11', 'income', 10150, 'Services', 'PENDING', 'DTC Labs', {
+        date: '2026-07-01T00:00:00.000Z',
+        dueDate: '2026-07-24T00:00:00.000Z',
+        invoiceNumber: 'INV-2026-006',
+        note: 'Quarterly support retainer',
     }),
     // February 2026 (for projection average)
     makeBillingDoc('demo-bill-08', 'income', 22000, 'Sales', 'PAID', 'MegaClient Corp', {
@@ -454,8 +518,8 @@ export const DEMO_BILLING_OPTIONS: Models.DocumentList<BillingOptionsDoc> = {
         {
             ...baseDoc,
             $id: 'demo-billing-options-01',
-            $createdAt: '2025-01-01T00:00:00.000Z',
-            $updatedAt: '2025-01-01T00:00:00.000Z',
+            $createdAt: '2026-01-01T00:00:00.000Z',
+            $updatedAt: '2026-01-01T00:00:00.000Z',
             teamId: 'demo-team',
             incomeCategories: ['Sales', 'Services', 'Consulting', 'Other Income'],
             expenseCategories: ['Infrastructure', 'Software', 'Marketing', 'Salaries', 'Operations'],
@@ -485,8 +549,8 @@ const DEMO_TABLES_LIST: TableDoc[] = [
     {
         ...baseDoc,
         $id: DEMO_TABLE_CLIENTS_ID,
-        $createdAt: '2025-01-15T10:00:00.000Z',
-        $updatedAt: '2025-01-15T10:00:00.000Z',
+        $createdAt: '2026-01-15T10:00:00.000Z',
+        $updatedAt: '2026-01-15T10:00:00.000Z',
         tableName: 'Clients',
         headers: ['Name', 'Industry', 'Country', 'Annual Revenue', 'Status'],
         teamId: 'demo-team',
@@ -495,8 +559,8 @@ const DEMO_TABLES_LIST: TableDoc[] = [
     {
         ...baseDoc,
         $id: DEMO_TABLE_SUPPLIERS_ID,
-        $createdAt: '2025-01-16T10:00:00.000Z',
-        $updatedAt: '2025-01-16T10:00:00.000Z',
+        $createdAt: '2026-01-16T10:00:00.000Z',
+        $updatedAt: '2026-01-16T10:00:00.000Z',
         tableName: 'Suppliers',
         headers: ['Company', 'Service', 'Contact Email', 'Monthly Cost', 'Contract Until'],
         teamId: 'demo-team',
@@ -513,8 +577,8 @@ const DEMO_RECORDS_CLIENTS: RecordDoc[] = [
     {
         ...baseDoc,
         $id: 'demo-rec-01',
-        $createdAt: '2025-01-20T10:00:00.000Z',
-        $updatedAt: '2025-01-20T10:00:00.000Z',
+        $createdAt: '2026-01-20T10:00:00.000Z',
+        $updatedAt: '2026-01-20T10:00:00.000Z',
         tableId: DEMO_TABLE_CLIENTS_ID,
         teamId: 'demo-team',
         createdBy: 'demo-user-alice',
@@ -523,8 +587,8 @@ const DEMO_RECORDS_CLIENTS: RecordDoc[] = [
     {
         ...baseDoc,
         $id: 'demo-rec-02',
-        $createdAt: '2025-01-21T10:00:00.000Z',
-        $updatedAt: '2025-01-21T10:00:00.000Z',
+        $createdAt: '2026-01-21T10:00:00.000Z',
+        $updatedAt: '2026-01-21T10:00:00.000Z',
         tableId: DEMO_TABLE_CLIENTS_ID,
         teamId: 'demo-team',
         createdBy: 'demo-user-alice',
@@ -533,8 +597,8 @@ const DEMO_RECORDS_CLIENTS: RecordDoc[] = [
     {
         ...baseDoc,
         $id: 'demo-rec-03',
-        $createdAt: '2025-01-22T10:00:00.000Z',
-        $updatedAt: '2025-01-22T10:00:00.000Z',
+        $createdAt: '2026-01-22T10:00:00.000Z',
+        $updatedAt: '2026-01-22T10:00:00.000Z',
         tableId: DEMO_TABLE_CLIENTS_ID,
         teamId: 'demo-team',
         createdBy: 'demo-user-alice',
@@ -546,8 +610,8 @@ const DEMO_RECORDS_SUPPLIERS: RecordDoc[] = [
     {
         ...baseDoc,
         $id: 'demo-rec-04',
-        $createdAt: '2025-01-20T10:00:00.000Z',
-        $updatedAt: '2025-01-20T10:00:00.000Z',
+        $createdAt: '2026-01-20T10:00:00.000Z',
+        $updatedAt: '2026-01-20T10:00:00.000Z',
         tableId: DEMO_TABLE_SUPPLIERS_ID,
         teamId: 'demo-team',
         createdBy: 'demo-user-alice',
@@ -556,12 +620,12 @@ const DEMO_RECORDS_SUPPLIERS: RecordDoc[] = [
     {
         ...baseDoc,
         $id: 'demo-rec-05',
-        $createdAt: '2025-01-21T10:00:00.000Z',
-        $updatedAt: '2025-01-21T10:00:00.000Z',
+        $createdAt: '2026-01-21T10:00:00.000Z',
+        $updatedAt: '2026-01-21T10:00:00.000Z',
         tableId: DEMO_TABLE_SUPPLIERS_ID,
         teamId: 'demo-team',
         createdBy: 'demo-user-alice',
-        data: ['"GitHub"', '"Version Control"', '"support@github.com"', '"$1,200"', '"2025-12-31"'],
+        data: ['"GitHub"', '"Version Control"', '"support@github.com"', '"$1,200"', '"2026-12-31"'],
     },
 ];
 
@@ -620,7 +684,7 @@ export const DEMO_ORG_MEMBERS: OrgMember[] = [
             linkedin: '',
             tags: 'product,strategy',
             birthday: '',
-            memberSince: '2025-01-10',
+            memberSince: '2026-01-10',
             currentProject: 'Platform V2',
             image: 'https://i.pravatar.cc/300?img=26',
         },
@@ -643,7 +707,7 @@ export const DEMO_ORG_MEMBERS: OrgMember[] = [
             linkedin: '',
             tags: 'development,devops',
             birthday: '',
-            memberSince: '2025-01-11',
+            memberSince: '2026-01-11',
             currentProject: 'CI/CD Pipeline',
             image: 'https://i.pravatar.cc/300?img=12',
         },
@@ -666,7 +730,7 @@ export const DEMO_ORG_MEMBERS: OrgMember[] = [
             linkedin: '',
             tags: 'marketing,design',
             birthday: '',
-            memberSince: '2025-01-12',
+            memberSince: '2026-01-12',
             currentProject: 'Q2 Campaign',
             image: 'https://i.pravatar.cc/300?img=32',
         },
@@ -683,8 +747,8 @@ export const DEMO_WORKSPACE_MEMBERS_DATA: Models.DocumentList<WorkspaceMember> =
 export const DEMO_ORG: Organization = {
     ...baseDoc,
     $id: 'demo-org-id',
-    $createdAt: '2025-01-01T00:00:00.000Z',
-    $updatedAt: '2025-01-01T00:00:00.000Z',
+    $createdAt: '2026-01-01T00:00:00.000Z',
+    $updatedAt: '2026-01-01T00:00:00.000Z',
     name: 'Demo Company',
     plan: 'PRO',
     billingCycle: 'MONTHLY',
@@ -696,13 +760,13 @@ export const DEMO_ORG: Organization = {
 export const DEMO_MEMBERSHIP: Membership = {
     ...baseDoc,
     $id: 'demo-membership-id',
-    $createdAt: '2025-01-01T00:00:00.000Z',
-    $updatedAt: '2025-01-01T00:00:00.000Z',
+    $createdAt: '2026-01-01T00:00:00.000Z',
+    $updatedAt: '2026-01-01T00:00:00.000Z',
     userId: 'demo-user-placeholder',
     organizationId: 'demo-org-id',
     role: 'OWNER',
     position: 'Demo User',
-    memberSince: '2025-01-01',
+    memberSince: '2026-01-01',
 };
 
 // ─── Initial arrays for DemoDataContext ──────────────────────────────────────
@@ -723,8 +787,8 @@ import type { Message } from '@/features/home/components/messages/types';
 export const DEMO_MESSAGES: Message[] = [
     {
         $id: 'demo-msg-01',
-        $createdAt: '2025-03-10T09:15:00.000Z',
-        $updatedAt: '2025-03-10T09:15:00.000Z',
+        $createdAt: '2026-03-10T09:15:00.000Z',
+        $updatedAt: '2026-03-10T09:15:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -738,8 +802,8 @@ export const DEMO_MESSAGES: Message[] = [
     },
     {
         $id: 'demo-msg-02',
-        $createdAt: '2025-03-11T14:30:00.000Z',
-        $updatedAt: '2025-03-11T14:30:00.000Z',
+        $createdAt: '2026-03-11T14:30:00.000Z',
+        $updatedAt: '2026-03-11T14:30:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -752,8 +816,8 @@ export const DEMO_MESSAGES: Message[] = [
     },
     {
         $id: 'demo-msg-03',
-        $createdAt: '2025-03-12T11:00:00.000Z',
-        $updatedAt: '2025-03-12T11:00:00.000Z',
+        $createdAt: '2026-03-12T11:00:00.000Z',
+        $updatedAt: '2026-03-12T11:00:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -766,8 +830,8 @@ export const DEMO_MESSAGES: Message[] = [
     },
     {
         $id: 'demo-msg-04',
-        $createdAt: '2025-03-14T16:45:00.000Z',
-        $updatedAt: '2025-03-14T16:45:00.000Z',
+        $createdAt: '2026-03-14T16:45:00.000Z',
+        $updatedAt: '2026-03-14T16:45:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -786,8 +850,8 @@ import type { NoteData } from '@/features/home/types';
 export const DEMO_NOTES: NoteData[] = [
     {
         $id: 'demo-note-01',
-        $createdAt: '2025-03-01T08:00:00.000Z',
-        $updatedAt: '2025-03-01T08:00:00.000Z',
+        $createdAt: '2026-03-01T08:00:00.000Z',
+        $updatedAt: '2026-03-01T08:00:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -798,13 +862,13 @@ export const DEMO_NOTES: NoteData[] = [
         isModern: true,
         hasLines: false,
         isPinned: true,
-        pinnedAt: '2025-03-01T08:00:00.000Z',
+        pinnedAt: '2026-03-01T08:00:00.000Z',
         isGlobal: false,
     },
     {
         $id: 'demo-note-02',
-        $createdAt: '2025-03-05T10:30:00.000Z',
-        $updatedAt: '2025-03-05T10:30:00.000Z',
+        $createdAt: '2026-03-05T10:30:00.000Z',
+        $updatedAt: '2026-03-05T10:30:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -819,8 +883,8 @@ export const DEMO_NOTES: NoteData[] = [
     },
     {
         $id: 'demo-note-03',
-        $createdAt: '2025-03-10T14:00:00.000Z',
-        $updatedAt: '2025-03-10T14:00:00.000Z',
+        $createdAt: '2026-03-10T14:00:00.000Z',
+        $updatedAt: '2026-03-10T14:00:00.000Z',
         $collectionId: 'demo',
         $databaseId: 'demo',
         $permissions: [],
@@ -832,7 +896,7 @@ export const DEMO_NOTES: NoteData[] = [
         hasLines: false,
         isPinned: false,
         isGlobal: true,
-        globalAt: '2025-03-10T14:00:00.000Z',
+        globalAt: '2026-03-10T14:00:00.000Z',
     },
 ];
 
@@ -850,7 +914,7 @@ export const DEMO_RECENT_ACTIVITY: RecentActivityItem[] = [
         title: 'SaaS Expansion',
         amount: 25000,
         currency: 'USD',
-        timestamp: '2025-03-14T10:00:00.000Z',
+        timestamp: '2026-03-14T10:00:00.000Z',
     },
     {
         id: 'act-demo-02',
@@ -858,7 +922,7 @@ export const DEMO_RECENT_ACTIVITY: RecentActivityItem[] = [
         actorName: 'Bob García',
         action: 'completed',
         title: 'Deploy v2.4 to production',
-        timestamp: '2025-03-13T16:30:00.000Z',
+        timestamp: '2026-03-13T16:30:00.000Z',
     },
     {
         id: 'act-demo-03',
@@ -868,7 +932,7 @@ export const DEMO_RECENT_ACTIVITY: RecentActivityItem[] = [
         title: 'Cloud Migration Consulting',
         amount: 35000,
         currency: 'USD',
-        timestamp: '2025-03-12T09:15:00.000Z',
+        timestamp: '2026-03-12T09:15:00.000Z',
     },
     {
         id: 'act-demo-04',
@@ -876,6 +940,6 @@ export const DEMO_RECENT_ACTIVITY: RecentActivityItem[] = [
         actorName: 'Alice Martín',
         action: 'updated',
         title: 'Q2 Marketing Campaign',
-        timestamp: '2025-03-11T11:45:00.000Z',
+        timestamp: '2026-03-11T11:45:00.000Z',
     },
 ];

@@ -18,20 +18,21 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider = ({ children, hasSession }: { children: React.ReactNode; hasSession: boolean }) => {
+export const AppProvider = ({ children, hasSession, isDemo }: { children: React.ReactNode; hasSession: boolean; isDemo: boolean }) => {
     const { data: currentUser, isLoading: isLoadingUser } = useCurrent({ enabled: hasSession });
-    const isDemo = currentUser?.prefs?.isDemo === true;
 
     const { data: teamContext, isLoading: isLoadingTeamContext } = useGetTeamContext({
         enabled: !isDemo && !!currentUser,
     });
 
-    const effectiveTeamContext: TeamContextData | null | undefined = isDemo && currentUser
-        ? {
-            membership: { ...DEMO_MEMBERSHIP, userId: currentUser.$id },
-            org: DEMO_ORG,
-            allContexts: [{ membership: { ...DEMO_MEMBERSHIP, userId: currentUser.$id }, org: DEMO_ORG }],
-        }
+    const demoTeamContext: TeamContextData = {
+        membership: DEMO_MEMBERSHIP,
+        org: DEMO_ORG,
+        allContexts: [{ membership: DEMO_MEMBERSHIP, org: DEMO_ORG }],
+    };
+
+    const effectiveTeamContext: TeamContextData | null | undefined = isDemo
+        ? demoTeamContext
         : teamContext;
 
     return (

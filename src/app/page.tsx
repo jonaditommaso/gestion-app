@@ -1,4 +1,4 @@
-import { getCurrent } from "@/features/auth/queries";
+import { getCurrentSession } from "@/features/auth/queries";
 import ServicesCard from "@/features/landing/components/ServicesCard";
 import { services } from "@/features/landing/services";
 import ScrollToTop from "@/features/landing/components/ScrollToTop";
@@ -12,14 +12,15 @@ import FeatureShowcase from "@/features/landing/components/FeatureShowcase";
 import CustomerSuccess from "@/features/landing/components/CustomerSuccess";
 
 export default async function Home() {
-  const user = await getCurrent();
-  const t = await getTranslations('landing')
+  const t = await getTranslations('landing');
+
+  const hasSession = await getCurrentSession();
 
   //if(!user) redirect('/login');
 
   return (
     <div>
-      {user
+      {hasSession
         ? <HomeView />
         : (
 

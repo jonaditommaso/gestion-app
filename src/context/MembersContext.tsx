@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, useCallback } from 'react';
 import { useGetMembers } from '@/features/members/api/use-get-members';
+import { useAppContext } from '@/context/AppContext';
+import { DEMO_ORG_MEMBERS } from '@/lib/demo-data';
 
 interface MemberWithPhoto {
     $id: string;
@@ -28,6 +30,7 @@ interface MembersProviderProps {
 
 export const MembersProvider = ({ children, workspaceId }: MembersProviderProps) => {
     const { data: membersData, isLoading: isMembersLoading } = useGetMembers({ workspaceId });
+    const { isDemo } = useAppContext();
     const [memberPhotos, setMemberPhotos] = useState<Record<string, string>>({});
     const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
 
@@ -42,6 +45,16 @@ export const MembersProvider = ({ children, workspaceId }: MembersProviderProps)
             await Promise.all(
                 membersData.documents.map(async (member) => {
                     try {
+                        if (isDemo) {
+                            const demoMember = DEMO_ORG_MEMBERS.find(demoUser => demoUser.userId === member.userId);
+                            const demoPhotoUrl = demoMember?.prefs?.image;
+
+                            if (demoPhotoUrl) {
+                                photos[member.$id] = demoPhotoUrl;
+                                return;
+                            }
+                        }
+
                         const response = await fetch(`/api/settings/get-image/${member.userId}`);
 
                         if (response.ok) {
@@ -69,7 +82,7 @@ export const MembersProvider = ({ children, workspaceId }: MembersProviderProps)
             });
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [membersData?.documents]);
+    }, [membersData?.documents, isDemo]);
 
     const members = useMemo<MemberWithPhoto[]>(() => {
         if (!membersData?.documents) return [];

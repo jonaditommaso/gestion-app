@@ -8,6 +8,8 @@ import type { RoleType } from "../constants"
 import { getPermissionBadgeColor, getEffectivePermissions } from "../constants"
 import { useTranslations } from "next-intl"
 import { usePlanAccess } from "@/hooks/usePlanAccess"
+import { cn } from "@/lib/utils"
+import { useAppContext } from "@/context/AppContext"
 
 interface RoleCardProps {
   role: RoleType
@@ -21,6 +23,7 @@ interface RoleCardProps {
 export function RoleCard({ permissions, name, description, color, onEdit }: RoleCardProps) {
   const t = useTranslations('roles')
   const { plan } = usePlanAccess()
+  const { isDemo } = useAppContext();
   const isPro = plan === 'PRO' || plan === 'ENTERPRISE'
   const displayPermissions = isPro ? getEffectivePermissions(permissions) : permissions
   const MAX_VISIBLE = 5
@@ -34,8 +37,8 @@ export function RoleCard({ permissions, name, description, color, onEdit }: Role
           <CardTitle className="flex items-center gap-2">
             <Badge className={`${color} select-none user-select-none pointer-events-none`}>{t(name)}</Badge>
           </CardTitle>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={onEdit}>
+          <div className={cn("flex gap-1", isDemo ? 'cursor-not-allowed' : '')}>
+            <Button variant="ghost" size="sm" onClick={onEdit} disabled={isDemo}>
               <Edit className="w-4 h-4" />
             </Button>
           </div>

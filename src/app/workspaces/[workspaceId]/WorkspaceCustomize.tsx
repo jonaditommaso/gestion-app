@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
+import { useAppContext } from "@/context/AppContext";
 
 interface WorkspaceCustomizeProps {
     workspace: WorkspaceType;
@@ -28,8 +29,9 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
     const { canEditLabel } = useWorkspacePermissions();
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
     const { hasPermission } = useCurrentUserPermissions();
-    const canWrite = hasPermission(PERMISSIONS.WRITE);
-    const canDelete = hasPermission(PERMISSIONS.DELETE);
+    const { isDemo } = useAppContext();
+    const canWrite = hasPermission(PERMISSIONS.WRITE) && !isDemo;
+    const canDelete = hasPermission(PERMISSIONS.DELETE) && !isDemo;
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-label-confirm-title'),
@@ -285,7 +287,8 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                                                 ? "border-primary ring-2 ring-primary/20"
                                                 : "border-transparent hover:border-primary/30",
                                             isPending && "opacity-50 cursor-not-allowed",
-                                            preset.gradient
+                                            preset.gradient,
+                                            !canWrite && "opacity-50 cursor-not-allowed hover:scale-100"
                                         )}
                                     >
                                         {selectedColor === preset.value && (

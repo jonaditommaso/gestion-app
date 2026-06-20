@@ -1,27 +1,27 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { useRegister } from "@/features/auth/api/use-register";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn, generateInviteCode } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+declare global {
+    interface Window {
+        umami?: {
+            track: (eventName: string) => void
+        }
+    }
+}
 
 const DemoButton = ({ text, fit, link }: { text: string, fit?: boolean, link?: boolean }) => {
-    const { mutate: demoRegister, isPending } = useRegister();
     const isMobile = useIsMobile();
+    const router = useRouter();
 
     const handleGetDemo = () => {
-        demoRegister({
-            json: {
-                company: 'Demo Org.',
-                name: 'Demo User',
-                email: `user${generateInviteCode(6)}@demo.com`,
-                password: 'Demo12345678',
-                plan: 'pro',
-                isDemo: true
-            }
-        })
-
+        document.cookie = 'isDemo=true; path=/';
+        window.umami?.track('demo_started')
+        router.refresh();
     }
 
     return (
@@ -30,8 +30,7 @@ const DemoButton = ({ text, fit, link }: { text: string, fit?: boolean, link?: b
             size={isMobile ? 'sm' : 'lg'}
             type="button"
             variant={link ? 'link' : 'success'}
-            onClick={() => handleGetDemo()}
-            disabled={isPending}
+            onClick={handleGetDemo}
         >
             {text} {link ? <ArrowRight size={16} className="text-blue-100/80" /> : null}
         </Button>

@@ -35,6 +35,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useAppContext } from "@/context/AppContext";
 
 // const defaultValues = {
 //     type: 'income',
@@ -56,6 +57,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
     const { mutate: createCategory } = useCreateBillingOptions();
     const {mutate: updateCategories} = useUpdateBillingOptions();
     const { data, isLoading: isLoadingCategories } = useGetBillingOptions();
+    const { isDemo } = useAppContext();
     const t = useTranslations('billing')
 
     const [newCategoryInput, setNewCategoryInput] = useState(false);
@@ -165,6 +167,7 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                 form.reset();
                 setIsOpen(false);
                 setNewCategoryInput(false)
+                if (isDemo) return;
 
                 const income = data?.documents[0].incomeCategories || [];
                 const expense = data?.documents[0].expenseCategories || [];

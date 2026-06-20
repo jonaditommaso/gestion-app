@@ -46,7 +46,7 @@ const ImageMock = ({ name }: { name: string }) => (
 
 const MemberCard = ({ memberId, name, email, position, tags = [], userId, image, birthday, description, linkedin, memberSince, currentProject, orgName, appwriteMembershipId }: MemberCardProps) => {
     const { imageUrl, isPending } = useProfilePicture(userId, !!image);
-    const { currentUser } = useAppContext();
+    const { currentUser, isDemo } = useAppContext();
     const t = useTranslations('team');
     const locale = useLocale() as keyof typeof localeMap;
     const dateLocale = localeMap[locale] ?? enUS;
@@ -91,15 +91,15 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                 <Card className="w-[300px] bg-sidebar overflow-hidden h-full">
                     <div className="relative w-full h-[300px]">
                         {!image && !isPending && <ImageMock name={name} />}
-                        {isPending
+                        {isPending && !isDemo
                             ? (
                                 <div className="h-[300px] flex items-center justify-center">
                                     <FadeLoader color="#999" width={3} />
                                 </div>
                             )
-                            : imageUrl
+                            : (imageUrl || (isDemo && image))
                                 ? <Image
-                                    src={imageUrl}
+                                    src={image ?? imageUrl}
                                     alt={`profile member ${name} picture`}
                                     className="object-cover w-full h-[300px] rounded-t-md"
                                     height={300}
@@ -177,7 +177,7 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                                         </Tooltip>
                                     </TooltipProvider>
                                 )}
-                                {!isCurrentUser && !isFree && (
+                                {!isCurrentUser && !isFree && !isDemo && (
                                     <div
                                         className="cursor-pointer bg-transparent hover:bg-secondary rounded-full p-1.5 transition-colors"
                                         onClick={() => setMessageOpen(true)}

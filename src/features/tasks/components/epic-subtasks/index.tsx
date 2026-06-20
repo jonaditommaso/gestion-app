@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { EpicSubtaskRow } from './EpicSubtaskRow';
 import { useConfirm } from '@/hooks/use-confirm';
 import { useArchiveTask } from '../../api/use-archive-task';
+import { useAppContext } from '@/context/AppContext';
 
 interface EpicSubtasksProps {
     epic: Task;
@@ -48,6 +49,7 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProg
     const { mutate: createTask, isPending: isCreating } = useCreateTask();
     const { mutate: deleteTask } = useDeleteTask();
     const { archiveTask } = useArchiveTask();
+    const { isDemo } = useAppContext();
 
     const [DeleteSubtaskDialog, confirmDeleteSubtask] = useConfirm(
         t('delete-subtask'),
@@ -203,6 +205,7 @@ export const EpicSubtasks = ({ epic, onNavigate, availableMembers = [], hideProg
                 size="sm"
                 onClick={() => setIsInputVisible(true)}
                 className="text-muted-foreground hover:text-foreground"
+                disabled={isDemo}
             >
                 <Plus className="size-4 mr-2" />
                 {t('add-subtask')}

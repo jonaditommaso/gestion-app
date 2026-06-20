@@ -1,5 +1,5 @@
 import NoTeamWarning from "./NoTeamWarning";
-import { getCurrent } from "@/features/auth/queries";
+import { getCurrent, getIsDemoUser } from "@/features/auth/queries";
 import HomeWidgets from "./HomeWidgets";
 import { createAdminClient } from "@/lib/appwrite";
 import { getActiveContext } from "@/features/team/server/utils";
@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 
 const HomeView = async () => {
     const user = await getCurrent();
-    const isDemo = user?.prefs?.isDemo === true;
+    const isDemo = await getIsDemoUser();
 
     let hasContext = false;
     if (isDemo) {

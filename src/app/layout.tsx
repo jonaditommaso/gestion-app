@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Montserrat } from "next/font/google";
 import TanstackQueryProvider from "@/components/TanstackQueryProvider";
@@ -12,6 +13,7 @@ import ChatBotPanel from "@/components/ChatBotPanel";
 import { AppProvider } from "@/context/AppContext";
 import { DemoDataProvider } from "@/context/DemoDataContext";
 import { getCurrent } from "@/features/auth/queries";
+import { cookies } from "next/headers";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -34,9 +36,19 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const user = await getCurrent();
+  const cookieStore = await cookies();
+
+  const isDemo = cookieStore.get('isDemo')?.value === 'true';
 
   return (
     <html lang={locale} className={`${montserrat.variable}`}>
+      <head>
+        <Script
+          src="https://cloud.umami.is/script.js"
+          data-website-id="a1e49368-540d-4116-bf23-9686ee1e32ad"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body>
         <NextIntlClientProvider>
           <TanstackQueryProvider>
@@ -46,7 +58,7 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <AppProvider hasSession={!!user}>
+              <AppProvider hasSession={!!user || isDemo} isDemo={isDemo}>
                 <DemoDataProvider>
                   <ChatBotProvider>
                     <AppStructure />

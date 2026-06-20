@@ -73,7 +73,7 @@ const ShortcutItem = ({ shortcutString, onNavigate, onEdit, onDelete, isLoading,
 const ShortcutButton = () => {
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const t = useTranslations('home');
-    const { currentUser: user, isLoadingUser: isLoading } = useAppContext();
+    const { currentUser: user, isLoadingUser: isLoading, isDemo } = useAppContext();
     const { mutate: deleteShortcut, isPending: isDeleting } = useDeleteShortcut();
     const { isFree } = usePlanAccess();
 
@@ -128,7 +128,7 @@ const ShortcutButton = () => {
                         // className={`w-full ${isFree ? 'py-11' : 'py-16'} h-auto`}
                         className="w-full h-28"
                         variant='outline'
-                        disabled={popoverIsOpen || isLoading}
+                        disabled={popoverIsOpen || isLoading || isDemo}
                         onClick={() => handleAddShortcut('shortcut')}
                     >
                         <Plus /> <span>{t('add-shortcut')}</span>
