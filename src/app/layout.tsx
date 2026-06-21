@@ -42,13 +42,12 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className={`${montserrat.variable}`}>
-      <head>
         <Script
+          defer
           src="https://cloud.umami.is/script.js"
-          data-website-id="a1e49368-540d-4116-bf23-9686ee1e32ad"
+          data-website-id={process.env.UMAMI_ID}
           strategy="beforeInteractive"
         />
-      </head>
       <body>
         <NextIntlClientProvider>
           <TanstackQueryProvider>
