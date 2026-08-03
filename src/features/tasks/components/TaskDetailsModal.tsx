@@ -48,6 +48,7 @@ const TaskDetailsModal = ({ taskId, isOpen, onClose }: TaskDetailsModalProps) =>
                                 taskName={task.name}
                                 taskType={task.type}
                                 isFeatured={task.featured}
+                                task={task}
                                 variant="modal"
                                 onClose={onClose}
                             />

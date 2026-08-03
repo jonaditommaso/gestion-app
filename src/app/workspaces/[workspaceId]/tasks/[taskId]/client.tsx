@@ -38,6 +38,7 @@ const TaskIdClient = () => {
                         taskName={data.name}
                         taskType={data.type}
                         isFeatured={data.featured}
+                        task={data}
                         variant="page"
                     />
                 </div>

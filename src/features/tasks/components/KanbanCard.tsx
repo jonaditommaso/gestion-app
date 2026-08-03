@@ -139,7 +139,7 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                         <p className="text-sm max-w-[200px]" title={t('task-name')}>{task.name}</p>
                     )}
                     <div onClick={(e) => e.stopPropagation()}>
-                        <TaskActions taskId={task.$id} taskName={task.name} taskType={task.type} isFeatured={task.featured}>
+                        <TaskActions taskId={task.$id} taskName={task.name} taskType={task.type} isFeatured={task.featured} task={task}>
                             <MoreHorizontalIcon className="size-[18px] stroke-1 shrink-0 text-neutral-700 hover:opacity-75 transition" />
                         </TaskActions>
                     </div>

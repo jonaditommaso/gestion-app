@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
+import { Task } from "../types";
 
 interface UseGetTaskProps {
     taskId: string;
@@ -14,6 +16,24 @@ export const useGetTask = ({
 }: UseGetTaskProps) => {
     const { isDemo, isLoadingUser } = useAppContext();
     const demoData = useDemoData();
+    const queryClient = useQueryClient();
+
+    const cachedTask = (() => {
+        if (!taskId) return null;
+
+        const cachedTaskQueries = queryClient.getQueriesData<{ documents?: Task[] }>({
+            queryKey: ['tasks'],
+        });
+
+        for (const [, value] of cachedTaskQueries) {
+            const found = value?.documents?.find((task) => task.$id === taskId);
+            if (found) {
+                return found;
+            }
+        }
+
+        return null;
+    })();
 
     const query = useQuery({
         queryKey: ['task', taskId, isDemo],
@@ -34,8 +54,9 @@ export const useGetTask = ({
 
             return data;
         },
-        enabled: !isLoadingUser && enabled && !!taskId
-    })
+        initialData: cachedTask,
+        enabled: !isLoadingUser && enabled && !!taskId && (isDemo || !cachedTask),
+    });
 
     return query;
 }
