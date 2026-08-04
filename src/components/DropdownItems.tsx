@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { WorkspaceType } from "@/features/workspaces/types";
-import { useGetWorkspacesCount } from "@/features/workspaces/api/use-get-workspaces-count";
 import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
@@ -19,13 +18,14 @@ interface DropdownItemsProps {
     itemName: string,
     itemType: string,
     currentWorkspaceId?: string,
+    workspacesCount: { count: number },
 }
 
-const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId }: DropdownItemsProps) => {
+const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, workspacesCount }: DropdownItemsProps) => {
     const { theme } = useTheme();
     const t = useTranslations('general');
     const { data: workspaces } = useGetWorkspaces();
-    const { data: workspacesCount } = useGetWorkspacesCount();
+    // const { data: workspacesCount } = useGetWorkspacesCount();
     const router = useRouter();
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);

@@ -123,6 +123,7 @@ const WorkspaceView = () => {
                     itemName={(currentWorkspace as WorkspaceType).name}
                     itemType="workspace"
                     currentWorkspaceId={workspaceId}
+                    workspacesCount={{ count: workspaces?.total ?? 0 }}
                   />}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
