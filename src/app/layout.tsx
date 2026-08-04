@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
 import { ChatBotProvider } from "@/context/ChatBotContext";
-import ChatBotPanel from "@/components/ChatBotPanel";
+import { ChatBot } from "@/components/chatbot";
 import { AppProvider } from "@/context/AppContext";
 import { DemoDataProvider } from "@/context/DemoDataContext";
 import { getCurrent } from "@/features/auth/queries";
@@ -62,7 +62,7 @@ export default async function RootLayout({
                   <ChatBotProvider>
                     <AppStructure />
                     <Toaster />
-                    <ChatBotPanel />
+                    <ChatBot />
                     {children}
                   </ChatBotProvider>
                 </DemoDataProvider>
