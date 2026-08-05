@@ -40,6 +40,31 @@ type DemoDataContextType = {
     deleteMessage: (id: string) => void;
 };
 
+const emptyDemoData = {
+    tasks: [],
+    notes: [],
+    deals: [],
+    billingOps: [],
+    billingDrafts: [],
+    billingArchived: [],
+    messages: [],
+    addTask: () => {},
+    updateTask: () => {},
+    deleteTask: () => {},
+    addDeal: () => {},
+    updateDeal: () => {},
+    deleteDeal: () => {},
+    addBillingOp: () => {},
+    updateBillingOp: () => {},
+    deleteBillingOp: () => {},
+    addMessage: () => {},
+    updateMessage: () => {},
+    deleteMessage: () => {},
+    addNote: () => {},
+    updateNote: () => {},
+    deleteNote: () => {},
+};
+
 const DemoDataContext = createContext<DemoDataContextType | undefined>(undefined);
 
 export const DemoDataProvider = ({ children }: { children: React.ReactNode }) => {
@@ -89,6 +114,6 @@ export const DemoDataProvider = ({ children }: { children: React.ReactNode }) =>
 
 export const useDemoData = () => {
     const context = useContext(DemoDataContext);
-    if (!context) throw new Error('useDemoData must be used within DemoDataProvider');
-    return context;
+    //if (!context) throw new Error('useDemoData must be used within DemoDataProvider');
+    return context ?? emptyDemoData;
 };

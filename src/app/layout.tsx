@@ -40,6 +40,15 @@ export default async function RootLayout({
 
   const isDemo = cookieStore.get('isDemo')?.value === 'true';
 
+  const app = (
+    <ChatBotProvider>
+      <AppStructure />
+      <Toaster />
+      <ChatBot />
+      {children}
+    </ChatBotProvider>
+  );
+
   return (
     <html lang={locale} className={`${montserrat.variable}`}>
         <Script
@@ -58,14 +67,12 @@ export default async function RootLayout({
               disableTransitionOnChange
             >
               <AppProvider hasSession={!!user || isDemo} isDemo={isDemo}>
-                <DemoDataProvider>
-                  <ChatBotProvider>
-                    <AppStructure />
-                    <Toaster />
-                    <ChatBot />
-                    {children}
-                  </ChatBotProvider>
-                </DemoDataProvider>
+                {isDemo ? (
+                    <DemoDataProvider>
+                      {app}
+                    </DemoDataProvider>
+                  ) : app
+                }
               </AppProvider>
             </ThemeProvider>
           </TanstackQueryProvider>
