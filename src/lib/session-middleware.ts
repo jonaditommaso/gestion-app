@@ -28,6 +28,16 @@ export type ContextType = {
     }
 }
 
+const sessionUserCache = new Map<
+    string,
+    {
+        promise: Promise<Models.User<Models.Preferences>>;
+        expiresAt: number;
+    }
+>();
+
+const SESSION_USER_CACHE_TTL = 30_000; // 30 secs
+
 export const sessionMiddleware = createMiddleware<ContextType>(
     async (ctx, next) => {
         const client = new Client()
@@ -48,14 +58,38 @@ export const sessionMiddleware = createMiddleware<ContextType>(
 
         let user: Models.User<Models.Preferences>;
 
-        try {
-            user = await account.get();
-        } catch (error) {
-            if (error instanceof AppwriteException && error.type === 'user_more_factors_required') {
-                return ctx.json({ error: 'MFA_REQUIRED' }, 401)
-            }
+        const cached = sessionUserCache.get(session);
 
-            return ctx.json({ error: 'Unauthorized' }, 401)
+        if (cached && cached.expiresAt > Date.now()) {
+            user = await cached.promise;
+        } else {
+
+            const promise = (async () => {
+
+                const currentUser = await account.get();
+
+                return currentUser;
+            })();
+
+            sessionUserCache.set(session, {
+                promise,
+                expiresAt: Date.now() + SESSION_USER_CACHE_TTL,
+            });
+
+            try {
+                user = await promise;
+            } catch (error) {
+                sessionUserCache.delete(session);
+
+                if (
+                    error instanceof AppwriteException &&
+                    error.type === 'user_more_factors_required'
+                ) {
+                    return ctx.json({ error: 'MFA_REQUIRED' }, 401);
+                }
+
+                return ctx.json({ error: 'Unauthorized' }, 401);
+            }
         }
 
         ctx.set('account', account)
