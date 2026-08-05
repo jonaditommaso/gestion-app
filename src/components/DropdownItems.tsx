@@ -3,8 +3,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { ChevronsUpDown, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
-import { WorkspaceType } from "@/features/workspaces/types";
 import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
@@ -13,19 +11,28 @@ import { useState } from "react";
 import UpgradeDialog from "@/components/UpgradeDialog";
 import { useAppContext } from "@/context/AppContext";
 
+interface DropdownWorkspaceItem {
+    $id: string;
+    name?: string;
+}
+
+interface WorkspaceListData {
+    documents?: DropdownWorkspaceItem[];
+    total?: number;
+}
+
 interface DropdownItemsProps {
     itemLogo: string,
     itemName: string,
     itemType: string,
     currentWorkspaceId?: string,
     workspacesCount: { count: number },
+    workspaces?: WorkspaceListData | null
 }
 
-const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, workspacesCount }: DropdownItemsProps) => {
+const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, workspacesCount, workspaces }: DropdownItemsProps) => {
     const { theme } = useTheme();
     const t = useTranslations('general');
-    const { data: workspaces } = useGetWorkspaces();
-    // const { data: workspacesCount } = useGetWorkspacesCount();
     const router = useRouter();
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
@@ -46,7 +53,7 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, works
         router.push('/workspaces/create');
     }
 
-    const otherWorkspaces = workspaces?.documents.filter(ws => ws.$id !== currentWorkspaceId) as WorkspaceType[] | undefined;
+    const otherWorkspaces = workspaces?.documents?.filter((ws: DropdownWorkspaceItem) => ws.$id !== currentWorkspaceId);
 
     const noOptions = !canWrite && otherWorkspaces?.length === 0;
 
@@ -69,9 +76,9 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, works
                             onClick={() => handleSelectWorkspace(workspace.$id)}
                         >
                             <div className="border border-zinc-300 w-7 h-7 rounded-md bg-zinc-200 text-white flex items-center justify-center">
-                                {workspace.name[0].toUpperCase()}
+                                {workspace.name?.[0]?.toUpperCase() ?? "?"}
                             </div>
-                            <span className="flex-1">{workspace.name}</span>
+                            <span className="flex-1">{workspace.name ?? "Workspace"}</span>
                         </DropdownMenuItem>
                     ))}
                     {otherWorkspaces && otherWorkspaces.length > 0 && <DropdownMenuSeparator />}

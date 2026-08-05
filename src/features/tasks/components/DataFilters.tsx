@@ -1,8 +1,7 @@
 'use client'
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
-import { useGetMembers } from "@/features/members/api/use-get-members";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
-import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from "@/components/ui/select";
 import { ListChecksIcon, UserIcon, SignalIcon, TagIcon, X, ChevronsUpDown, CircleDotIcon, CheckCircle2Icon, CircleIcon, Check, Users } from "lucide-react";
 import { TaskStatus } from "../types";
 import { TASK_TYPE_OPTIONS } from '../constants/type'
@@ -26,6 +25,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useMembers } from "@/context/MembersContext";
+import { useLabelFilters } from "../hooks/use-label-filters";
 
 interface DataFiltersProps {
     hideStatusFilter?: boolean;
@@ -35,7 +36,6 @@ interface DataFiltersProps {
 
 const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearchChange }: DataFiltersProps) => {
     const workspaceId = useWorkspaceId();
-    const { data: members, isLoading } = useGetMembers({ workspaceId, enabled: workspaceId !== 'create' });
     const { data: squadsData } = useGetSquads({ workspaceId, enabled: workspaceId !== 'create' });
     const t = useTranslations('workspaces');
     const { isFree } = usePlanAccess();
@@ -46,7 +46,9 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
     const isMultiSelectLabels = config[WorkspaceConfigKey.MULTI_SELECT_LABELS];
     const [labelPopoverOpen, setLabelPopoverOpen] = useState(false);
 
-    const memberOptions = members?.documents.map(member => ({
+    const { members } = useMembers()
+
+    const memberOptions = members?.map(member => ({
         id: member.$id,
         name: member.name
     }));
@@ -64,6 +66,33 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
 
     // Check if any filter is active
     const hasActiveFilters = status || assigneeId || squadId || dueDate || priority || (label && label.length > 0) || type || completed;
+
+    // Is not the ideal solution, but it works for now.
+    // Before this custom hook, we used SelectValue inside SelectTrigger
+    // Todo: Refactor. Find a better solution.
+    const {
+        selectedStatusLabel,
+        selectedAssigneeLabel,
+        selectedSquadLabel,
+        selectedPriorityLabel,
+        selectedLabelName,
+        selectedTypeLabel,
+        selectedCompletedLabel
+    } = useLabelFilters({
+        status,
+        assigneeId,
+        squadId,
+        dueDate,
+        priority,
+        label,
+        type,
+        completed,
+        allStatuses,
+        memberOptions,
+        squadsData,
+        customLabels,
+        taskTypeOptions
+    });
 
     const clearAllFilters = () => {
         setFilters({
@@ -114,7 +143,6 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
         setFilters({ completed: value === 'all' ? null : value })
     }
 
-    if (isLoading) return null;
 
     return (
         <div className="flex flex-wrap gap-2 items-start justify-between max-[928px]:justify-start">
@@ -122,12 +150,13 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
             {!hideStatusFilter && (
                 <Select
                     value={status ?? 'all'}
+                    defaultValue="all"
                     onValueChange={(value) => onStatusChange(value)}
                 >
                     <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                         <div className="flex items-center pr-2">
                             <ListChecksIcon className="size-4 mr-2" />
-                            <SelectValue placeholder={t('all-statuses')} />
+                            <span className="truncate">{selectedStatusLabel}</span>
                         </div>
                     </SelectTrigger>
                     <SelectContent>
@@ -161,7 +190,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                     <div className="flex items-center pr-2">
                         <UserIcon className="size-4 mr-2" />
-                        <SelectValue placeholder={t('all-assignees')} />
+                        <span className="truncate">{selectedAssigneeLabel}</span>
                     </div>
                 </SelectTrigger>
                 <SelectContent >
@@ -189,7 +218,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                     <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                         <div className="flex items-center pr-2">
                             <Users className="size-4 mr-2" />
-                            <SelectValue placeholder={t('all-squads')} />
+                            <span className="truncate">{selectedSquadLabel}</span>
                         </div>
                     </SelectTrigger>
                     <SelectContent>
@@ -221,7 +250,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                     <div className="flex items-center pr-2">
                         <SignalIcon className="size-4 mr-2" />
-                        <SelectValue placeholder={t('all-priorities')} />
+                        <span className="truncate">{selectedPriorityLabel}</span>
                     </div>
                 </SelectTrigger>
                 <SelectContent>
@@ -326,7 +355,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                     <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                         <div className="flex items-center pr-2">
                             <TagIcon className="size-4 mr-2" />
-                            <SelectValue placeholder={t('all-labels')} />
+                            <span className="truncate">{selectedLabelName}</span>
                         </div>
                     </SelectTrigger>
                     <SelectContent>
@@ -364,7 +393,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                     <div className="flex items-center pr-2">
                         <CircleDotIcon className="size-4 mr-2" />
-                        <SelectValue placeholder={t('all-types')} />
+                        <span className="truncate">{selectedTypeLabel}</span>
                     </div>
                 </SelectTrigger>
                 <SelectContent>
@@ -390,7 +419,7 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                 <SelectTrigger className="w-full lg:w-auto h-8 bg-background">
                     <div className="flex items-center pr-2">
                         <CheckCircle2Icon className="size-4 mr-2" />
-                        <SelectValue placeholder={t('all-completed')} />
+                        <span className="truncate">{selectedCompletedLabel}</span>
                     </div>
                 </SelectTrigger>
                 <SelectContent>
