@@ -55,7 +55,7 @@ export const useGetTasks = ({
             limit
         ],
         queryFn: async () => {
-            if (isDemo) {
+            if (isDemo && demoData) {
                 const docs = demoData.tasks.filter(t => {
                     if (workspaceId && t.workspaceId !== workspaceId) return false;
                     if (status && t.status !== status) return false;
@@ -92,7 +92,9 @@ export const useGetTasks = ({
             return data;
         },
         retry: false,
-        refetchOnMount: true,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: 30_000,
         enabled: isDemo || enabled
     })
 

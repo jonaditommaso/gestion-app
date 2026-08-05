@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { useAppContext } from "@/context/AppContext";
+import { Task } from "../types";
 
 export type TaskActionsVariant = 'kanban' | 'modal' | 'page';
 
@@ -24,6 +25,7 @@ interface TaskActionsProps {
     taskName: string;
     taskType?: string;
     isFeatured?: boolean;
+    task?: Task;
     /**
      * - 'kanban': Para KanbanCard y DataTable. Muestra "Abrir detalles" (nueva pestaña)
      * - 'modal': Para TaskDetailsModal. Muestra "Abrir en nueva página" + botón cerrar
@@ -41,6 +43,7 @@ const TaskActions = ({
     taskName,
     taskType = 'task',
     isFeatured = false,
+    task,
     variant = 'kanban',
     onClose,
     children
@@ -52,13 +55,15 @@ const TaskActions = ({
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
     const canDelete = hasPermission(PERMISSIONS.DELETE);
-    const {  isDemo } = useAppContext();
+    const { isDemo } = useAppContext();
 
     const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
     const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask();
     const { mutate: duplicateTask, isPending: isDuplicatingTask } = useDuplicateTask();
     const { archiveTask, isPending: isArchivingTask } = useArchiveTask();
-    const { data: taskData } = useGetTask({ taskId });
+    const shouldFetchTask = !task;
+    const { data: fetchedTaskData } = useGetTask({ taskId, enabled: shouldFetchTask });
+    const taskData = task ?? fetchedTaskData;
 
     const [ConfirmDeleteDialog, confirmDelete] = useConfirm(
         t('delete-task'),

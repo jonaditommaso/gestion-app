@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
 import { ChatBotProvider } from "@/context/ChatBotContext";
-import ChatBotPanel from "@/components/ChatBotPanel";
+import { ChatBot } from "@/components/chatbot";
 import { AppProvider } from "@/context/AppContext";
 import { DemoDataProvider } from "@/context/DemoDataContext";
 import { getCurrent } from "@/features/auth/queries";
@@ -40,6 +40,15 @@ export default async function RootLayout({
 
   const isDemo = cookieStore.get('isDemo')?.value === 'true';
 
+  const app = (
+    <ChatBotProvider>
+      <AppStructure />
+      <Toaster />
+      <ChatBot />
+      {children}
+    </ChatBotProvider>
+  );
+
   return (
     <html lang={locale} className={`${montserrat.variable}`}>
         <Script
@@ -58,14 +67,12 @@ export default async function RootLayout({
               disableTransitionOnChange
             >
               <AppProvider hasSession={!!user || isDemo} isDemo={isDemo}>
-                <DemoDataProvider>
-                  <ChatBotProvider>
-                    <AppStructure />
-                    <Toaster />
-                    <ChatBotPanel />
-                    {children}
-                  </ChatBotProvider>
-                </DemoDataProvider>
+                {isDemo ? (
+                    <DemoDataProvider>
+                      {app}
+                    </DemoDataProvider>
+                  ) : app
+                }
               </AppProvider>
             </ThemeProvider>
           </TanstackQueryProvider>

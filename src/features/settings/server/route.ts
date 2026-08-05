@@ -187,9 +187,14 @@ const app = new Hono()
                     }
                     const contentType = remoteRes.headers.get('content-type') || 'image/jpeg';
                     const buffer = await remoteRes.arrayBuffer();
-                    return new Response(buffer, {
-                        headers: { 'Content-Type': contentType }
-                    });
+
+                    const headers: HeadersInit = {
+                        'Content-Type': contentType,
+                    };
+
+                    headers['Cache-Control'] = userId ? 'public, max-age=604800' : 'private, max-age=86400';
+
+                    return new Response(buffer, { headers });
                 } catch (err) {
                     console.error('Error al obtener imagen remota:', err);
                     return ctx.json({ success: false, message: 'Error fetching remote image' }, 500);
@@ -202,12 +207,14 @@ const app = new Hono()
 
                 const fileBuffer = await storage.getFileView(IMAGES_BUCKET_ID, imageValue);
 
-                return new Response(fileBuffer, {
-                    headers: {
-                        'Content-Type': mimeType,
-                        'Access-Control-Allow-Origin': '*',
-                    },
-                });
+                const headers: HeadersInit = {
+                    'Content-Type': mimeType,
+                    'Access-Control-Allow-Origin': '*',
+                };
+
+                headers['Cache-Control'] = userId ? 'public, max-age=604800' : 'private, max-age=86400';
+
+                return new Response(fileBuffer, { headers });
             } catch (err) {
                 console.error('Error al obtener la imagen:', err);
                 return ctx.json({ success: false, message: 'Error fetching the image' }, 500);

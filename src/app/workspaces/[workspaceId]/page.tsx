@@ -123,6 +123,8 @@ const WorkspaceView = () => {
                     itemName={(currentWorkspace as WorkspaceType).name}
                     itemType="workspace"
                     currentWorkspaceId={workspaceId}
+                    workspacesCount={{ count: workspaces?.total ?? 0 }}
+                    workspaces={workspaces}
                   />}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -173,7 +175,7 @@ const WorkspaceView = () => {
             {optionsView === 'customize' && currentWorkspace && (
                 <WorkspaceCustomize workspace={currentWorkspace as WorkspaceType} />
             )}
-            {!optionsView && workspaces && <TaskSwitcher openSettings={openSettings} />}
+            {!optionsView && workspaceId && <TaskSwitcher openSettings={openSettings} />}
             </div>
 
             {isCreatingWorkspace && (

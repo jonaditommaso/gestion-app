@@ -5,6 +5,7 @@ export const useCurrent = ({ enabled = true }: { enabled?: boolean } = {}) => {
     const query = useQuery({
         queryKey: ['current'],
         enabled,
+        staleTime: 1000 * 60 * 5, // 5 minutes
         queryFn: async () => {
             // usa fetch, no axios, axios lanzaria un error, no queremos eso por ahora, por eso retornamos null
             const response = await client.api.auth.current.$get();

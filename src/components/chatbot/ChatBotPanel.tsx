@@ -1,5 +1,4 @@
 'use client'
-import { useChatBot } from "@/context/ChatBotContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -15,8 +14,8 @@ import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { ChatMessage } from "@/ai/types";
 import "@/styles/chatbot.css";
 import { MODELS } from "@/ai/config";
-import MarkdownContent from "./MarkdownContent";
-import { Alert } from "./ui/alert";
+import MarkdownContent from "../MarkdownContent";
+import { Alert } from "../ui/alert";
 
 interface Message {
   id: string;
@@ -34,308 +33,312 @@ interface LocalChat {
   isNew?: boolean; // true si aún no se ha guardado en la BD
 }
 
-const ChatBotPanel = () => {
-  const { isOpen, toggleChatBot } = useChatBot();
-  const t = useTranslations("chatbot");
-  const [width, setWidth] = useState(450);
-  const [isResizing, setIsResizing] = useState(false);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [localChats, setLocalChats] = useState<LocalChat[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [showHistory, setShowHistory] = useState(false);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-  const [lastModelName, setLastModelName] = useState<string>("AI");
+interface ChatBotPanelProps {
+  isOpen: boolean;
+  toggleChatBot: () => void;
+}
 
-  const resizeRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { currentUser, isDemo } = useAppContext();
-  const { isFree } = usePlanAccess();
+const ChatBotPanel = ({isOpen, toggleChatBot}: ChatBotPanelProps) => {
 
-  // Obtener conversaciones de la BD
-  const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations({
-    enabled: Boolean(currentUser) && !isFree,
-  });
+    const t = useTranslations("chatbot");
+    const [width, setWidth] = useState(450);
+    const [isResizing, setIsResizing] = useState(false);
+    const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+    const [localChats, setLocalChats] = useState<LocalChat[]>([]);
+    const [inputValue, setInputValue] = useState("");
+    const [showHistory, setShowHistory] = useState(false);
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+    const [lastModelName, setLastModelName] = useState<string>("AI");
 
-  // Callback cuando se elimina una conversación exitosamente
-  const handleDeleteSuccess = useCallback((conversationId: string) => {
-    if (currentChatId === conversationId) {
-      setCurrentChatId(null);
-    }
-    setLocalChats(prev => prev.filter(c => c.id !== conversationId));
-  }, [currentChatId]);
+    const resizeRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { currentUser, isDemo } = useAppContext();
+    const { isFree } = usePlanAccess();
 
-  const { mutate: deleteConversation, isPending: isDeletingConversation, variables: deletingConversationId } = useDeleteConversation({
-    onSuccess: handleDeleteSuccess,
-  });
 
-  // Combinar conversaciones del servidor con chats locales nuevos
-  const allChats = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const serverChats: LocalChat[] = (serverConversations || []).map((conv: any) => ({
-      id: conv.$id,
-      title: conv.title || '',
-      messages: [], // Los mensajes se cargan cuando se selecciona
-      createdAt: new Date(conv.$createdAt),
-      isNew: false,
-    }));
-
-    // Agregar chats locales que aún no se han guardado
-    const newLocalChats = localChats.filter(chat => chat.isNew);
-
-    return [...newLocalChats, ...serverChats];
-  }, [serverConversations, localChats]);
-
-  const currentChat = useMemo(() => {
-    if (!currentChatId) return null;
-    return localChats.find(chat => chat.id === currentChatId) ||
-           allChats.find(chat => chat.id === currentChatId);
-  }, [currentChatId, localChats, allChats]);
-
-  const messages = useMemo(() => currentChat?.messages || [], [currentChat?.messages]);
-  const hasMessages = messages.length > 0;
-
-  // Cargar mensajes cuando se selecciona una conversación existente
-  useEffect(() => {
-    const loadMessages = async () => {
-      if (!currentUser) return;
-      if (!currentChatId || currentChatId.startsWith('local-')) return;
-
-      const existingChat = localChats.find(c => c.id === currentChatId);
-      if (existingChat && existingChat.messages.length > 0) return; // Ya tiene mensajes
-
-      setIsLoadingMessages(true);
-      try {
-        const response = await fetch(`/api/chat/conversations/${currentChatId}`);
-        if (!response.ok) return;
-
-        const { data } = await response.json();
-        if (data?.messages) {
-          const loadedMessages: Message[] = data.messages.map((msg: { $id: string; content: string; role: string; $createdAt: string; model?: string }) => ({
-            id: msg.$id,
-            content: msg.content,
-            role: msg.role.toLowerCase() as 'user' | 'assistant',
-            timestamp: new Date(msg.$createdAt),
-            modelName: MODELS[msg.model as keyof typeof MODELS]?.displayName,
-          }));
-
-          setLocalChats(prev => {
-            const exists = prev.find(c => c.id === currentChatId);
-            if (exists) {
-              return prev.map(c =>
-                c.id === currentChatId ? { ...c, messages: loadedMessages } : c
-              );
-            }
-            return [...prev, {
-              id: currentChatId,
-              title: data.title,
-              messages: loadedMessages,
-              createdAt: new Date(data.$createdAt),
-              isNew: false,
-            }];
-          });
-        }
-      } catch {
-        // Error silencioso, no bloquear la UI
-      } finally {
-        setIsLoadingMessages(false);
-      }
-    };
-
-    loadMessages();
-  }, [currentChatId, localChats, currentUser]);
-
-  // Custom hook para manejar el resize del panel
-  useResizePanel({
-    isOpen,
-    isResizing,
-    minWidth: 300,
-    setWidth,
-    setIsResizing,
-  });
-
-  // Auto-resize textarea con field-sizing o fallback
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    // Reset height to auto to get the correct scrollHeight
-    textarea.style.height = 'auto';
-
-    // Set the height based on scrollHeight, with a max height
-    const maxHeight = 200; // máximo de 200px
-    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-    textarea.style.height = `${newHeight}px`;
-  }, [inputValue]);
-
-  const handleNewChat = () => {
-    const newChat: LocalChat = {
-      id: `local-${Date.now()}`,
-      title: t("new-chat"),
-      messages: [],
-      createdAt: new Date(),
-      isNew: true,
-    };
-    setLocalChats((prev) => [...prev, newChat]);
-    setCurrentChatId(newChat.id);
-    setShowHistory(false);
-  };
-
-  // Callback para manejar los chunks de streaming
-  const handleChunk = useCallback((chunk: string) => {
-    setLocalChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id !== currentChatId) return chat;
-
-        const lastMessage = chat.messages[chat.messages.length - 1];
-        if (lastMessage?.role === "assistant" && lastMessage.id.startsWith("streaming-")) {
-          // Actualizar el mensaje de streaming existente
-          return {
-            ...chat,
-            messages: chat.messages.map((msg, idx) =>
-              idx === chat.messages.length - 1
-                ? { ...msg, content: msg.content + chunk }
-                : msg
-            ),
-          };
-        }
-        return chat;
-      })
-    );
-  }, [currentChatId]);
-
-  // Callback para cuando se completa la respuesta
-  const handleComplete = useCallback((fullResponse: string, newConversationId: string, modelName: string) => {
-    setLastModelName(modelName);
-    setLocalChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id !== currentChatId) return chat;
-
-        // Actualizar el id del chat si era local y ahora tiene un id del servidor
-        const updatedId = chat.isNew ? newConversationId : chat.id;
-
-        return {
-          ...chat,
-          id: updatedId,
-          isNew: false,
-          messages: chat.messages.map((msg) =>
-            msg.id.startsWith("streaming-")
-              ? { ...msg, id: Date.now().toString(), content: fullResponse, modelName }
-              : msg
-          ),
-        };
-      })
-    );
-
-    // Actualizar el currentChatId si cambió
-    setCurrentChatId((prevId) => {
-      const chat = localChats.find(c => c.id === prevId);
-      if (chat?.isNew) {
-        return newConversationId;
-      }
-      return prevId;
+    // Obtener conversaciones de la BD
+    const { data: serverConversations, isLoading: isLoadingConversations } = useGetConversations({
+        enabled: Boolean(currentUser) && !isFree,
     });
-  }, [currentChatId, localChats]);
 
-  const { mutate: sendMessage, isPending: isLoading } = useSendMessage({
-    onChunk: handleChunk,
-    onComplete: handleComplete,
-  });
+    // Callback cuando se elimina una conversación exitosamente
+    const handleDeleteSuccess = useCallback((conversationId: string) => {
+        if (currentChatId === conversationId) {
+        setCurrentChatId(null);
+        }
+        setLocalChats(prev => prev.filter(c => c.id !== conversationId));
+    }, [currentChatId]);
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim() || isLoading) return;
+    const { mutate: deleteConversation, isPending: isDeletingConversation, variables: deletingConversationId } = useDeleteConversation({
+        onSuccess: handleDeleteSuccess,
+    });
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      role: "user",
-      timestamp: new Date(),
-    };
+    // Combinar conversaciones del servidor con chats locales nuevos
+    const allChats = useMemo(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const serverChats: LocalChat[] = (serverConversations || []).map((conv: any) => ({
+        id: conv.$id,
+        title: conv.title || '',
+        messages: [], // Los mensajes se cargan cuando se selecciona
+        createdAt: new Date(conv.$createdAt),
+        isNew: false,
+        }));
 
-    // Crear mensaje placeholder para la respuesta del asistente
-    const assistantPlaceholder: Message = {
-      id: `streaming-${Date.now()}`,
-      content: "",
-      role: "assistant",
-      timestamp: new Date(),
-    };
+        // Agregar chats locales que aún no se han guardado
+        const newLocalChats = localChats.filter(chat => chat.isNew);
 
-    // Si no hay chat actual, crear uno nuevo
-    if (!currentChatId) {
-      const newChat: LocalChat = {
+        return [...newLocalChats, ...serverChats];
+    }, [serverConversations, localChats]);
+
+    const currentChat = useMemo(() => {
+        if (!currentChatId) return null;
+        return localChats.find(chat => chat.id === currentChatId) ||
+                allChats.find(chat => chat.id === currentChatId);
+    }, [currentChatId, localChats, allChats]);
+
+    const messages = useMemo(() => currentChat?.messages || [], [currentChat?.messages]);
+    const hasMessages = messages.length > 0;
+
+    // Cargar mensajes cuando se selecciona una conversación existente
+    useEffect(() => {
+        const loadMessages = async () => {
+        if (!currentUser) return;
+        if (!currentChatId || currentChatId.startsWith('local-')) return;
+
+        const existingChat = localChats.find(c => c.id === currentChatId);
+        if (existingChat && existingChat.messages.length > 0) return; // Ya tiene mensajes
+
+        setIsLoadingMessages(true);
+        try {
+            const response = await fetch(`/api/chat/conversations/${currentChatId}`);
+            if (!response.ok) return;
+
+            const { data } = await response.json();
+            if (data?.messages) {
+            const loadedMessages: Message[] = data.messages.map((msg: { $id: string; content: string; role: string; $createdAt: string; model?: string }) => ({
+                id: msg.$id,
+                content: msg.content,
+                role: msg.role.toLowerCase() as 'user' | 'assistant',
+                timestamp: new Date(msg.$createdAt),
+                modelName: MODELS[msg.model as keyof typeof MODELS]?.displayName,
+            }));
+
+            setLocalChats(prev => {
+                const exists = prev.find(c => c.id === currentChatId);
+                if (exists) {
+                return prev.map(c =>
+                    c.id === currentChatId ? { ...c, messages: loadedMessages } : c
+                );
+                }
+                return [...prev, {
+                id: currentChatId,
+                title: data.title,
+                messages: loadedMessages,
+                createdAt: new Date(data.$createdAt),
+                isNew: false,
+                }];
+            });
+            }
+        } catch {
+            // Error silencioso, no bloquear la UI
+        } finally {
+            setIsLoadingMessages(false);
+        }
+        };
+
+        loadMessages();
+    }, [currentChatId, localChats, currentUser]);
+
+    // Custom hook para manejar el resize del panel
+    useResizePanel({
+        isOpen,
+        isResizing,
+        minWidth: 300,
+        setWidth,
+        setIsResizing,
+    });
+
+    // Auto-resize textarea con field-sizing o fallback
+    useEffect(() => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = 'auto';
+
+        // Set the height based on scrollHeight, with a max height
+        const maxHeight = 200; // máximo de 200px
+        const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+        textarea.style.height = `${newHeight}px`;
+    }, [inputValue]);
+
+    const handleNewChat = () => {
+        const newChat: LocalChat = {
         id: `local-${Date.now()}`,
-        title: inputValue.substring(0, 100),
-        messages: [newMessage, assistantPlaceholder],
+        title: t("new-chat"),
+        messages: [],
         createdAt: new Date(),
         isNew: true,
-      };
-      setLocalChats((prev) => [...prev, newChat]);
-      setCurrentChatId(newChat.id);
-      setShowHistory(false);
+        };
+        setLocalChats((prev) => [...prev, newChat]);
+        setCurrentChatId(newChat.id);
+        setShowHistory(false);
+    };
 
-      // Preparar mensajes para enviar al backend
-      const chatMessages: ChatMessage[] = [
-        { role: 'user' as const, content: inputValue },
-      ];
+    // Callback para manejar los chunks de streaming
+    const handleChunk = useCallback((chunk: string) => {
+        setLocalChats((prev) =>
+        prev.map((chat) => {
+            if (chat.id !== currentChatId) return chat;
 
-      setInputValue("");
-      sendMessage({ messages: chatMessages });
-      return;
-    }
-
-    // Actualizar el chat actual con el nuevo mensaje y el placeholder
-    setLocalChats((prev) =>
-      prev.map((chat) =>
-        chat.id === currentChatId
-          ? {
-              ...chat,
-              title: chat.messages.length === 0 ? inputValue.substring(0, 100) : chat.title,
-              messages: [...chat.messages, newMessage, assistantPlaceholder]
+            const lastMessage = chat.messages[chat.messages.length - 1];
+            if (lastMessage?.role === "assistant" && lastMessage.id.startsWith("streaming-")) {
+            // Actualizar el mensaje de streaming existente
+            return {
+                ...chat,
+                messages: chat.messages.map((msg, idx) =>
+                idx === chat.messages.length - 1
+                    ? { ...msg, content: msg.content + chunk }
+                    : msg
+                ),
+            };
             }
-          : chat
-      )
-    );
+            return chat;
+        })
+        );
+    }, [currentChatId]);
 
-    // Preparar mensajes para enviar al backend
-    const chatMessages: ChatMessage[] = [
-      ...messages.map((msg) => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-      })),
-      { role: 'user' as const, content: inputValue },
-    ];
+    // Callback para cuando se completa la respuesta
+    const handleComplete = useCallback((fullResponse: string, newConversationId: string, modelName: string) => {
+        setLastModelName(modelName);
+        setLocalChats((prev) =>
+        prev.map((chat) => {
+            if (chat.id !== currentChatId) return chat;
 
-    // Determinar si enviar conversationId (solo si no es nuevo)
-    const chat = localChats.find(c => c.id === currentChatId);
-    const conversationId = chat?.isNew ? undefined : currentChatId;
+            // Actualizar el id del chat si era local y ahora tiene un id del servidor
+            const updatedId = chat.isNew ? newConversationId : chat.id;
 
-    setInputValue("");
-    sendMessage({ messages: chatMessages, conversationId });
-  };
+            return {
+            ...chat,
+            id: updatedId,
+            isNew: false,
+            messages: chat.messages.map((msg) =>
+                msg.id.startsWith("streaming-")
+                ? { ...msg, id: Date.now().toString(), content: fullResponse, modelName }
+                : msg
+            ),
+            };
+        })
+        );
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+        // Actualizar el currentChatId si cambió
+        setCurrentChatId((prevId) => {
+        const chat = localChats.find(c => c.id === prevId);
+        if (chat?.isNew) {
+            return newConversationId;
+        }
+        return prevId;
+        });
+    }, [currentChatId, localChats]);
 
-  const scrollToBottom = useCallback(() => {
-    const root = scrollRef.current;
-    if (!root) return;
+    const { mutate: sendMessage, isPending: isLoading } = useSendMessage({
+        onChunk: handleChunk,
+        onComplete: handleComplete,
+    });
 
-    const viewport = root.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement | null;
-    const target = viewport || root;
-    target.scrollTop = target.scrollHeight;
-  }, []);
+    const handleSendMessage = () => {
+        if (!inputValue.trim() || isLoading) return;
 
-  useEffect(() => {
-    if (!isOpen || showHistory) return;
-    const frame = window.requestAnimationFrame(scrollToBottom);
-    return () => window.cancelAnimationFrame(frame);
-  }, [messages, isOpen, showHistory, scrollToBottom]);
+        const newMessage: Message = {
+        id: Date.now().toString(),
+        content: inputValue,
+        role: "user",
+        timestamp: new Date(),
+        };
 
-  if (!isOpen) return null;
+        // Crear mensaje placeholder para la respuesta del asistente
+        const assistantPlaceholder: Message = {
+        id: `streaming-${Date.now()}`,
+        content: "",
+        role: "assistant",
+        timestamp: new Date(),
+        };
+
+        // Si no hay chat actual, crear uno nuevo
+        if (!currentChatId) {
+        const newChat: LocalChat = {
+            id: `local-${Date.now()}`,
+            title: inputValue.substring(0, 100),
+            messages: [newMessage, assistantPlaceholder],
+            createdAt: new Date(),
+            isNew: true,
+        };
+        setLocalChats((prev) => [...prev, newChat]);
+        setCurrentChatId(newChat.id);
+        setShowHistory(false);
+
+        // Preparar mensajes para enviar al backend
+        const chatMessages: ChatMessage[] = [
+            { role: 'user' as const, content: inputValue },
+        ];
+
+        setInputValue("");
+        sendMessage({ messages: chatMessages });
+        return;
+        }
+
+        // Actualizar el chat actual con el nuevo mensaje y el placeholder
+        setLocalChats((prev) =>
+        prev.map((chat) =>
+            chat.id === currentChatId
+            ? {
+                ...chat,
+                title: chat.messages.length === 0 ? inputValue.substring(0, 100) : chat.title,
+                messages: [...chat.messages, newMessage, assistantPlaceholder]
+                }
+            : chat
+        )
+        );
+
+        // Preparar mensajes para enviar al backend
+        const chatMessages: ChatMessage[] = [
+        ...messages.map((msg) => ({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+        })),
+        { role: 'user' as const, content: inputValue },
+        ];
+
+        // Determinar si enviar conversationId (solo si no es nuevo)
+        const chat = localChats.find(c => c.id === currentChatId);
+        const conversationId = chat?.isNew ? undefined : currentChatId;
+
+        setInputValue("");
+        sendMessage({ messages: chatMessages, conversationId });
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+        }
+    };
+
+    const scrollToBottom = useCallback(() => {
+        const root = scrollRef.current;
+        if (!root) return;
+
+        const viewport = root.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement | null;
+        const target = viewport || root;
+        target.scrollTop = target.scrollHeight;
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen || showHistory) return;
+        const frame = window.requestAnimationFrame(scrollToBottom);
+        return () => window.cancelAnimationFrame(frame);
+    }, [messages, isOpen, showHistory, scrollToBottom]);
 
   return (
     <>

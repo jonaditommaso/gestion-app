@@ -420,88 +420,135 @@ const app = new Hono()
                 taskIds = taskIds.filter(id => squadTaskIds.includes(id));
             }
 
-            // Obtener todas las asignaciones de tareas
-            const taskAssigneesDocuments: TaskAssignee[] = [];
+            // Obtener todas las asignaciones de tareas y los squads asignados a las tareas en paralelo
+            let taskAssigneesDocuments: TaskAssignee[] = [];
+            let taskSquadAssigneeDocs: TaskSquadAssignee[] = [];
 
             if (taskIds.length > 0) {
                 const taskIdChunks = chunkArray(taskIds, 100);
 
-                for (const taskIdChunk of taskIdChunks) {
-                    const taskAssigneesChunk = await databases.listDocuments<TaskAssignee>(
-                        DATABASE_ID,
-                        TASK_ASSIGNEES_ID,
-                        [Query.contains('taskId', taskIdChunk), Query.limit(5000)]
-                    );
+                const [taskAssigneesResults, taskSquadAssigneesResults] = await Promise.all([
+                    Promise.all(taskIdChunks.map(async chunkId => {
+                        const result = await databases.listDocuments<TaskAssignee>(
+                            DATABASE_ID,
+                            TASK_ASSIGNEES_ID,
+                            [Query.contains('taskId', chunkId), Query.limit(5000)]
+                        );
+                        return result;
+                    })),
+                    Promise.all(taskIdChunks.map(async chunkId => {
+                        const result = await databases.listDocuments<TaskSquadAssignee>(
+                            DATABASE_ID,
+                            TASK_SQUADS_ASSIGNEES_ID,
+                            [Query.contains('taskId', chunkId), Query.limit(5000)]
+                        );
+                        return result;
+                    }))
+                ]);
 
-                    taskAssigneesDocuments.push(...taskAssigneesChunk.documents);
-                }
+                taskAssigneesDocuments = taskAssigneesResults.flatMap(res => res.documents);
+                taskSquadAssigneeDocs = taskSquadAssigneesResults.flatMap(res => res.documents);
             }
 
             // Obtener los IDs únicos de workspace members
-            const memberIds = [...new Set(taskAssigneesDocuments.map(ta => ta.workspaceMemberId))];
+            const memberIds = [...new Set(taskAssigneesDocuments.map(task => task.workspaceMemberId))];
 
-            // Obtener los datos de los members desde la colección
-            const memberDocuments: WorkspaceMember[] = [];
+            const squadIdsForTasks = [...new Set(taskSquadAssigneeDocs.map(squad => squad.squadId))];
+
+            // Obtener los datos de los members y squads desde la colección en paralelo
+            let memberDocuments: WorkspaceMember[] = [];
+            let squadDocuments: TaskSquad[] = [];
+
+            const promises: Promise<void>[] = [];
 
             if (memberIds.length > 0) {
                 const memberIdChunks = chunkArray(memberIds, 100);
 
-                for (const memberIdChunk of memberIdChunks) {
-                    const membersChunk = await databases.listDocuments<WorkspaceMember>(
-                        DATABASE_ID,
-                        MEMBERS_ID,
-                        [Query.equal('$id', memberIdChunk), Query.limit(5000)]
-                    );
-
-                    memberDocuments.push(...membersChunk.documents);
-                }
+                promises.push(
+                    Promise.all(
+                        memberIdChunks.map(async chunkId => {
+                            const result = await databases.listDocuments<WorkspaceMember>(
+                                DATABASE_ID,
+                                MEMBERS_ID,
+                                [Query.equal('$id', chunkId), Query.limit(5000)]
+                            );
+                            return result;
+                        })
+                    ).then(results => {
+                        memberDocuments = results.flatMap(r => r.documents);
+                    })
+                );
             }
 
-            // Obtener squads asignados a las tareas
-            const taskSquadAssigneeDocs: TaskSquadAssignee[] = [];
-            if (taskIds.length > 0) {
-                const taskIdChunks = chunkArray(taskIds, 100);
-                for (const taskIdChunk of taskIdChunks) {
-                    const chunk = await databases.listDocuments<TaskSquadAssignee>(
-                        DATABASE_ID,
-                        TASK_SQUADS_ASSIGNEES_ID,
-                        [Query.contains('taskId', taskIdChunk), Query.limit(5000)]
-                    );
-                    taskSquadAssigneeDocs.push(...chunk.documents);
-                }
-            }
-
-            const squadIdsForTasks = [...new Set(taskSquadAssigneeDocs.map(sa => sa.squadId))];
-            const squadDocuments: TaskSquad[] = [];
             if (squadIdsForTasks.length > 0) {
                 const squadChunks = chunkArray(squadIdsForTasks, 100);
-                for (const chunk of squadChunks) {
-                    const result = await databases.listDocuments<TaskSquad>(
-                        DATABASE_ID,
-                        TASK_SQUADS_ID,
-                        [Query.contains('$id', chunk), Query.limit(500)]
-                    );
-                    squadDocuments.push(...result.documents);
+
+                promises.push(
+                    Promise.all(
+                        squadChunks.map(async chunk => {
+                            const result = await databases.listDocuments<TaskSquad>(
+                                DATABASE_ID,
+                                TASK_SQUADS_ID,
+                                [Query.contains('$id', chunk), Query.limit(5000)]
+                            );
+                            return result;
+                        })
+                    ).then(results => {
+                        squadDocuments = results.flatMap(r => r.documents);
+                    })
+                );
+            }
+
+            await Promise.all(promises);
+
+            // Crear índices para búsquedas O(1)
+            const taskIdSet = new Set(taskIds);
+
+            const membersById = new Map(memberDocuments.map(member => [member.$id, member]));
+
+            const squadsById = new Map(squadDocuments.map(squad => [squad.$id, squad]));
+
+            const assigneesByTask = new Map<string, TaskAssignee[]>();
+
+            for (const assignee of taskAssigneesDocuments) {
+                const list = assigneesByTask.get(assignee.taskId);
+
+                if (list) {
+                    list.push(assignee);
+                } else {
+                    assigneesByTask.set(assignee.taskId, [assignee]);
+                }
+            }
+
+            const squadIdsByTask = new Map<string, string[]>();
+
+            for (const squadAssignee of taskSquadAssigneeDocs) {
+                const list = squadIdsByTask.get(squadAssignee.taskId);
+
+                if (list) {
+                    list.push(squadAssignee.squadId);
+                } else {
+                    squadIdsByTask.set(squadAssignee.taskId, [squadAssignee.squadId]);
                 }
             }
 
             // Mapear las tareas con sus assignees y squads
             const populatedTasks = filteredTasks
-                .filter(task => taskIds.includes(task.$id))
+                .filter(task => taskIdSet.has(task.$id))
                 .map(task => {
-                    const taskAssignments = taskAssigneesDocuments.filter(ta => ta.taskId === task.$id);
-                    const assignees = taskAssignments.map(ta =>
-                        memberDocuments.find(m => m.$id === ta.workspaceMemberId)
-                    ).filter(Boolean) as WorkspaceMember[];
+                    const assignees = (assigneesByTask.get(task.$id) ?? [])
+                        .map(assignment => membersById.get(assignment.workspaceMemberId))
+                        .filter(Boolean) as WorkspaceMember[];
 
-                    const taskSquadIds = taskSquadAssigneeDocs
-                        .filter(sa => sa.taskId === task.$id)
-                        .map(sa => sa.squadId);
-                    const squads = taskSquadIds
-                        .map(sid => squadDocuments.find(s => s.$id === sid))
+                    const squads = (squadIdsByTask.get(task.$id) ?? [])
+                        .map(squadId => squadsById.get(squadId))
                         .filter(Boolean) as TaskSquad[];
 
-                    return { ...task, assignees, squads };
+                    return {
+                        ...task,
+                        assignees,
+                        squads,
+                    };
                 });
 
             return ctx.json({
