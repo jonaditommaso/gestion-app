@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetDeals = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const demoData = useDemoData();
 
     return useQuery({
@@ -21,7 +21,7 @@ export const useGetDeals = () => {
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
         retry: false,
         refetchOnMount: true,
     });

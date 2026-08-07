@@ -17,7 +17,7 @@ export type RecentActivityItem = {
 };
 
 export const useGetRecentActivity = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery({
         queryKey: ["home", "recent-activity", isDemo],
@@ -35,6 +35,6 @@ export const useGetRecentActivity = () => {
         },
         retry: false,
         refetchOnMount: true,
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     });
 };

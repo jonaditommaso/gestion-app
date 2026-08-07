@@ -1,16 +1,42 @@
 'use client'
 
 import { createContext, useContext } from 'react';
-import { useCurrent } from '@/features/auth/api/use-current';
+// import { useCurrent } from '@/features/auth/api/use-current';
 import { useGetTeamContext } from '@/features/team/api/use-get-team-context';
 import { DEMO_ORG, DEMO_MEMBERSHIP } from '@/lib/demo-data';
+import { Models } from 'node-appwrite';
 
-type CurrentUser = NonNullable<ReturnType<typeof useCurrent>['data']>;
+// type CurrentUser = NonNullable<ReturnType<typeof useCurrent>['data']>;
+type CurrentUser = {
+    authProviders: string[];
+    isOAuth: boolean;
+    $id: string;
+    $createdAt: string;
+    $updatedAt: string;
+    name: string;
+    password?: string | undefined;
+    hash?: string | undefined;
+    hashOptions?: object | undefined;
+    registration: string;
+    status: boolean;
+    labels: string[];
+    passwordUpdate: string;
+    email: string;
+    phone: string;
+    emailVerification: boolean;
+    phoneVerification: boolean;
+    mfa: boolean;
+    prefs: Models.Preferences;
+    targets: Models.Target[];
+    accessedAt: string;
+} | null
+
 type TeamContextData = NonNullable<ReturnType<typeof useGetTeamContext>['data']>;
+
 
 type AppContextType = {
     currentUser: CurrentUser | null | undefined;
-    isLoadingUser: boolean;
+    // isLoadingUser: boolean;
     teamContext: TeamContextData | null | undefined;
     isLoadingTeamContext: boolean;
     isDemo: boolean;
@@ -18,8 +44,8 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider = ({ children, hasSession, isDemo }: { children: React.ReactNode; hasSession: boolean; isDemo: boolean }) => {
-    const { data: currentUser, isLoading: isLoadingUser } = useCurrent({ enabled: hasSession });
+export const AppProvider = ({ children, isDemo, currentUser }: { children: React.ReactNode; isDemo: boolean; currentUser: CurrentUser | null | undefined }) => {
+    // const { data: currentUser, isLoading: isLoadingUser } = useCurrent({ enabled: hasSession });
 
     const { data: teamContext, isLoading: isLoadingTeamContext } = useGetTeamContext({
         enabled: !isDemo && !!currentUser,
@@ -36,7 +62,7 @@ export const AppProvider = ({ children, hasSession, isDemo }: { children: React.
         : teamContext;
 
     return (
-        <AppContext.Provider value={{ currentUser, isLoadingUser, teamContext: effectiveTeamContext, isLoadingTeamContext: isDemo ? false : isLoadingTeamContext, isDemo }}>
+        <AppContext.Provider value={{ currentUser, teamContext: effectiveTeamContext, isLoadingTeamContext: isDemo ? false : isLoadingTeamContext, isDemo }}>
             {children}
         </AppContext.Provider>
     );

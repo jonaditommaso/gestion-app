@@ -7,7 +7,7 @@ interface UseGetTaskActivityLogsProps {
 }
 
 export const useGetTaskActivityLogs = ({ taskId }: UseGetTaskActivityLogsProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['task-activity-logs', taskId, isDemo],
@@ -25,7 +25,7 @@ export const useGetTaskActivityLogs = ({ taskId }: UseGetTaskActivityLogsProps) 
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser && !!taskId
+        enabled: !!taskId && !isLoadingTeamContext
     });
 
     return query;

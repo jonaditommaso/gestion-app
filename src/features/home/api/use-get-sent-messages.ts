@@ -5,7 +5,7 @@ import { useDemoData } from "@/context/DemoDataContext";
 import { DEMO_TEAM_MEM_YOU_ID } from "@/lib/demo-data";
 
 export const useGetSentMessages = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
@@ -26,7 +26,7 @@ export const useGetSentMessages = () => {
 
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
         refetchOnMount: false
     })
 

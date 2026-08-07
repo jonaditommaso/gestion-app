@@ -20,7 +20,7 @@ interface HomeCustomizationContextType {
     saveChanges: () => void;
     cancelChanges: () => void;
     isSaving: boolean;
-    isLoading: boolean;
+    // isLoading: boolean;
     isWidgetVisible: (widgetId: WidgetId) => boolean;
     canToggleWidget: (widgetId: WidgetId) => boolean;
 }
@@ -40,7 +40,7 @@ interface HomeCustomizationProviderProps {
 }
 
 export const HomeCustomizationProvider = ({ children }: HomeCustomizationProviderProps) => {
-    const { data: savedConfig, isLoading } = useGetHomeConfig();
+    const { data: savedConfig } = useGetHomeConfig();
     const { mutate: createConfig } = useCreateHomeConfig();
     const { mutate: updateConfig, isPending: isSaving } = useUpdateHomeConfig();
 
@@ -209,7 +209,7 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         return widget?.canToggle ?? false;
     }, [config]);
 
-    const value: HomeCustomizationContextType = {
+    const value: HomeCustomizationContextType = useMemo(() => ({
         isEditMode,
         setIsEditMode,
         config,
@@ -224,10 +224,28 @@ export const HomeCustomizationProvider = ({ children }: HomeCustomizationProvide
         saveChanges,
         cancelChanges,
         isSaving,
-        isLoading,
+        // isLoading,
         isWidgetVisible,
         canToggleWidget,
-    };
+    }), [
+        isEditMode,
+        setIsEditMode,
+        config,
+        originalConfig,
+        hasChanges,
+        toggleWidgetVisibility,
+        toggleIntegration,
+        toggleSmartWidgets,
+        setTaskWidgetStatus,
+        setDefaultWorkspaceId,
+        setDefaultBoardId,
+        saveChanges,
+        cancelChanges,
+        isSaving,
+        // isLoading,
+        isWidgetVisible,
+        canToggleWidget,
+    ]);
 
     return (
         <HomeCustomizationContext.Provider value={value}>

@@ -13,7 +13,7 @@ export const useGetSubtasks = ({
     workspaceId,
     enabled = true
 }: UseGetSubtasksProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['subtasks', parentId, isDemo],
@@ -35,7 +35,7 @@ export const useGetSubtasks = ({
         },
         retry: false,
         refetchOnMount: true,
-        enabled: !isLoadingUser && enabled && !!parentId && !!workspaceId
+        enabled: enabled && !!parentId && !!workspaceId && !isLoadingTeamContext
     })
 
     return query;

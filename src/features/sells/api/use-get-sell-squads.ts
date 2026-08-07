@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetSellSquads = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery({
         queryKey: ["sell-squads", isDemo],
@@ -19,7 +19,7 @@ export const useGetSellSquads = () => {
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
         retry: false,
         refetchOnMount: true,
     });

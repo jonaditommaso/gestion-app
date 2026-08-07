@@ -23,7 +23,7 @@ export type PipelineHealthData = {
 };
 
 export const useGetPipelineHealth = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery({
         queryKey: ["pipeline-health", isDemo],
@@ -48,7 +48,7 @@ export const useGetPipelineHealth = () => {
             const { data } = await response.json();
             return data as PipelineHealthData;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
         retry: false,
         refetchOnMount: true,
     });

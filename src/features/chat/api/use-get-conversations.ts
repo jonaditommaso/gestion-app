@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetConversations = (options?: { enabled?: boolean }) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['chat-conversations', isDemo],
@@ -19,7 +19,7 @@ export const useGetConversations = (options?: { enabled?: boolean }) => {
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser && (options?.enabled ?? true),
+        enabled: !isLoadingTeamContext && (options?.enabled ?? true),
     });
 
     return query;

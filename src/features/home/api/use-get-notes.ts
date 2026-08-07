@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetNotes = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
@@ -24,7 +24,7 @@ export const useGetNotes = () => {
 
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     })
 
     return query;

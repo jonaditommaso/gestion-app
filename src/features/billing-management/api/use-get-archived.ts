@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetArchived = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
@@ -23,7 +23,7 @@ export const useGetArchived = () => {
             return data;
         },
         retry: false,
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     });
 
     return query;

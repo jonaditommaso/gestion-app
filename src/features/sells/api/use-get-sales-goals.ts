@@ -3,11 +3,11 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetSalesGoals = (boardId: string | null) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery({
         queryKey: ["sales-goals", boardId, isDemo],
-        enabled: !isLoadingUser && !!boardId,
+        enabled: !!boardId && !isLoadingTeamContext,
         queryFn: async () => {
             if (isDemo) return { total: 0, documents: [] };
 

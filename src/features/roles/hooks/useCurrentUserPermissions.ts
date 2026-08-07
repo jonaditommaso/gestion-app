@@ -3,7 +3,7 @@ import { useGetFinalRolesPermissions } from "./useGetFinalRolesPermissions";
 import { useAppContext } from "@/context/AppContext";
 
 export const useCurrentUserPermissions = () => {
-    const { isLoadingUser, teamContext, isLoadingTeamContext: isLoadingContext } = useAppContext();
+    const { teamContext, isLoadingTeamContext } = useAppContext();
     const finalRolePermissions = useGetFinalRolesPermissions(!!teamContext?.membership);
 
     const rawRole = teamContext?.membership?.role;
@@ -13,5 +13,5 @@ export const useCurrentUserPermissions = () => {
 
     const hasPermission = (permission: Permission): boolean => permissions.includes(permission);
 
-    return { permissions, hasPermission, isLoading: isLoadingUser || isLoadingContext };
+    return { permissions, hasPermission, isLoading: isLoadingTeamContext };
 };

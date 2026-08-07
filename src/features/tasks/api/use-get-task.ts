@@ -14,7 +14,7 @@ export const useGetTask = ({
     taskId,
     enabled = true
 }: UseGetTaskProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const demoData = useDemoData();
     const queryClient = useQueryClient();
 
@@ -55,7 +55,7 @@ export const useGetTask = ({
             return data;
         },
         initialData: cachedTask,
-        enabled: !isLoadingUser && enabled && !!taskId && (isDemo || !cachedTask),
+        enabled: !isLoadingTeamContext && enabled && !!taskId && (isDemo || !cachedTask),
     });
 
     return query;

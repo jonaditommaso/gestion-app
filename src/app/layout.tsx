@@ -66,7 +66,7 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <AppProvider hasSession={!!user || isDemo} isDemo={isDemo}>
+              <AppProvider isDemo={isDemo} currentUser={user}>
                 {isDemo ? (
                     <DemoDataProvider>
                       {app}

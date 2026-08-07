@@ -12,12 +12,12 @@ import { useAppContext } from "@/context/AppContext";
 
 const TaskIdClient = () => {
     const taskId = useTaskId();
-    const { isLoadingUser, isDemo } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const { data, isLoading } = useGetTask({ taskId })
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE) && !isDemo;
 
-    if (isLoading || isLoadingUser) return <CustomLoader />
+    if (isLoading || isLoadingTeamContext) return <CustomLoader />
 
     if (!data) notFound()
 

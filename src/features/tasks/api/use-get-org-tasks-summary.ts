@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetOrgTasksSummary = (options?: { enabled?: boolean }) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['tasks', 'org-summary', isDemo],
@@ -28,7 +28,7 @@ export const useGetOrgTasksSummary = (options?: { enabled?: boolean }) => {
             return data;
         },
         retry: false,
-        enabled: !isLoadingUser && (options?.enabled ?? true),
+        enabled: !isLoadingTeamContext && (options?.enabled ?? true),
     });
 
     return query;
