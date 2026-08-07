@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetOrgDashboard } from "@/features/tasks/api/use-get-org-dashboard";
 import { useTranslations } from "next-intl";
-import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, HeartPulse } from "lucide-react";
 import Link from "next/link";
 
 const WorkspaceHealthWidget = () => {
@@ -31,7 +31,10 @@ const WorkspaceHealthWidget = () => {
         <Card className="col-span-1">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold flex items-center justify-between">
-                    <span>{t('workspace-health-title')}</span>
+                    <div className='flex items-center gap-2'>
+                        <HeartPulse className="h-5 w-5 text-blue-600" />
+                        <span>{t('workspace-health-title')}</span>
+                    </div>
                     <Link
                         href="/workspaces"
                         className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"

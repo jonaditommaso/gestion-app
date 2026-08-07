@@ -126,7 +126,7 @@ const ShortcutButton = () => {
                 <PopoverTrigger asChild>
                     <Button
                         // className={`w-full ${isFree ? 'py-11' : 'py-16'} h-auto`}
-                        className="w-full h-28"
+                        className="w-full h-24"
                         variant='outline'
                         disabled={popoverIsOpen || isDemo || isLoadingTeamContext}
                         onClick={() => handleAddShortcut('shortcut')}

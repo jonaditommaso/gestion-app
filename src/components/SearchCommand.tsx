@@ -1,5 +1,6 @@
 'use client'
 import {
+  Command as CommandIcon,
   NotepadText,
   ReceiptText,
   User,
@@ -95,14 +96,21 @@ const SearchCommand = () => {
 
   return (
     <div className="flex p-2 ml-1 relative h-14" ref={containerRef}>
-      <Command className="rounded-lg border shadow-sm md:min-w-[250px] lg:max-w-8">
-        <CommandInput
-          placeholder={t('search')}
-          onClick={handleInputClick}
-          ref={inputRef}
-          disabled={isNavigating}
-          autoFocus
-        />
+      <Command className="rounded-lg border shadow-sm w-full md:min-w-[280px] lg:min-w-[300px]">
+        <div className="relative">
+          <CommandInput
+            placeholder={t('search')}
+            onClick={handleInputClick}
+            ref={inputRef}
+            disabled={isNavigating}
+            autoFocus
+            className="pr-10"
+          />
+          <span className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-md border border-border/70 bg-background/90 px-2 py-1 text-[11px] font-medium text-muted-foreground shadow-sm">
+            <CommandIcon className="pointer-events-none h-3.5 w-3.5" />
+            <span className="leading-none">K</span>
+          </span>
+        </div>
         {isOpen && <div className="absolute top-full w-full bg-white shadow-md z-50">
 
           <CommandList className="bg-sidebar">

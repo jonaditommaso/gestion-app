@@ -18,7 +18,7 @@ const CreateBillingButton = ({ isDemo }: { isDemo: boolean }) => {
         <>
             <AddOperationModal isOpen={isOpen} setIsOpen={setIsOpen} />
             <Button
-                className="w-full h-28"
+                className="w-full h-24"
                 variant="outline"
                 onClick={() => setIsOpen(true)}
                 disabled={isDemo}

@@ -2295,6 +2295,7 @@
         "invite-role-viewer": "Viewer"
     },
     "home": {
+        "quick-actions": "Quick actions",
         "send-a-message": "Send a message",
         "send-message": "Send message",
         "subject-placeholder": "Subject...",
@@ -2318,6 +2319,7 @@
         "no-tasks": "No tasks in this column",
         "from-workspace": "From your activity board.",
         "limit-date": "Due date",
+        "see-all": "See all",
         "mark-all-read": "Mark all as read",
         "not-messages-yet": "You haven't received any messages yet",
         "you-have": "You have",
@@ -2496,7 +2498,7 @@
         "activity-task-generic": "{actor} updated {title}"
     },
     "app": {
-        "search": "Search...",
+        "search": "Search in Gestionate...",
         "no-results-found": "No results found",
         "commands": "Commands",
         "billing": "Billing",

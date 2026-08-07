@@ -2295,6 +2295,7 @@
         "invite-role-viewer": "Viewer"
     },
     "home": {
+        "quick-actions": "Acciones rápidas",
         "send-a-message": "Enviar un mensaje",
         "send-message": "Enviar mensaje",
         "subject-placeholder": "Asunto...",
@@ -2318,6 +2319,7 @@
         "no-tasks": "No hay tareas en esta columna",
         "from-workspace": "De tu tablero de actividades.",
         "limit-date": "Fecha límite",
+        "see-all": "Ver todos",
         "mark-all-read": "Marcar todo como leído",
         "not-messages-yet": "Aún no has recibido ningún mensaje",
         "you-have": "Tienes",
@@ -2496,7 +2498,7 @@
         "activity-task-generic": "{actor} actualizó {title}"
     },
     "app": {
-        "search": "Buscar...",
+        "search": "Buscar en Gestionate...",
         "no-results-found": "No se encontraron resultados",
         "commands": "Comandos",
         "billing": "Facturación",

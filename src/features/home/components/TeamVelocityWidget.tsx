@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetOrgDashboard } from "@/features/tasks/api/use-get-org-dashboard";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, TrendingUp } from "lucide-react";
+import { CheckCircle2, TrendingUp, FileCheckCorner } from "lucide-react";
 import Link from "next/link";
 
 const TeamVelocityWidget = () => {
@@ -32,7 +32,10 @@ const TeamVelocityWidget = () => {
         <Card className="col-span-1">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold">
-                    {t('team-velocity-title')}
+                    <div className="flex items-center gap-2">
+                        <FileCheckCorner className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                        <span>{t('team-velocity-title')}</span>
+                    </div>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1">
