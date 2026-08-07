@@ -20,7 +20,7 @@ const app = new Hono()
 
             const cookieStore = await cookies();
             const activeMembershipId = cookieStore.get('active-org-id')?.value;
-            const context = await getActiveContext(user, databases, activeMembershipId);
+            const context = await getActiveContext(user, activeMembershipId);
 
             if (!context) {
                 return ctx.json({ data: null });
@@ -47,7 +47,7 @@ const app = new Hono()
 
             const cookieStore = await cookies();
             const activeMembershipId = cookieStore.get('active-org-id')?.value;
-            const context = await getActiveContext(user, databases, activeMembershipId);
+            const context = await getActiveContext(user, activeMembershipId);
 
             if (!context) {
                 return ctx.json({ error: 'Not found' }, 404);

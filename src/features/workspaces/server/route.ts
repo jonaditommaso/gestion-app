@@ -22,7 +22,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
             const workspaces = await databases.listDocuments(
@@ -49,7 +49,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { count: 0 } });
 
             const workspaces = await databases.listDocuments(
@@ -71,7 +71,7 @@ const app = new Hono()
 
             const { name } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const workspaceLimit = planLimits[context.org.plan].workspaces;
@@ -145,7 +145,7 @@ const app = new Hono()
                     parsedMeta = typeof metadata === 'string' ? JSON.parse(metadata) : {};
                 } catch { /* invalid JSON — skip check */ }
                 if ('customStatuses' in parsedMeta) {
-                    const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                    const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
                     if (orgContext?.org?.plan === 'FREE') {
                         return ctx.json({ error: 'Plan limit reached' }, 403);
                     }

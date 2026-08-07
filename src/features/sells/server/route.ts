@@ -92,7 +92,7 @@ const app = new Hono()
         const databases = ctx.get("databases");
         const user = ctx.get("user");
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const sellers = await databases.listDocuments<DealSellerDocument>(
@@ -117,7 +117,7 @@ const app = new Hono()
             const databases = ctx.get("databases");
             const user = ctx.get("user");
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const { memberId, name, email, avatarId } = ctx.req.valid("json");
@@ -157,7 +157,7 @@ const app = new Hono()
         const user = ctx.get("user");
         const { sellerId } = ctx.req.param();
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const seller = await databases.getDocument<DealSellerDocument>(
@@ -180,7 +180,7 @@ const app = new Hono()
         const databases = ctx.get("databases");
         const user = ctx.get("user");
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) {
             return ctx.json({ data: { leadsCount: 0, openDealsCount: 0, negotiationCount: 0, wonThisWeek: 0, totalByCurrency: [] } });
         }
@@ -249,7 +249,7 @@ const app = new Hono()
         const databases = ctx.get("databases");
         const user = ctx.get("user");
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const dealsResult = await databases.listDocuments<DealDocument>(
@@ -362,7 +362,7 @@ const app = new Hono()
             const databases = ctx.get("databases");
             const user = ctx.get("user");
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const { expectedCloseDate, ...rest } = ctx.req.valid("json");
@@ -426,7 +426,7 @@ const app = new Hono()
             const user = ctx.get("user");
             const { dealId } = ctx.req.param();
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const existing = await databases.getDocument<DealDocument>(
@@ -609,7 +609,7 @@ const app = new Hono()
         const user = ctx.get("user");
         const { dealId } = ctx.req.param();
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const existing = await databases.getDocument<DealDocument>(
@@ -661,7 +661,7 @@ const app = new Hono()
         const user = ctx.get("user");
         const { dealId } = ctx.req.param();
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const assignees = await databases.listDocuments<DealAssigneeDocument>(
@@ -708,7 +708,7 @@ const app = new Hono()
             const user = ctx.get("user");
             const { dealId } = ctx.req.param();
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const deal = await databases.getDocument<DealDocument>(
@@ -756,7 +756,7 @@ const app = new Hono()
         const user = ctx.get("user");
         const { dealId, assigneeId } = ctx.req.param();
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const deal = await databases.getDocument<DealDocument>(
@@ -784,7 +784,7 @@ const app = new Hono()
             const user = ctx.get("user");
             const { dealId } = ctx.req.param();
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const authorMemberId = context.membership.$id;

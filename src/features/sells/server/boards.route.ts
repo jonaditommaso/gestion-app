@@ -61,7 +61,7 @@ const app = new Hono()
         const databases = ctx.get("databases");
         const user = ctx.get("user");
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         const result = await databases.listDocuments<SalesBoardDocument>(
@@ -95,7 +95,7 @@ const app = new Hono()
             const databases = ctx.get("databases");
             const user = ctx.get("user");
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const pipelineLimit = planLimits[context.org.plan].pipelines;
@@ -147,7 +147,7 @@ const app = new Hono()
             const user = ctx.get("user");
             const { boardId } = ctx.req.param();
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const existing = await databases.getDocument<SalesBoardDocument>(
@@ -193,7 +193,7 @@ const app = new Hono()
         const user = ctx.get("user");
         const { boardId } = ctx.req.param();
 
-        const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+        const context = await getActiveContext(user, ctx.get("activeOrgId"));
         if (!context) return ctx.json({ error: "No active organization" }, 400);
 
         // Verify board ownership
@@ -240,7 +240,7 @@ const app = new Hono()
             const user = ctx.get("user");
             const { boardId } = ctx.req.param();
 
-            const context = await getActiveContext(user, databases, ctx.get("activeOrgId"));
+            const context = await getActiveContext(user, ctx.get("activeOrgId"));
             if (!context) return ctx.json({ error: "No active organization" }, 400);
 
             const board = await databases.getDocument<SalesBoardDocument>(

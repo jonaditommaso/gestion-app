@@ -44,7 +44,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const teamId = context.org.appwriteTeamId;
@@ -153,7 +153,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { total: 0, documents: [] } });
 
             try {
@@ -195,7 +195,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401);
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { total: 0, documents: [] } });
 
             try {
@@ -228,7 +228,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401);
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { total: 0, documents: [] } });
 
             try {
@@ -341,7 +341,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
             const billingOptions = await databases.listDocuments(
@@ -373,7 +373,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const options = await databases.createDocument(

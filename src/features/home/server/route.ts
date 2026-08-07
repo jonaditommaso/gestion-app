@@ -21,7 +21,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: null });
 
             const memberId = context.membership.$id;
@@ -54,7 +54,7 @@ const app = new Hono()
                 return ctx.json({ error: 'At least one field is required' }, 400)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const memberId = context.membership.$id;
@@ -108,7 +108,7 @@ const app = new Hono()
                 return ctx.json({ error: 'At least one field is required' }, 400)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const memberId = context.membership.$id;
@@ -166,7 +166,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Cannot create an empty note' }, 400)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const memberId = context.membership.$id;
@@ -200,7 +200,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
             const memberId = context.membership.$id;
@@ -290,7 +290,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Cannot create the message' }, 400)
             }
 
-            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!msgContext) return ctx.json({ error: 'No active organization' }, 400);
             const resolvedTeamId = msgContext.org.appwriteTeamId;
 
@@ -337,7 +337,7 @@ const app = new Hono()
             const { teams } = await createAdminClient();
 
             // Obtener el membership ID del usuario actual
-            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!msgContext) return ctx.json({ data: { documents: [], total: 0 } });
             const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
             const currentMembership = memberships.find(m => m.userId === user.$id);
@@ -403,7 +403,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const { teams } = await createAdminClient();
 
-            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!msgContext) return ctx.json({ data: { documents: [], total: 0 } });
 
             const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
@@ -435,7 +435,7 @@ const app = new Hono()
 
             const message = await databases.getDocument(DATABASE_ID, MESSAGES_ID, messageId);
 
-            const msgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!msgContext) return ctx.json({ error: 'No active organization' }, 400);
 
             const { teams } = await createAdminClient();
@@ -783,7 +783,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: [] });
 
             const teamId = context.org.appwriteTeamId;

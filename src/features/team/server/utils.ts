@@ -1,4 +1,4 @@
-import { Databases, Models, Query } from "node-appwrite";
+import { Models, Query } from "node-appwrite";
 import { DATABASE_ID, MEMBERSHIPS_ID, ORGANIZATIONS_ID } from "@/config";
 import { createAdminClient } from "@/lib/appwrite";
 import { Membership, Organization } from "../types";
@@ -15,7 +15,7 @@ const CONTEXT_CACHE_TTL = 30_000; // 30 secs
 
 export async function getActiveContext(
     user: Models.User<Models.Preferences>,
-    _databases: Databases,
+    // _databases: Databases,
     activeMembershipId?: string
 ): Promise<{ membership: Membership; org: Organization } | null> {
 
