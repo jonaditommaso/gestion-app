@@ -3,6 +3,8 @@ import SearchCommand from "@/components/SearchCommand";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import UserButton from "@/features/auth/components/UserButton";
 import { AlertTriangle, Check, ChevronsUpDown, Plus, Rocket, X } from "lucide-react";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { ToggleThemeMode } from "./ToggleThemeMode";
 import NoTeamWarningIcon from "@/features/team/components/NoTeamWarningIcon";
@@ -16,6 +18,7 @@ import { useAppContext } from "@/context/AppContext";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { useRef } from "react";
 
 const notShowInView = [
   '/login',
@@ -32,6 +35,9 @@ const AppNavbar = () => {
   const t = useTranslations('general');
   const { teamContext, isLoadingTeamContext: isLoadingContext, isDemo } = useAppContext();
   const { mutate: switchOrg, isPending: isSwitching } = useSwitchOrg();
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+  const companySelectorRef = useRef<HTMLButtonElement | null>(null);
 
   const orgName = teamContext?.org?.name;
   const allContexts = teamContext?.allContexts ?? [];
@@ -52,6 +58,12 @@ const AppNavbar = () => {
     router.refresh();
   }
 
+  const handleCompanyDropdownOpenChange = (open: boolean) => {
+    if (!open) {
+      requestAnimationFrame(() => companySelectorRef.current?.blur());
+    }
+  }
+
   const TriggerContent = isLoadingContext ? (
     <span className="w-20 h-4 rounded bg-muted animate-pulse" />
   ) : (
@@ -63,49 +75,16 @@ const AppNavbar = () => {
 
   return (
     <nav className={cn('border-b shadow-md fixed top-0 z-40 grid grid-cols-3 items-center w-full bg-sidebar', isDemo && 'grid-cols-4')}>
-      <div className={cn("flex items-center gap-2 pl-5", isDemo && "col-span-2")}>
+      <div className={cn("flex items-center gap-2 pl-2", isDemo && "col-span-2")}>
         <div className="max-w-44 flex items-center p-2">
           {isDemo
             ? (
               TriggerContent
             ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              disabled={isSwitching || isLoadingContext}
-              className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity truncate max-w-full focus:outline-none"
-            >
-              {TriggerContent}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-44">
-              {allContexts.map((c) => (
-                <DropdownMenuItem
-                  key={c.membership.$id}
-                  onClick={() => c.membership.$id !== currentMembershipId && handleSwitch(c.membership.$id)}
-                  className="flex items-center gap-2"
-                >
-                  <Check className={`w-4 h-4 shrink-0 ${c.membership.$id === currentMembershipId ? 'opacity-100 cursor-default' : 'opacity-0 cursor-pointer'}`} />
-                  {c.org.name}
-                </DropdownMenuItem>
-              ))}
-              {allContexts.length > 0 && <DropdownMenuSeparator />}
-              {currentRole === 'OWNER' && (
-                <DropdownMenuItem
-                  className="flex items-center gap-2 !cursor-pointer text-[#f59e0b] hover:!text-[#f59e0b]/80"
-                  onClick={() => router.push('/pricing')}
-                >
-                  <Rocket className="w-4 h-4 shrink-0" />
-                  {t('improve-plan')}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                className="flex items-center gap-2 !cursor-pointer"
-                onClick={() => router.push('/new-org')}
-              >
-                <Plus className="w-4 h-4 shrink-0" />
-                {t('add-organization')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <div className='flex items-center gap-4'>
+              <Image src={isDark ? '/gestionate-logo-white.svg': '/gestionate-logo.svg'} height={28} width={28} alt="gestionate-logo" />
+              <span className="text-lg font-semibold">Gestionate</span>
+            </div>
           )}
         </div>
         {isDemo && (
@@ -148,6 +127,48 @@ const AppNavbar = () => {
             <ToggleThemeMode />
             <NotificationsTrigger />
             <UserButton />
+            <DropdownMenu modal={false} onOpenChange={handleCompanyDropdownOpenChange}>
+              <DropdownMenuTrigger
+                ref={companySelectorRef}
+                disabled={isSwitching || isLoadingContext}
+                className={cn(
+                  "flex h-9 max-w-full items-center gap-1 truncate rounded-full border border-border/80 bg-background/70 px-3 text-sm shadow-sm transition-all",
+                  "hover:border-border hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-0 data-[state=open]:border-primary/30 data-[state=open]:bg-accent/50 data-[state=open]:shadow",
+                  (isSwitching || isLoadingContext) ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+                )}
+              >
+                {TriggerContent}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-44">
+                {allContexts.map((c) => (
+                  <DropdownMenuItem
+                    key={c.membership.$id}
+                    onClick={() => c.membership.$id !== currentMembershipId && handleSwitch(c.membership.$id)}
+                    className="flex items-center gap-2"
+                  >
+                    <Check className={`w-4 h-4 shrink-0 ${c.membership.$id === currentMembershipId ? 'opacity-100 cursor-default' : 'opacity-0 cursor-pointer'}`} />
+                    {c.org.name}
+                  </DropdownMenuItem>
+                ))}
+                {allContexts.length > 0 && <DropdownMenuSeparator />}
+                {currentRole === 'OWNER' && (
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 !cursor-pointer text-[#f59e0b] hover:!text-[#f59e0b]/80"
+                    onClick={() => router.push('/pricing')}
+                  >
+                    <Rocket className="w-4 h-4 shrink-0" />
+                    {t('improve-plan')}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  className="flex items-center gap-2 !cursor-pointer"
+                  onClick={() => router.push('/new-org')}
+                >
+                  <Plus className="w-4 h-4 shrink-0" />
+                  {t('add-organization')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </>
       ) : (
