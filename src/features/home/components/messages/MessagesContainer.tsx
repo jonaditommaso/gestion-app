@@ -16,8 +16,8 @@ import { useGetMessages } from "../../api/use-get-messages"
 import { useGetMembers } from "@/features/team/api/use-get-members"
 import '@github/relative-time-element';
 import { useLocale, useTranslations } from "next-intl"
-import FadeLoader from "react-spinners/FadeLoader"
 import { useBulkReadMessages } from "../../api/use-bulk-read-messages"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Message } from './types';
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation"
@@ -120,8 +120,8 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         <CardContent className="grid gap-4 pb-2 overflow-auto mb-1">
           <div>
             {isPending ? (
-              <div className="w-full flex justify-center">
-                <FadeLoader color="#999" width={3} className="mt-5" />
+              <div className="w-full">
+                <Skeleton className="h-20 w-full" />
               </div>
             ) : (
               (messages?.documents as unknown as Message[])?.map((message, index) => {
