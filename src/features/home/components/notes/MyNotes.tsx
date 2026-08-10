@@ -32,7 +32,7 @@ const NOTE_VIEW_IDS: GlobalNoteViewId[] = [
 ];
 
 const ONBOARDING_NOTE_ID = '__onboarding__';
-const ONBOARDING_COLORS = ['bg-[#2662d9]', 'bg-[#2eb88a]', 'bg-[#e88c30]', 'bg-[#af57db]', 'bg-[#e23670]'];
+const ONBOARDING_COLORS = ['bg-[#5075bf]', 'bg-[#4cb592]', 'bg-[#f0a256]', 'bg-[#a668c4]', 'bg-[#de5281]'];
 
 const MyNotes = () => {
     const { data, isPending } = useGetNotes();
