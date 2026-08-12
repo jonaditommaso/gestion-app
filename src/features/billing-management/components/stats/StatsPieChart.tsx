@@ -3,17 +3,10 @@
 import { Pie, PieChart } from "recharts"
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { useTranslations } from "next-intl"
 
 interface StatsPieChartProps {
   categoriesData: {
@@ -25,58 +18,30 @@ interface StatsPieChartProps {
 }
 
 export function StatsPieChart({ categoriesData, type }: StatsPieChartProps) {
-  const t = useTranslations('billing')
-
   return (
-    <Card className="flex flex-col p-0 pb-2">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>{t(type)}</CardTitle>
-        {/* <CardDescription>Add description, maybe the range selected in future</CardDescription> */}
-      </CardHeader>
-      <CardContent className="flex-1 p-0">
-        <ChartContainer
-          config={{}}
-          className="mx-auto aspect-square min-h-[400px] max-h-[450px] pb-0 [&_.recharts-pie-label-text]:fill-foreground p-0 w-[600px]"
-
-        >
-          <PieChart>
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <Pie
-                data={categoriesData}
-                dataKey="import"
-                nameKey="category"
-                strokeWidth={1}
-                stroke="#ffffff"
-                label={({ cx, cy, midAngle, outerRadius, percent, index }) => {
-                  const radius = outerRadius + 30;
-                  const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-                  const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-
-                  return (
-                    <text
-                      x={x}
-                      y={y}
-                      fill="black"
-                      textAnchor={x > cx ? "start" : "end"}
-                      dominantBaseline="central"
-                      style={{ fontSize: "12px", fontWeight: "bold" }}
-                    >
-                      {categoriesData[index].category}
-                      <tspan
-                        x={x}
-                        y={y + 15}
-                        fill="gray"
-                        fontWeight="semibold"
-                      >
-                        {`${(percent * 100).toFixed(1)}%`}
-                      </tspan>
-                    </text>
-                  );
-                }}
-            />
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+    <ChartContainer
+      config={{
+        value: {
+          label: type,
+          color: "hsl(var(--chart-1))",
+        },
+      }}
+      className="h-[280px] w-full"
+    >
+      <PieChart>
+        <ChartTooltip content={<ChartTooltipContent hideIndicator />} />
+        <Pie
+          data={categoriesData}
+          dataKey="import"
+          nameKey="category"
+          strokeWidth={1}
+          stroke="hsl(var(--background))"
+          innerRadius={62}
+          outerRadius={105}
+          paddingAngle={2}
+          isAnimationActive
+        />
+      </PieChart>
+    </ChartContainer>
   )
 }

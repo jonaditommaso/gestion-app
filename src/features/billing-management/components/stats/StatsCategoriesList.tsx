@@ -13,18 +13,20 @@ const StatsCategoriesList = ({ categoriesData }: StatsCategoriesListProps) => {
     const totalCount = categoriesData.reduce((sum, element) => sum + element.import, 0);
 
     return (
-        <div className="min-w-[300px] w-[450px] md:pl-[45px] md:m-auto">
+        <div className="space-y-2">
             {categoriesData.map((element, index) => {
                 const percentage = ((element.import / totalCount) * 100).toFixed(1);
 
                 return (
-                    <div className="flex justify-between mx-2 items-center border-[1px] p-2 w-[400px]" key={index}>
+                    <div className="flex items-center justify-between rounded-xl border border-muted/60 bg-muted/20 px-3 py-2" key={index}>
                         <div className="flex items-center gap-2">
-                            <Badge style={{ backgroundColor: element.fill, width: '55px' }}>{percentage}%</Badge>
-                            <span>{element.category}</span>
+                            <Badge style={{ backgroundColor: element.fill, width: '58px' }} className="justify-center text-white">
+                                {percentage}%
+                            </Badge>
+                            <span className="text-sm">{element.category}</span>
                         </div>
-                        <div>
-                            $ {element.import}
+                        <div className="text-sm font-medium">
+                            € {element.import.toFixed(2)}
                         </div>
                     </div>
                 )})

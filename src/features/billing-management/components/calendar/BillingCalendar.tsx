@@ -192,7 +192,7 @@ const BillingCalendar = () => {
                 date={value}
                 toolbar
                 showAllEvents
-                className="h-full w-[80%] m-auto"
+                className="h-full w-full"
                 max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                 onSelectEvent={(event) => openDetails(event as BillingOperationEvent)}
                 eventPropGetter={() => ({

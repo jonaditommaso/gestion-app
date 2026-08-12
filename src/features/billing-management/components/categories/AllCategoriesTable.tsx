@@ -2,27 +2,23 @@
 
 import { Loader } from "lucide-react";
 import { useGetBillingOptions } from "../../api/use-get-billing-options";
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo } from "react";
 import CategoriesList from "./CategoriesList";
 import { useUpdateBillingOptions } from "../../api/use-update-billing-options";
-import { DialogContainer } from "@/components/DialogContainer";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 const AllCategoriesTable = () => {
     const { data, isLoading: isLoadingCategories } = useGetBillingOptions();
     const {mutate: updateCategories} = useUpdateBillingOptions();
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [typeToChange, setTypeToChange] = useState<null | string>(null);
     const t = useTranslations('billing')
 
-    const incomeCategories = useMemo(() => data?.documents[0]?.incomeCategories || [], [data])
-    const expenseCategories = useMemo(() => data?.documents[0]?.expenseCategories || [], [data])
+    const incomeCategories = useMemo<string[]>(() => data?.documents[0]?.incomeCategories || [], [data])
+    const expenseCategories = useMemo<string[]>(() => data?.documents[0]?.expenseCategories || [], [data])
 
     const allCategories = useMemo(() => [
-        {header: 'income-categories', categories: incomeCategories, type: 'income'},
-        {header: 'expense-categories', categories: expenseCategories, type: 'expense'}
+        {header: 'income-categories', categories: incomeCategories, type: 'income' as const},
+        {header: 'expense-categories', categories: expenseCategories, type: 'expense' as const}
     ], [incomeCategories, expenseCategories]);
 
     if (isLoadingCategories) return (
@@ -31,22 +27,47 @@ const AllCategoriesTable = () => {
         </div>
     )
 
-    const onAddCategory = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const normalizeCategory = (value: string) => value.trim().toLowerCase();
 
-        const { elements } = event.currentTarget
+    const toUniqueCategories = (list: string[]) => {
+        const seen = new Set<string>();
 
-        const categoryInput = elements.namedItem('newCategory');
+        return list.filter((item) => {
+            const normalizedItem = normalizeCategory(item);
 
-        const isInput = categoryInput instanceof HTMLInputElement;
-        if (!isInput || isInput == null) return;
+            if (!normalizedItem || seen.has(normalizedItem)) {
+                return false;
+            }
 
-        const current = typeToChange === 'income' ? incomeCategories : expenseCategories;
+            seen.add(normalizedItem);
+            return true;
+        });
+    }
+
+    const handleAddCategory = (type: 'income' | 'expense', categoryName: string) => {
+        const trimmedCategory = categoryName.trim();
+
+        if (!trimmedCategory) {
+            toast.error(t('category-required'));
+            return false;
+        }
+
+        const currentCategories = type === 'income' ? incomeCategories : expenseCategories;
+
+        const alreadyExists = currentCategories.some((category: string) => normalizeCategory(category) === normalizeCategory(trimmedCategory));
+
+        if (alreadyExists) {
+            toast.error(t('category-duplicate-error'));
+            return false;
+        }
+
+        const nextCategories = toUniqueCategories([...currentCategories, trimmedCategory]);
+
 
         const payload = {
             incomeCategories,
             expenseCategories,
-            [`${typeToChange}Categories`]: [...current, categoryInput.value],
+            [`${type}Categories`]: nextCategories,
         };
 
         updateCategories({
@@ -54,41 +75,22 @@ const AllCategoriesTable = () => {
             param: { billingOptionId: data?.documents[0].$id || '' }
         })
 
-        categoryInput.value = ''
-        setModalIsOpen(false);
-    }
-
-    const handleOpenModal = (type: string) => {
-        setModalIsOpen(true);
-        setTypeToChange(type);
+        return true;
     }
 
     return (
-        <div className="flex gap-2">
-            {/* move this dialog to split it according to permissions */}
-            <DialogContainer
-                title={t('add-category')}
-                isOpen={modalIsOpen}
-                setIsOpen={setModalIsOpen}
-            >
-                <form onSubmit={onAddCategory}>
-                    <div className="flex flex-col gap-4">
-                        <Input name="newCategory" />
-                        <Button className="w-[100%]" type="submit">
-                            {t('add')}
-                        </Button>
-                    </div>
-                </form>
-            </DialogContainer>
-            {allCategories.map(category => (
-                <CategoriesList
-                    key={category.header}
-                    header={category.header}
-                    categories={category.categories}
-                    type={category.type}
-                    handleOpenModal={handleOpenModal}
-                />
-            ))}
+        <div className="w-full">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                {allCategories.map((category) => (
+                    <CategoriesList
+                        key={category.header}
+                        header={category.header}
+                        categories={category.categories}
+                        type={category.type}
+                        onAddCategory={handleAddCategory}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

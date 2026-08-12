@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
 import { useGetDrafts } from "../../api/use-get-drafts";
 import { useUpdateOperation } from "../../api/use-update-operation";
@@ -28,7 +29,7 @@ import { DialogContainer } from "@/components/DialogContainer";
 import { cn } from "@/lib/utils";
 import capitalize from "@/utils/capitalize";
 import dayjs from "dayjs";
-import { Eye, Pencil, Save, Send, Trash2, XIcon } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Eye, Pencil, Save, Send, Trash2, XIcon } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
@@ -174,8 +175,24 @@ const DraftsTable = () => {
 
     const getRowClass = (draft: DraftOperation) => {
         if (isRowEditing(draft.$id)) return 'bg-zinc-200 dark:bg-zinc-800';
-        return draft.type === 'income' ? 'bg-[#0bb31420]' : 'bg-[#f0341020]';
+        return 'border-l-2 border-l-transparent hover:bg-muted/50';
     };
+
+    const getTypeBadge = (type: 'income' | 'expense') => {
+        if (type === 'income') {
+            return {
+                icon: ArrowUpCircle,
+                className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+                label: t('income'),
+            };
+        }
+
+        return {
+            icon: ArrowDownCircle,
+            className: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
+            label: t('expense'),
+        };
+    }
 
     if (isLoading) return null;
 
@@ -186,7 +203,7 @@ const DraftsTable = () => {
     );
 
     return (
-        <div className="w-full max-w-[1050px]">
+        <div className="w-full">
             <DeleteDialog />
             <DialogContainer
                 title={t('operation-details-title')}
@@ -234,7 +251,19 @@ const DraftsTable = () => {
                                 <TableCell className="font-medium">
                                     {draft.invoiceNumber || draft.$id.slice(-6).toUpperCase()}
                                 </TableCell>
-                                <TableCell>{capitalize(draft.type)}</TableCell>
+                                <TableCell>
+                                    {(() => {
+                                        const typeConfig = getTypeBadge(draft.type);
+                                        const Icon = typeConfig.icon;
+
+                                        return (
+                                            <Badge variant="outline" className={cn('gap-1.5 rounded-full px-2.5 py-1', typeConfig.className)}>
+                                                <Icon className="size-3.5" />
+                                                {typeConfig.label}
+                                            </Badge>
+                                        );
+                                    })()}
+                                </TableCell>
 
                                 <TableCell>
                                     {isRowEditing(draft.$id) ? (
@@ -307,7 +336,11 @@ const DraftsTable = () => {
                                                 setEditingDraft((prev) => prev ? ({ ...prev, import: v }) : prev);
                                             }}
                                         />
-                                    ) : <>{draft.currency || 'EUR'} {draft.import}</>}
+                                    ) : (
+                                        <span className={cn(draft.type === 'income' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300')}>
+                                            {draft.type === 'income' ? '+' : '-'}€ {draft.import.toFixed(2)}
+                                        </span>
+                                    )}
                                 </TableCell>
 
                                 <TableCell className={cn(

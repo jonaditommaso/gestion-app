@@ -10,6 +10,7 @@ import { useUpdateOperation } from "../../api/use-update-operation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { useAppContext } from "@/context/AppContext";
+import { AlarmClockCheck, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface BillingOperation {
     $id: string;
@@ -66,24 +67,39 @@ const FollowUpPanel = () => {
         });
     }
 
+    const dueSoonTotal = useMemo(() => dueSoon.reduce((acc, operation) => acc + operation.import, 0), [dueSoon]);
+    const overdueTotal = useMemo(() => overdue.reduce((acc, operation) => acc + operation.import, 0), [overdue]);
+    const paidTodayTotal = useMemo(() => paidToday.reduce((acc, operation) => acc + operation.import, 0), [paidToday]);
+
     if (isLoading) {
         return null;
     }
 
     return (
-        <div className="w-full max-w-[1050px] grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-amber-600">{t('due-soon')}</CardTitle>
+        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <Card className="border-border/80 bg-sidebar shadow-sm">
+                <CardHeader className="space-y-3 pb-3">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-base text-amber-700 dark:text-amber-400">{t('due-soon')}</CardTitle>
+                        <span className="flex size-9 items-center justify-center rounded-lg bg-amber-100/80 dark:bg-amber-900/50">
+                            <AlarmClockCheck className="size-4 text-amber-700 dark:text-amber-400" />
+                        </span>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-2xl font-semibold tracking-tight">{dueSoon.length}</p>
+                        <p className="text-sm text-muted-foreground">€ {dueSoonTotal.toFixed(2)}</p>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {dueSoon.length === 0 && <p className="text-sm text-muted-foreground">{t('no-due-soon')}</p>}
-                    {dueSoon.map((operation) => (
-                        <div key={operation.$id} className="border rounded-md p-2">
+                    {dueSoon.slice(0, 3).map((operation) => (
+                        <div key={operation.$id} className="rounded-xl border border-amber-200/60 bg-amber-50/40 p-3 dark:border-amber-800/40 dark:bg-amber-950/20">
                             <p className="font-medium">{operation.invoiceNumber || operation.$id.slice(-6).toUpperCase()}</p>
                             <p className="text-sm text-muted-foreground">{operation.category}</p>
-                            <p className="text-sm">€ {operation.import}</p>
-                            <p className="text-xs text-muted-foreground">{dayjs(operation.dueDate).format('DD/MM/YYYY')}</p>
+                            <div className="mt-1 flex items-center justify-between text-sm">
+                                <span>€ {operation.import.toFixed(2)}</span>
+                                <span className="text-xs text-muted-foreground">{dayjs(operation.dueDate).format('DD/MM/YYYY')}</span>
+                            </div>
                             {canWrite && (
                                 <Button
                                     size="sm"
@@ -99,18 +115,29 @@ const FollowUpPanel = () => {
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-red-600">{t('overdue-ops')}</CardTitle>
+            <Card className="border-border/80 bg-sidebar shadow-sm">
+                <CardHeader className="space-y-3 pb-3">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-base text-red-700 dark:text-red-400">{t('overdue-ops')}</CardTitle>
+                        <span className="flex size-9 items-center justify-center rounded-lg bg-red-100/80 dark:bg-red-900/50">
+                            <AlertCircle className="size-4 text-red-700 dark:text-red-400" />
+                        </span>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-2xl font-semibold tracking-tight">{overdue.length}</p>
+                        <p className="text-sm text-muted-foreground">€ {overdueTotal.toFixed(2)}</p>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {overdue.length === 0 && <p className="text-sm text-muted-foreground">{t('no-overdue')}</p>}
-                    {overdue.map((operation) => (
-                        <div key={operation.$id} className="border rounded-md p-2">
+                    {overdue.slice(0, 3).map((operation) => (
+                        <div key={operation.$id} className="rounded-xl border border-red-200/60 bg-red-50/40 p-3 dark:border-red-800/40 dark:bg-red-950/20">
                             <p className="font-medium">{operation.invoiceNumber || operation.$id.slice(-6).toUpperCase()}</p>
                             <p className="text-sm text-muted-foreground">{operation.category}</p>
-                            <p className="text-sm">€ {operation.import}</p>
-                            <p className="text-xs text-muted-foreground">{dayjs(operation.dueDate).format('DD/MM/YYYY')}</p>
+                            <div className="mt-1 flex items-center justify-between text-sm">
+                                <span>€ {operation.import.toFixed(2)}</span>
+                                <span className="text-xs text-muted-foreground">{dayjs(operation.dueDate).format('DD/MM/YYYY')}</span>
+                            </div>
                             {canWrite && (
                                 <Button
                                     size="sm"
@@ -126,18 +153,29 @@ const FollowUpPanel = () => {
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-green-600">{t('paid-today')}</CardTitle>
+            <Card className="border-border/80 bg-sidebar shadow-sm">
+                <CardHeader className="space-y-3 pb-3">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-base text-emerald-700 dark:text-emerald-400">{t('paid-today')}</CardTitle>
+                        <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-100/80 dark:bg-emerald-900/50">
+                            <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-400" />
+                        </span>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-2xl font-semibold tracking-tight">{paidToday.length}</p>
+                        <p className="text-sm text-muted-foreground">€ {paidTodayTotal.toFixed(2)}</p>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {paidToday.length === 0 && <p className="text-sm text-muted-foreground">{t('no-paid-today')}</p>}
-                    {paidToday.map((operation) => (
-                        <div key={operation.$id} className="border rounded-md p-2">
+                    {paidToday.slice(0, 3).map((operation) => (
+                        <div key={operation.$id} className="rounded-xl border border-emerald-200/60 bg-emerald-50/40 p-3 dark:border-emerald-800/40 dark:bg-emerald-950/20">
                             <p className="font-medium">{operation.invoiceNumber || operation.$id.slice(-6).toUpperCase()}</p>
                             <p className="text-sm text-muted-foreground">{operation.category}</p>
-                            <p className="text-sm">€ {operation.import}</p>
-                            <p className="text-xs text-muted-foreground">{dayjs(operation.$updatedAt).format('DD/MM/YYYY HH:mm')}</p>
+                            <div className="mt-1 flex items-center justify-between text-sm">
+                                <span>€ {operation.import.toFixed(2)}</span>
+                                <span className="text-xs text-muted-foreground">{dayjs(operation.$updatedAt).format('DD/MM/YYYY HH:mm')}</span>
+                            </div>
                         </div>
                     ))}
                 </CardContent>
