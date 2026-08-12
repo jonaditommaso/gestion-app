@@ -55,7 +55,9 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
 
     const { isFree } = usePlanAccess();
     const isCurrentUser = !!currentUser && currentUser.$id === userId;
-    const hasPhoto = !!imageUrl && !isPending;
+    const fallbackImageSrc = image ? `/api/settings/get-image/${userId}` : undefined;
+    const profileImageSrc = imageUrl ?? fallbackImageSrc;
+    const hasPhoto = !!profileImageSrc && !isPending;
     const company: string = orgName ?? '';
 
     const sinceData = memberSince
@@ -97,9 +99,9 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                                     <FadeLoader color="#999" width={3} />
                                 </div>
                             )
-                            : (imageUrl || (isDemo && image))
+                            : profileImageSrc
                                 ? <Image
-                                    src={image ?? imageUrl}
+                                    src={profileImageSrc}
                                     alt={`profile member ${name} picture`}
                                     className="object-cover w-full h-[300px] rounded-t-md"
                                     height={300}
