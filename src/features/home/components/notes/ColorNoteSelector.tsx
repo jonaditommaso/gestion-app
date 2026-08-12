@@ -5,11 +5,11 @@ import { PopoverContent } from "@/components/ui/popover";
 
 const colors = [
   { name: "none", label: "Sin color" },
-  { name: "bg-[#2662d9]", label: "Color 1" },
-  { name: "bg-[#2eb88a]", label: "Color 2" },
-  { name: "bg-[#e88c30]", label: "Color 3" },
-  { name: "bg-[#af57db]", label: "Color 4" },
-  { name: "bg-[#e23670]", label: "Color 5" },
+  { name: "bg-[#5075bf]", label: "Color 1" },
+  { name: "bg-[#4cb592]", label: "Color 2" },
+  { name: "bg-[#f0a256]", label: "Color 3" },
+  { name: "bg-[#a668c4]", label: "Color 4" },
+  { name: "bg-[#de5281]", label: "Color 5" },
 ];
 
 export default function ColorNoteSelector({ onChange }: { onChange: (value: string, field: "bgColor") => void }) {

@@ -1,11 +1,10 @@
 'use client'
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Settings } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Settings, StickyNote } from "lucide-react";
 import Note from './Note';
 import { useState } from "react";
 import { useGetNotes } from "../../api/use-get-notes";
-import FadeLoader from "react-spinners/FadeLoader";
 import { useTranslations } from "next-intl";
 import EditNoteModal from "./EditNoteModal";
 import { useUpdateNote } from "../../api/use-update-note";
@@ -33,7 +32,7 @@ const NOTE_VIEW_IDS: GlobalNoteViewId[] = [
 ];
 
 const ONBOARDING_NOTE_ID = '__onboarding__';
-const ONBOARDING_COLORS = ['bg-[#2662d9]', 'bg-[#2eb88a]', 'bg-[#e88c30]', 'bg-[#af57db]', 'bg-[#e23670]'];
+const ONBOARDING_COLORS = ['bg-[#5075bf]', 'bg-[#4cb592]', 'bg-[#f0a256]', 'bg-[#a668c4]', 'bg-[#de5281]'];
 
 const MyNotes = () => {
     const { data, isPending } = useGetNotes();
@@ -168,30 +167,36 @@ const MyNotes = () => {
     }
 
     return (
-        <Card className="col-span-1 row-span-2 flex flex-col justify-start items-center bg-sidebar-accent max-h-[550px] overflow-hidden">
+        <Card className="col-span-1 row-span-2 flex flex-col justify-start items-center max-h-[550px] overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between w-full">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                    <StickyNote className="h-5 w-5 text-indigo-500" />
+                    {t('my-notes')}
+                </CardTitle>
+                <div className="flex items-center gap-2 !m-0">
+                    <div
+                        className="text-muted-foreground cursor-pointer hover:bg-sidebar transition-all duration-100 rounded-full p-2"
+                        onClick={() => setIsSettingsOpen(true)}
+                        title={t('notes-settings-title')}
+                    >
+                        <Settings className="w-5 h-5" size={24}/>
+                    </div>
+                    <Button onClick={() => setIsCreateModalOpen(true)}>
+                        <Plus /> {t('add-note')}
+                    </Button>
+                </div>
+            </CardHeader>
             <CardContent className="flex flex-col gap-y-4 w-full mt-2 overflow-y-auto">
-                {isPending ? (
+                {/* {isPending ? (
                         <div className="w-full flex justify-center">
                             <FadeLoader color="#999" width={3} className="mt-5" />
                         </div>
-                    ) : (
+                    ) : ( */}
                     <>
-                        <div className="flex items-center justify-between w-full px-2">
+                        {/* <div className="flex items-center justify-between w-full px-2">
                             <div className="text-lg font-semibold">{t('my-notes')}</div>
-                            <div className="flex justify-end items-center gap-2">
-                                <div
-                                    className="text-muted-foreground cursor-pointer hover:bg-sidebar transition-all duration-100 rounded-full p-2"
-                                    onClick={() => setIsSettingsOpen(true)}
-                                    title={t('notes-settings-title')}
-                                >
-                                    <Settings className="w-6 h-6" size={24}/>
-                                </div>
-                                <Button onClick={() => setIsCreateModalOpen(true)}>
-                                    <Plus /> {t('add-note')}
-                                </Button>
-                            </div>
-                        </div>
-                        <Separator />
+                        </div> */}
+                        {/* <Separator /> */}
                         <div className="flex flex-col gap-4">
                             {showOnboardingNote && (
                                 <div className="grid grid-cols-2 gap-2 justify-center">
@@ -242,8 +247,8 @@ const MyNotes = () => {
                             )}
                         </div>
                     </>
-                )
-            }
+                {/* )
+            } */}
             </CardContent>
 
             {selectedNote && (

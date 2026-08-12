@@ -8,7 +8,7 @@ interface UseGetChecklistItemsProps {
 }
 
 export const useGetChecklistItems = ({ taskId, enabled = true }: UseGetChecklistItemsProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['checklist', taskId, isDemo],
@@ -26,7 +26,7 @@ export const useGetChecklistItems = ({ taskId, enabled = true }: UseGetChecklist
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser && enabled && !!taskId,
+        enabled: !isLoadingTeamContext && enabled && !!taskId,
     });
 
     return query;

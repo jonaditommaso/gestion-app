@@ -50,7 +50,8 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, works
             setUpgradeDialogOpen(true);
             return;
         }
-        router.push('/workspaces/create');
+
+        router.push(`/workspaces/${currentWorkspaceId}?creating=true`);
     }
 
     const otherWorkspaces = workspaces?.documents?.filter((ws: DropdownWorkspaceItem) => ws.$id !== currentWorkspaceId);

@@ -139,7 +139,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { users, teams } = await createAdminClient();
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: [], orgName: '' });
 
             const { org } = context;
@@ -192,14 +192,13 @@ const app = new Hono()
         sessionMiddleware,
         async ctx => {
             const user = ctx.get('user');
-            const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: null });
 
-            const { databases: adminDatabases } = await createAdminClient();
+            const { databases } = await createAdminClient();
 
-            const { documents: allMemberships } = await adminDatabases.listDocuments<Membership>(
+            const { documents: allMemberships } = await databases.listDocuments<Membership>(
                 DATABASE_ID,
                 MEMBERSHIPS_ID,
                 [Query.equal('userId', user.$id)]
@@ -207,7 +206,7 @@ const app = new Hono()
 
             const allContexts = await Promise.all(
                 allMemberships.map(async (mem) => {
-                    const org = await adminDatabases.getDocument<Organization>(
+                    const org = await databases.getDocument<Organization>(
                         DATABASE_ID,
                         ORGANIZATIONS_ID,
                         mem.organizationId
@@ -228,9 +227,9 @@ const app = new Hono()
             const user = ctx.get('user');
             const { membershipId } = ctx.req.valid('json');
 
-            const { databases: adminDatabases } = await createAdminClient();
+            const { databases } = await createAdminClient();
 
-            const membership = await adminDatabases.getDocument<Membership>(
+            const membership = await databases.getDocument<Membership>(
                 DATABASE_ID,
                 MEMBERSHIPS_ID,
                 membershipId
@@ -240,7 +239,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401);
             }
 
-            const org = await adminDatabases.getDocument<Organization>(
+            const org = await databases.getDocument<Organization>(
                 DATABASE_ID,
                 ORGANIZATIONS_ID,
                 membership.organizationId
@@ -264,10 +263,9 @@ const app = new Hono()
         sessionMiddleware,
         async ctx => {
             const user = ctx.get('user');
-            const databases = ctx.get('databases');
-            const { teams, databases: adminDatabases } = await createAdminClient();
+            const { teams, databases } = await createAdminClient();
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             if (context.membership.role === 'OWNER') {
@@ -281,13 +279,13 @@ const app = new Hono()
                 await teams.deleteMembership(context.org.appwriteTeamId, appwriteMembership.$id);
             }
 
-            await adminDatabases.deleteDocument(
+            await databases.deleteDocument(
                 DATABASE_ID,
                 MEMBERSHIPS_ID,
                 context.membership.$id
             );
 
-            const remainingMemberships = await adminDatabases.listDocuments<Membership>(
+            const remainingMemberships = await databases.listDocuments<Membership>(
                 DATABASE_ID,
                 MEMBERSHIPS_ID,
                 [
@@ -327,18 +325,17 @@ const app = new Hono()
         sessionMiddleware,
         async ctx => {
             const user = ctx.get('user');
-            const databases = ctx.get('databases');
             const { membershipId } = ctx.req.valid('json');
-            const { teams, databases: adminDatabases } = await createAdminClient();
+            const { teams, databases } = await createAdminClient();
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             if (context.membership.role !== 'OWNER' && context.membership.role !== 'ADMIN') {
                 return ctx.json({ error: 'Unauthorized' }, 403);
             }
 
-            const targetMembership = await adminDatabases.getDocument<Membership>(
+            const targetMembership = await databases.getDocument<Membership>(
                 DATABASE_ID,
                 MEMBERSHIPS_ID,
                 membershipId
@@ -359,7 +356,7 @@ const app = new Hono()
                 await teams.deleteMembership(context.org.appwriteTeamId, appwriteMembership.$id);
             }
 
-            await adminDatabases.deleteDocument(
+            await databases.deleteDocument(
                 DATABASE_ID,
                 MEMBERSHIPS_ID,
                 targetMembership.$id
@@ -378,7 +375,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { tag } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const currentTags = context.membership.tags
@@ -413,7 +410,7 @@ const app = new Hono()
 
             const { position, description, linkedin, tags, birthday, memberSince, currentProject } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             await databases.updateDocument(
@@ -445,7 +442,7 @@ const app = new Hono()
 
             const { birthday } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             await databases.updateDocument(
@@ -513,7 +510,7 @@ const app = new Hono()
 
             const { email, mode, targetRole } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const memberLimit = planLimits[context.org.plan].members;
@@ -825,7 +822,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { teams } = await createAdminClient();
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             await teams.updateName(context.org.appwriteTeamId, company);
@@ -848,7 +845,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             if (context.membership.role !== 'OWNER') {
@@ -886,7 +883,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             if (context.membership.role !== 'OWNER') {
@@ -925,9 +922,8 @@ const app = new Hono()
         sessionMiddleware,
         async ctx => {
             const user = ctx.get('user');
-            const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             if (context.membership.role !== 'OWNER') {
@@ -947,6 +943,7 @@ const app = new Hono()
             return ctx.json({ url: session.url });
         }
     )
+
     .put(
         '/change-plan',
         sessionMiddleware,
@@ -959,7 +956,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { plan, billing } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
             if (context.membership.role !== 'OWNER') return ctx.json({ error: 'Only owners can change plans' }, 403);
 
@@ -1026,7 +1023,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const { sessionId } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
             if (context.membership.role !== 'OWNER') return ctx.json({ error: 'Only owners can upgrade plans' }, 403);
 

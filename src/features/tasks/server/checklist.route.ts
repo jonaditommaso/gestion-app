@@ -138,7 +138,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401);
             }
 
-            const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (orgContext?.org?.plan === 'FREE') {
                 return ctx.json({ error: 'Plan limit reached' }, 403);
             }

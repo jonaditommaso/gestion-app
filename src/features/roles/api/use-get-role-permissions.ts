@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetRolesPermissions = (options?: { enabled?: boolean }) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['roles', isDemo],
@@ -20,7 +20,7 @@ export const useGetRolesPermissions = (options?: { enabled?: boolean }) => {
 
             return data;
         },
-        enabled: !isLoadingUser && (options?.enabled ?? true),
+        enabled: !isLoadingTeamContext && (options?.enabled ?? true),
         refetchOnMount: true
     })
 

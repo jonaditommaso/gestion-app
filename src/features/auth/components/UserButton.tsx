@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 import { useAppContext } from "@/context/AppContext";
 
 const UserButton = () => {
-    const { currentUser: user, isLoadingUser: isLoading, teamContext, isDemo } = useAppContext();
+    const { currentUser: user, teamContext, isDemo, isLoadingTeamContext } = useAppContext();
     const { mutate: logout } = useLogout();
     const [open, setOpen] = useState(false);
     const router = useRouter();
@@ -23,7 +23,7 @@ const UserButton = () => {
     const t = useTranslations('general')
     const organizationRole = teamContext?.membership?.role;
 
-    if(isLoading || isPending) {
+    if(isLoadingTeamContext || isPending) {
         return (
             <div className="size-10 rounded-full flex items-center justify-center bg-neutral-200 border border-neutral-300">
                 <Loader className="size-4 animate-spin text-muted-foreground" />

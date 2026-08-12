@@ -6,7 +6,7 @@ import { useAppContext } from "@/context/AppContext";
 export const useGetRecord = () => {
     const params = useParams();
     const recordId: string = params.recordId as string
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['record', recordId, isDemo],
@@ -23,7 +23,7 @@ export const useGetRecord = () => {
 
             return data;
         },
-        enabled: !isLoadingUser && !!recordId,
+        enabled: !!recordId && !isLoadingTeamContext,
     })
 
     return query;

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetOperations } from "@/features/billing-management/api/use-get-operations";
 import { useTranslations } from "next-intl";
-import { TrendingUp, TrendingDown, AlertCircle, ArrowRight } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertCircle, ArrowRight, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -87,7 +87,10 @@ const BillingSnapshotWidget = () => {
         <Card className="col-span-1">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold flex items-center justify-between">
-                    <span>{t('billing-snapshot-title')}</span>
+                    <div className='flex items-center gap-2'>
+                        <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        <span>{t('billing-snapshot-title')}</span>
+                    </div>
                     <Link
                         href="/billing-management"
                         className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"

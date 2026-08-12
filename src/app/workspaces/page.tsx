@@ -1,7 +1,6 @@
 import { getCurrent, getIsDemoUser } from "@/features/auth/queries";
 import { getWorkspaces } from "@/features/workspaces/queries";
 import { getActiveContext } from "@/features/team/server/utils";
-import { createAdminClient } from "@/lib/appwrite";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DEMO_WORKSPACE_DEV_ID } from "@/lib/demo-data";
@@ -14,10 +13,9 @@ const WorkspacesView = async () => {
 
     if (!user) redirect('/login');
 
-    const { databases } = await createAdminClient();
     const cookieStore = await cookies();
     const activeMembershipId = cookieStore.get('active-org-id')?.value;
-    const context = await getActiveContext(user, databases, activeMembershipId);
+    const context = await getActiveContext(user, activeMembershipId);
 
     const teamId = context?.org.appwriteTeamId;
     const workspaces = await getWorkspaces({ teamId });

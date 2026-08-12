@@ -280,7 +280,7 @@ const app = new Hono()
             const { repo } = body;
 
             // Check plan limit
-            const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!orgContext) return ctx.json({ error: 'No active organization' }, 400);
 
             const repoLimit = planLimits[orgContext.org.plan].githubRepos;

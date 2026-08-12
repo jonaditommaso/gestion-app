@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetPipelineHealth } from "@/features/sells/api/use-get-pipeline-health";
 import { useGetSalesBoards } from "@/features/sells/api/use-get-sales-boards";
 import { useTranslations } from "next-intl";
-import { TrendingUp, Users, Briefcase, Trophy, Target } from "lucide-react";
+import { TrendingUp, Users, Briefcase, Trophy, Target, LayersPlus } from "lucide-react";
 import Link from "next/link";
 import type { SalesBoard } from "@/features/sells/types";
 
@@ -56,7 +56,10 @@ const PipelineHealthWidget = () => {
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                     <CardTitle className="text-sm font-semibold">
-                        {selectedBoard?.name ?? t('pipeline-health-title')}
+                        <div className="flex items-center gap-2">
+                            <LayersPlus className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            <span>{selectedBoard?.name ?? t('pipeline-health-title')}</span>
+                        </div>
                     </CardTitle>
                     <div className="flex items-center gap-2">
                         {boardOptions && (

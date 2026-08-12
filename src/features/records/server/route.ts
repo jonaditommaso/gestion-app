@@ -17,7 +17,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
             const tables = await databases.listDocuments(
@@ -104,7 +104,7 @@ const app = new Hono()
                 recordId
             );
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context || context.org.appwriteTeamId !== record.teamId) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
@@ -138,7 +138,7 @@ const app = new Hono()
                     file
                 );
 
-                const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                const context = await getActiveContext(user, ctx.get('activeOrgId'));
                 if (!context) return ctx.json({ success: false, message: 'No active organization' }, 400);
 
                 await databases.createDocument(
@@ -169,7 +169,7 @@ const app = new Hono()
 
             const { recordId } = ctx.req.param();
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ data: { documents: [], total: 0 } });
 
             const files = await databases.listDocuments(
@@ -235,7 +235,7 @@ const app = new Hono()
                 return ctx.json({ error: 'Unauthorized' }, 401)
             }
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const records = await databases.createDocument(
@@ -265,7 +265,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const recordsTable = await databases.createDocument(

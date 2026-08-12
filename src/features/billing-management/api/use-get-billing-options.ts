@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { DEMO_BILLING_OPTIONS } from "@/lib/demo-data";
 
 export const useGetBillingOptions = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['billing-options', isDemo],
@@ -21,7 +21,7 @@ export const useGetBillingOptions = () => {
 
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     })
 
     return query;

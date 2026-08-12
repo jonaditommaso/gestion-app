@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetMeets = (options?: { enabled?: boolean }) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['meets', isDemo],
@@ -21,7 +21,7 @@ export const useGetMeets = (options?: { enabled?: boolean }) => {
             return data;
         },
         refetchOnMount: false,
-        enabled: !isLoadingUser && (options?.enabled ?? true),
+        enabled: !isLoadingTeamContext && (options?.enabled ?? true),
     })
 
     return query;

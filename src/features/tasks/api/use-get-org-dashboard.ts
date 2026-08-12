@@ -22,7 +22,7 @@ type OrgDashboardData = {
 };
 
 export const useGetOrgDashboard = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery<OrgDashboardData>({
         queryKey: ['tasks', 'org-dashboard', isDemo],
@@ -55,6 +55,6 @@ export const useGetOrgDashboard = () => {
             return data;
         },
         retry: false,
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     });
 };

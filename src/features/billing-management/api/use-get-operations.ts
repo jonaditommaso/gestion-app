@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useDemoData } from "@/context/DemoDataContext";
 
 export const useGetOperations = (options?: { enabled?: boolean }) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
     const demoData = useDemoData();
 
     const query = useQuery({
@@ -23,7 +23,7 @@ export const useGetOperations = (options?: { enabled?: boolean }) => {
             return data;
         },
         retry: false,
-        enabled: !isLoadingUser && (isDemo || (options?.enabled ?? true)),
+        enabled: !isLoadingTeamContext && (isDemo || (options?.enabled ?? true)),
     })
 
     return query;

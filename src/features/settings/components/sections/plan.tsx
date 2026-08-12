@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { getCurrent } from "@/features/auth/queries";
-import { createAdminClient } from "@/lib/appwrite";
 import { getActiveContext } from "@/features/team/server/utils";
 import capitalize from "@/utils/capitalize";
 import { getTranslations } from "next-intl/server";
@@ -12,10 +11,9 @@ const Plan = async () => {
 
     if (!user) return null;
 
-    const { databases } = await createAdminClient();
     const cookieStore = await cookies();
     const activeMembershipId = cookieStore.get('active-org-id')?.value;
-    const context = await getActiveContext(user, databases, activeMembershipId);
+    const context = await getActiveContext(user, activeMembershipId);
 
     const plan = context?.org?.plan ?? '';
     const role = context?.membership?.role ?? 'VIEWER';

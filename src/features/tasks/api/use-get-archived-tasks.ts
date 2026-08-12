@@ -8,7 +8,7 @@ interface UseGetArchivedTasksProps {
 }
 
 export const useGetArchivedTasks = ({ workspaceId, enabled = true }: UseGetArchivedTasksProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['archived-tasks', workspaceId, isDemo],
@@ -30,7 +30,7 @@ export const useGetArchivedTasks = ({ workspaceId, enabled = true }: UseGetArchi
 
             return data.data;
         },
-        enabled: !isLoadingUser && enabled && !!workspaceId,
+        enabled: enabled && !!workspaceId && !isLoadingTeamContext,
     });
 
     return query;

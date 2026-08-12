@@ -73,7 +73,7 @@ const ShortcutItem = ({ shortcutString, onNavigate, onEdit, onDelete, isLoading,
 const ShortcutButton = () => {
     const [popoverIsOpen, setPopoverIsOpen] = useState(false);
     const t = useTranslations('home');
-    const { currentUser: user, isLoadingUser: isLoading, isDemo } = useAppContext();
+    const { currentUser: user, isDemo, isLoadingTeamContext } = useAppContext();
     const { mutate: deleteShortcut, isPending: isDeleting } = useDeleteShortcut();
     const { isFree } = usePlanAccess();
 
@@ -126,9 +126,9 @@ const ShortcutButton = () => {
                 <PopoverTrigger asChild>
                     <Button
                         // className={`w-full ${isFree ? 'py-11' : 'py-16'} h-auto`}
-                        className="w-full h-28"
+                        className="w-full h-24"
                         variant='outline'
-                        disabled={popoverIsOpen || isLoading || isDemo}
+                        disabled={popoverIsOpen || isDemo || isLoadingTeamContext}
                         onClick={() => handleAddShortcut('shortcut')}
                     >
                         <Plus /> <span>{t('add-shortcut')}</span>
@@ -154,7 +154,7 @@ const ShortcutButton = () => {
                                 onNavigate={() => handleNavigation(shortcut1)}
                                 onEdit={() => handleEditShortcut('shortcut', shortcut1)}
                                 onDelete={() => handleDeleteShortcut('shortcut')}
-                                isLoading={isLoading}
+                                isLoading={isLoadingTeamContext}
                                 isDeleting={isDeleting}
                                 className="border-b"
                             />
@@ -164,7 +164,7 @@ const ShortcutButton = () => {
                                 onNavigate={() => handleNavigation(shortcut2)}
                                 onEdit={() => handleEditShortcut('shortcut2', shortcut2)}
                                 onDelete={() => handleDeleteShortcut('shortcut2')}
-                                isLoading={isLoading}
+                                isLoading={isLoadingTeamContext}
                                 isDeleting={isDeleting}
                             />
                         </div>
@@ -193,7 +193,7 @@ const ShortcutButton = () => {
                             onNavigate={() => handleNavigation(existingShortcut!)}
                             onEdit={() => handleEditShortcut(existingSlot, existingShortcut!)}
                             onDelete={() => handleDeleteShortcut(existingSlot)}
-                            isLoading={isLoading}
+                            isLoading={isLoadingTeamContext}
                             isDeleting={isDeleting}
                         />
                         {!isFree && (
@@ -201,7 +201,7 @@ const ShortcutButton = () => {
                                 <Button
                                     className="w-full py-3 h-auto rounded-none border-0 text-muted-foreground hover:text-foreground"
                                     variant='ghost'
-                                    disabled={isLoading}
+                                    disabled={isLoadingTeamContext}
                                     onClick={(e) => { e.stopPropagation(); handleAddShortcut(emptySlot); }}
                                 >
                                     <Plus className="h-3 w-3 mr-1" />

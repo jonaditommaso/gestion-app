@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetHomeConfig = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['home-config', isDemo],
@@ -21,7 +21,7 @@ export const useGetHomeConfig = () => {
             return data;
         },
         refetchOnMount: false,
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     })
 
     return query;

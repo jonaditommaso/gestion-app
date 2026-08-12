@@ -106,7 +106,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) {
                 return ctx.json({ data: { overdueCount: 0, unassignedFeaturedCount: 0, overdueByWorkspace: [], unassignedFeaturedByWorkspace: [] } });
             }
@@ -215,7 +215,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) {
                 return ctx.json({ data: { workspaceHealth: [], workspaceVelocity: [] } });
             }
@@ -580,7 +580,7 @@ const app = new Hono()
             }
 
             if (type === 'epic' || type === 'spike' || type === 'test') {
-                const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
                 if (orgContext?.org?.plan === 'FREE') {
                     return ctx.json({ error: 'Plan limit reached' }, 403);
                 }
@@ -870,7 +870,7 @@ const app = new Hono()
                 updates.type !== existingTask.type &&
                 (updates.type === 'epic' || updates.type === 'spike' || updates.type === 'test')
             ) {
-                const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
                 if (orgContext?.org?.plan === 'FREE') {
                     return ctx.json({ error: 'Plan limit reached' }, 403);
                 }

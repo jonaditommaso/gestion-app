@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetRecentActivity } from "@/features/home/api/use-get-recent-activity";
 import { useTranslations } from "next-intl";
-import { Activity, TrendingUp, Trophy, MessageSquare, CheckSquare } from "lucide-react";
+import { Activity, TrendingUp, Trophy, MessageSquare, CheckSquare, ChartNoAxesColumn } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -102,7 +102,10 @@ const RecentActivityWidget = () => {
         <Card className="col-span-1 max-h-[405px] overflow-hidden overflow-y-scroll">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold">
-                    {t('recent-activity-title')}
+                    <div className="flex items-center gap-2">
+                        <ChartNoAxesColumn className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        <span>{t('recent-activity-title')}</span>
+                    </div>
                 </CardTitle>
             </CardHeader>
             <CardContent>

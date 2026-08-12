@@ -19,18 +19,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import { useGetOperations } from "../../api/use-get-operations"
 import { useGetBillingOptions } from "../../api/use-get-billing-options"
 import dayjs from 'dayjs'
 import { cn } from "@/lib/utils"
 import FadeLoader from "react-spinners/FadeLoader"
 import capitalize from "@/utils/capitalize"
-import { useDataBillingTable } from "../../hooks/useDataBillingTable"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { useDeleteOperation } from "../../api/use-delete-operation"
 import { useUpdateOperation } from "../../api/use-update-operation"
-import { Archive, ChevronDown, Download, Eye, MoreVertical, Pencil, Save, Trash2, XIcon } from "lucide-react"
+import { Archive, ArrowDownCircle, ArrowUpCircle, ChevronDown, Download, Eye, FunnelX, MoreVertical, Pencil, Save, Trash2, XIcon } from "lucide-react"
 import CustomDatePicker from "@/components/CustomDatePicker"
 import { useConfirm } from "@/hooks/use-confirm"
 import { DialogContainer } from "@/components/DialogContainer"
@@ -78,7 +78,6 @@ interface EditingOperation {
 export function BillingTable() {
   const { data, isLoading } = useGetOperations();
   const { data: billingOptionsData } = useGetBillingOptions();
-  const { selectedData } = useDataBillingTable();
   const { mutate: deleteOperation, isPending: isDeleting } = useDeleteOperation();
   const { mutate: updateOperation, isPending: isUpdating } = useUpdateOperation();
   const { plan } = usePlanAccess();
@@ -86,7 +85,7 @@ export function BillingTable() {
   const t = useTranslations('billing')
   const { isDemo } = useAppContext();
 
-  const [dataType, setDataType] = useState(selectedData);
+  const [operationTypeFilter, setOperationTypeFilter] = useState<'ALL' | 'income' | 'expense'>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | BillingStatus>('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
@@ -115,29 +114,23 @@ export function BillingTable() {
   const canWrite = hasPermission(PERMISSIONS.WRITE);
   const canDelete = hasPermission(PERMISSIONS.DELETE);
 
-  useEffect(() => {
-    setDataType(selectedData);
-  }, [selectedData])
-
   const operations = useMemo(() => (data?.documents || []) as unknown as BillingOperation[], [data]);
 
   const categories = useMemo(() => {
-    const currentViewType = selectedData === 'total' ? 'total' : dataType;
-
     const operationsByView = operations.filter((operation) => {
       if (operation.isArchived === true) {
         return false;
       }
 
-      if (currentViewType === 'total') {
+      if (operationTypeFilter === 'ALL') {
         return true;
       }
 
-      return operation.type === currentViewType;
+      return operation.type === operationTypeFilter;
     });
 
     return Array.from(new Set(operationsByView.map((operation) => operation.category))).toSorted((a, b) => a.localeCompare(b));
-  }, [operations, selectedData, dataType]);
+  }, [operations, operationTypeFilter]);
 
   useEffect(() => {
     if (categoryFilter !== 'ALL' && !categories.includes(categoryFilter)) {
@@ -151,7 +144,7 @@ export function BillingTable() {
         return false;
       }
 
-      if (selectedData !== 'total' && operation.type !== dataType) {
+      if (operationTypeFilter !== 'ALL' && operation.type !== operationTypeFilter) {
         return false;
       }
 
@@ -206,11 +199,12 @@ export function BillingTable() {
 
       return haystack.includes(term);
     })
-  }, [operations, selectedData, dataType, statusFilter, categoryFilter, operationDateFilter, dueDateFilter, amountFrom, amountTo, searchTerm]);
+  }, [operations, operationTypeFilter, statusFilter, categoryFilter, operationDateFilter, dueDateFilter, amountFrom, amountTo, searchTerm]);
 
   const total = filteredData.reduce((acc, operation) => acc + (operation.type === 'income' ? operation.import : -operation.import), 0)
 
   const clearFilters = () => {
+    setOperationTypeFilter('ALL');
     setSearchTerm('');
     setStatusFilter('ALL');
     setCategoryFilter('ALL');
@@ -281,9 +275,44 @@ export function BillingTable() {
       return 'bg-zinc-200 dark:bg-zinc-800';
     }
 
-    return operation.type === 'income'
-      ? 'bg-[#0bb31420] hover:bg-green-500 cursor-pointer'
-      : 'bg-[#f0341020] hover:bg-red-500 cursor-pointer';
+    return 'cursor-pointer border-l-2 border-l-transparent hover:bg-muted/50';
+  }
+
+  const getTypeBadge = (type: 'income' | 'expense') => {
+    if (type === 'income') {
+      return {
+        icon: ArrowUpCircle,
+        className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+        label: t('income'),
+      };
+    }
+
+    return {
+      icon: ArrowDownCircle,
+      className: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
+      label: t('expense'),
+    };
+  }
+
+  const getStatusBadge = (status: BillingStatus) => {
+    if (status === 'PAID') {
+      return {
+        className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+        label: t('paid'),
+      };
+    }
+
+    if (status === 'OVERDUE') {
+      return {
+        className: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
+        label: t('overdue'),
+      };
+    }
+
+    return {
+      className: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+      label: t('pending'),
+    };
   }
 
   const getStickyActionCellClass = (operation: BillingOperation) => {
@@ -466,7 +495,7 @@ export function BillingTable() {
   if(isLoading) return <FadeLoader color="#999" width={3} className="mt-5" />
 
   return (
-    <div className="w-[95%] md:max-w-[1400px] sm:max-w-[1200px] mt-10 ml-14">
+    <div className="w-full mt-2">
       <DeleteOperationDialog />
       <ArchiveOperationDialog />
       <DialogContainer
@@ -509,13 +538,8 @@ export function BillingTable() {
           <Button variant="outline" onClick={() => setDetailsOpen(false)}>{t('close')}</Button>
         </div>
       </DialogContainer>
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-        <Input
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-          placeholder={t('search-placeholder')}
-        />
 
+      <div className="mb-4 grid grid-cols-1 gap-2 rounded-xl border p-4 shadow-sm md:grid-cols-2 xl:grid-cols-5">
         <Select value={statusFilter} onValueChange={(value: 'ALL' | BillingStatus) => setStatusFilter(value)}>
           <SelectTrigger>
             <div className="flex items-center gap-2">
@@ -551,6 +575,64 @@ export function BillingTable() {
           </SelectContent>
         </Select>
 
+        <Select value={operationTypeFilter} onValueChange={(value: 'ALL' | 'income' | 'expense') => setOperationTypeFilter(value)}>
+          <SelectTrigger>
+            <div className="flex items-center gap-2">
+              {operationTypeFilter === 'ALL' ? (
+                <span className="size-2 rounded-full bg-zinc-400" />
+              ) : (
+                (() => {
+                  const typeConfig = getTypeBadge(operationTypeFilter);
+                  const Icon = typeConfig.icon;
+
+                  return <Icon className={cn('size-4', operationTypeFilter === 'income' ? 'text-emerald-600' : 'text-rose-600')} />;
+                })()
+              )}
+              <span>{operationTypeFilter === 'ALL' ? t('all-types') : t(operationTypeFilter)}</span>
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">
+              <div className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-zinc-400" />
+                <span>{t('all-types')}</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="income">
+              <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                <ArrowUpCircle className="size-4" />
+                <span>{t('income')}</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="expense">
+              <div className="flex items-center gap-2 text-rose-700 dark:text-rose-300">
+                <ArrowDownCircle className="size-4" />
+                <span>{t('expense')}</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            min={0}
+            step={0.01}
+            value={amountFrom}
+            onChange={(event) => setAmountFrom(event.target.value)}
+            placeholder={t('amount-from')}
+          />
+
+          <Input
+            type="number"
+            min={0}
+            step={0.01}
+            value={amountTo}
+            onChange={(event) => setAmountTo(event.target.value)}
+            placeholder={t('amount-to')}
+          />
+        </div>
+
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger>
             <SelectValue placeholder={t('all-categories')} />
@@ -562,6 +644,12 @@ export function BillingTable() {
             ))}
           </SelectContent>
         </Select>
+
+        <Input
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder={t('search-placeholder')}
+        />
 
         <CustomDatePicker
           value={operationDateFilter}
@@ -581,45 +669,30 @@ export function BillingTable() {
           clearButtonTitle={t('clear-filter-date')}
         />
 
-        <Input
-          type="number"
-          min={0}
-          step={0.01}
-          value={amountFrom}
-          onChange={(event) => setAmountFrom(event.target.value)}
-          placeholder={t('amount-from')}
-        />
-        <Input
-          type="number"
-          min={0}
-          step={0.01}
-          value={amountTo}
-          onChange={(event) => setAmountTo(event.target.value)}
-          placeholder={t('amount-to')}
-        />
-        <Button variant="ghost" onClick={clearFilters}>{t('clear-filters')}</Button>
-        <div className="md:col-span-2 lg:col-span-4 flex justify-end mt-4">
-          {isPro && (
-          <div className="flex items-center">
-            <Button variant="default" className="rounded-r-none bg-emerald-700 hover:bg-emerald-800" onClick={handleExportSelected} disabled={isDemo}>
-              {selectedExportFormat === 'csv' ? t('export-csv') : t('export-excel')}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="default" size="icon" className="rounded-l-none border-l border-white/30 bg-emerald-700 hover:bg-emerald-800" disabled={isDemo}>
-                  <ChevronDown className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSelectedExportFormat('csv')}>{t('export-csv')}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedExportFormat('excel')}>{t('export-excel')}</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          )}
-        </div>
+        <Button variant="outline" onClick={clearFilters} className="flex items-center gap-2">
+          <FunnelX className="size-4" />
+          {t('clear-filters')}
+        </Button>
       </div>
 
+      {isPro && (
+        <div className="flex items-center justify-end mt-4">
+          <Button variant="default" className="rounded-r-none bg-emerald-700 hover:bg-emerald-800" onClick={handleExportSelected} disabled={isDemo}>
+            {selectedExportFormat === 'csv' ? t('export-csv') : t('export-excel')}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" size="icon" className="rounded-l-none border-l border-white/30 bg-emerald-700 hover:bg-emerald-800" disabled={isDemo}>
+                <ChevronDown className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setSelectedExportFormat('csv')}>{t('export-csv')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedExportFormat('excel')}>{t('export-excel')}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-md border p-2 mt-2">
         <Table className="min-w-[1500px]">
@@ -649,7 +722,19 @@ export function BillingTable() {
                 onClick={() => { if (!isRowEditing(operation.$id)) openDetails(operation); }}
               >
                 <TableCell className="">{operation.invoiceNumber || operation.$id.slice(-6).toUpperCase()}</TableCell>
-                <TableCell className="">{capitalize(operation.type)}</TableCell>
+                <TableCell className="">
+                  {(() => {
+                    const typeConfig = getTypeBadge(operation.type);
+                    const Icon = typeConfig.icon;
+
+                    return (
+                      <Badge variant="outline" className={cn('gap-1.5 rounded-full px-2.5 py-1', typeConfig.className)}>
+                        <Icon className="size-3.5" />
+                        {typeConfig.label}
+                      </Badge>
+                    );
+                  })()}
+                </TableCell>
 
                 <TableCell className="">
                   {isRowEditing(operation.$id) ? (
@@ -707,7 +792,17 @@ export function BillingTable() {
                         <SelectItem value="OVERDUE">{t('overdue')}</SelectItem>
                       </SelectContent>
                     </Select>
-                  ) : t((operation.status || 'PENDING').toLowerCase())}
+                  ) : (
+                    (() => {
+                      const statusConfig = getStatusBadge(operation.status || 'PENDING');
+
+                      return (
+                        <Badge variant="outline" className={cn('rounded-full px-2.5 py-1', statusConfig.className)}>
+                          {statusConfig.label}
+                        </Badge>
+                      );
+                    })()
+                  )}
                 </TableCell>
 
                 <TableCell>{operation.account || '-'}</TableCell>
@@ -725,7 +820,11 @@ export function BillingTable() {
                         setEditingOperation((prev) => prev ? ({ ...prev, import: valueAsNumber }) : prev)
                       }}
                     />
-                  ) : <>$ {operation.import}</>}
+                  ) : (
+                    <span className={cn(operation.type === 'income' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300')}>
+                      {operation.type === 'income' ? '+' : '-'}€ {operation.import.toFixed(2)}
+                    </span>
+                  )}
                 </TableCell>
 
                 <TableCell className={getStickyActionCellClass(operation)} onClick={(e) => e.stopPropagation()}>
@@ -800,15 +899,23 @@ export function BillingTable() {
             ))}
           </TableBody>
           <TableFooter>
-            <TableRow>
-              <TableCell colSpan={8}>{t('total')}</TableCell>
-              <TableCell className="text-right">$ {total}</TableCell>
-              <TableCell className="sticky right-0 z-30 border-l-2 border-border bg-background" />
+            <TableRow className="bg-muted/30">
+              <TableCell colSpan={8} className="font-semibold uppercase tracking-wide text-muted-foreground">{t('total')}</TableCell>
+              <TableCell className="text-right">
+                <span className={cn(
+                  'inline-flex min-w-[132px] items-center justify-end rounded-md px-2 py-1 text-base font-extrabold',
+                  total >= 0
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                    : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
+                )}>
+                  € {total.toFixed(2)}
+                </span>
+              </TableCell>
+              <TableCell className="sticky right-0 z-30 border-l-2 border-border bg-muted/30" />
             </TableRow>
           </TableFooter>
         </Table>
       </div>
-      <p className="mt-4 text-muted-foreground flex justify-center">{t('recent-invoices-list')}</p>
     </div>
   )
 }

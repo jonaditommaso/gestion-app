@@ -19,7 +19,7 @@ interface CreateMessageModalProps {
 const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
     const { data, isLoading} = useGetMembers();
     const team = data?.members;
-    const { currentUser: user, isLoadingUser: gettingUser, isDemo } = useAppContext();
+    const { currentUser: user, isDemo, isLoadingTeamContext } = useAppContext();
     const { mutate: createMessage, isPending: isSending } = useCreateMessage();
     const [membersSelected, setMembersSelected] = useState<string[]>([]);
     const [subject, setSubject] = useState('');
@@ -76,7 +76,7 @@ const CreateMessageModal = ({ isOpen, setIsOpen }: CreateMessageModalProps) => {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
         >
-            {isLoading || gettingUser
+            {isLoading || isLoadingTeamContext
                 ? (
                     <div className="w-full flex justify-center">
                         <FadeLoader color="#999" width={3} className="mt-5" />

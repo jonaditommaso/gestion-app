@@ -28,8 +28,10 @@ import { useAppContext } from "@/context/AppContext";
 import { useGetOrgDashboard } from "@/features/tasks/api/use-get-org-dashboard";
 import { useGetOperations } from "@/features/billing-management/api/use-get-operations";
 import { Message } from "./messages/types";
-import { MinusCircle } from "lucide-react";
+import { MinusCircle, Zap } from "lucide-react";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 interface EditableWidgetOverlayProps {
     onRemove: () => void;
@@ -59,26 +61,15 @@ interface ConditionalWidgetProps {
     hasData?: boolean;
 }
 
+const widgetItemClassName = "mb-4 w-full break-inside-avoid";
+
 const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWidgetProps) => {
     const { isWidgetVisible, config, isEditMode, toggleWidgetVisibility, canToggleWidget } = useHomeCustomization();
     const { isFree } = usePlanAccess();
     const canToggle = canToggleWidget(widgetId);
 
-    if (isFree && !FREE_PLAN_WIDGETS.includes(widgetId)) {
+    if (!isWidgetVisible(widgetId) || (isFree && !FREE_PLAN_WIDGETS.includes(widgetId))) {
         return null;
-    }
-
-    if (!isWidgetVisible(widgetId)) {
-        return null;
-    }
-
-    // In edit mode with toggleable widget, show remove overlay
-    if (isEditMode && canToggle) {
-        return (
-            <EditableWidgetOverlay onRemove={() => toggleWidgetVisibility(widgetId)}>
-                {children}
-            </EditableWidgetOverlay>
-        );
     }
 
     // Smart widgets logic: hide if no data (only when not in edit mode)
@@ -86,7 +77,15 @@ const ConditionalWidget = ({ widgetId, children, hasData = true }: ConditionalWi
         return null;
     }
 
-    return <>{children}</>;
+    const content = isEditMode && canToggle ? (
+        <EditableWidgetOverlay onRemove={() => toggleWidgetVisibility(widgetId)}>
+            {children}
+        </EditableWidgetOverlay>
+    ) : (
+        <>{children}</>
+    );
+
+    return <div className={widgetItemClassName}>{content}</div>;
 };
 
 const HomeWidgetsGrid = () => {
@@ -95,6 +94,7 @@ const HomeWidgetsGrid = () => {
     const { data: member } = useGetMember();
     const { teamContext, isDemo } = useAppContext();
     const { config } = useHomeCustomization();
+    const t = useTranslations('home');
 
     const organizationRole = teamContext?.membership?.role;
     const isPrivileged = organizationRole === 'OWNER' || organizationRole === 'ADMIN';
@@ -132,7 +132,7 @@ const HomeWidgetsGrid = () => {
     });
 
     return (
-        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 pb-4">
+        <div className="w-full columns-1 md:columns-2 xl:columns-3 pb-4">
             {!isDemo && (
                 <ConditionalWidget widgetId="my-notes">
                     <MyNotes />
@@ -143,37 +143,50 @@ const HomeWidgetsGrid = () => {
                 <MessagesContainer />
             </ConditionalWidget>
 
-            <div className="flex flex-wrap col-span-1 gap-2 justify-around">
-                <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
-                    <ConditionalWidget widgetId="send-message">
-                        <SendMessageButton isDemo={isDemo} />
-                    </ConditionalWidget>
-                    <ConditionalWidget widgetId="shortcut">
-                        <ShortcutButton />
-                    </ConditionalWidget>
-                    <ConditionalWidget widgetId="create-meet">
-                        <CreateMeetButton />
-                    </ConditionalWidget>
-                </div>
-                <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
-                    {canCreate && (
-                        <>
-                            <ConditionalWidget widgetId="new-task">
-                                <CreateTaskButton isDemo={isDemo} />
-                            </ConditionalWidget>
-                            <ConditionalWidget widgetId="new-deal">
-                                <CreateDealButton isDemo={isDemo} />
-                            </ConditionalWidget>
-                            <ConditionalWidget widgetId="new-billing">
-                                <CreateBillingButton isDemo={isDemo} />
-                            </ConditionalWidget>
-                        </>
-                    )}
-                </div>
-                <ConditionalWidget widgetId="calendar">
-                    <CalendarDemo />
-                </ConditionalWidget>
+            <div className={widgetItemClassName}>
+                <Card className="border shadow-sm backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-sm">
+                            <Zap className="h-5 w-5 text-rose-600" />
+                            {t('quick-actions')}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 text-slate-600 leading-relaxed">
+                        <div className="flex flex-wrap col-span-1 gap-2 justify-around">
+                            <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
+                                <ConditionalWidget widgetId="send-message">
+                                    <SendMessageButton isDemo={isDemo} />
+                                </ConditionalWidget>
+                                <ConditionalWidget widgetId="shortcut">
+                                    <ShortcutButton />
+                                </ConditionalWidget>
+                                <ConditionalWidget widgetId="create-meet">
+                                    <CreateMeetButton />
+                                </ConditionalWidget>
+                            </div>
+                            <div className="col-span-1 w-56 flex flex-col gap-5 justify-between">
+                                {canCreate && (
+                                    <>
+                                        <ConditionalWidget widgetId="new-task">
+                                            <CreateTaskButton isDemo={isDemo} />
+                                        </ConditionalWidget>
+                                        <ConditionalWidget widgetId="new-deal">
+                                            <CreateDealButton isDemo={isDemo} />
+                                        </ConditionalWidget>
+                                        <ConditionalWidget widgetId="new-billing">
+                                            <CreateBillingButton isDemo={isDemo} />
+                                        </ConditionalWidget>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
+
+            <ConditionalWidget widgetId="calendar">
+                <CalendarDemo />
+            </ConditionalWidget>
 
             <ConditionalWidget widgetId="todo-tasks" hasData={hasTasks}>
                 <TasksWidget />

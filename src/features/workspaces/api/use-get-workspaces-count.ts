@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { DEMO_WORKSPACES_DATA } from "@/lib/demo-data";
 
 export const useGetWorkspacesCount = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['workspaces', 'count', isDemo],
@@ -21,7 +21,7 @@ export const useGetWorkspacesCount = () => {
 
             return data;
         },
-        enabled: !isLoadingUser && !isDemo,
+        enabled: !isDemo && !isLoadingTeamContext,
         initialData: isDemo ? { count: DEMO_WORKSPACES_DATA.documents.length } : undefined,
     })
 

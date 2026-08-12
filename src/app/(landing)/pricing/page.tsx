@@ -11,14 +11,13 @@ import { useEffect } from 'react';
 
 const PricingView = () => {
     const t = useTranslations('pricing');
-    const { currentUser: user, isLoadingUser, teamContext, isLoadingTeamContext: isLoadingTeam } = useAppContext();
+    const { currentUser: user, teamContext, isLoadingTeamContext: isLoading } = useAppContext();
     const { plan } = usePlanAccess();
     const router = useRouter();
     const { mutate: changePlan } = useChangePlan(() => router.push('/organization'));
 
     const isAuthenticated = !!user;
     const isOwner = teamContext?.membership?.role === 'OWNER';
-    const isLoading = isLoadingUser || isLoadingTeam;
 
     useEffect(() => {
         if (!isLoading && isAuthenticated && !isOwner) {

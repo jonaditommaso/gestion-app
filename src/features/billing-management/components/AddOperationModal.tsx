@@ -214,8 +214,18 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
     }
 
     const types = [
-        { label: "income", type: "income", textColor: "text-emerald-600", border: 'border-t-emerald-600' },
-        { label: "expense", type: "expense", textColor: "text-red-600", border: 'border-t-red-600' },
+        {
+            label: "income",
+            type: "income",
+            selectedClassName: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+            defaultClassName: "border-border/70 bg-muted/50 text-muted-foreground hover:bg-muted"
+        },
+        {
+            label: "expense",
+            type: "expense",
+            selectedClassName: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-400",
+            defaultClassName: "border-border/70 bg-muted/50 text-muted-foreground hover:bg-muted"
+        },
     ]
 
     const operationStatusOptions = [
@@ -246,192 +256,248 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
         setIsOpen(open);
     }
 
+    const sectionCardClassName = "rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm";
+
     return (
         <DialogContainer
-            // description=""
             title={t("add-operation")}
             isOpen={isOpen}
             setIsOpen={handleClose}
+            contentClassName="sm:max-w-[960px] w-[95vw] max-h-[90vh]"
+            bodyClassName="py-2"
         >
             <Form {...form}>
-                <form className="space-y-4 max-h-[72vh] overflow-y-auto px-1" onSubmit={form.handleSubmit(onSubmit)}>
-                   <FormField
-                        name="type"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex gap-2 w-full text-center">
-                                    {types.map(({ label, type, textColor, border }) => (
-                                        <label key={type} className="cursor-pointer flex-1">
-                                            <Input
-                                                type="radio"
-                                                {...field}
-                                                className="hidden"
-                                                checked={field.value === type}
-                                                onChange={() => field.onChange(type)}
-                                            />
-                                            <div
-                                                className={`px-4 py-2 rounded-md w-full transition-colors ${
-                                                    field.value === type
-                                                    ? `border-2 border-t-8 ${border} ${textColor}`
-                                                    : `border-2 border-t-8 border-t-zinc-300 bg-muted text-muted-foreground`
-                                                }`}
-                                            >
-                                            {t(label)}
-                                            </div>
-                                        </label>
-                                    ))}
-                                </div>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    <FormField
-                        name="invoiceNumber"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    {t('invoice-number')}
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder={t('invoice-number-placeholder')}
-                                        className="!mt-0"
-                                        disabled={isPending}
-                                        {...field}
-                                        value={field.value || ''}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        name="partyName"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    {t('party-name')}
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder={t('party-name-placeholder')}
-                                        className="!mt-0"
-                                        disabled={isPending}
-                                        {...field}
-                                        value={field.value || ''}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <FormField
-                            name="status"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('status')}</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value || 'PENDING'}
-                                        disabled={isPending}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="!mt-0">
-                                                <SelectValue placeholder={t('select-status')} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {operationStatusOptions.map((statusOption) => (
-                                                <SelectItem key={statusOption.value} value={statusOption.value}>{t(statusOption.labelKey)}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name='dueDate'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('due-date')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <CustomDatePicker
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            className="!mt-0"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    {/*
-                    <div className="rounded-md border p-3 space-y-3">
-                        <div className="flex items-center justify-between gap-4">
+                <form className="space-y-4 max-h-[78vh] overflow-y-auto pr-1" onSubmit={form.handleSubmit(onSubmit)}>
+                    <div className={sectionCardClassName}>
+                        <div className="mb-4 flex items-center gap-2">
                             <div>
-                                <p className="text-sm font-medium">{t('recurring-operation')}</p>
-                                <p className="text-xs text-muted-foreground">{t('recurring-operation-description')}</p>
+                                <p className="text-sm font-semibold">{t('general-information')}</p>
+                                <p className="text-xs text-muted-foreground">{t('general-information-description')}</p>
                             </div>
-
-                            <FormField
-                                name="isRecurring"
-                                control={form.control}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <Switch
-                                                checked={Boolean(field.value)}
-                                                onCheckedChange={(checked) => {
-                                                    field.onChange(checked);
-
-                                                    if (!checked) {
-                                                        form.setValue('recurrenceRule', undefined);
-                                                        form.setValue('nextOccurrenceDate', undefined);
-                                                    }
-                                                }}
-                                                disabled={isPending}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <FormField
+                            name="type"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormItem className="mb-4 md:col-span-2">
+                                    <div className="grid gap-2 sm:grid-cols-2">
+                                        {types.map(({ label, type, selectedClassName, defaultClassName }) => {
+                                            const isSelected = field.value === type;
+
+                                            return (
+                                                <label key={type} className="cursor-pointer">
+                                                    <Input
+                                                        type="radio"
+                                                        {...field}
+                                                        className="hidden"
+                                                        checked={isSelected}
+                                                        onChange={() => field.onChange(type)}
+                                                    />
+                                                    <div className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${isSelected ? selectedClassName : defaultClassName}`}>
+                                                        {t(label)}
+                                                    </div>
+                                                </label>
+                                            )
+                                        })}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className='flex flex-col gap-4'>
+                            <div className="grid gap-3 md:grid-cols-2">
+                                <FormField
+                                    name="invoiceNumber"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('invoice-number')}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder={t('invoice-number-placeholder')}
+                                                    className="!mt-0"
+                                                    disabled={isPending}
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    name="partyName"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('party-name')}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder={t('party-name-placeholder')}
+                                                    className="!mt-0"
+                                                    disabled={isPending}
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,140px)]">
+                                <FormField
+                                    name="category"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>{t('category')}</FormLabel>
+                                            <FormControl>
+                                                <div className="flex w-full items-start gap-2 !mt-0">
+                                                    {isLoadingCategories ? (
+                                                        <Skeleton className="h-10 w-full" />
+                                                    ) : newCategoryInput ? (
+                                                        <Input
+                                                            placeholder={t('wholesale-sales')}
+                                                            className="!mt-0 w-full"
+                                                            disabled={isPending}
+                                                            {...field}
+                                                        />
+                                                    ) : (
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger className="w-full flex items-center justify-between gap-2 rounded-md border bg-background p-2.5 text-sm focus:outline-none !mt-0 max-h-9" disabled={isPending || categories.length === 0}>
+                                                                <p className={cn("text-sm", categories.length === 0 ? 'text-muted-foreground' : 'text-foreground')}>
+                                                                    {categories.length === 0 ? t('no-categories') : (field.value ? field.value : t('choise-category'))}
+                                                                </p>
+                                                                <ChevronsUpDown size={14} className={categories.length === 0 ? 'text-muted-foreground' : ''} />
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent>
+                                                                {categories.length > 0 && categories?.map((category: string) => (
+                                                                    <DropdownMenuItem key={category} className="min-w-60 flex items-center justify-center p-2" onClick={() => field.onChange(category)} {...field}>
+                                                                        {capitalize(category)}
+                                                                    </DropdownMenuItem>
+                                                                ))}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    )}
+                                                    <Button type="button" variant="outline" size="icon" className="shrink-0" style={{ height: 'stretch' }} onClick={() => setNewCategoryInput(!newCategoryInput)}>
+                                                        {newCategoryInput ? <XIcon className="h-[1.2rem] w-[1.2rem]" /> : <Plus className="h-[1.2rem] w-[1.2rem]" />}
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    name="import"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>{t('amount')}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="0"
+                                                    className="!mt-0"
+                                                    min={0}
+                                                    disabled={isPending}
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                    onChange={(e) => {
+                                                        const valueAsNumber = e.target.value === '' ? undefined : Number(e.target.value);
+                                                        field.onChange(valueAsNumber);
+                                                    }}
+                                                    onBlur={field.onBlur}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    name="currency"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>{t('currency')}</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value || 'EUR'}
+                                                disabled={isPending}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="!mt-0">
+                                                        <SelectValue placeholder="EUR" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {currencyOptions.map((currencyCode) => (
+                                                        <SelectItem key={currencyCode} value={currencyCode}>{currencyCode}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-2">
+                                <FormField
+                                    control={form.control}
+                                    name='date'
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>{t('date')}</FormLabel>
+                                            <FormControl>
+                                                <CustomDatePicker
+                                                    {...field}
+                                                    className="!mt-0"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="hidden md:block" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={sectionCardClassName}>
+                        <div className="mb-4 flex items-center gap-2">
+                            <div>
+                                <p className="text-sm font-semibold">{t('payment')}</p>
+                                <p className="text-xs text-muted-foreground">{t('payment-description')}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid gap-3 md:grid-cols-2">
                             <FormField
-                                name="recurrenceRule"
+                                name="status"
                                 control={form.control}
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('recurrence-rule')}</FormLabel>
+                                        <FormLabel>{t('status')}</FormLabel>
                                         <Select
                                             onValueChange={field.onChange}
-                                            value={field.value}
-                                            disabled={isPending || !form.watch('isRecurring')}
+                                            value={field.value || 'PENDING'}
+                                            disabled={isPending}
                                         >
                                             <FormControl>
                                                 <SelectTrigger className="!mt-0">
-                                                    <SelectValue placeholder={t('select-recurrence-rule')} />
+                                                    <SelectValue placeholder={t('select-status')} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {recurrenceOptions.map((recurrence) => (
-                                                    <SelectItem key={recurrence.value} value={recurrence.value}>{t(recurrence.labelKey)}</SelectItem>
+                                                {operationStatusOptions.map((statusOption) => (
+                                                    <SelectItem key={statusOption.value} value={statusOption.value}>{t(statusOption.labelKey)}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -442,18 +508,62 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
 
                             <FormField
                                 control={form.control}
-                                name='nextOccurrenceDate'
+                                name='dueDate'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>
-                                            {t('next-occurrence-date')}
-                                        </FormLabel>
+                                        <FormLabel>{t('due-date')}</FormLabel>
                                         <FormControl>
                                             <CustomDatePicker
                                                 value={field.value}
                                                 onChange={field.onChange}
                                                 className="!mt-0"
-                                                disabled={isPending || !form.watch('isRecurring')}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                name="paymentMethod"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('payment-method')}</FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            disabled={isPending}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="!mt-0">
+                                                    <SelectValue placeholder={t('select-payment-method')} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {paymentMethodOptions.map((method) => (
+                                                    <SelectItem key={method.value} value={method.value}>{t(method.labelKey)}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                name="account"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('account')}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder={t('account-placeholder')}
+                                                className="!mt-0"
+                                                disabled={isPending}
+                                                {...field}
+                                                value={field.value || ''}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -462,291 +572,130 @@ const AddOperationModal = ({ isOpen, setIsOpen }: AddOperationModalProps) => {
                             />
                         </div>
                     </div>
-                    */}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <FormField
-                            name="paymentMethod"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('payment-method')}</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        disabled={isPending}
-                                    >
+                    <div className='flex items-center gap-4'>
+                        <div className={cn(sectionCardClassName, 'w-full')}>
+                            <div className="mb-4 flex items-center gap-2">
+                                <div>
+                                    <p className="text-sm font-semibold">{t('taxes')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('taxes-description')}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-2">
+                                <FormField
+                                    name="taxRate"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('tax-rate')}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="0"
+                                                    className="!mt-0"
+                                                    min={0}
+                                                    max={100}
+                                                    step={0.01}
+                                                    disabled={isPending}
+                                                    value={field.value ?? ''}
+                                                    onChange={(event) => {
+                                                        const valueAsNumber = event.target.value === '' ? undefined : Number(event.target.value);
+                                                        field.onChange(valueAsNumber);
+                                                    }}
+                                                    onBlur={field.onBlur}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    name="taxAmount"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('tax-amount')}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="0"
+                                                    className="!mt-0"
+                                                    min={0}
+                                                    step={0.01}
+                                                    disabled={isPending}
+                                                    value={field.value ?? ''}
+                                                    onChange={(event) => {
+                                                        const valueAsNumber = event.target.value === '' ? undefined : Number(event.target.value);
+                                                        field.onChange(valueAsNumber);
+                                                    }}
+                                                    onBlur={field.onBlur}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={cn(sectionCardClassName, 'w-full')}>
+                            <div className="mb-4 flex items-center gap-2">
+                                <div>
+                                    <p className="text-sm font-semibold">{t('additional-information')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('additional-information-description')}</p>
+                                </div>
+                            </div>
+
+                            <FormField
+                                name="note"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel htmlFor="note">{t('note')}</FormLabel>
                                         <FormControl>
-                                            <SelectTrigger className="!mt-0">
-                                                <SelectValue placeholder={t('select-payment-method')} />
-                                            </SelectTrigger>
+                                            <Input
+                                                placeholder={t('related-with')}
+                                                className="!mt-0"
+                                                disabled={isPending}
+                                                {...field}
+                                            />
                                         </FormControl>
-                                        <SelectContent>
-                                            {paymentMethodOptions.map((method) => (
-                                                <SelectItem key={method.value} value={method.value}>{t(method.labelKey)}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            name="account"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('account')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder={t('account-placeholder')}
-                                            className="!mt-0"
-                                            disabled={isPending}
-                                            {...field}
-                                            value={field.value || ''}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <FormField
-                            name="taxRate"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('tax-rate')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="0"
-                                            className="!mt-0"
-                                            min={0}
-                                            max={100}
-                                            step={0.01}
-                                            disabled={isPending}
-                                            value={field.value ?? ''}
-                                            onChange={(event) => {
-                                                const valueAsNumber = event.target.value === '' ? undefined : Number(event.target.value);
-                                                field.onChange(valueAsNumber);
-                                            }}
-                                            onBlur={field.onBlur}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            name="taxAmount"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('tax-amount')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="0"
-                                            className="!mt-0"
-                                            min={0}
-                                            step={0.01}
-                                            disabled={isPending}
-                                            value={field.value ?? ''}
-                                            onChange={(event) => {
-                                                const valueAsNumber = event.target.value === '' ? undefined : Number(event.target.value);
-                                                field.onChange(valueAsNumber);
-                                            }}
-                                            onBlur={field.onBlur}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            name="currency"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('currency')}
-                                    </FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value || 'EUR'}
-                                        disabled={isPending}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="!mt-0">
-                                                <SelectValue placeholder="EUR" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {currencyOptions.map((currencyCode) => (
-                                                <SelectItem key={currencyCode} value={currencyCode}>{currencyCode}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <FormField
-                        name="category"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    {t('category')}
-                                </FormLabel>
-                                <FormControl>
-                                    <div className="flex items-center gap-2">
-                                            {isLoadingCategories
-                                            ? <Skeleton className="h-8 w-[200px]" />
-                                            : (
-                                                newCategoryInput ? (
-                                                    <Input
-                                                        placeholder={t('wholesale-sales')}
-                                                        className="!mt-0"
-                                                        disabled={isPending}
-                                                        {...field}
-                                                    />
-                                                ) : (
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger className="w-full flex items-center justify-between gap-2 p-2 border rounded-sm focus:outline-none !mt-0" disabled={isPending || categories.length === 0}>
-                                                        <p className={cn("text-zinc-800 text-sm", categories.length === 0 && 'text-muted-foreground')}>{categories.length === 0 ? t('no-categories') : (field.value ? field.value : t('choise-category'))}</p>
-                                                        <ChevronsUpDown size={14} className={categories.length === 0 ? 'text-muted-foreground' : ''} />
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        {categories.length > 0 && categories?.map((category: string) => (
-                                                            <DropdownMenuItem key={category} className="min-w-60 flex items-center justify-center p-2" onClick={() => field.onChange(category)} {...field}>
-                                                                {capitalize(category)}
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                                )
-                                            )}
-                                        {<Button type="button" variant="outline" size="icon" onClick={() => setNewCategoryInput(!newCategoryInput)}>
-                                           {newCategoryInput ? <XIcon className="h-[1.2rem] w-[1.2rem]" />  : <Plus className="h-[1.2rem] w-[1.2rem]" />}
-                                        </Button>}
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <FormField
-                            control={form.control}
-                            name='date'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('date')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <CustomDatePicker
-                                            {...field}
-                                            className="!mt-0"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            name="import"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {t('amount')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="0"
-                                            className="!mt-0"
-                                            min={0}
-                                            disabled={isPending}
-                                            {...field}
-                                            value={field.value || ''}
-                                            onChange={(e) => {
-                                                const valueAsNumber = e.target.value === '' ? undefined : Number(e.target.value);
-                                                field.onChange(valueAsNumber);
-                                            }}
-                                            onBlur={field.onBlur}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <FormField
-                        name="note"
-                        control={form.control}
-                        render={({ field }) => ( //className="flex items-center gap-2"
-                            <FormItem >
-                                <FormLabel htmlFor="note">
-                                    {t('note')}
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder={t('related-with')}
-                                        className="!mt-0"
-                                        disabled={isPending}
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            size='lg'
-                            variant='outline'
-                            type="button"
-                            disabled={isPending || isSavingDraft}
-                            onClick={onSaveDraft}
-                        >
-                            {t('save-as-draft')}
-                        </Button>
-                        <Button
-                            size='lg'
-                            variant='outline'
-                            disabled={isPending || isSavingDraft}
-                            onClick={onCancel}
-                        >
-                            {t('cancel')}
-                        </Button>
-                        <Button
-                            size='lg'
-                            className="w-full"
-                            disabled={isPending || isSavingDraft}
-                        >
-                            {t('save')}
-                        </Button>
+                    <div className="flex items-center gap-2 pt-2 justify-between">
+                            <Button
+                                size='lg'
+                                variant='outline'
+                                type="button"
+                                disabled={isPending || isSavingDraft}
+                                onClick={onSaveDraft}
+                            >
+                                {t('save-as-draft')}
+                            </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                size='lg'
+                                variant='outline'
+                                disabled={isPending || isSavingDraft}
+                                onClick={onCancel}
+                            >
+                                {t('cancel')}
+                            </Button>
+                            <Button
+                                size='lg'
+                                className="w-fit"
+                                disabled={isPending || isSavingDraft}
+                                >
+                                {t('save')}
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </Form>

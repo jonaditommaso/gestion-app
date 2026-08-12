@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { DEMO_SALES_BOARD_DATA } from "@/lib/demo-data";
 
 export const useGetSalesBoards = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery({
         queryKey: ["sales-boards", isDemo],
@@ -20,7 +20,7 @@ export const useGetSalesBoards = () => {
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
         retry: false,
         refetchOnMount: true,
     });

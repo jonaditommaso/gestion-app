@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
 import { Dispatch, SetStateAction } from "react"
 
 interface DialogContainerProps {
@@ -13,22 +14,24 @@ interface DialogContainerProps {
     description?: string,
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void),
+    contentClassName?: string,
+    bodyClassName?: string,
 }
 
-export function DialogContainer({ isOpen, children, setIsOpen, title, description }: DialogContainerProps) {
+export function DialogContainer({ isOpen, children, setIsOpen, title, description, contentClassName, bodyClassName }: DialogContainerProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {/* <DialogTrigger asChild>
         {triggerText}
       </DialogTrigger> */}
-      <DialogContent className="sm:max-w-[560px] pb-0 focus:outline-none">
+      <DialogContent className={cn("sm:max-w-[560px] pb-0 focus:outline-none", contentClassName)}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="text-balance">
             {description}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className={cn("grid gap-4 py-4", bodyClassName)}>
           {children}
         </div>
         {/* <DialogFooter>

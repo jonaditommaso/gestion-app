@@ -145,7 +145,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'Unauthorized' }, 401);
 
             const workspacesResult = await databases.listDocuments(

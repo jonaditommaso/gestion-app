@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { DEMO_WORKSPACES_DATA } from "@/lib/demo-data";
 
 export const useGetWorkspaces = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['workspaces', isDemo],
@@ -13,7 +13,7 @@ export const useGetWorkspaces = () => {
 
             const response = await client.api.workspaces.$get();
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Failed to fetch workspaces')
             }
 
@@ -21,7 +21,7 @@ export const useGetWorkspaces = () => {
 
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     })
 
     return query;

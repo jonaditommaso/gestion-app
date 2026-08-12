@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import type { GitHubWorkspaceState } from "../types";
 
 export const useGetGithubStatus = (workspaceId: string) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery<GitHubWorkspaceState>({
         queryKey: ['github-status', workspaceId, isDemo],
@@ -22,7 +22,7 @@ export const useGetGithubStatus = (workspaceId: string) => {
             const { data } = await res.json();
             return data;
         },
-        enabled: !!workspaceId && !isLoadingUser && !isDemo,
+        enabled: !!workspaceId && !isDemo && !isLoadingTeamContext,
         initialData: isDemo ? {
             connected: false,
             repos: [],

@@ -8,7 +8,7 @@ interface UseGetSquadsProps {
 }
 
 export const useGetSquads = ({ workspaceId, enabled = true }: UseGetSquadsProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     return useQuery({
         queryKey: ['squads', workspaceId, isDemo],
@@ -28,7 +28,7 @@ export const useGetSquads = ({ workspaceId, enabled = true }: UseGetSquadsProps)
             const { data } = await response.json();
             return data;
         },
-        enabled: !isLoadingUser && enabled && !!workspaceId,
+        enabled: enabled && !!workspaceId && !isLoadingTeamContext,
         retry: false,
     });
 };

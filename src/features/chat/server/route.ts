@@ -88,7 +88,7 @@ const app = new Hono()
             const user = ctx.get('user');
             const { title } = ctx.req.valid('json');
 
-            const context = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const context = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!context) return ctx.json({ error: 'No active organization' }, 400);
 
             const conversation = await databases.createDocument(
@@ -217,7 +217,7 @@ const app = new Hono()
                 const firstUserMessage = messages.find(m => m.role === 'user');
                 const title = firstUserMessage?.content.substring(0, 100) || 'New conversation';
 
-                const chatContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+                const chatContext = await getActiveContext(user, ctx.get('activeOrgId'));
                 if (!chatContext) return ctx.json({ error: 'No active organization' }, 400);
 
                 const conversation = await databases.createDocument(
@@ -256,7 +256,7 @@ const app = new Hono()
             }));
 
             // Determine which tools to expose based on org plan
-            const orgContext = await getActiveContext(user, databases, ctx.get('activeOrgId'));
+            const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             const orgPlan = orgContext?.org?.plan ?? 'FREE';
 
             if (orgPlan === 'FREE') {

@@ -69,7 +69,10 @@ const UpcomingPaymentsWidget = () => {
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                     <CardTitle className="text-sm font-semibold">
-                        {t('upcoming-payments-title')}
+                        <div className="flex items-center gap-2">
+                            <CalendarClock className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                            <span>{t('upcoming-payments-title')}</span>
+                        </div>
                     </CardTitle>
                     <Link
                         href="/billing-management"

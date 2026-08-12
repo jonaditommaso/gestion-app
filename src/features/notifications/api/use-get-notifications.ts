@@ -3,7 +3,7 @@ import { client } from "@/lib/rpc";
 import { useAppContext } from "@/context/AppContext";
 
 export const useGetNotifications = () => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['notifications', isDemo],
@@ -20,7 +20,7 @@ export const useGetNotifications = () => {
 
             return data;
         },
-        enabled: !isLoadingUser,
+        enabled: !isLoadingTeamContext,
     })
 
     return query;

@@ -9,6 +9,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
 import { useGetArchived } from "../../api/use-get-archived";
 import { useUpdateOperation } from "../../api/use-update-operation";
@@ -16,7 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DialogContainer } from "@/components/DialogContainer";
 import capitalize from "@/utils/capitalize";
 import dayjs from "dayjs";
-import { ArchiveRestore, Eye } from "lucide-react";
+import { ArchiveRestore, ArrowDownCircle, ArrowUpCircle, Eye } from "lucide-react";
 import { useState } from "react";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
@@ -56,6 +57,22 @@ const ArchivedTable = () => {
 
     const operations = (data?.documents || []) as unknown as ArchivedOperation[];
 
+    const getTypeBadge = (type: 'income' | 'expense') => {
+        if (type === 'income') {
+            return {
+                icon: ArrowUpCircle,
+                className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+                label: t('income'),
+            };
+        }
+
+        return {
+            icon: ArrowDownCircle,
+            className: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
+            label: t('expense'),
+        };
+    }
+
     const handleRestore = (opId: string) => {
         updateOperation(
             { param: { billingId: opId }, json: { isArchived: false } },
@@ -71,13 +88,13 @@ const ArchivedTable = () => {
     if (isLoading) return null;
 
     if (operations.length === 0) return (
-        <div className="w-full max-w-[800px]">
+        <div className="w-full max-w-[800px] m-auto">
             <NoData title="no-archived-data" description="add-archived-description" />
         </div>
     );
 
     return (
-        <div className="w-full max-w-[1050px]">
+        <div className="w-full">
             <DialogContainer
                 title={t('operation-details-title')}
                 isOpen={detailsOpen}
@@ -120,21 +137,32 @@ const ArchivedTable = () => {
                     </TableHeader>
                     <TableBody>
                         {operations.map((op) => (
-                            <TableRow
-                                key={op.$id}
-                                className={cn(
-                                    op.type === 'income' ? 'bg-[#0bb31420]' : 'bg-[#f0341020]'
-                                )}
-                            >
+                            <TableRow key={op.$id} className="border-l-2 border-l-transparent hover:bg-muted/50">
                                 <TableCell className="font-medium">
                                     {op.invoiceNumber || op.$id.slice(-6).toUpperCase()}
                                 </TableCell>
-                                <TableCell>{capitalize(op.type)}</TableCell>
+                                <TableCell>
+                                    {(() => {
+                                        const typeConfig = getTypeBadge(op.type);
+                                        const Icon = typeConfig.icon;
+
+                                        return (
+                                            <Badge variant="outline" className={cn('gap-1.5 rounded-full px-2.5 py-1', typeConfig.className)}>
+                                                <Icon className="size-3.5" />
+                                                {typeConfig.label}
+                                            </Badge>
+                                        );
+                                    })()}
+                                </TableCell>
                                 <TableCell>{dayjs(op.date).format('DD/MM/YYYY')}</TableCell>
                                 <TableCell>{op.dueDate ? dayjs(op.dueDate).format('DD/MM/YYYY') : '-'}</TableCell>
                                 <TableCell>{capitalize(op.category)}</TableCell>
                                 <TableCell>{op.status ? t(op.status.toLowerCase()) : '-'}</TableCell>
-                                <TableCell className="text-right">{op.currency || 'EUR'} {op.import}</TableCell>
+                                <TableCell className="text-right">
+                                    <span className={cn(op.type === 'income' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300')}>
+                                        {op.type === 'income' ? '+' : '-'}€ {op.import.toFixed(2)}
+                                    </span>
+                                </TableCell>
                                 <TableCell className="sticky right-0 z-30 border-l-2 border-border bg-background shadow-[-8px_0_8px_-10px_rgba(0,0,0,0.35)]">
                                     <div className="flex items-center gap-1 justify-end">
                                         <Button

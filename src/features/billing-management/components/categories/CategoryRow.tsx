@@ -22,7 +22,7 @@ interface CategoryRowProps {
     actionDisabled: boolean,
     setEditingCategory: Dispatch<SetStateAction<number | undefined>>,
     editingCategory: number | undefined,
-    type: string
+    type: 'income' | 'expense'
 }
 
 const disabledClassName = 'text-zinc-200 cursor-default pointer-events-none'
@@ -91,6 +91,8 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                 json: payload,
                 param: { billingOptionId: data?.documents[0].$id || '' }
             })
+
+            setEditingCategory(undefined);
         } else {
             setEditingCategory(index)
         }
@@ -121,8 +123,8 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
     }
 
     return (
-        <TableRow key={category}>
-            <TableCell className="flex items-center justify-between">
+        <TableRow key={category} className="border-b last:border-b-0 hover:bg-muted/20">
+            <TableCell className="flex items-center justify-between px-3 py-2.5">
                 {editingCategory === index
                     ? <Input
                         placeholder={t('new-category')}
@@ -130,7 +132,7 @@ const CategoryRow = ({ category, index, actionDisabled, setEditingCategory, edit
                         onChange={(e) => setNewCategory(e.target.value)}
                         className="border-l-0 border-t-0 border-r-0 rounded-none focus-visible:ring-0"
                     />
-                    : <p>{category}</p>
+                    : <p className="font-medium text-sm">{category}</p>
                 }
                 <div className="flex gap-2 items-center">
                     {(canWrite || editingCategory === index) && !isDemo && (

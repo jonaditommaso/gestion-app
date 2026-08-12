@@ -5,7 +5,6 @@ import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { useTranslations } from "next-intl";
 import { TaskStatus } from '../../tasks/types';
 import { useGetMember } from "@/features/members/api/use-get-member";
-import { useLocale } from "next-intl";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useHomeCustomization } from "./customization";
 import {
@@ -14,6 +13,7 @@ import {
     SelectItem,
     SelectTrigger,
 } from "@/components/ui/select";
+import TaskWidgetTaskItem from "./TaskWidgetTaskItem";
 
 const TasksWidget = () => {
     const { data: member } = useGetMember();
@@ -21,7 +21,6 @@ const TasksWidget = () => {
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const t = useTranslations('home');
     const tWorkspaces = useTranslations('workspaces');
-    const locale = useLocale();
 
     // Obtener el status ID configurado o usar TODO por defecto
     const selectedStatusId = config.taskWidgetStatusId || TaskStatus.TODO;
@@ -72,7 +71,7 @@ const TasksWidget = () => {
                         value={selectedStatusId}
                         onValueChange={setTaskWidgetStatus}
                     >
-                        <SelectTrigger className="w-auto h-auto p-0 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 shadow-none font-semibold text-base [&>svg]:hidden">
+                        <SelectTrigger className="w-auto h-auto p-0 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 shadow-none font-semibold text-sm [&>svg]:hidden">
                             <span className="flex items-center gap-1">
                                 {t('tasks-from')}{' '}
                                 <span
@@ -116,19 +115,11 @@ const TasksWidget = () => {
                         ))
                     ) : tasks?.documents && tasks.documents.length > 0 ? (
                         tasks.documents.map(task => (
-                            <div
-                                className="border bg-sidebar-accent p-2 rounded-md border-l-4"
-                                style={{ borderLeftColor: statusColor }}
+                            <TaskWidgetTaskItem
                                 key={task.$id}
-                            >
-                                <p className="font-medium">{task.name}</p>
-                                {task.dueDate && (
-                                    <p className="text-sm text-muted-foreground">
-                                        {t('limit-date')}:{' '}
-                                        <relative-time lang={locale} datetime={task.dueDate}></relative-time>
-                                    </p>
-                                )}
-                            </div>
+                                task={task}
+                                statusColor={statusColor}
+                            />
                         ))
                     ) : (
                         <p className="text-sm text-muted-foreground text-center py-4">

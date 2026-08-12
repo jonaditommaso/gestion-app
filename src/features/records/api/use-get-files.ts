@@ -6,7 +6,7 @@ import { useAppContext } from "@/context/AppContext";
 export const useGetFiles = () => {
     const params = useParams();
     const recordId: string = params.recordId as string
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['files', recordId, isDemo],
@@ -24,7 +24,7 @@ export const useGetFiles = () => {
             return data;
         },
         refetchOnMount: true,
-        enabled: !isLoadingUser && !!recordId
+        enabled: !!recordId && !isLoadingTeamContext
     })
 
     return query;

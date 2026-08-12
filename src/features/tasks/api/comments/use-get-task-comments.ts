@@ -11,7 +11,7 @@ export const useGetTaskComments = ({
     taskId,
     enabled = true
 }: UseGetTaskCommentsProps) => {
-    const { isDemo, isLoadingUser } = useAppContext();
+    const { isDemo, isLoadingTeamContext } = useAppContext();
 
     const query = useQuery({
         queryKey: ['task-comments', taskId, isDemo],
@@ -30,7 +30,7 @@ export const useGetTaskComments = ({
 
             return data;
         },
-        enabled: !isLoadingUser && enabled && !!taskId
+        enabled: enabled && !!taskId && !isLoadingTeamContext
     })
 
     return query;
