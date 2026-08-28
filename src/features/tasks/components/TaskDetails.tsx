@@ -1,5 +1,5 @@
 'use client'
-import { Task, TaskStatus, TaskComment, TaskSquad } from "../types";
+import { Task, TaskStatus, TaskComment, TaskSquad, TaskMetadata } from "../types";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
@@ -11,6 +11,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useAppContext } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import RichTextArea from "@/components/RichTextArea";
 import { useUpdateTask } from "../api/use-update-task";
 import CustomDatePicker from "@/components/CustomDatePicker";
@@ -44,10 +45,12 @@ import { TestPanel } from "./TestPanel";
 import { BugPanel } from "./BugPanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
-import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers } from "lucide-react";
+import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers, Images, ImagePlus, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ROLES } from "@/features/roles/constants";
 
 const DESCRIPTION_PROSE_CLASS = "prose prose-sm max-w-none dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6";
 
@@ -208,11 +211,14 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
 
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(displayTask.description || '');
-    const [activeTab, setActiveTab] = useState<'comments' | 'history'>('comments');
+    const [activeTab, setActiveTab] = useState<'comments' | 'multimedia' | 'history'>('comments');
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingCommentContent, setEditingCommentContent] = useState('');
+    const [selectedMediaIndex, setSelectedMediaIndex] = useState<number | null>(null);
+    const [isUploadingMultimedia, setIsUploadingMultimedia] = useState(false);
+    const mediaUploadInputRef = useRef<HTMLInputElement | null>(null);
     const { pendingImages, setPendingImages, handleImageUpload } = useHandleImageUpload();
     const { imagesLoaded, imagesLoadedCache, descriptionHasImage, descriptionContainerRef } = useImageDescriptionLoading(task, isEditingDescription);
 
@@ -220,6 +226,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const { mutateAsync: uploadTaskImage } = useUploadTaskImage();
 
     const taskMetadata = parseTaskMetadata(displayTask.metadata);
+    const [optimisticMultimediaImageIds, setOptimisticMultimediaImageIds] = useState<string[]>(taskMetadata.mediaImageIds || []);
     const handleBranchChange = (branch: string | undefined, repo: string | undefined) => {
         updateTask({
             json: { metadata: updateGithubBranch(displayTask.metadata, branch, repo) },
@@ -257,6 +264,30 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const currentMember = useMemo(() => {
         return membersData?.documents?.find(m => m.userId === user?.$id);
     }, [membersData?.documents, user?.$id]);
+
+    const canManageMultimedia = !readOnly && (
+        currentMember?.role === ROLES.OWNER ||
+        currentMember?.role === ROLES.ADMIN ||
+        currentMember?.role === ROLES.CREATOR
+    );
+
+    const multimediaImageIds = optimisticMultimediaImageIds;
+    const selectedMediaImageId = selectedMediaIndex !== null ? multimediaImageIds[selectedMediaIndex] : null;
+
+    useEffect(() => {
+        const currentMetadata = parseTaskMetadata(displayTask.metadata);
+        setOptimisticMultimediaImageIds(currentMetadata.mediaImageIds || []);
+    }, [displayTask.$id, displayTask.metadata]);
+
+    useEffect(() => {
+        setSelectedMediaIndex(null);
+    }, [displayTask.$id]);
+
+    useEffect(() => {
+        if (selectedMediaIndex !== null && selectedMediaIndex >= multimediaImageIds.length) {
+            setSelectedMediaIndex(multimediaImageIds.length > 0 ? multimediaImageIds.length - 1 : null);
+        }
+    }, [multimediaImageIds.length, selectedMediaIndex]);
 
     // Comments hooks with optimistic updates
     const { data: commentsData, isLoading: isLoadingComments } = useGetTaskComments({ taskId: displayTask.$id });
@@ -423,10 +454,16 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
             imageIds.push(...result.imageIds);
         }
 
+        const currentMetadata = parseTaskMetadata(displayTask.metadata);
+        const nextMetadata: TaskMetadata = {
+            ...currentMetadata,
+            imageIds: imageIds.length > 0 ? imageIds : undefined,
+        };
+
         updateTask({
             json: {
                 description: checkEmptyContent(processedDescription) ? null : processedDescription,
-                metadata: imageIds.length > 0 ? stringifyTaskMetadata({ imageIds }) : undefined
+                metadata: stringifyTaskMetadata(nextMetadata)
             },
             param: { taskId: displayTask.$id }
         }, {
@@ -434,6 +471,99 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                 setIsEditingDescription(false);
                 setPendingImages(new Map());
             }
+        });
+    };
+
+    const handleSelectMultimediaFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!canManageMultimedia) return;
+
+        const selectedFiles = Array.from(event.target.files || []);
+        if (selectedFiles.length === 0) return;
+
+        setIsUploadingMultimedia(true);
+
+        try {
+            const uploadedImageIds: string[] = [];
+
+            for (const imageFile of selectedFiles) {
+                const result = await uploadTaskImage({ image: imageFile });
+                if (result.data?.fileId) {
+                    uploadedImageIds.push(result.data.fileId);
+                }
+            }
+
+            if (uploadedImageIds.length > 0) {
+                const previousMediaImageIds = multimediaImageIds;
+                const nextMediaImageIds = [...multimediaImageIds, ...uploadedImageIds];
+                setOptimisticMultimediaImageIds(nextMediaImageIds);
+
+                const currentMetadata = parseTaskMetadata(displayTask.metadata);
+                const nextMetadata: TaskMetadata = {
+                    ...currentMetadata,
+                    mediaImageIds: nextMediaImageIds
+                };
+
+                updateTask({
+                    json: { metadata: stringifyTaskMetadata(nextMetadata) },
+                    param: { taskId: displayTask.$id }
+                }, {
+                    onError: () => {
+                        setOptimisticMultimediaImageIds(previousMediaImageIds);
+                    }
+                });
+            }
+        } catch {
+            // useUploadTaskImage already handles error feedback.
+        } finally {
+            setIsUploadingMultimedia(false);
+            event.target.value = '';
+        }
+    };
+
+    const handleDeleteMultimediaImage = (imageId: string) => {
+        if (!canManageMultimedia) return;
+
+        const previousMediaImageIds = multimediaImageIds;
+        const nextMediaImageIds = multimediaImageIds.filter(id => id !== imageId);
+        setOptimisticMultimediaImageIds(nextMediaImageIds);
+
+        const currentMetadata = parseTaskMetadata(displayTask.metadata);
+        const nextMetadata: TaskMetadata = {
+            ...currentMetadata,
+            mediaImageIds: nextMediaImageIds.length > 0 ? nextMediaImageIds : undefined,
+        };
+
+        updateTask({
+            json: { metadata: stringifyTaskMetadata(nextMetadata) },
+            param: { taskId: displayTask.$id }
+        }, {
+            onError: () => {
+                setOptimisticMultimediaImageIds(previousMediaImageIds);
+            }
+        });
+    };
+
+    const handleOpenMultimedia = (index: number) => {
+        setSelectedMediaIndex(index);
+    };
+
+    const handleOpenAllMultimedia = () => {
+        if (multimediaImageIds.length > 0) {
+            setSelectedMediaIndex(0);
+        }
+    };
+
+    const handlePreviousMedia = () => {
+        setSelectedMediaIndex((currentIndex) => {
+            if (currentIndex === null || multimediaImageIds.length === 0) return currentIndex;
+            return (currentIndex - 1 + multimediaImageIds.length) % multimediaImageIds.length;
+        });
+    };
+
+    const handleNextMedia = () => {
+        setSelectedMediaIndex((currentIndex) => {
+            if (currentIndex === null || multimediaImageIds.length === 0) return currentIndex;
+            return (currentIndex + 1) % multimediaImageIds.length;
         });
     };
 
@@ -481,6 +611,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     };
 
     return (
+        <>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
             {isTaskLoading && (
                 <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -646,6 +777,23 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                             {comments.length > 0 && (
                                 <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">
                                     {comments.length}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('multimedia')}
+                            className={cn(
+                                "flex items-center gap-2 pb-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+                                activeTab === 'multimedia'
+                                    ? "border-primary text-foreground"
+                                    : "border-transparent text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <Images className="size-4" />
+                            {t('multimedia')}
+                            {multimediaImageIds.length > 0 && (
+                                <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                                    {multimediaImageIds.length}
                                 </span>
                             )}
                         </button>
@@ -865,6 +1013,103 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            )}
+                        </div>
+                    ) : activeTab === 'multimedia' ? (
+                        <div className="space-y-4">
+                            <input
+                                ref={mediaUploadInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={handleSelectMultimediaFiles}
+                            />
+
+                            <div className="flex items-center justify-between gap-3">
+                                {multimediaImageIds.length > 0 && (
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-2"
+                                        onClick={handleOpenAllMultimedia}
+                                    >
+                                        <Eye className="size-4" />
+                                        {t('multimedia-view-all')}
+                                    </Button>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {canManageMultimedia && (
+                                    <button
+                                        type="button"
+                                        className="aspect-square rounded-xl border-2 border-dashed border-border/60 bg-gradient-to-br from-muted/30 via-muted/20 to-transparent hover:from-muted/50 hover:via-muted/30 transition-colors p-3 flex flex-col items-center justify-center gap-2"
+                                        onClick={() => mediaUploadInputRef.current?.click()}
+                                        disabled={isPending || isUploadingMultimedia}
+                                    >
+                                        {isUploadingMultimedia ? (
+                                            <Loader2 className="size-7 text-muted-foreground animate-spin" />
+                                        ) : (
+                                            <ImagePlus className="size-7 text-muted-foreground" />
+                                        )}
+                                        <span className="text-xs font-medium text-muted-foreground text-center leading-tight">
+                                            {isUploadingMultimedia ? t('multimedia-uploading') : t('multimedia-add')}
+                                        </span>
+                                    </button>
+                                )}
+
+                                {multimediaImageIds.map((imageId, index) => (
+                                    <div
+                                        key={imageId}
+                                        className="group relative aspect-square overflow-hidden rounded-xl border border-border/50 bg-muted/30"
+                                    >
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenMultimedia(index)}
+                                            className="relative block h-full w-full"
+                                        >
+                                            <Image
+                                                src={`/api/tasks/image/${imageId}`}
+                                                alt={t('task-multimedia-alt', { index: index + 1 })}
+                                                fill
+                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                                unoptimized
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-2">
+                                                <span className="text-xs font-medium text-white/95">
+                                                    {t('multimedia-open')}
+                                                </span>
+                                            </div>
+                                        </button>
+
+                                        {canManageMultimedia && (
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="icon"
+                                                className="absolute right-2 top-2 size-7 bg-background/90 hover:bg-background"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleDeleteMultimediaImage(imageId);
+                                                }}
+                                                disabled={isPending}
+                                            >
+                                                <Trash2 className="size-4" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {multimediaImageIds.length === 0 && (
+                                <div className="rounded-lg border border-dashed bg-muted/20 px-4 py-8 text-center">
+                                    <p className="text-sm text-muted-foreground">
+                                        {canManageMultimedia ? t('multimedia-empty-owner') : t('multimedia-empty')}
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -1143,6 +1388,108 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                 </div>
             </div>
         </div>
+
+        <Dialog
+            open={selectedMediaIndex !== null}
+            onOpenChange={(open) => {
+                if (!open) {
+                    setSelectedMediaIndex(null);
+                }
+            }}
+        >
+            <DialogContent className="max-w-5xl overflow-hidden border-none bg-black/95 p-0 sm:rounded-xl [&>button]:text-white [&>button]:opacity-90 [&>button]:hover:opacity-100 [&>button[data-state=open]]:bg-transparent">
+                <DialogTitle className="sr-only">{t('multimedia-viewer-title')}</DialogTitle>
+
+                {selectedMediaImageId && (
+                    <div className="relative">
+                        <div className="flex min-h-[60vh] max-h-[72vh] items-center justify-center bg-black p-4 sm:p-6">
+                            <Image
+                                src={`/api/tasks/image/${selectedMediaImageId}`}
+                                alt={t('task-multimedia-alt', { index: (selectedMediaIndex || 0) + 1 })}
+                                width={1600}
+                                height={1200}
+                                className="max-h-[68vh] w-auto max-w-full object-contain"
+                                unoptimized
+                            />
+                        </div>
+
+                        <div className="absolute left-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs text-white/90 backdrop-blur-sm">
+                            {t('multimedia-image-counter', {
+                                current: (selectedMediaIndex || 0) + 1,
+                                total: multimediaImageIds.length,
+                            })}
+                        </div>
+
+                        {multimediaImageIds.length > 1 && (
+                            <>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 size-9 bg-black/60 text-white hover:bg-black/80"
+                                    onClick={handlePreviousMedia}
+                                >
+                                    <ChevronLeft className="size-5" />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 size-9 bg-black/60 text-white hover:bg-black/80"
+                                    onClick={handleNextMedia}
+                                >
+                                    <ChevronRight className="size-5" />
+                                </Button>
+                            </>
+                        )}
+
+                        {canManageMultimedia && (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute right-12 top-3 gap-2"
+                                onClick={() => handleDeleteMultimediaImage(selectedMediaImageId)}
+                                disabled={isPending}
+                            >
+                                <Trash2 className="size-4" />
+                                {t('delete')}
+                            </Button>
+                        )}
+
+                        {multimediaImageIds.length > 1 && (
+                            <div className="border-t border-white/10 bg-black/80 p-3">
+                                <div className="flex gap-2 overflow-x-auto pb-1">
+                                    {multimediaImageIds.map((imageId, index) => (
+                                        <button
+                                            key={imageId}
+                                            type="button"
+                                            onClick={() => setSelectedMediaIndex(index)}
+                                            className={cn(
+                                                "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border",
+                                                selectedMediaIndex === index
+                                                    ? "border-white"
+                                                    : "border-white/25 hover:border-white/50"
+                                            )}
+                                        >
+                                            <Image
+                                                src={`/api/tasks/image/${imageId}`}
+                                                alt={t('task-multimedia-alt', { index: index + 1 })}
+                                                width={64}
+                                                height={64}
+                                                className="h-full w-full object-cover"
+                                                unoptimized
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </DialogContent>
+        </Dialog>
+        </>
     );
 };
 
