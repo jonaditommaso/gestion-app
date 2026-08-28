@@ -25,6 +25,229 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { useScrolling } from "@/hooks/useScrolling"
 import { Separator } from "@/components/ui/separator"
 
+const LIGHT_SURFACE_ENTER_THRESHOLD = 0.66
+const LIGHT_SURFACE_EXIT_THRESHOLD = 0.46
+const SUPPORTED_LOCALES = new Set(["en", "es", "it"])
+const SURFACE_SAMPLE_X_POSITIONS = [0.1, 0.22, 0.34, 0.46, 0.58, 0.7, 0.82, 0.94]
+const MIN_CONTAINER_WIDTH_RATIO = 0.55
+const MIN_CONTAINER_HEIGHT = 80
+
+type ParsedRgbaColor = {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
+let colorParserContext: CanvasRenderingContext2D | null = null
+
+const getPathWithoutLocale = (pathname: string): string => {
+  const segments = pathname.split("/")
+  const locale = segments[1]
+
+  if (!SUPPORTED_LOCALES.has(locale)) {
+    return pathname
+  }
+
+  const nextPath = `/${segments.slice(2).join("/")}`
+  return nextPath === "/" ? "/" : nextPath.replace(/\/$/, "") || "/"
+}
+
+const getColorParserContext = (): CanvasRenderingContext2D | null => {
+  if (typeof window === "undefined") {
+    return null
+  }
+
+  if (colorParserContext) {
+    return colorParserContext
+  }
+
+  const canvas = document.createElement("canvas")
+  canvas.width = 1
+  canvas.height = 1
+  colorParserContext = canvas.getContext("2d", { willReadFrequently: true })
+  return colorParserContext
+}
+
+const parseCssColor = (color: string): ParsedRgbaColor | null => {
+  const parserContext = getColorParserContext()
+
+  if (!parserContext) {
+    return null
+  }
+
+  parserContext.clearRect(0, 0, 1, 1)
+  parserContext.fillStyle = "rgba(0, 0, 0, 0)"
+  parserContext.fillStyle = color
+  parserContext.fillRect(0, 0, 1, 1)
+
+  const imageData = parserContext.getImageData(0, 0, 1, 1).data
+  return {
+    r: imageData[0],
+    g: imageData[1],
+    b: imageData[2],
+    a: imageData[3] / 255,
+  }
+}
+
+const toLinearRgb = (channel: number): number => {
+  const normalized = channel / 255
+  if (normalized <= 0.03928) {
+    return normalized / 12.92
+  }
+  return ((normalized + 0.055) / 1.055) ** 2.4
+}
+
+const getRelativeLuminance = ({ r, g, b }: ParsedRgbaColor): number => {
+  const linearR = toLinearRgb(r)
+  const linearG = toLinearRgb(g)
+  const linearB = toLinearRgb(b)
+  return 0.2126 * linearR + 0.7152 * linearG + 0.0722 * linearB
+}
+
+const getBackgroundImageLuminance = (backgroundImage: string): number | null => {
+  if (!backgroundImage || backgroundImage === "none") {
+    return null
+  }
+
+  const colorTokens = backgroundImage.match(/(rgba?\([^)]+\)|hsla?\([^)]+\)|#[0-9a-fA-F]{3,8})/g)
+
+  if (!colorTokens || colorTokens.length === 0) {
+    return null
+  }
+
+  let luminanceSum = 0
+  let alphaSum = 0
+
+  colorTokens.forEach((token) => {
+    const parsedColor = parseCssColor(token)
+
+    if (!parsedColor || parsedColor.a <= 0.01) {
+      return
+    }
+
+    luminanceSum += getRelativeLuminance(parsedColor) * parsedColor.a
+    alphaSum += parsedColor.a
+  })
+
+  if (alphaSum === 0) {
+    return null
+  }
+
+  return luminanceSum / alphaSum
+}
+
+const getStyleLuminance = (styles: CSSStyleDeclaration): number | null => {
+  const backgroundColor = parseCssColor(styles.backgroundColor)
+  if (backgroundColor && backgroundColor.a > 0.04) {
+    return getRelativeLuminance(backgroundColor)
+  }
+
+  return getBackgroundImageLuminance(styles.backgroundImage)
+}
+
+const getElementSurfaceLuminance = (element: Element): number | null => {
+  let currentElement: HTMLElement | null = element as HTMLElement
+
+  while (currentElement && currentElement !== document.body) {
+    const styles = getComputedStyle(currentElement)
+    const luminance = getStyleLuminance(styles)
+
+    if (luminance !== null) {
+      return luminance
+    }
+
+    currentElement = currentElement.parentElement
+  }
+
+  return getStyleLuminance(getComputedStyle(document.body))
+}
+
+const getLargeSurfaceContainer = (element: Element): Element => {
+  let currentElement: HTMLElement | null = element as HTMLElement
+  const minWidth = window.innerWidth * MIN_CONTAINER_WIDTH_RATIO
+
+  while (currentElement && currentElement !== document.body) {
+    const rect = currentElement.getBoundingClientRect()
+
+    if (rect.width >= minWidth && rect.height >= MIN_CONTAINER_HEIGHT) {
+      return currentElement
+    }
+
+    currentElement = currentElement.parentElement
+  }
+
+  return document.body
+}
+
+const isIgnoredSurfaceCandidate = (element: Element, navbar: Element): boolean => {
+  if (navbar.contains(element)) {
+    return true
+  }
+
+  const tagName = element.tagName
+  if (tagName === "A" || tagName === "BUTTON" || tagName === "SVG" || tagName === "PATH") {
+    return true
+  }
+
+  const htmlElement = element as HTMLElement
+  const styles = getComputedStyle(htmlElement)
+
+  if (styles.position === "fixed" || styles.position === "sticky") {
+    return true
+  }
+
+  const elementId = htmlElement.id.toLowerCase()
+  const className = typeof htmlElement.className === "string" ? htmlElement.className.toLowerCase() : ""
+
+  if (elementId.includes("nextjs") || className.includes("nextjs") || className.includes("devtools")) {
+    return true
+  }
+
+  return false
+}
+
+const getMedian = (values: number[]): number => {
+  const sortedValues = [...values].sort((a, b) => a - b)
+  const middleIndex = Math.floor(sortedValues.length / 2)
+
+  if (sortedValues.length % 2 === 0) {
+    return (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2
+  }
+
+  return sortedValues[middleIndex]
+}
+
+const getSurfaceLuminanceBelowNavbar = (): number | null => {
+  const navbar = document.querySelector('[data-landing-navbar="true"]')
+  if (!navbar) {
+    return null
+  }
+
+  const navRect = navbar.getBoundingClientRect()
+  const sampleY = Math.max(2, Math.round(navRect.top + navRect.height * 0.66))
+  const sampleXPositions = SURFACE_SAMPLE_X_POSITIONS.map((ratio) => Math.round(window.innerWidth * ratio))
+  const luminanceSamples: number[] = []
+
+  sampleXPositions.forEach((sampleX) => {
+    const stackedElements = document.elementsFromPoint(sampleX, sampleY)
+    const targetElement = stackedElements.find((element) => !isIgnoredSurfaceCandidate(element, navbar))
+
+    const elementToMeasure = targetElement ? getLargeSurfaceContainer(targetElement) : document.body
+    const luminance = getElementSurfaceLuminance(elementToMeasure)
+
+    if (luminance !== null && Number.isFinite(luminance)) {
+      luminanceSamples.push(Math.max(0, Math.min(1, luminance)))
+    }
+  })
+
+  if (luminanceSamples.length === 0) {
+    return null
+  }
+
+  return getMedian(luminanceSamples)
+}
+
 export function LandingNavbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,12 +259,70 @@ export function LandingNavbar() {
 
   const isMobile = useIsMobile();
   const isScrolled = useScrolling()
+  const cleanPathname = getPathWithoutLocale(pathname)
+  const isRouteLikelyLight = cleanPathname === '/pricing' || cleanPathname === '/docs'
+  const [isLightSurface, setIsLightSurface] = React.useState<boolean>(isRouteLikelyLight)
+  const useDarkForeground = isLightSurface || isMobileMenuOpen
 
   React.useEffect(() => {
     if(isMobileMenuOpen && isMobile === false) {
       setIsMobileMenuOpen(false)
     }
   }, [isMobile, isMobileMenuOpen]);
+
+  React.useEffect(() => {
+    setIsLightSurface(isRouteLikelyLight)
+  }, [isRouteLikelyLight])
+
+  React.useEffect(() => {
+    let timeoutId: number | null = null
+    let intervalId: number | null = null
+
+    const evaluateSurface = () => {
+      try {
+        const surfaceLuminance = getSurfaceLuminanceBelowNavbar()
+
+        if (surfaceLuminance === null) {
+          setIsLightSurface(isRouteLikelyLight)
+          return
+        }
+
+        setIsLightSurface((previousValue) => {
+          const threshold = previousValue ? LIGHT_SURFACE_EXIT_THRESHOLD : LIGHT_SURFACE_ENTER_THRESHOLD
+          return surfaceLuminance >= threshold
+        })
+      } catch {
+        setIsLightSurface(isRouteLikelyLight)
+      }
+    }
+
+    const scheduleEvaluation = () => {
+      if (timeoutId !== null) {
+        return
+      }
+      timeoutId = window.setTimeout(() => {
+        timeoutId = null
+        evaluateSurface()
+      }, 40)
+    }
+
+    scheduleEvaluation()
+
+    window.addEventListener("scroll", scheduleEvaluation, { passive: true })
+    window.addEventListener("resize", scheduleEvaluation)
+    intervalId = window.setInterval(scheduleEvaluation, 240)
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+      }
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+      }
+      window.removeEventListener("scroll", scheduleEvaluation)
+      window.removeEventListener("resize", scheduleEvaluation)
+    }
+  }, [pathname, isRouteLikelyLight])
 
   const notShowInView = ['/login', '/oauth/loading', '/meets/loading', '/signup', '/mfa', '/onboarding', `/team/join-team/${params.invitation}`, `/shared/task/${params.token}`]
 
@@ -54,19 +335,59 @@ export function LandingNavbar() {
     router.push(route);
   }
 
-  const isWhiteBg = pathname === '/pricing' || pathname === '/docs';
-
   return (
-    <NavigationMenu className={`p-2 max-w-full flex items-center justify-between fixed top-2 inset-x-4 z-50 transition-all duration-300 rounded-lg backdrop-blur-lg bg-white/10 border-b border-white/10 shadow-lg`}>
-      {isMobile && <Image src={isScrolled ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer" />}
+    <NavigationMenu
+      data-landing-navbar="true"
+      className={cn(
+        "p-2 max-w-full flex items-center justify-between fixed top-2 inset-x-4 z-50 transition-colors duration-300 rounded-lg backdrop-blur-lg border-b shadow-lg",
+        useDarkForeground ? "bg-black/10 border-black/10" : "bg-white/10 border-white/10"
+      )}
+    >
+      {isMobile && (
+        <div onClick={() => router.push('/')} className="relative h-[30px] w-[30px] cursor-pointer">
+          <Image
+            src="/gestionate-logo.svg"
+            height={30}
+            width={30}
+            alt="gestionate-logo"
+            className={cn("absolute inset-0 transition-opacity duration-300", useDarkForeground ? "opacity-100" : "opacity-0")}
+          />
+          <Image
+            src="/gestionate-logo-white.svg"
+            height={30}
+            width={30}
+            alt="gestionate-logo"
+            className={cn("absolute inset-0 transition-opacity duration-300", useDarkForeground ? "opacity-0" : "opacity-100")}
+          />
+        </div>
+      )}
 
       {!isMobile && (
         <NavigationMenuList className="flex gap-1">
-        <Image src={isWhiteBg ? '/gestionate-logo.svg': '/gestionate-logo-white.svg'} height={30} width={30} alt="gestionate-logo" onClick={() => router.push('/')} className="cursor-pointer mx-2" />
+        <div onClick={() => router.push('/')} className="relative mx-2 h-[30px] w-[30px] cursor-pointer">
+          <Image
+            src="/gestionate-logo.svg"
+            height={30}
+            width={30}
+            alt="gestionate-logo"
+            className={cn("absolute inset-0 transition-opacity duration-300", useDarkForeground ? "opacity-100" : "opacity-0")}
+          />
+          <Image
+            src="/gestionate-logo-white.svg"
+            height={30}
+            width={30}
+            alt="gestionate-logo"
+            className={cn("absolute inset-0 transition-opacity duration-300", useDarkForeground ? "opacity-0" : "opacity-100")}
+          />
+        </div>
 
         <NavigationMenuItem>
           <NavigationMenuTrigger
-          className={cn('text-white bg-transparent', isWhiteBg && 'text-black', 'data-[state=open]:bg-white data-[state=open]:text-black')}
+          className={cn(
+            'bg-transparent transition-colors duration-300',
+            useDarkForeground ? 'text-black' : 'text-white',
+            'data-[state=open]:bg-white data-[state=open]:text-black'
+          )}
           >
             {t('navbar-start')}
           </NavigationMenuTrigger>
@@ -102,7 +423,11 @@ export function LandingNavbar() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger
-          className={cn('text-white bg-transparent', isWhiteBg && 'text-black', 'data-[state=open]:bg-white data-[state=open]:text-black')}
+          className={cn(
+            'bg-transparent transition-colors duration-300',
+            useDarkForeground ? 'text-black' : 'text-white',
+            'data-[state=open]:bg-white data-[state=open]:text-black'
+          )}
 
           >
             {t('navbar-products')}
@@ -136,7 +461,11 @@ export function LandingNavbar() {
 
         <NavigationMenuItem>
           <Link href="/pricing" legacyBehavior passHref>
-            <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'bg-transparent text-white', isWhiteBg && 'text-black')}>
+            <NavigationMenuLink className={cn(
+              navigationMenuTriggerStyle(),
+              'bg-transparent transition-colors duration-300',
+              useDarkForeground ? 'text-black' : 'text-white'
+            )}>
               {t('navbar-pricing')}
             </NavigationMenuLink>
           </Link>
@@ -150,7 +479,12 @@ export function LandingNavbar() {
             <Button
               variant="ghost"
               size="sm"
-              className={cn("mr-3 flex h-9 items-center gap-1 rounded-xl border border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white focus-visible:ring-0 max-sm:mr-0", isWhiteBg && "text-black")}
+              className={cn(
+                "mr-3 flex h-9 items-center gap-1 rounded-xl border bg-transparent focus-visible:ring-0 max-sm:mr-0 transition-colors duration-300",
+                useDarkForeground
+                  ? "border-black/15 text-black hover:bg-black/5 hover:text-black"
+                  : "border-white/15 text-white hover:bg-white/10 hover:text-white"
+              )}
             >
               <span className="text-sm font-semibold uppercase tracking-wide">{currentLocale}</span>
               <ChevronDown className="h-4 w-4 opacity-80" />
@@ -161,15 +495,23 @@ export function LandingNavbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex items-center gap-2 border-l border-white/15 pl-3">
+        <div className={cn("flex items-center gap-2 border-l pl-3 transition-colors duration-300", useDarkForeground ? "border-black/15" : "border-white/15")}>
           <Link href={'/login'}>
             <Button variant='outline' className="rounded-xl">{t('button-signin')}</Button>
           </Link>
           {!isMobile && <Link href={'/pricing'}>
-            <Button variant={isScrolled || isWhiteBg ? 'default' : 'link'} className={cn("text-white rounded-xl")}>{t('get-started')}</Button>
+            <Button
+              variant={isScrolled || useDarkForeground ? 'default' : 'link'}
+              className={cn("rounded-xl transition-colors duration-300", !isScrolled && !useDarkForeground && "text-white")}
+            >
+              {t('get-started')}
+            </Button>
           </Link>}
           {isMobile && (
-             <AlignJustify onClick={() => setIsMobileMenuOpen(true)} />
+             <AlignJustify
+              onClick={() => setIsMobileMenuOpen(true)}
+              className={cn("cursor-pointer transition-colors duration-300", useDarkForeground ? "text-black" : "text-white")}
+            />
           )}
         </div>
       </div>
