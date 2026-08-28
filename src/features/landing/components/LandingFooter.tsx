@@ -37,6 +37,7 @@ const LandingFooter = () => {
                         <p className="font-semibold text-xl">{t('footer-company')}</p>
                         <Link href='/about' className="hover:underline">{t('footer-about-us')}</Link>
                         <Link href='/contact' className="hover:underline">{t('footer-contact-us')}</Link>
+                        <Link href='/blog' className="hover:underline">{t('footer-blog')}</Link>
                         <Link href='/terms' className="hover:underline">{t('footer-terms')}</Link>
                         <Link href='/privacy' className="hover:underline">{t('footer-privacy')}</Link>
                     </div>

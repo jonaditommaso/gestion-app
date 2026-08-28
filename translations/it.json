@@ -989,6 +989,243 @@
         "navbar-products-chatbot-title": "Agente IA",
         "navbar-products-chatbot-description": "Crea attività, interroga la tua pipeline e gestisci l'organizzazione da una chat.",
         "navbar-pricing": "Prezzi",
+        "blog": {
+            "badge": "Blog",
+            "title": "Guide pratiche per operazioni più chiare",
+            "description": "Una raccolta breve di articoli costruiti su flussi reali di Gestionate: workspaces, IA, fatturazione, vendite e permessi.",
+            "author": "Gestionate Team",
+            "search-placeholder": "Cerca per tema, flusso o funzionalità",
+            "featured-title": "Articolo in evidenza",
+            "featured-label": "Lettura consigliata",
+            "all": "Tutti i temi",
+            "more-articles": "Altri da leggere",
+            "results-count": "{count, plural, one {# articolo} other {# articoli}}",
+            "read-article": "Leggi l'articolo",
+            "open-docs": "Apri la documentazione",
+            "open-products": "Esplora i prodotti",
+            "empty-title": "Nessun articolo corrisponde a questa ricerca",
+            "empty-description": "Prova con un'altra parola chiave oppure rimuovi il filtro attivo per vedere di nuovo l'intera raccolta.",
+            "clear-filters": "Cancella filtri",
+            "back-to-blog": "Torna al blog",
+            "overview-title": "In sintesi",
+            "docs-cta-title": "Ti serve la versione passo dopo passo?",
+            "docs-cta-description": "Questo blog spiega il perché dei flussi. La documentazione copre il dettaglio operativo.",
+            "related-feature": "Funzionalità correlata",
+            "categories": {
+                "operations": "Operazioni",
+                "automation": "IA e automazione",
+                "finance": "Fatturazione",
+                "sales": "Vendite",
+                "team": "Team e permessi"
+            },
+            "posts": {
+                "one-place-for-operations": {
+                    "title": "Un solo luogo per operare: cosa cambia quando attività, registri e pianificazione smettono di vivere separati",
+                    "excerpt": "Gestionate acquista più valore quando esecuzione, documentazione e follow-up condividono lo stesso contesto invece di essere distribuiti su strumenti diversi.",
+                    "publishedAt": "21 agosto 2026",
+                    "readTime": "6 min di lettura",
+                    "coverAlt": "Panoramica dei workspace di Gestionate",
+                    "intro": "Molti team non soffrono per mancanza di software. Soffrono perché ogni processo inizia ricostruendo il contesto: l'attività vive in uno strumento, il file in un altro e la scadenza altrove. Gestionate affronta il problema in modo diverso, mantenendo workspace, registri e follow-up operativo abbastanza vicini da permettere al team di avanzare senza tradurre il lavoro da un sistema all'altro.",
+                    "relatedLabel": "Esplora Workspaces",
+                    "highlightsTitle": "Cosa cambia nella pratica",
+                    "highlights": [
+                        "La stessa attività può essere rivista in tabella, Kanban o calendario senza duplicarla.",
+                        "Registri, note e informazioni di supporto restano vicini al lavoro che ne dipende.",
+                        "Vendite, fatturazione ed esecuzione possono leggere lo stesso contesto organizzativo."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Un workspace che non riparte ogni mattina da zero",
+                            "paragraphs": [
+                                "Il modello di workspace di Gestionate mantiene semplice l'esecuzione: le attività hanno stato, scadenza, priorità e assegnatari, mentre il team passa tra tabella, Kanban e calendario a seconda del tipo di revisione di cui ha bisogno. L'attività non cambia quando cambia la vista, e questo rende il follow-up più leggero e trasforma il workspace nel luogo in cui il lavoro viene davvero rivisto."
+                            ]
+                        },
+                        {
+                            "title": "I registri e le informazioni di supporto restano vicini al lavoro",
+                            "paragraphs": [
+                                "Le operazioni raramente rallentano perché nessuno ricorda il nome dell'attività; rallentano perché file, note e informazioni strutturate sono sparse. Mantenere registri e contesto di supporto accessibili nello stesso ambiente accorcia i passaggi di consegna, riduce le domande ripetute e rende più semplice l'onboarding di chi entra nel processo."
+                            ]
+                        },
+                        {
+                            "title": "Il contesto condiviso accelera anche le altre aree",
+                            "paragraphs": [
+                                "Quando workspace, registri, fatturazione e vendite convivono nello stesso livello organizzativo, ogni area può capire cosa stanno facendo le altre senza ricostruire la storia da zero. Questo è il valore pratico di una piattaforma all-in-one: non mettere tutto su una sola schermata, ma mantenere un contesto operativo coerente."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Idee da tenere",
+                    "takeaways": [
+                        "Cambiare vista è utile solo se i dati delle attività restano coerenti.",
+                        "La documentazione supporta meglio l'esecuzione quando resta vicina al team che la usa.",
+                        "La chiarezza operativa nasce dal contesto condiviso, non dall'aggiungere più livelli di report."
+                    ]
+                },
+                "ai-agent-with-context": {
+                    "title": "Perché un agente IA con contesto è più utile di una finestra di chat separata",
+                    "excerpt": "Il vantaggio non è la novità. È poter creare, aggiornare e interrogare il lavoro tra moduli diversi senza uscire dalla conversazione.",
+                    "publishedAt": "18 agosto 2026",
+                    "readTime": "5 min di lettura",
+                    "coverAlt": "Vista dell'assistente IA di Gestionate",
+                    "intro": "La maggior parte degli assistenti finisce per essere un'altra scheda che riassume informazioni ma non fa avanzare il lavoro. L'IA di Gestionate diventa utile perché è collegata al workspace: può aiutare a creare attività, consultare il pipeline, aggiornare dati e mantenere lo storico conversazionale dentro lo stesso contesto organizzativo.",
+                    "relatedLabel": "Esplora Agente IA",
+                    "highlightsTitle": "Dove si vede la differenza",
+                    "highlights": [
+                        "L'assistente può attivare azioni invece di limitarsi a generare testo.",
+                        "Le domande possono attraversare attività, deal, note e altri dati live del workspace.",
+                        "Permessi e confini del team contano ancora quando risponde l'IA."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Dalle risposte alle azioni",
+                            "paragraphs": [
+                                "Creare un'attività da un prompt o aggiornare la fase di un deal può sembrare piccolo, ma cambia la velocità con cui un team cattura il lavoro. L'assistente smette di essere un livello di ricerca e diventa un livello di esecuzione, ed è questo che rende il linguaggio naturale davvero pratico nell'operatività quotidiana."
+                            ]
+                        },
+                        {
+                            "title": "Contesto tra moduli",
+                            "paragraphs": [
+                                "Il valore cresce quando la conversazione non è limitata a una sola funzionalità. Se l'assistente può comprendere attività, stato del pipeline e informazioni operative correlate nello stesso thread, il team perde meno tempo a saltare tra viste diverse solo per ricostruire il quadro attuale."
+                            ]
+                        },
+                        {
+                            "title": "Un'IA utile rispetta anche i confini",
+                            "paragraphs": [
+                                "Un assistente contestuale funziona in un ambiente business solo se rispetta permessi, ruoli e ambito del team. L'approccio di Gestionate conta perché mantiene l'assistente legato alle stesse regole organizzative del resto della piattaforma, così la comodità non arriva a scapito del controllo."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Cosa vale la pena ricordare",
+                    "takeaways": [
+                        "L'IA ha più valore quando può agire, non solo rispondere.",
+                        "Il contesto tra moduli conta più di una formulazione brillante.",
+                        "L'automazione consapevole dei permessi è ciò che rende affidabile la funzionalità."
+                    ]
+                },
+                "billing-operational-visibility": {
+                    "title": "Fatturazione oltre il foglio di calcolo: trasformare entrate e uscite in visibilità operativa",
+                    "excerpt": "Un'area finance diventa più facile da gestire quando movimenti, categorie, calendari e report fanno parte dello stesso sistema operativo.",
+                    "publishedAt": "12 agosto 2026",
+                    "readTime": "6 min di lettura",
+                    "coverAlt": "Dashboard di fatturazione di Gestionate",
+                    "intro": "Il lavoro finanziario si complica quando ogni domanda richiede esportare dati, aggiornare un foglio e poi spiegare il risultato altrove. L'area billing di Gestionate è più utile quando viene trattata come una superficie operativa: movimenti, calendari, categorie e dashboard aiutano il team a leggere la stessa realtà con meno riconciliazione manuale.",
+                    "relatedLabel": "Esplora Fatturazione",
+                    "highlightsTitle": "Come appare un flusso di fatturazione migliore",
+                    "highlights": [
+                        "Entrate e uscite possono essere riviste attraverso viste operative invece che come righe isolate.",
+                        "Categorie, conti e dati legati al payroll supportano una struttura finanziaria più pulita.",
+                        "Report e dashboard sono più utili quando partono da dati live."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Prima l'operatività, poi la contabilità",
+                            "paragraphs": [
+                                "Il valore dell'area billing non si limita a conservare movimenti. Viste di dettaglio, viste calendario e dashboard configurabili rendono più facile seguire cosa è successo, quando è successo e come cambia nel tempo, aiutando i team a leggere le operazioni invece di limitarsi a registrare transazioni."
+                            ]
+                        },
+                        {
+                            "title": "La struttura conta più del volume",
+                            "paragraphs": [
+                                "Conti indipendenti, valute, categorie e dati di payroll come ore lavorate, detrazioni e benefit danno al livello finanziario la struttura di cui ha bisogno. Un modello più pulito riduce il rumore, rende il follow-up più affidabile e aiuta l'organizzazione a crescere senza trasformare ogni chiusura mensile in una pulizia manuale."
+                            ]
+                        },
+                        {
+                            "title": "Il reporting diventa parte delle decisioni",
+                            "paragraphs": [
+                                "Quando grafici, tendenze e report automatici partono da dati aggiornati, il reporting smette di essere un rituale separato. Il team può rivedere l'andamento di entrate e uscite, individuare i punti di pressione e usare suggerimenti o piani d'azione come parte della normale pianificazione operativa, non solo a fine mese."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Cosa tenere a mente",
+                    "takeaways": [
+                        "Una vista finanziaria è più forte quando spiega l'operatività, non solo i movimenti.",
+                        "Buone categorie e una buona struttura dei conti fanno risparmiare più tempo della pulizia dell'ultimo minuto.",
+                        "Il reporting è più utile quando resta collegato ai dati vivi del lavoro."
+                    ]
+                },
+                "sales-pipeline-that-keeps-moving": {
+                    "title": "Un pipeline di vendita che il tuo team può davvero mantenere vivo",
+                    "excerpt": "Il follow-up commerciale dipende meno da dashboard appariscenti e più da fasi chiare, contesto condiviso del deal e handoff puliti.",
+                    "publishedAt": "7 agosto 2026",
+                    "readTime": "5 min di lettura",
+                    "coverAlt": "Board del pipeline commerciale di Gestionate",
+                    "intro": "Un pipeline è utile solo se il team lo mantiene vivo. L'area vendite di Gestionate funziona perché combina una board configurabile, contesto del deal, indicatori di salute e reportistica in un modo che aiuta il lavoro commerciale a restare aggiornato invece di diventare una presentazione aggiornata una volta a settimana.",
+                    "relatedLabel": "Esplora Pipeline di vendita",
+                    "highlightsTitle": "Cosa mantiene usabile il pipeline",
+                    "highlights": [
+                        "Le fasi possono adattarsi al processo commerciale reale invece di imporre un funnel generico.",
+                        "Ogni deal conserva commenti, attività e contesto di priorità a portata di mano.",
+                        "La chiusura di un deal può collegarsi in modo pulito alla fatturazione e al reporting."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Fasi che assomigliano a come vendete davvero",
+                            "paragraphs": [
+                                "Una board visuale aiuta solo se le fasi riflettono la realtà. Il pipeline di Gestionate può essere adattato al processo commerciale concreto, mentre drag and drop, date di chiusura e importi mantengono il team concentrato sul passo successivo invece di combattere con un template che non rispecchia l'organizzazione."
+                            ]
+                        },
+                        {
+                            "title": "Una board non basta senza contesto del deal",
+                            "paragraphs": [
+                                "Un pipeline sano ha bisogno di più delle colonne. Commenti, cronologia attività, assegnazione e indicatori di salute del deal aggiungono il contesto operativo che rende possibile la prioritizzazione. È questo contesto che impedisce alla board di diventare una schermata gradevole con poco supporto reale alle decisioni."
+                            ]
+                        },
+                        {
+                            "title": "La visibilità sui ricavi richiede handoff, non solo grafici",
+                            "paragraphs": [
+                                "Obiettivi, esportazioni e metriche di ricavo contano, ma il flusso diventa più pratico quando i deal chiusi possono proseguire verso i processi di fatturazione senza reinserire manualmente i dati. Handoff puliti riducono l'attrito tra commerciale e amministrazione e rendono il pipeline utile oltre il forecasting."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Cosa dovrebbero mantenere i team commerciali",
+                    "takeaways": [
+                        "Un pipeline funziona meglio quando le sue fasi riflettono il processo reale.",
+                        "Il contesto del deal è ciò che trasforma il movimento in priorità.",
+                        "Il flusso commerciale acquista valore quando consegna bene a fatturazione e reporting."
+                    ]
+                },
+                "permissions-that-scale": {
+                    "title": "Ruoli, inviti e aree protette: come crescere senza perdere il controllo",
+                    "excerpt": "Far crescere un team è più semplice quando l'accesso è deliberato, verificabile e adattato a ogni area invece di essere tutto o niente.",
+                    "publishedAt": "1 agosto 2026",
+                    "readTime": "5 min di lettura",
+                    "coverAlt": "Vista team e permessi di Gestionate",
+                    "intro": "La collaborazione diventa più difficile appena più persone entrano nel sistema. La sfida non è solo invitare i membri giusti; è assicurarsi che ogni persona veda ciò di cui ha bisogno, possa agire dove deve e lasci una traccia dove la tracciabilità conta. Gestionate tratta la crescita del team come un problema di progettazione degli accessi, non solo come una lista di contatti.",
+                    "relatedLabel": "Apri la documentazione del team",
+                    "highlightsTitle": "Cosa cambia con un buon design dei permessi",
+                    "highlights": [
+                        "Inviti, aggiornamenti di ruolo e revoca degli accessi fanno parte dello stesso flusso.",
+                        "I permessi possono essere modellati per area invece di aprire l'intera piattaforma a tutti.",
+                        "Storico attività e spazi personali riducono l'ambiguità senza bloccare la collaborazione."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Invitare persone è la parte facile",
+                            "paragraphs": [
+                                "I flussi di membership contano dopo che l'invito è stato inviato. Poter aggiungere membri, modificare il loro ruolo in seguito e revocare l'accesso quando serve mantiene la struttura del team allineata alla realtà, invece di lasciare vecchi permessi sparsi per l'organizzazione."
+                            ]
+                        },
+                        {
+                            "title": "I permessi granulari mantengono i team pratici",
+                            "paragraphs": [
+                                "Non tutte le persone dovrebbero avere la stessa visibilità su workspace, registri, fatturazione, vendite o impostazioni amministrative. Permessi granulari e opzioni di sola lettura aiutano a collaborare senza trasformare ogni area in una superficie aperta, aspetto particolarmente importante quando l'organizzazione diventa più complessa."
+                            ]
+                        },
+                        {
+                            "title": "Il controllo funziona meglio con la tracciabilità",
+                            "paragraphs": [
+                                "Il design dei permessi diventa più forte quando è accompagnato dallo storico attività. Le aree personali possono restare private, gli spazi collaborativi possono mostrare attività in tempo reale e l'organizzazione ottiene una traccia più chiara di cosa è cambiato, chi l'ha cambiato e dove dovrebbe continuare il follow-up."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Cosa preservare mentre il team cresce",
+                    "takeaways": [
+                        "Il design degli accessi dovrebbe evolvere con il team, non restare congelato dopo l'onboarding.",
+                        "I permessi granulari migliorano la collaborazione perché riducono rumore e rischio allo stesso tempo.",
+                        "La tracciabilità trasforma il controllo in qualcosa di operativo e non solo restrittivo."
+                    ]
+                }
+            }
+        },
         "footer-cta-title": "Inizia a lavorare in modo comodo e produttivo",
         "footer-cta-description": "Scopri fino a dove puoi arrivare. Che tu stia scalando il tuo progetto o voglia aumentare la produttività della tua azienda e dimenticare più piattaforme di sincronizzazione del lavoro, abbiamo la soluzione ideale per te.",
         "footer-who-we-are": "Chi siamo",
@@ -996,6 +1233,7 @@
         "footer-terms": "Termini",
         "footer-privacy": "Privacy",
         "footer-contact-us": "Contattaci",
+        "footer-blog": "Blog",
         "footer-solutions": "Soluzioni",
         "footer-resources": "Risorse",
         "footer-company": "Azienda",

@@ -991,6 +991,243 @@
         "navbar-products-chatbot-title": "Agente IA",
         "navbar-products-chatbot-description": "Creá tareas, consultá tu pipeline y gestioná tu organización desde un chat",
         "navbar-pricing": "Precios",
+        "blog": {
+            "badge": "Blog",
+            "title": "Guías prácticas para operar mejor",
+            "description": "Una colección breve de artículos construidos sobre flujos reales de Gestionate: workspaces, IA, facturación, ventas y permisos.",
+            "author": "Gestionate Team",
+            "search-placeholder": "Busca por tema, flujo o funcionalidad",
+            "featured-title": "Artículo destacado",
+            "featured-label": "Lectura recomendada",
+            "all": "Todos los temas",
+            "more-articles": "Más para leer",
+            "results-count": "{count, plural, one {# artículo} other {# artículos}}",
+            "read-article": "Leer artículo",
+            "open-docs": "Abrir documentación",
+            "open-products": "Explorar productos",
+            "empty-title": "No encontramos artículos para esa búsqueda",
+            "empty-description": "Probá con otra palabra clave o limpiá el filtro activo para volver a ver la colección completa.",
+            "clear-filters": "Limpiar filtros",
+            "back-to-blog": "Volver al blog",
+            "overview-title": "Puntos clave",
+            "docs-cta-title": "¿Necesitás la versión paso a paso?",
+            "docs-cta-description": "Este blog explica el porqué de los flujos. La documentación cubre el detalle operativo.",
+            "related-feature": "Funcionalidad relacionada",
+            "categories": {
+                "operations": "Operaciones",
+                "automation": "IA y automatización",
+                "finance": "Facturación",
+                "sales": "Ventas",
+                "team": "Equipo y permisos"
+            },
+            "posts": {
+                "one-place-for-operations": {
+                    "title": "Un solo lugar para operar: qué cambia cuando tareas, registros y planificación dejan de vivir separados",
+                    "excerpt": "Gestionate gana valor cuando la ejecución, la documentación y el seguimiento comparten el mismo contexto en lugar de repartirse entre herramientas distintas.",
+                    "publishedAt": "21 de agosto de 2026",
+                    "readTime": "6 min de lectura",
+                    "coverAlt": "Vista general de workspaces en Gestionate",
+                    "intro": "Muchos equipos no sufren por falta de software. Sufren porque cada proceso empieza reconstruyendo contexto: la tarea vive en una herramienta, el archivo en otra y la fecha límite en otro lado. Gestionate aborda el problema de otra manera, manteniendo workspaces, registros y seguimiento operativo lo bastante cerca como para que el equipo avance sin traducir el trabajo de un sistema a otro.",
+                    "relatedLabel": "Explorar Workspaces",
+                    "highlightsTitle": "Qué cambia en la práctica",
+                    "highlights": [
+                        "La misma tarea puede revisarse en tabla, Kanban o calendario sin duplicarla.",
+                        "Los registros, las notas y la información de apoyo quedan cerca del trabajo que depende de ellos.",
+                        "Ventas, facturación y ejecución pueden leer desde el mismo contexto organizacional."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Un workspace que no reinicia cada mañana",
+                            "paragraphs": [
+                                "El modelo de workspaces de Gestionate mantiene la ejecución simple: las tareas tienen estado, vencimiento, prioridad y responsables, mientras el equipo cambia entre tabla, Kanban y calendario según la revisión que necesite. La tarea no cambia cuando cambia la vista, y eso hace que el seguimiento sea más liviano y que el propio workspace se convierta en el lugar donde el trabajo se revisa."
+                            ]
+                        },
+                        {
+                            "title": "Los registros y la información de apoyo quedan cerca del trabajo",
+                            "paragraphs": [
+                                "Las operaciones casi nunca se frenan porque nadie recuerde el nombre de la tarea; se frenan porque archivos, notas e información estructurada están dispersos. Mantener registros y contexto de apoyo accesibles dentro del mismo entorno acorta los handoffs, reduce preguntas repetidas y vuelve más simple el onboarding de quien se suma al proceso."
+                            ]
+                        },
+                        {
+                            "title": "El contexto compartido también acelera a otras áreas",
+                            "paragraphs": [
+                                "Cuando workspaces, registros, facturación y ventas conviven en la misma capa organizacional, cada área puede entender qué hacen las demás sin reconstruir la historia desde cero. Ese es el valor práctico de una plataforma all-in-one: no poner todo en una sola pantalla, sino sostener un contexto operativo coherente."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Ideas para conservar",
+                    "takeaways": [
+                        "Cambiar de vista solo sirve si los datos de la tarea se mantienen consistentes.",
+                        "La documentación acompaña mejor a la ejecución cuando permanece cerca del equipo que la usa.",
+                        "La claridad operativa nace del contexto compartido, no de sumar más capas de reporte."
+                    ]
+                },
+                "ai-agent-with-context": {
+                    "title": "Por qué un agente de IA con contexto sirve más que una ventana de chat separada",
+                    "excerpt": "La ventaja no está en la novedad. Está en poder crear, actualizar y consultar trabajo entre módulos sin salir de la conversación.",
+                    "publishedAt": "18 de agosto de 2026",
+                    "readTime": "5 min de lectura",
+                    "coverAlt": "Vista del asistente IA de Gestionate",
+                    "intro": "La mayoría de los asistentes terminan siendo otra pestaña que resume información pero no mueve el trabajo hacia adelante. La IA de Gestionate resulta útil porque está conectada con el workspace: puede ayudar a crear tareas, consultar el pipeline, actualizar datos y mantener el historial conversacional dentro del mismo contexto organizacional.",
+                    "relatedLabel": "Explorar Agente IA",
+                    "highlightsTitle": "Dónde aparece la diferencia",
+                    "highlights": [
+                        "El asistente puede disparar acciones en vez de limitarse a producir texto.",
+                        "Las consultas pueden cruzar tareas, deals, notas y otros datos vivos del workspace.",
+                        "Los permisos y los límites del equipo siguen importando cuando responde la IA."
+                    ],
+                    "sections": [
+                        {
+                            "title": "De respuestas a acciones",
+                            "paragraphs": [
+                                "Crear una tarea desde un prompt o actualizar la etapa de un deal puede parecer pequeño, pero cambia la velocidad con la que un equipo captura trabajo. El asistente deja de ser una capa de búsqueda y pasa a ser una capa de ejecución, que es lo que vuelve realmente práctico al lenguaje natural dentro de la operación diaria."
+                            ]
+                        },
+                        {
+                            "title": "Contexto entre módulos",
+                            "paragraphs": [
+                                "El valor crece cuando la conversación no queda limitada a una sola funcionalidad. Si el asistente puede entender tareas, estado del pipeline e información operativa relacionada en un mismo hilo, el equipo pierde menos tiempo saltando entre vistas solo para armar la foto actual."
+                            ]
+                        },
+                        {
+                            "title": "La IA útil también respeta límites",
+                            "paragraphs": [
+                                "Un asistente contextual solo funciona en un entorno de negocio si respeta permisos, roles y alcance de equipo. El enfoque de Gestionate importa porque mantiene al asistente atado a las mismas reglas organizacionales que el resto de la plataforma, de modo que la comodidad no llega a costa del control."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Qué conviene recordar",
+                    "takeaways": [
+                        "La IA vale más cuando puede actuar, no solo responder.",
+                        "El contexto entre módulos importa más que una respuesta ingeniosa.",
+                        "La automatización consciente de permisos es lo que vuelve confiable la funcionalidad."
+                    ]
+                },
+                "billing-operational-visibility": {
+                    "title": "Facturación más allá de la hoja de cálculo: convertir ingresos y egresos en visibilidad operativa",
+                    "excerpt": "Un área financiera se vuelve más fácil de gestionar cuando movimientos, categorías, calendarios y reportes forman parte del mismo sistema operativo.",
+                    "publishedAt": "12 de agosto de 2026",
+                    "readTime": "6 min de lectura",
+                    "coverAlt": "Dashboard de facturación de Gestionate",
+                    "intro": "El trabajo financiero se desordena cuando cada pregunta exige exportar datos, actualizar una planilla y luego explicar el resultado en otro lado. El área de billing de Gestionate resulta más útil cuando se la trata como una superficie operativa: movimientos, calendarios, categorías y dashboards ayudan a leer la misma realidad con menos conciliación manual.",
+                    "relatedLabel": "Explorar Facturación",
+                    "highlightsTitle": "Cómo se ve un mejor flujo de facturación",
+                    "highlights": [
+                        "Los ingresos y egresos pueden revisarse en vistas operativas en lugar de filas aisladas.",
+                        "Las categorías, cuentas y datos vinculados a payroll sostienen una estructura financiera más limpia.",
+                        "Los reportes y dashboards sirven más cuando parten de datos vivos."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Primero operación, después contabilidad",
+                            "paragraphs": [
+                                "El valor del área de billing no se limita a guardar movimientos. Las vistas detalladas, el calendario y los dashboards configurables facilitan seguir qué pasó, cuándo pasó y cómo cambia en el tiempo, algo que ayuda a leer la operación en lugar de solo registrar transacciones."
+                            ]
+                        },
+                        {
+                            "title": "La estructura importa más que el volumen",
+                            "paragraphs": [
+                                "Cuentas independientes, monedas, categorías y datos de payroll como horas trabajadas, deducciones y beneficios le dan a la capa financiera la estructura que necesita. Un modelo más limpio reduce ruido, vuelve el seguimiento más confiable y ayuda a crecer sin convertir cada cierre mensual en una tarea manual de limpieza."
+                            ]
+                        },
+                        {
+                            "title": "Reportar pasa a ser parte de decidir",
+                            "paragraphs": [
+                                "Cuando gráficos, tendencias y reportes automáticos parten de información actualizada, el reporting deja de ser un ritual aparte. El equipo puede revisar el comportamiento de ingresos y egresos, detectar puntos de presión y usar sugerencias o planes de acción como parte de la planificación operativa normal, no solo al final del mes."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Qué conviene tener presente",
+                    "takeaways": [
+                        "Una vista financiera es más fuerte cuando explica la operación, no solo los movimientos.",
+                        "Buenas categorías y una buena estructura de cuentas ahorran más tiempo que la limpieza de último minuto.",
+                        "El reporting sirve más cuando permanece conectado a datos reales de trabajo."
+                    ]
+                },
+                "sales-pipeline-that-keeps-moving": {
+                    "title": "Un pipeline de ventas que tu equipo realmente puede mantener",
+                    "excerpt": "El seguimiento comercial depende menos de dashboards vistosos y más de etapas claras, contexto compartido del deal y handoffs limpios.",
+                    "publishedAt": "7 de agosto de 2026",
+                    "readTime": "5 min de lectura",
+                    "coverAlt": "Tablero del pipeline comercial de Gestionate",
+                    "intro": "Un pipeline solo sirve si el equipo lo mantiene vivo. El área de ventas de Gestionate funciona porque combina un tablero configurable, contexto del deal, indicadores de salud y reportes de una forma que ayuda a que el trabajo comercial se mantenga al día en lugar de convertirse en una presentación que se actualiza una vez por semana.",
+                    "relatedLabel": "Explorar Pipeline de ventas",
+                    "highlightsTitle": "Qué mantiene usable al pipeline",
+                    "highlights": [
+                        "Las etapas pueden adaptarse al proceso comercial real en lugar de forzar un embudo genérico.",
+                        "Cada deal conserva comentarios, actividad y contexto de priorización a mano.",
+                        "El cierre de un deal puede conectarse limpiamente con facturación y reporting."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Etapas que se parecen a cómo realmente vendés",
+                            "paragraphs": [
+                                "Un tablero visual solo ayuda si las etapas reflejan la realidad. El pipeline de Gestionate puede ajustarse al proceso comercial concreto, mientras el drag and drop, las fechas de cierre y los montos mantienen al equipo enfocado en el siguiente paso, en vez de pelearse con una plantilla que no encaja con la organización."
+                            ]
+                        },
+                        {
+                            "title": "Un tablero no alcanza sin contexto del deal",
+                            "paragraphs": [
+                                "Un pipeline sano necesita más que columnas. Comentarios, historial de actividad, asignación e indicadores de salud del deal aportan el contexto operativo que vuelve posible priorizar. Ese contexto es lo que evita que el tablero sea una pantalla linda con poco soporte real para decidir."
+                            ]
+                        },
+                        {
+                            "title": "La visibilidad de ingresos necesita handoffs, no solo gráficos",
+                            "paragraphs": [
+                                "Las metas, las exportaciones y las métricas de revenue importan, pero el flujo se vuelve más práctico cuando los deals cerrados pueden continuar hacia procesos de facturación sin reingresar datos manualmente. Los handoffs limpios reducen fricción entre comercial y administración y hacen que el pipeline sirva más allá del forecast."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Qué deberían conservar los equipos comerciales",
+                    "takeaways": [
+                        "Un pipeline funciona mejor cuando sus etapas reflejan el proceso real.",
+                        "El contexto del deal es lo que convierte movimiento en priorización.",
+                        "El flujo comercial gana valor cuando entrega bien a facturación y reporting."
+                    ]
+                },
+                "permissions-that-scale": {
+                    "title": "Roles, invitaciones y áreas protegidas: cómo crecer sin perder control",
+                    "excerpt": "Escalar un equipo es más sencillo cuando el acceso es deliberado, auditable y adaptado a cada área en vez de ser todo o nada.",
+                    "publishedAt": "1 de agosto de 2026",
+                    "readTime": "5 min de lectura",
+                    "coverAlt": "Vista de equipo y permisos en Gestionate",
+                    "intro": "La colaboración se vuelve más difícil apenas más personas entran al sistema. El desafío no es solo invitar a los miembros correctos; es asegurar que cada persona vea lo que necesita, pueda actuar donde corresponde y deje trazabilidad donde hace falta. Gestionate trata el crecimiento del equipo como un problema de diseño de acceso, no solo como una lista de contactos.",
+                    "relatedLabel": "Abrir documentación de equipo",
+                    "highlightsTitle": "Qué cambia con un buen diseño de permisos",
+                    "highlights": [
+                        "Invitaciones, cambios de rol y revocación de acceso forman parte del mismo flujo.",
+                        "Los permisos pueden modelarse por área en lugar de abrir toda la plataforma a todo el mundo.",
+                        "El historial de actividad y los espacios personales reducen ambigüedad sin bloquear la colaboración."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Invitar personas es la parte fácil",
+                            "paragraphs": [
+                                "Los flujos de membresía importan después de enviar la invitación. Poder sumar miembros, ajustar su rol más adelante y revocar acceso cuando haga falta mantiene la estructura del equipo alineada con la realidad, en lugar de dejar permisos viejos dispersos por la organización."
+                            ]
+                        },
+                        {
+                            "title": "Los permisos granulares mantienen a los equipos prácticos",
+                            "paragraphs": [
+                                "No todas las personas deberían tener la misma visibilidad sobre workspaces, registros, facturación, ventas o configuración administrativa. Los permisos granulares y las opciones de solo lectura ayudan a colaborar sin convertir cada área en una superficie abierta, algo especialmente importante cuando la organización se vuelve más compleja."
+                            ]
+                        },
+                        {
+                            "title": "El control funciona mejor con trazabilidad",
+                            "paragraphs": [
+                                "El diseño de permisos gana fuerza cuando está acompañado por historial de actividad. Las áreas personales pueden seguir siendo privadas, los espacios colaborativos pueden exponer actividad en tiempo real y la organización obtiene un rastro más claro de qué cambió, quién lo cambió y dónde debería seguirse el trabajo."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Qué conviene preservar a medida que el equipo crece",
+                    "takeaways": [
+                        "El diseño de acceso debería evolucionar con el equipo, no congelarse después del onboarding.",
+                        "Los permisos granulares mejoran la colaboración porque reducen ruido y riesgo al mismo tiempo.",
+                        "La trazabilidad convierte el control en algo operativo y no solo restrictivo."
+                    ]
+                }
+            }
+        },
         "footer-cta-title": "Comienza a trabajar de manera cómoda y productiva",
         "footer-cta-description": "Descubre que tan lejos puedes llegar. Ya sea que estés escalando tu propio proyecto como si quieres aumentar la productividad de tu empresa y olvidarte de múltiples plataformas de sincronización laboral, tenemos la solución ideal para ti.",
         "footer-who-we-are": "Quiénes somos",
@@ -998,6 +1235,7 @@
         "footer-terms": "Términos",
         "footer-privacy": "Privacidad",
         "footer-contact-us": "Contactanos",
+        "footer-blog": "Blog",
         "footer-solutions": "Soluciones",
         "footer-resources": "Recursos",
         "footer-company": "Empresa",

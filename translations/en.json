@@ -989,6 +989,243 @@
         "navbar-products-chatbot-title": "AI Agent",
         "navbar-products-chatbot-description": "Create tasks, query your pipeline and manage your org from a single chat",
         "navbar-pricing": "Prices",
+        "blog": {
+            "badge": "Blog",
+            "title": "Practical guides for clearer operations",
+            "description": "A small editorial collection built around real Gestionate workflows: workspaces, AI, billing, sales and permissions.",
+            "author": "Gestionate Team",
+            "search-placeholder": "Search by topic, workflow or feature",
+            "featured-title": "Featured article",
+            "featured-label": "Recommended reading",
+            "all": "All topics",
+            "more-articles": "More to read",
+            "results-count": "{count, plural, one {# article} other {# articles}}",
+            "read-article": "Read article",
+            "open-docs": "Open documentation",
+            "open-products": "Explore products",
+            "empty-title": "No articles matched this search",
+            "empty-description": "Try another keyword or clear the active filter to see the full collection again.",
+            "clear-filters": "Clear filters",
+            "back-to-blog": "Back to blog",
+            "overview-title": "At a glance",
+            "docs-cta-title": "Need the step-by-step version?",
+            "docs-cta-description": "This blog explains the why behind the workflows. The documentation covers the operational detail.",
+            "related-feature": "Related feature",
+            "categories": {
+                "operations": "Operations",
+                "automation": "AI & Automation",
+                "finance": "Billing",
+                "sales": "Sales",
+                "team": "Team & Permissions"
+            },
+            "posts": {
+                "one-place-for-operations": {
+                    "title": "One place for operations: what changes when tasks, records and planning stop living apart",
+                    "excerpt": "Gestionate becomes more valuable when execution, documentation and follow-up share the same context instead of being split across separate tools.",
+                    "publishedAt": "August 21, 2026",
+                    "readTime": "6 min read",
+                    "coverAlt": "Gestionate workspace overview",
+                    "intro": "Many teams do not struggle because they lack software. They struggle because every process begins by reconstructing context: the task lives in one tool, the file in another and the deadline somewhere else. Gestionate approaches the problem differently by keeping workspaces, records and operational follow-up close enough that the team can move forward without translating work from one system to another.",
+                    "relatedLabel": "Explore Workspaces",
+                    "highlightsTitle": "What changes in practice",
+                    "highlights": [
+                        "The same task can be reviewed in table, Kanban or calendar view without being duplicated.",
+                        "Records, notes and supporting information stay close to the work that depends on them.",
+                        "Sales, billing and execution can read from the same organizational context."
+                    ],
+                    "sections": [
+                        {
+                            "title": "A workspace that does not restart every morning",
+                            "paragraphs": [
+                                "Gestionate's workspace model keeps execution simple: tasks have status, due dates, priority and assignees, while the team switches between table, Kanban and calendar according to the review they need. The task does not change when the view changes, which means follow-up is lighter and the workspace itself becomes the place where work is reviewed."
+                            ]
+                        },
+                        {
+                            "title": "Records and supporting information stay close to the work",
+                            "paragraphs": [
+                                "Operations rarely slow down because nobody knows the task name; they slow down because files, notes and structured information are scattered. Keeping records and supporting context accessible inside the same environment shortens handoffs, reduces repeated questions and makes onboarding easier for anyone joining the process."
+                            ]
+                        },
+                        {
+                            "title": "Shared context helps other areas move faster too",
+                            "paragraphs": [
+                                "When workspaces, records, billing and sales sit on the same organizational layer, each area can understand what the others are doing without rebuilding the story from scratch. That is the practical value of an all-in-one platform: not everything in one screen, but one coherent operating context."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Key ideas to keep",
+                    "takeaways": [
+                        "Changing views is useful only when the underlying task data stays consistent.",
+                        "Documentation supports execution best when it stays close to the team that uses it.",
+                        "Operational clarity comes from shared context, not from adding more reporting layers."
+                    ]
+                },
+                "ai-agent-with-context": {
+                    "title": "Why a contextual AI agent is more useful than a separate chat window",
+                    "excerpt": "The advantage is not novelty. It is being able to create, update and query work across modules without leaving the conversation.",
+                    "publishedAt": "August 18, 2026",
+                    "readTime": "5 min read",
+                    "coverAlt": "Gestionate AI assistant view",
+                    "intro": "Most assistants become another tab that summarizes information but cannot move work forward. Gestionate's AI becomes useful because it is connected to the workspace itself: it can help create tasks, query the pipeline, update information and keep conversation history inside the same organizational context.",
+                    "relatedLabel": "Explore AI Agent",
+                    "highlightsTitle": "Where the difference appears",
+                    "highlights": [
+                        "The assistant can trigger actions instead of only producing text.",
+                        "Questions can span tasks, deals, notes and other live workspace data.",
+                        "Permissions and team boundaries still matter when the AI responds."
+                    ],
+                    "sections": [
+                        {
+                            "title": "From answers to actions",
+                            "paragraphs": [
+                                "Creating a task from a prompt or updating a deal stage may sound small, but it changes how quickly a team can capture work. The assistant stops being a search layer and becomes an execution layer, which is what makes natural language genuinely practical inside day-to-day operations."
+                            ]
+                        },
+                        {
+                            "title": "Context across modules",
+                            "paragraphs": [
+                                "The value grows when the conversation is not limited to a single feature. If the assistant can understand tasks, pipeline status and related operational information in one thread, the team spends less time jumping between views just to assemble the current picture."
+                            ]
+                        },
+                        {
+                            "title": "Useful AI also respects boundaries",
+                            "paragraphs": [
+                                "A contextual assistant only works in a business environment if it respects permissions, roles and team scope. Gestionate's approach matters because it keeps the assistant tied to the same organizational rules as the rest of the platform, so convenience does not come at the cost of control."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What is worth remembering",
+                    "takeaways": [
+                        "AI is more valuable when it can act, not only answer.",
+                        "Cross-module context matters more than clever phrasing.",
+                        "Permission-aware automation is what makes the feature trustworthy."
+                    ]
+                },
+                "billing-operational-visibility": {
+                    "title": "Billing beyond spreadsheets: turning income and expenses into operational visibility",
+                    "excerpt": "A finance area becomes easier to run when movements, categories, calendars and reports are part of the same operating system.",
+                    "publishedAt": "August 12, 2026",
+                    "readTime": "6 min read",
+                    "coverAlt": "Gestionate billing dashboard",
+                    "intro": "Finance work gets messy when each question requires exporting data, updating a spreadsheet and then explaining the result somewhere else. Gestionate's billing area is more useful when it is treated as an operational surface: movements, calendars, categories and dashboards all help the team read the same reality with less manual reconciliation.",
+                    "relatedLabel": "Explore Billing",
+                    "highlightsTitle": "What a better billing flow looks like",
+                    "highlights": [
+                        "Income and expenses can be reviewed through operational views instead of isolated rows.",
+                        "Categories, accounts and payroll-related data support cleaner financial structure.",
+                        "Reports and dashboards are easier to use when they start from live data."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Operations first, bookkeeping second",
+                            "paragraphs": [
+                                "The value of the billing area is not limited to storing movements. Detail views, calendar views and configurable dashboards make it easier to follow what happened, when it happened and how it changes over time, which helps teams read operations instead of merely logging transactions."
+                            ]
+                        },
+                        {
+                            "title": "Structure matters more than volume",
+                            "paragraphs": [
+                                "Independent accounts, currencies, categories and payroll-related data such as worked hours, deductions and benefits give the finance layer the structure it needs. A cleaner model reduces noise, makes follow-up more reliable and helps the organization grow without turning every monthly close into manual cleanup."
+                            ]
+                        },
+                        {
+                            "title": "Reporting becomes part of decision-making",
+                            "paragraphs": [
+                                "When charts, trends and automated reports start from current data, reporting stops being a separate ritual. Teams can review income and expense behavior, detect pressure points and use suggestions or action plans as part of normal operational planning, not only at the end of the month."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What to keep in mind",
+                    "takeaways": [
+                        "A finance view is stronger when it explains operations, not just movements.",
+                        "Good categories and account structure save more time than last-minute cleanup.",
+                        "Reporting is most useful when it stays connected to live working data."
+                    ]
+                },
+                "sales-pipeline-that-keeps-moving": {
+                    "title": "A sales pipeline your team can actually maintain",
+                    "excerpt": "Good sales follow-up depends less on flashy dashboards and more on clear stages, shared deal context and clean handoffs.",
+                    "publishedAt": "August 7, 2026",
+                    "readTime": "5 min read",
+                    "coverAlt": "Gestionate sales pipeline board",
+                    "intro": "A pipeline is only useful if the team keeps it alive. Gestionate's sales area works because it combines a customizable board, deal context, health indicators and reporting in a way that helps commercial work stay current instead of becoming a presentation updated once a week.",
+                    "relatedLabel": "Explore Sales Pipeline",
+                    "highlightsTitle": "What keeps the pipeline usable",
+                    "highlights": [
+                        "Stages can be adapted to the real sales process instead of forcing a generic funnel.",
+                        "Each deal keeps comments, activity and prioritization context close at hand.",
+                        "Closing a deal can connect cleanly with billing and reporting workflows."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Stages that match how you actually sell",
+                            "paragraphs": [
+                                "A visual board is only helpful if the stages reflect reality. Gestionate's pipeline can be adjusted to the sales process itself, while drag-and-drop movement, close dates and deal amounts keep the team focused on the next step instead of fighting a template that does not fit how the organization works."
+                            ]
+                        },
+                        {
+                            "title": "A board is not enough without deal context",
+                            "paragraphs": [
+                                "A healthy pipeline needs more than columns. Comments, activity history, assignment and deal health indicators add the operational context that makes prioritization possible. That context is what prevents the board from becoming a pretty screen with very little decision support behind it."
+                            ]
+                        },
+                        {
+                            "title": "Revenue visibility needs handoffs, not just charts",
+                            "paragraphs": [
+                                "Goals, exports and revenue metrics matter, but the workflow becomes more practical when closed deals can continue into billing processes without manual re-entry. Clean handoffs reduce friction between commercial and administrative teams and make the pipeline useful beyond forecasting."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What sales teams should keep",
+                    "takeaways": [
+                        "A pipeline works better when its stages reflect the real process.",
+                        "Deal context is what turns movement into prioritization.",
+                        "The commercial workflow gains value when it hands off cleanly to billing and reporting."
+                    ]
+                },
+                "permissions-that-scale": {
+                    "title": "Roles, invitations and protected areas: how to grow without losing control",
+                    "excerpt": "Scaling a team is easier when access is deliberate, auditable and adapted to each area instead of being all or nothing.",
+                    "publishedAt": "August 1, 2026",
+                    "readTime": "5 min read",
+                    "coverAlt": "Gestionate team and permissions view",
+                    "intro": "Collaboration gets harder as soon as more people enter the system. The challenge is not only inviting the right members; it is making sure each person sees what they need, can act where they should and leaves a trace where traceability matters. Gestionate treats team growth as an access design problem, not just a contacts list.",
+                    "relatedLabel": "Open team documentation",
+                    "highlightsTitle": "What good permission design changes",
+                    "highlights": [
+                        "Invitations, role updates and access revocation are part of the same workflow.",
+                        "Permissions can be shaped by area instead of opening the whole platform to everyone.",
+                        "Activity history and personal spaces reduce ambiguity without blocking collaboration."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Inviting people is the easy part",
+                            "paragraphs": [
+                                "Membership workflows matter after the invite is sent. Being able to add members, adjust their role later and revoke access when needed keeps the team structure aligned with reality instead of leaving old permissions scattered across the organization."
+                            ]
+                        },
+                        {
+                            "title": "Granular permissions keep teams practical",
+                            "paragraphs": [
+                                "Not every person should have the same visibility over workspaces, records, billing, sales or administrative settings. Granular permissions and read-only options help teams collaborate without turning every area into an open surface, which is especially important as the organization becomes more complex."
+                            ]
+                        },
+                        {
+                            "title": "Control works better with traceability",
+                            "paragraphs": [
+                                "Permission design becomes stronger when it is paired with activity history. Personal areas can stay private, collaborative spaces can expose real-time activity and the organization gains a clearer trail of what changed, who changed it and where follow-up should happen."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What to preserve as you grow",
+                    "takeaways": [
+                        "Access design should evolve with the team, not stay frozen after onboarding.",
+                        "Granular permissions improve collaboration because they reduce noise and risk at the same time.",
+                        "Traceability turns control into something operational instead of merely restrictive."
+                    ]
+                }
+            }
+        },
         "footer-cta-title": "Start working comfortably and productively",
         "footer-cta-description": "Discover how far you can go. Whether you're scaling your own project or want to increase your company's productivity and forget about multiple work-syncing platforms, we have the ideal solution for you.",
         "footer-who-we-are": "Who we are",
@@ -996,6 +1233,7 @@
         "footer-terms": "Terms",
         "footer-privacy": "Privacy",
         "footer-contact-us": "Contact us",
+        "footer-blog": "Blog",
         "footer-solutions": "Solutions",
         "footer-resources": "Resources",
         "footer-company": "Company",
