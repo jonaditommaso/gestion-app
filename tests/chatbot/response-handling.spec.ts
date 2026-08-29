@@ -175,7 +175,6 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
 
         await page.route('**/api/chat', async (route: Route) => {
             const body = await route.request().postDataJSON();
-            const encoder = new TextEncoder();
             requestCount++;
 
             if (requestCount === 1) {
@@ -187,7 +186,7 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
                         'X-Conversation-Id': conversationId,
                         'X-Model-Name': 'Groq · GPT-OSS 120B',
                     },
-                    body: encoder.encode('Primera respuesta del chatbot.'),
+                    body: 'Primera respuesta del chatbot.',
                 });
             } else {
                 // Segunda petición debe incluir el conversationId del anterior
@@ -199,7 +198,7 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
                         'X-Conversation-Id': conversationId,
                         'X-Model-Name': 'Groq · GPT-OSS 120B',
                     },
-                    body: encoder.encode('Segunda respuesta: conversationId recibido.'),
+                    body: 'Segunda respuesta: conversationId recibido.',
                 });
                 // Verificar que se envió el conversationId correcto
                 expect(sentConvId).toBe(conversationId);
@@ -234,7 +233,6 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
             const body = await route.request().postDataJSON();
             capturedMessages = body?.messages ?? [];
 
-            const encoder = new TextEncoder();
             const responseText = `Respuesta #${callCount}`;
             await route.fulfill({
                 status: 200,
@@ -243,7 +241,7 @@ test.describe('Chatbot UI - Conversación multi-turno', () => {
                     'X-Conversation-Id': 'conv-multi-001',
                     'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
-                body: encoder.encode(responseText),
+                body: responseText,
             });
         });
 

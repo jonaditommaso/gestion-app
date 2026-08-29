@@ -17,12 +17,11 @@
  *  10. Petición con conversationId de otro usuario → 403
  */
 
-import { test, expect, request as playwrightRequest, type PlaywrightTestArgs } from '@playwright/test';
+import { test, expect, request as playwrightRequest } from '@playwright/test';
 
 const CHAT_ENDPOINT = '/api/chat';
 
 // Helper para obtener baseURL del contexto de test
-type TestArgs = PlaywrightTestArgs;
 
 // Payload base válido (sin auth)
 const VALID_PAYLOAD = {
@@ -32,7 +31,7 @@ const VALID_PAYLOAD = {
 // ─── Tests de autenticación ───────────────────────────────────────────────────
 
 test.describe('Seguridad API - Autenticación requerida', () => {
-    test('1. Sin cookie de sesión → 401 Unauthorized', async ({ baseURL }: TestArgs) => {
+    test('1. Sin cookie de sesión → 401 Unauthorized', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.post(CHAT_ENDPOINT, {
@@ -46,7 +45,7 @@ test.describe('Seguridad API - Autenticación requerida', () => {
         await apiContext.dispose();
     });
 
-    test('2. Con cookie de sesión inválida (cadena aleatoria) → 401', async ({ baseURL }: TestArgs) => {
+    test('2. Con cookie de sesión inválida (cadena aleatoria) → 401', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({
             baseURL,
             extraHTTPHeaders: {
@@ -65,7 +64,7 @@ test.describe('Seguridad API - Autenticación requerida', () => {
         await apiContext.dispose();
     });
 
-    test('3. Con cookie de sesión vacía → 401', async ({ baseURL }: TestArgs) => {
+    test('3. Con cookie de sesión vacía → 401', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({
             baseURL,
             extraHTTPHeaders: {
@@ -87,7 +86,7 @@ test.describe('Seguridad API - Autenticación requerida', () => {
 // ─── Tests de validación de schema ───────────────────────────────────────────
 
 test.describe('Seguridad API - Validación de schema (sin auth)', () => {
-    test('4. Body completamente vacío → 400 Bad Request', async ({ baseURL }: TestArgs) => {
+    test('4. Body completamente vacío → 400 Bad Request', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.post(CHAT_ENDPOINT, {
@@ -101,7 +100,7 @@ test.describe('Seguridad API - Validación de schema (sin auth)', () => {
         await apiContext.dispose();
     });
 
-    test('5. messages inválido (no es array) → schema error', async ({ baseURL }: TestArgs) => {
+    test('5. messages inválido (no es array) → schema error', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.post(CHAT_ENDPOINT, {
@@ -113,7 +112,7 @@ test.describe('Seguridad API - Validación de schema (sin auth)', () => {
         await apiContext.dispose();
     });
 
-    test('6. role inválido en message (no es user/assistant/system) → schema error', async ({ baseURL }: TestArgs) => {
+    test('6. role inválido en message (no es user/assistant/system) → schema error', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.post(CHAT_ENDPOINT, {
@@ -127,7 +126,7 @@ test.describe('Seguridad API - Validación de schema (sin auth)', () => {
         await apiContext.dispose();
     });
 
-    test('7. content vacío en message no falla con 500', async ({ baseURL }: TestArgs) => {
+    test('7. content vacío en message no falla con 500', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.post(CHAT_ENDPOINT, {
@@ -146,7 +145,7 @@ test.describe('Seguridad API - Validación de schema (sin auth)', () => {
 // ─── Tests de payload potencialmente malicioso ────────────────────────────────
 
 test.describe('Seguridad API - Payloads potencialmente maliciosos', () => {
-    test('8. Prompt injection en content → no debe procesarse sin auth', async ({ baseURL }: TestArgs) => {
+    test('8. Prompt injection en content → no debe procesarse sin auth', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const maliciousPayload = {
@@ -172,7 +171,7 @@ test.describe('Seguridad API - Payloads potencialmente maliciosos', () => {
         await apiContext.dispose();
     });
 
-    test('9. Payload de gran tamaño no causa 500', async ({ baseURL }: TestArgs) => {
+    test('9. Payload de gran tamaño no causa 500', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const largeContent = 'A'.repeat(50000); // 50k chars
@@ -190,7 +189,7 @@ test.describe('Seguridad API - Payloads potencialmente maliciosos', () => {
         await apiContext.dispose();
     });
 
-    test('10. XSS en content no causa 500', async ({ baseURL }: TestArgs) => {
+    test('10. XSS en content no causa 500', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const xssPayload = {
@@ -215,7 +214,7 @@ test.describe('Seguridad API - Payloads potencialmente maliciosos', () => {
 // ─── Tests del endpoint de conversaciones ────────────────────────────────────
 
 test.describe('Seguridad API - Endpoint de conversaciones sin auth', () => {
-    test('11. GET /api/chat/conversations sin auth → 401', async ({ baseURL }: TestArgs) => {
+    test('11. GET /api/chat/conversations sin auth → 401', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.get('/api/chat/conversations');
@@ -223,7 +222,7 @@ test.describe('Seguridad API - Endpoint de conversaciones sin auth', () => {
         await apiContext.dispose();
     });
 
-    test('12. GET /api/chat/conversations/:id sin auth → 401', async ({ baseURL }: TestArgs) => {
+    test('12. GET /api/chat/conversations/:id sin auth → 401', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.get('/api/chat/conversations/any-conversation-id');
@@ -231,7 +230,7 @@ test.describe('Seguridad API - Endpoint de conversaciones sin auth', () => {
         await apiContext.dispose();
     });
 
-    test('13. DELETE /api/chat/conversations/:id sin auth → 401', async ({ baseURL }: TestArgs) => {
+    test('13. DELETE /api/chat/conversations/:id sin auth → 401', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.delete('/api/chat/conversations/any-conversation-id');
@@ -239,7 +238,7 @@ test.describe('Seguridad API - Endpoint de conversaciones sin auth', () => {
         await apiContext.dispose();
     });
 
-    test('14. POST /api/chat/conversations sin auth → 401', async ({ baseURL }: TestArgs) => {
+    test('14. POST /api/chat/conversations sin auth → 401', async ({ baseURL }) => {
         const apiContext = await playwrightRequest.newContext({ baseURL });
 
         const response = await apiContext.post('/api/chat/conversations', {
