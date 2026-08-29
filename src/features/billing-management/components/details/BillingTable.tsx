@@ -39,6 +39,7 @@ import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUser
 import { PERMISSIONS } from "@/features/roles/constants"
 import { usePlanAccess } from "@/hooks/usePlanAccess"
 import { useAppContext } from "@/context/AppContext"
+import { useSearchParams } from "next/navigation"
 
 const headers = ['invoice', 'type', 'date', 'due-date', 'category', 'status', 'account', 'party-name', 'amount', 'actions']
 
@@ -84,6 +85,7 @@ export function BillingTable() {
   const isPro = plan === 'PRO' || plan === 'ENTERPRISE';
   const t = useTranslations('billing')
   const { isDemo } = useAppContext();
+  const searchParams = useSearchParams();
 
   const [operationTypeFilter, setOperationTypeFilter] = useState<'ALL' | 'income' | 'expense'>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,6 +93,8 @@ export function BillingTable() {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [operationDateFilter, setOperationDateFilter] = useState<Date | undefined>(undefined);
   const [dueDateFilter, setDueDateFilter] = useState<Date | undefined>(undefined);
+  const [monthPresetFilter, setMonthPresetFilter] = useState<string | null>(null);
+  const [overdueFocusFilter, setOverdueFocusFilter] = useState(false);
   const [amountFrom, setAmountFrom] = useState('');
   const [amountTo, setAmountTo] = useState('');
   const [selectedExportFormat, setSelectedExportFormat] = useState<'csv' | 'excel'>('csv');
@@ -138,7 +142,47 @@ export function BillingTable() {
     }
   }, [categoryFilter, categories]);
 
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'income' || typeParam === 'expense') {
+      setOperationTypeFilter(typeParam);
+    }
+
+    if (typeParam === 'ALL') {
+      setOperationTypeFilter('ALL');
+    }
+
+    const statusParam = searchParams.get('status');
+    if (statusParam === 'PENDING' || statusParam === 'PAID' || statusParam === 'OVERDUE') {
+      setStatusFilter(statusParam);
+    }
+
+    if (statusParam === 'ALL') {
+      setStatusFilter('ALL');
+    }
+
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setCategoryFilter(categoryParam);
+    }
+
+    const monthParam = searchParams.get('month');
+    const isMonthParamValid = monthParam ? dayjs(`${monthParam}-01`).isValid() : false;
+    setMonthPresetFilter(isMonthParamValid ? monthParam : null);
+
+    const focusParam = searchParams.get('focus');
+    const isOverdueFocus = focusParam === 'overdue';
+    setOverdueFocusFilter(isOverdueFocus);
+
+    if (isOverdueFocus && !statusParam) {
+      setStatusFilter('ALL');
+    }
+  }, [searchParams]);
+
   const filteredData = useMemo(() => {
+    const todayStart = dayjs().startOf('day');
+    const monthPresetDate = monthPresetFilter ? dayjs(`${monthPresetFilter}-01`) : null;
+
     return operations.filter((operation) => {
       if (operation.isArchived === true) {
         return false;
@@ -157,6 +201,10 @@ export function BillingTable() {
       }
 
       const operationDate = dayjs(operation.date);
+
+      if (monthPresetDate && !operationDate.isSame(monthPresetDate, 'month')) {
+        return false;
+      }
 
       if (operationDateFilter && !operationDate.isSame(dayjs(operationDateFilter), 'day')) {
         return false;
@@ -181,6 +229,20 @@ export function BillingTable() {
         return false;
       }
 
+      if (overdueFocusFilter) {
+        if (!operation.dueDate) {
+          return false;
+        }
+
+        if ((operation.status || 'PENDING') === 'PAID') {
+          return false;
+        }
+
+        if (!dayjs(operation.dueDate).isBefore(todayStart)) {
+          return false;
+        }
+      }
+
       const term = searchTerm.trim().toLowerCase();
 
       if (!term) {
@@ -199,7 +261,7 @@ export function BillingTable() {
 
       return haystack.includes(term);
     })
-  }, [operations, operationTypeFilter, statusFilter, categoryFilter, operationDateFilter, dueDateFilter, amountFrom, amountTo, searchTerm]);
+  }, [operations, operationTypeFilter, statusFilter, categoryFilter, monthPresetFilter, operationDateFilter, dueDateFilter, amountFrom, amountTo, overdueFocusFilter, searchTerm]);
 
   const total = filteredData.reduce((acc, operation) => acc + (operation.type === 'income' ? operation.import : -operation.import), 0)
 
@@ -210,6 +272,8 @@ export function BillingTable() {
     setCategoryFilter('ALL');
     setOperationDateFilter(undefined);
     setDueDateFilter(undefined);
+    setMonthPresetFilter(null);
+    setOverdueFocusFilter(false);
     setAmountFrom('');
     setAmountTo('');
   }
