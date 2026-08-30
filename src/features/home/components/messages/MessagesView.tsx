@@ -31,9 +31,9 @@ import {
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { DialogContainer } from '@/components/DialogContainer'
 import { cn } from '@/lib/utils'
 import FadeLoader from 'react-spinners/FadeLoader'
+import MessageDetailSheet from './MessageDetailSheet'
 import { useGetMessages } from '../../api/use-get-messages'
 import { useGetSentMessages } from '../../api/use-get-sent-messages'
 import { useGetMembers } from '@/features/team/api/use-get-members'
@@ -590,28 +590,16 @@ const MessagesView = () => {
                 )}
             </div>
 
-            {/* Message detail dialog */}
-            <DialogContainer
+            <MessageDetailSheet
+                open={Boolean(openMessage)}
+                onOpenChange={(open: boolean) => {
+                    if (!open) setOpenMessage(null)
+                }}
+                message={openMessage}
                 title={openMessage?.subject?.trim() || t('no-subject')}
-                description={
-                    openMessage
-                        ? `${openMessageIsSent ? t('to') : t('from')}: ${openMessagePersonName}`
-                        : ''
-                }
-                isOpen={Boolean(openMessage)}
-                setIsOpen={(open: boolean) => { if (!open) setOpenMessage(null) }}
-            >
-                {openMessage && (
-                    <div className="space-y-3">
-                        <p className="text-sm whitespace-pre-wrap">{openMessage.content}</p>
-                        <relative-time
-                            lang={locale}
-                            datetime={openMessage.$createdAt}
-                            className="text-muted-foreground text-xs block"
-                        />
-                    </div>
-                )}
-            </DialogContainer>
+                description={openMessage ? `${openMessageIsSent ? t('to') : t('from')}: ${openMessagePersonName}` : ''}
+                locale={locale}
+            />
 
             <CreateMessageModal isOpen={composeOpen} setIsOpen={setComposeOpen} />
             <DeleteDialog />

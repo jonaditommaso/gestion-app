@@ -1,5 +1,4 @@
 'use client'
-import { DialogContainer } from "@/components/DialogContainer"
 import {  Check, MessageSquareText } from "lucide-react" // BellRing,
 
 import { cn } from "@/lib/utils"
@@ -23,6 +22,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation"
 import { useAppContext } from "@/context/AppContext"
 import { useProfilePicture } from "@/hooks/useProfilePicture"
+import MessageDetailSheet from "./MessageDetailSheet"
 
 type CardProps = React.ComponentProps<typeof Card>
 
@@ -160,21 +160,16 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         </CardContent>
       </div>
 
-      <DialogContainer
-        title={selectedMessage?.subject?.trim() || t('no-subject')}
-        description={selectedMessage ? `${t('from')}: ${senderByMembershipId.get(selectedMessage.fromTeamMemberId)?.name || t('unknown-sender')}` : ''}
-        isOpen={Boolean(selectedMessage)}
-        setIsOpen={(open: boolean) => {
+      <MessageDetailSheet
+        open={Boolean(selectedMessage)}
+        onOpenChange={(open: boolean) => {
           if (!open) setSelectedMessage(null);
         }}
-      >
-        {selectedMessage && (
-          <div className="space-y-3">
-            <p className="text-sm whitespace-pre-wrap">{selectedMessage.content}</p>
-            <relative-time lang={locale} datetime={selectedMessage.$createdAt} className="text-muted-foreground text-xs block" />
-          </div>
-        )}
-      </DialogContainer>
+        message={selectedMessage}
+        title={selectedMessage?.subject?.trim() || t('no-subject')}
+        description={selectedMessage ? `${t('from')}: ${senderByMembershipId.get(selectedMessage.fromTeamMemberId)?.name || t('unknown-sender')}` : ''}
+        locale={locale}
+      />
     </Card>
   )
 }
