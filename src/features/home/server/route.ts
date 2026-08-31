@@ -20,6 +20,8 @@ type MessageDocument = Models.Document & {
     teamId: string;
     conversationId?: string;
     replyToMessageId?: string;
+    originalSenderId?: string;
+    forwardedFromMessageId?: string;
     read: boolean;
     featured?: boolean;
     deletedByRecipient?: boolean;
@@ -297,9 +299,25 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { subject, content, toTeamMemberIds } = ctx.req.valid('json');
+            const {
+                subject,
+                content,
+                toTeamMemberIds,
+                ccTeamMemberIds,
+                bccTeamMemberIds,
+                forwardedFromMessageId,
+                originalSenderId,
+            } = ctx.req.valid('json');
 
-            if (!toTeamMemberIds.length || !content || !subject) {
+            const allRecipientIds = [
+                ...new Set([
+                    ...toTeamMemberIds,
+                    ...ccTeamMemberIds,
+                    ...bccTeamMemberIds,
+                ].filter(Boolean)),
+            ];
+
+            if (!allRecipientIds.length || !content || !subject) {
                 return ctx.json({ error: 'Cannot create the message' }, 400)
             }
 
@@ -318,21 +336,40 @@ const app = new Hono()
 
             const fromTeamMemberId = currentMembership.$id;
 
-            // Crear un mensaje para cada destinatario
+            // Crear un mensaje para cada destinatario (To/CC/BCC)
             await Promise.all(
-                toTeamMemberIds.map(async (toTeamMemberId) => {
+                allRecipientIds.map(async (toTeamMemberId) => {
+                    const payload: {
+                        read: boolean;
+                        subject: string;
+                        content: string;
+                        toTeamMemberId: string;
+                        fromTeamMemberId: string;
+                        teamId: string;
+                        originalSenderId?: string;
+                        forwardedFromMessageId?: string;
+                    } = {
+                        read: false,
+                        subject,
+                        content,
+                        toTeamMemberId,
+                        fromTeamMemberId,
+                        teamId: resolvedTeamId,
+                    };
+
+                    if (forwardedFromMessageId) {
+                        payload.forwardedFromMessageId = forwardedFromMessageId;
+                    }
+
+                    if (originalSenderId) {
+                        payload.originalSenderId = originalSenderId;
+                    }
+
                     await databases.createDocument(
                         DATABASE_ID,
                         MESSAGES_ID,
                         ID.unique(),
-                        {
-                            read: false,
-                            subject,
-                            content,
-                            toTeamMemberId,
-                            fromTeamMemberId,
-                            teamId: resolvedTeamId
-                        }
+                        payload
                     );
                 })
             );

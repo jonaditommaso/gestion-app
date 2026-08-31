@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { Loader2, Reply, Send, Star } from 'lucide-react'
+import { ReplyAll, Loader2, Reply, Send, Star } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Message } from './types'
 
@@ -29,6 +29,7 @@ interface MessageDetailSheetProps {
   senderMap?: Map<string, string>
   showReplyComposer?: boolean
   onSendReply?: (targetMessageId: string, content: string) => Promise<boolean> | boolean
+  onForward?: (message: Message) => void
   onToggleFeatured?: (id: string, featured: boolean) => void
   getFeaturedValue?: (message: Message) => boolean
   isSendingReply?: boolean
@@ -48,6 +49,7 @@ const MessageDetailSheet = ({
   senderMap,
   showReplyComposer = false,
   onSendReply,
+  onForward,
   onToggleFeatured,
   getFeaturedValue,
   isSendingReply = false,
@@ -203,6 +205,16 @@ const MessageDetailSheet = ({
                           className={cn('h-7 w-7', isReplyTarget && 'text-primary')}
                         >
                           <Reply size={14} />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => onForward?.(item)}
+                          aria-label={t('forward')}
+                          className="h-7 w-7"
+                        >
+                          <ReplyAll size={14} className='scale-x-[-1]' />
                         </Button>
                         <Button
                           type="button"

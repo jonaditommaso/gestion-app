@@ -21,11 +21,12 @@ import { useReplyMessage } from "../../api/use-reply-message"
 import { useGetMessageConversation } from "../../api/use-get-message-conversation"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Message } from './types';
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation"
 import { useAppContext } from "@/context/AppContext"
 import { useProfilePicture } from "@/hooks/useProfilePicture"
 import MessageDetailSheet from "./MessageDetailSheet"
+import CreateMessageModal from "./CreateMessageModal";
 
 type CardProps = React.ComponentProps<typeof Card>
 
@@ -67,9 +68,17 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const t = useTranslations('home');
   const router = useRouter();
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [forwardMessage, setForwardMessage] = useState<Message | null>(null);
+  const [forwardModalOpen, setForwardModalOpen] = useState(false);
   const [focusComposerKey] = useState(0);
   const [featuredOverrides, setFeaturedOverrides] = useState<Map<string, boolean>>(new Map());
   const { isDemo } = useAppContext();
+
+  useEffect(() => {
+    if (!forwardModalOpen) {
+      setForwardMessage(null);
+    }
+  }, [forwardModalOpen]);
 
   const senderByMembershipId = useMemo(() => {
     const map = new Map<string, MessageSenderInfo>();
@@ -182,6 +191,11 @@ export function MessagesContainer({ className, ...props }: CardProps) {
     }
   };
 
+  const handleForwardMessage = (message: Message) => {
+    setForwardMessage(message);
+    setForwardModalOpen(true);
+  };
+
   return (
     <Card className={cn("col-span-1 h-fit", className)} {...props}>
       <CardHeader className="flex flex-row items-start justify-between gap-3">
@@ -261,12 +275,22 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         senderMap={senderMap}
         showReplyComposer
         onSendReply={handleSendReply}
+        onForward={handleForwardMessage}
         onToggleFeatured={handleFeature}
         getFeaturedValue={getFeaturedValue}
         isSendingReply={isReplying}
         focusComposerKey={focusComposerKey}
         isConversationLoading={isConversationLoading}
       />
+
+      {forwardModalOpen && (
+        <CreateMessageModal
+          isOpen={forwardModalOpen}
+          setIsOpen={setForwardModalOpen}
+          forwardMessage={forwardMessage}
+          forwardSenderName={forwardMessage ? senderMap.get(forwardMessage.fromTeamMemberId) || t('unknown-sender') : undefined}
+        />
+      )}
     </Card>
   )
 }

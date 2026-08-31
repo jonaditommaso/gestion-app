@@ -17,7 +17,21 @@ export const notesSchema = zod.object({
 export const messagesSchema = zod.object({
     subject: zod.string().trim().min(1, 'Required').max(100, 'Max 100 chars'),
     content: zod.string().trim().min(1, 'Required'),
-    toTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).min(1, 'At least one recipient is required'),
+    toTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),
+    ccTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),
+    bccTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),
+    forwardedFromMessageId: zod.string().trim().min(1, 'Required').optional(),
+    originalSenderId: zod.string().trim().min(1, 'Required').optional(),
+}).superRefine((value, ctx) => {
+    const recipientsCount = value.toTeamMemberIds.length + value.ccTeamMemberIds.length + value.bccTeamMemberIds.length;
+
+    if (recipientsCount === 0) {
+        ctx.addIssue({
+            code: zod.ZodIssueCode.custom,
+            path: ['toTeamMemberIds'],
+            message: 'At least one recipient is required',
+        });
+    }
 })
 
 export const replyMessageSchema = zod.object({

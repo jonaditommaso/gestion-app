@@ -66,6 +66,7 @@ const MessagesView = () => {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
     const [openMessage, setOpenMessage] = useState<Message | null>(null)
     const [composeOpen, setComposeOpen] = useState(false)
+    const [forwardMessage, setForwardMessage] = useState<Message | null>(null)
     const [focusComposerKey, setFocusComposerKey] = useState(0)
     const [featuredOverrides, setFeaturedOverrides] = useState<Map<string, boolean>>(new Map())
     const [readOverrides, setReadOverrides] = useState<Map<string, boolean>>(new Map())
@@ -131,6 +132,12 @@ const MessagesView = () => {
             return next
         })
     }, [allReceived, allSent])
+
+    useEffect(() => {
+        if (!composeOpen) {
+            setForwardMessage(null)
+        }
+    }, [composeOpen])
 
     const sentIds = useMemo(
         () => new Set(allSent.map(m => m.$id)),
@@ -357,6 +364,16 @@ const MessagesView = () => {
         }
     }
 
+    const handleOpenCompose = () => {
+        setForwardMessage(null)
+        setComposeOpen(true)
+    }
+
+    const handleForwardMessage = (message: Message) => {
+        setForwardMessage(message)
+        setComposeOpen(true)
+    }
+
     const peopleOptions = useMemo(() => {
         const ids = new Set<string>()
         if (activeTab === 'inbox' || activeTab === 'all') {
@@ -429,7 +446,7 @@ const MessagesView = () => {
                         variant="default"
                         size="sm"
                         className="mb-1 gap-1.5"
-                        onClick={() => setComposeOpen(true)}
+                        onClick={handleOpenCompose}
                     >
                         <Pencil size={14} />
                         {t('compose')}
@@ -657,6 +674,7 @@ const MessagesView = () => {
                 senderMap={senderMap}
                 showReplyComposer
                 onSendReply={handleSendReply}
+                onForward={handleForwardMessage}
                 onToggleFeatured={handleFeature}
                 getFeaturedValue={getFeaturedValue}
                 isSendingReply={isReplying}
@@ -664,7 +682,14 @@ const MessagesView = () => {
                 isConversationLoading={isConversationLoading}
             />
 
-            <CreateMessageModal isOpen={composeOpen} setIsOpen={setComposeOpen} />
+            {composeOpen && (
+                <CreateMessageModal
+                    isOpen={composeOpen}
+                    setIsOpen={setComposeOpen}
+                    forwardMessage={forwardMessage}
+                    forwardSenderName={forwardMessage ? senderMap.get(forwardMessage.fromTeamMemberId) || t('unknown') : undefined}
+                />
+            )}
             <DeleteDialog />
         </div>
     )

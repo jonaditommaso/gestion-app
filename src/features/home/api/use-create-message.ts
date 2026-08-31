@@ -24,9 +24,17 @@ export const useCreateMessage = () => {
             if (isDemo) {
                 const toIds = Array.isArray(json.toTeamMemberIds)
                     ? json.toTeamMemberIds as string[]
-                    : [json.toTeamMemberIds as string];
+                    : [];
+                const ccIds = Array.isArray(json.ccTeamMemberIds)
+                    ? json.ccTeamMemberIds as string[]
+                    : [];
+                const bccIds = Array.isArray(json.bccTeamMemberIds)
+                    ? json.bccTeamMemberIds as string[]
+                    : [];
 
-                for (const toId of toIds) {
+                const recipientIds = [...new Set([...toIds, ...ccIds, ...bccIds])];
+
+                for (const toId of recipientIds) {
                     const msg: Message = {
                         $id: `demo-msg-sent-${Date.now()}-${toId}`,
                         $createdAt: new Date().toISOString(),
@@ -39,6 +47,8 @@ export const useCreateMessage = () => {
                         fromTeamMemberId: DEMO_TEAM_MEM_YOU_ID,
                         toTeamMemberId: toId,
                         teamId: 'demo-team-id',
+                        originalSenderId: json.originalSenderId as string | undefined,
+                        forwardedFromMessageId: json.forwardedFromMessageId as string | undefined,
                         read: false,
                     };
                     addMessage(msg);

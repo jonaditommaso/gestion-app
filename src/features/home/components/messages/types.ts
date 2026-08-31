@@ -6,6 +6,8 @@ export type Message = {
     teamId: string;
     conversationId?: string;
     replyToMessageId?: string;
+    originalSenderId?: string;
+    forwardedFromMessageId?: string;
     read: boolean;
     featured?: boolean;
     deletedByRecipient?: boolean;
