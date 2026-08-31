@@ -20,6 +20,10 @@ export const messagesSchema = zod.object({
     toTeamMemberIds: zod.array(zod.string().trim().min(1, 'Required')).min(1, 'At least one recipient is required'),
 })
 
+export const replyMessageSchema = zod.object({
+    content: zod.string().trim().min(1, 'Required'),
+})
+
 export const unreadMessagesSchema = zod.object({
     unreadMessages: zod.array(
         zod.object({

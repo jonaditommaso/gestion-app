@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
-import { Client, Databases, ID, Query } from "node-appwrite";
-import { DATABASE_ID, DEAL_COMMENTS_ID, DEAL_SELLERS_ID, DEALS_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MEMBERS_ID, MESSAGES_ID, NOTES_ID, TASK_ACTIVITY_LOGS_ID, TASKS_ID, USER_HOME_CONFIG_ID, WORKSPACES_ID } from "@/config";
-import { meetSchema, messagesSchema, notesSchema, shortcutSchema, unreadMessagesSchema, updateMessageSchema } from "../schemas";
+import { Client, Databases, ID, Models, Query } from "node-appwrite";
+import { CONVERSATIONS_ID, DATABASE_ID, DEAL_COMMENTS_ID, DEAL_SELLERS_ID, DEALS_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MEMBERS_ID, MESSAGES_ID, NOTES_ID, TASK_ACTIVITY_LOGS_ID, TASKS_ID, USER_HOME_CONFIG_ID, WORKSPACES_ID } from "@/config";
+import { meetSchema, messagesSchema, notesSchema, replyMessageSchema, shortcutSchema, unreadMessagesSchema, updateMessageSchema } from "../schemas";
 import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
 import { getActiveContext } from "@/features/team/server/utils";
@@ -12,8 +12,21 @@ import { cookies } from "next/headers";
 import { setCookie } from "hono/cookie";
 import dayjs from "dayjs";
 
-const app = new Hono()
+type MessageDocument = Models.Document & {
+    subject?: string;
+    content: string;
+    toTeamMemberId: string;
+    fromTeamMemberId: string;
+    teamId: string;
+    conversationId?: string;
+    replyToMessageId?: string;
+    read: boolean;
+    featured?: boolean;
+    deletedByRecipient?: boolean;
+    deletedBySender?: boolean;
+};
 
+const app = new Hono()
     .get(
         '/home-config',
         sessionMiddleware,
@@ -328,6 +341,124 @@ const app = new Hono()
         }
     )
 
+    .post(
+        '/messages/:messageId/reply',
+        zValidator('json', replyMessageSchema),
+        sessionMiddleware,
+        demoGuard,
+        async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
+            const { messageId } = ctx.req.param();
+            const { content } = ctx.req.valid('json');
+
+            const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
+            if (!msgContext) return ctx.json({ error: 'No active organization' }, 400);
+
+            const { teams } = await createAdminClient();
+            const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
+            const currentMembership = memberships.find(m => m.userId === user.$id);
+
+            if (!currentMembership) {
+                return ctx.json({ error: 'User is not a member of this team' }, 403);
+            }
+
+            const message = await databases.getDocument(
+                DATABASE_ID,
+                MESSAGES_ID,
+                messageId
+            ) as MessageDocument;
+
+            if (message.teamId !== msgContext.org.$id) {
+                return ctx.json({ error: 'Forbidden' }, 403);
+            }
+
+            const isRecipient = message.toTeamMemberId === currentMembership.$id;
+            const isSender = message.fromTeamMemberId === currentMembership.$id;
+
+            if (!isRecipient && !isSender) {
+                return ctx.json({ error: 'Forbidden' }, 403);
+            }
+
+            let rootMessage: MessageDocument = message;
+            if (message.conversationId) {
+                const rootMessageResult = await databases.listDocuments(
+                    DATABASE_ID,
+                    MESSAGES_ID,
+                    [
+                        Query.equal('conversationId', message.conversationId),
+                        Query.orderAsc('$createdAt'),
+                        Query.limit(1),
+                    ]
+                );
+
+                const firstMessage = rootMessageResult.documents[0] as MessageDocument | undefined;
+                if (firstMessage) {
+                    rootMessage = firstMessage;
+                }
+            }
+
+            const rootSubject = (rootMessage.subject ?? message.subject ?? '').trim() || 'No subject';
+            let conversationId = message.conversationId;
+
+            if (!conversationId) {
+                const createdConversation = await databases.createDocument(
+                    DATABASE_ID,
+                    CONVERSATIONS_ID,
+                    ID.unique(),
+                    {
+                        teamId: message.teamId,
+                        subject: rootSubject,
+                    }
+                );
+
+                conversationId = createdConversation.$id;
+
+                await databases.updateDocument(
+                    DATABASE_ID,
+                    MESSAGES_ID,
+                    rootMessage.$id,
+                    { conversationId }
+                );
+
+                if (message.$id !== rootMessage.$id) {
+                    await databases.updateDocument(
+                        DATABASE_ID,
+                        MESSAGES_ID,
+                        message.$id,
+                        { conversationId }
+                    );
+                }
+            }
+
+            const toTeamMemberId = isRecipient ? message.fromTeamMemberId : message.toTeamMemberId;
+
+            const createdReply = await databases.createDocument(
+                DATABASE_ID,
+                MESSAGES_ID,
+                ID.unique(),
+                {
+                    read: false,
+                    subject: rootSubject,
+                    content,
+                    toTeamMemberId,
+                    fromTeamMemberId: currentMembership.$id,
+                    teamId: message.teamId,
+                    conversationId,
+                    replyToMessageId: message.$id,
+                }
+            );
+
+            return ctx.json({
+                data: {
+                    conversationId,
+                    rootMessageId: rootMessage.$id,
+                    message: createdReply,
+                }
+            });
+        }
+    )
+
     .get(
         '/messages',
         sessionMiddleware,
@@ -420,6 +551,101 @@ const app = new Hono()
             );
 
             return ctx.json({ data: messages });
+        }
+    )
+
+    .get(
+        '/messages/:messageId/conversation',
+        sessionMiddleware,
+        async ctx => {
+            const databases = ctx.get('databases');
+            const user = ctx.get('user');
+            const { messageId } = ctx.req.param();
+
+            const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
+            if (!msgContext) return ctx.json({ data: { conversationId: null, selectedMessageId: messageId, messages: [] } });
+
+            const { teams } = await createAdminClient();
+            const { memberships } = await teams.listMemberships(msgContext.org.appwriteTeamId);
+            const currentMembership = memberships.find(m => m.userId === user.$id);
+
+            if (!currentMembership) {
+                return ctx.json({ data: { conversationId: null, selectedMessageId: messageId, messages: [] } });
+            }
+
+            const selectedMessage = await databases.getDocument(
+                DATABASE_ID,
+                MESSAGES_ID,
+                messageId
+            ) as MessageDocument;
+
+            if (selectedMessage.teamId !== msgContext.org.$id) {
+                return ctx.json({ error: 'Forbidden' }, 403);
+            }
+
+            const selectedIsRecipient = selectedMessage.toTeamMemberId === currentMembership.$id;
+            const selectedIsSender = selectedMessage.fromTeamMemberId === currentMembership.$id;
+
+            if (!selectedIsRecipient && !selectedIsSender) {
+                return ctx.json({ error: 'Forbidden' }, 403);
+            }
+
+            if (!selectedMessage.conversationId) {
+                return ctx.json({
+                    data: {
+                        conversationId: null,
+                        selectedMessageId: messageId,
+                        messages: [selectedMessage],
+                    }
+                });
+            }
+
+            const limit = 100;
+            const allMessages: MessageDocument[] = [];
+            let offset = 0;
+            let total = 0;
+
+            do {
+                const page = await databases.listDocuments(
+                    DATABASE_ID,
+                    MESSAGES_ID,
+                    [
+                        Query.equal('conversationId', selectedMessage.conversationId),
+                        Query.orderAsc('$createdAt'),
+                        Query.limit(limit),
+                        Query.offset(offset),
+                    ]
+                );
+
+                total = page.total;
+
+                const pageMessages = page.documents as MessageDocument[];
+                if (pageMessages.length === 0) {
+                    break;
+                }
+
+                allMessages.push(...pageMessages);
+                offset += pageMessages.length;
+            } while (allMessages.length < total);
+
+            const visibleMessages = allMessages.filter(message => {
+                const isRecipient = message.toTeamMemberId === currentMembership.$id;
+                const isSender = message.fromTeamMemberId === currentMembership.$id;
+
+                if (!isRecipient && !isSender) return false;
+                if (isRecipient && message.deletedByRecipient) return false;
+                if (isSender && message.deletedBySender) return false;
+
+                return true;
+            });
+
+            return ctx.json({
+                data: {
+                    conversationId: selectedMessage.conversationId,
+                    selectedMessageId: messageId,
+                    messages: visibleMessages,
+                }
+            });
         }
     )
 

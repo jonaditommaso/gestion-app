@@ -3732,7 +3732,11 @@
         "no-subject": "Nessun oggetto",
         "unknown": "Sconosciuto",
         "from": "Da",
-        "to": "Per"
+        "to": "Per",
+        "reply": "Rispondi",
+        "reply-placeholder": "Scrivi la tua risposta...",
+        "send-reply": "Invia risposta",
+        "reply-latest": "Rispondi all'ultimo"
     },
     "common": {
         "cancel": "Annulla",

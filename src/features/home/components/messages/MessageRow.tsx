@@ -2,7 +2,7 @@
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { Loader2, MailOpen, Star, Trash2 } from 'lucide-react'
+import { Loader2, MailOpen, Reply, Star, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Message } from './types'
 import '@github/relative-time-element'
@@ -15,6 +15,7 @@ interface MessageRowProps {
     selected: boolean
     onSelect: (id: string) => void
     onOpen: (message: Message) => void
+    onReply: (message: Message) => void
     onFeature: (id: string, featured: boolean) => void
     onDelete: (id: string) => void
     locale: string
@@ -33,6 +34,7 @@ const MessageRow = ({
     selected,
     onSelect,
     onOpen,
+    onReply,
     onFeature,
     onDelete,
     locale,
@@ -104,6 +106,17 @@ const MessageRow = ({
                     className="text-xs text-muted-foreground shrink-0 whitespace-nowrap"
                 />
             </button>
+
+            <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground h-7 w-7"
+                onClick={e => { e.stopPropagation(); onReply(message) }}
+                aria-label={t('reply')}
+            >
+                <Reply size={14} />
+            </Button>
 
             <Button
                 type="button"

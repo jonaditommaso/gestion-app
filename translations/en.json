@@ -3742,7 +3742,11 @@
         "no-subject": "No subject",
         "unknown": "Unknown",
         "from": "From",
-        "to": "To"
+        "to": "To",
+        "reply": "Reply",
+        "reply-placeholder": "Write your reply...",
+        "send-reply": "Send reply",
+        "reply-latest": "Reply to latest"
     },
     "common": {
         "cancel": "Cancel",

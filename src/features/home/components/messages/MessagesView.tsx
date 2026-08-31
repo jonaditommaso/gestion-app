@@ -38,6 +38,8 @@ import { useGetMessages } from '../../api/use-get-messages'
 import { useGetSentMessages } from '../../api/use-get-sent-messages'
 import { useGetMembers } from '@/features/team/api/use-get-members'
 import { useUpdateMessage } from '../../api/use-update-message'
+import { useReplyMessage } from '../../api/use-reply-message'
+import { useGetMessageConversation } from '../../api/use-get-message-conversation'
 import { Message } from './types'
 import MessageRow from './MessageRow'
 import CreateMessageModal from './CreateMessageModal'
@@ -53,6 +55,7 @@ const MessagesView = () => {
     const { data: sentData, isPending: loadingSent } = useGetSentMessages()
     const { data: teamData } = useGetMembers()
     const { mutate: updateMessage } = useUpdateMessage()
+    const { mutateAsync: replyMessage, isPending: isReplying } = useReplyMessage()
 
     const [activeTab, setActiveTab] = useState<Tab>('inbox')
     const [search, setSearch] = useState('')
@@ -63,6 +66,7 @@ const MessagesView = () => {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
     const [openMessage, setOpenMessage] = useState<Message | null>(null)
     const [composeOpen, setComposeOpen] = useState(false)
+    const [focusComposerKey, setFocusComposerKey] = useState(0)
     const [featuredOverrides, setFeaturedOverrides] = useState<Map<string, boolean>>(new Map())
     const [readOverrides, setReadOverrides] = useState<Map<string, boolean>>(new Map())
     const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set())
@@ -132,6 +136,11 @@ const MessagesView = () => {
         () => new Set(allSent.map(m => m.$id)),
         [allSent]
     )
+
+    const { data: openConversation, isPending: isConversationPending } = useGetMessageConversation({
+        messageId: openMessage?.$id ?? null,
+        enabled: Boolean(openMessage?.conversationId),
+    })
 
     const messages = useMemo(() => {
         let list: Message[] = []
@@ -312,8 +321,12 @@ const MessagesView = () => {
         setSelectedIds(new Set())
     }
 
-    const handleOpenMessage = (message: Message) => {
+    const handleOpenMessage = (message: Message, options?: { focusReplyComposer?: boolean }) => {
         setOpenMessage(message)
+        if (options?.focusReplyComposer) {
+            setFocusComposerKey(prev => prev + 1)
+        }
+
         const isReceivedMsg = allReceived.some(m => m.$id === message.$id)
         const readValue = readOverrides.has(message.$id)
             ? readOverrides.get(message.$id)!
@@ -321,6 +334,26 @@ const MessagesView = () => {
 
         if (!readValue && isReceivedMsg) {
             handleMarkRead(message.$id)
+        }
+    }
+
+    const handleSendReply = async (targetMessageId: string, content: string): Promise<boolean> => {
+        if (!targetMessageId) return false
+
+        try {
+            const response = await replyMessage({
+                param: { messageId: targetMessageId },
+                json: { content: content.trim() },
+            })
+
+            const conversationId = response.data?.conversationId
+            if (conversationId) {
+                setOpenMessage(prev => prev ? { ...prev, conversationId } : prev)
+            }
+
+            return true
+        } catch {
+            return false
         }
     }
 
@@ -358,6 +391,27 @@ const MessagesView = () => {
         ? (openMessageIsSent ? openMessage.toTeamMemberId : openMessage.fromTeamMemberId)
         : ''
     const openMessagePersonName = senderMap.get(openMessagePersonId) || t('unknown')
+
+    const drawerConversationMessages = useMemo(() => {
+        if (!openMessage) return []
+        if (!openMessage.conversationId) {
+            return [openMessage]
+        }
+
+        if (openConversation?.messages && openConversation.messages.length > 0) {
+            return openConversation.messages
+        }
+
+        return []
+    }, [openConversation, openMessage])
+
+    const isConversationLoading = Boolean(openMessage?.conversationId) && isConversationPending && !openConversation
+
+    const getFeaturedValue = (message: Message) => {
+        return featuredOverrides.has(message.$id)
+            ? featuredOverrides.get(message.$id)!
+            : (message.featured ?? false)
+    }
 
     const tabs = [
         { tab: 'all' as Tab, icon: Mails, label: t('all'), count: undefined as number | undefined },
@@ -557,9 +611,7 @@ const MessagesView = () => {
                                     sentIds.has(message.$id) &&
                                     !allReceived.some(m => m.$id === message.$id))
 
-                            const featuredValue = featuredOverrides.has(message.$id)
-                                ? featuredOverrides.get(message.$id)!
-                                : (message.featured ?? false)
+                            const featuredValue = getFeaturedValue(message)
 
                             const readValue = readOverrides.has(message.$id)
                                 ? readOverrides.get(message.$id)!
@@ -574,6 +626,7 @@ const MessagesView = () => {
                                     selected={selectedIds.has(message.$id)}
                                     onSelect={toggleSelect}
                                     onOpen={handleOpenMessage}
+                                    onReply={msg => handleOpenMessage(msg, { focusReplyComposer: true })}
                                     onFeature={handleFeature}
                                     onDelete={handleDelete}
                                     locale={locale}
@@ -599,6 +652,16 @@ const MessagesView = () => {
                 title={openMessage?.subject?.trim() || t('no-subject')}
                 description={openMessage ? `${openMessageIsSent ? t('to') : t('from')}: ${openMessagePersonName}` : ''}
                 locale={locale}
+                conversationMessages={drawerConversationMessages}
+                selectedMessageId={openMessage?.$id}
+                senderMap={senderMap}
+                showReplyComposer
+                onSendReply={handleSendReply}
+                onToggleFeatured={handleFeature}
+                getFeaturedValue={getFeaturedValue}
+                isSendingReply={isReplying}
+                focusComposerKey={focusComposerKey}
+                isConversationLoading={isConversationLoading}
             />
 
             <CreateMessageModal isOpen={composeOpen} setIsOpen={setComposeOpen} />

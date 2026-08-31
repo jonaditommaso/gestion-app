@@ -3742,7 +3742,11 @@
         "no-subject": "Sin asunto",
         "unknown": "Desconocido",
         "from": "De",
-        "to": "Para"
+        "to": "Para",
+        "reply": "Responder",
+        "reply-placeholder": "Escribe tu respuesta...",
+        "send-reply": "Enviar respuesta",
+        "reply-latest": "Responder al último"
     },
     "common": {
         "cancel": "Cancelar",
