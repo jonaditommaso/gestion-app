@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader, PlusIcon } from "lucide-react";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import CreateTaskFormWrapper from "./CreateTaskFormWrapper";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useGetTasks } from "../api/use-get-tasks";
@@ -21,6 +21,8 @@ import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-pe
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { useAppContext } from "@/context/AppContext";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import DataGantt from "./DataGantt";
 
 interface TaskSwitcherProps {
     openSettings: () => void;
@@ -35,9 +37,12 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     const [localSearch, setLocalSearch] = useState('');
     const t = useTranslations('workspaces');
     const { canCreateTask } = useWorkspacePermissions();
-    const { hasPermission } = useCurrentUserPermissions();
+    const { hasPermission, hasGranularPermission } = useCurrentUserPermissions();
+    const { plan } = usePlanAccess();
     const { isDemo } = useAppContext();
     const canWrite = hasPermission(PERMISSIONS.WRITE);
+
+    const canViewGantt = plan !== 'FREE' && hasGranularPermission('view_gantt_workspaces');
 
     const [{
         status,
@@ -91,7 +96,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
             </DialogContainer>
             <Tabs
                 className="flex-1 w-full border rounded-lg "
-                defaultValue={currentTab}
+                value={currentTab}
                 onValueChange={setCurrentTab}
             >
                 <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'} min-h-0`}>
@@ -106,6 +111,11 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                             <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto bg-background">
                                 {t('calendar')}
                             </TabsTrigger>
+                            {canViewGantt && (
+                                <TabsTrigger value="gantt" className="h-8 w-full lg:w-auto bg-background">
+                                    {t('gantt')}
+                                </TabsTrigger>
+                            )}
                         </TabsList>
                         {canWrite && canCreateTask && (
                             <Button
@@ -149,6 +159,11 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                             <TabsContent value="calendar" className="mt-0 h-full pb-4">
                                 <DataCalendar data={filteredTasks as Task[]} />
                             </TabsContent>
+                            {canViewGantt && (
+                                <TabsContent value="gantt" className="mt-0 h-full pb-4">
+                                    <DataGantt data={filteredTasks as Task[]} />
+                                </TabsContent>
+                            )}
                         </>
 
                     )}
