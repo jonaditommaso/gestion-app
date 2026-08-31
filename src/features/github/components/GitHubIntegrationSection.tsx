@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GitBranch, Github, Link, Plus, Trash2, RefreshCw, Loader2 } from "lucide-react";
+import { Link, Plus, Trash2, RefreshCw, Loader2 } from "lucide-react";
+import { FiGithub } from "react-icons/fi";
 import { useGetGithubStatus } from "../api/use-get-github-status";
 import { useDisconnectGithub } from "../api/use-disconnect-github";
 import { useAddGithubRepo } from "../api/use-add-github-repo";
@@ -112,11 +113,11 @@ export const GitHubIntegrationSection = ({ workspaceId, canWrite }: GitHubIntegr
                             <Avatar className="size-8">
                                 <AvatarImage src={status.connection!.avatarUrl} />
                                 <AvatarFallback className="bg-neutral-900 dark:bg-neutral-800">
-                                    <Github className="size-4 text-white" />
+                                    <FiGithub className="size-4 text-white" />
                                 </AvatarFallback>
                             </Avatar>
                             <div className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-neutral-900 dark:bg-neutral-800 ring-2 ring-background">
-                                <Github className="size-2.5 text-white" />
+                                <FiGithub className="size-2.5 text-white" />
                             </div>
                         </div>
                         <div>
@@ -140,7 +141,7 @@ export const GitHubIntegrationSection = ({ workspaceId, canWrite }: GitHubIntegr
             ) : (
                 <div className="flex items-center justify-between rounded-lg border border-dashed p-3">
                     <div className="flex items-center gap-3">
-                        <Github className="size-5 text-muted-foreground" />
+                        <FiGithub className="size-5 text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">{t('github-not-connected')}</p>
                     </div>
                     {canWrite && !isFree && (
@@ -196,7 +197,7 @@ export const GitHubIntegrationSection = ({ workspaceId, canWrite }: GitHubIntegr
                                                             onSelect={() => handleAddRepo(repo)}
                                                             className="cursor-pointer"
                                                         >
-                                                            <GitBranch className="size-4 mr-2 shrink-0 text-muted-foreground" />
+                                                            <FiGithub className="size-4 mr-2 shrink-0 text-muted-foreground" />
                                                             <span className="truncate">{repo.fullName}</span>
                                                             {repo.private && (
                                                                 <Badge variant="outline" className="ml-auto text-xs shrink-0">
@@ -228,7 +229,7 @@ export const GitHubIntegrationSection = ({ workspaceId, canWrite }: GitHubIntegr
                             {(status.repos ?? []).map(repo => (
                                 <li key={repo.id} className="flex items-center justify-between rounded-md border px-3 py-2">
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <GitBranch className="size-4 text-muted-foreground shrink-0" />
+                                        <FiGithub className="size-4 text-muted-foreground shrink-0" />
                                         <div className="min-w-0">
                                             <p className="text-sm font-medium truncate">{repo.fullName}</p>
                                             {repo.description && (

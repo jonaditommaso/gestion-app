@@ -6,7 +6,8 @@ import { useAppContext } from "@/context/AppContext";
 import { useProfilePicture } from "@/hooks/useProfilePicture";
 import { format } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
-import { Cake, Linkedin, MessageSquareText, Pencil } from "lucide-react";
+import { Cake, MessageSquareText, Pencil } from "lucide-react";
+import { FaLinkedin } from "react-icons/fa";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
@@ -162,7 +163,7 @@ const MemberCard = ({ memberId, name, email, position, tags = [], userId, image,
                                         rel="noopener noreferrer"
                                         className="cursor-pointer bg-transparent hover:bg-secondary rounded-full p-1.5 transition-colors"
                                     >
-                                        <Linkedin className="size-4 text-blue-600" />
+                                        <FaLinkedin className="size-4 text-blue-600" />
                                     </a>
                                 )}
                                 {birthdayFormatted && (
