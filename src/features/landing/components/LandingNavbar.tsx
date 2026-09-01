@@ -248,6 +248,11 @@ const getSurfaceLuminanceBelowNavbar = (): number | null => {
   return getMedian(luminanceSamples)
 }
 
+type ListItemProps = Omit<React.ComponentPropsWithoutRef<typeof Link>, 'title'> & {
+  icon?: React.ReactNode;
+  title: React.ReactNode;
+}
+
 export function LandingNavbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -533,15 +538,16 @@ export function LandingNavbar() {
   )
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { icon?: React.ReactNode; title: React.ReactNode }
->(({ className, title, icon, children, ...props }, ref) => {
+const ListItem = React.forwardRef<HTMLAnchorElement, ListItemProps>(({ className, title, icon, children, href, ...props }, ref) => {
+  const shouldScrollTop = typeof href === 'string' ? !href.includes('#') : true
+
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a
+        <Link
           ref={ref}
+          href={href}
+          scroll={shouldScrollTop}
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             className
@@ -554,7 +560,7 @@ const ListItem = React.forwardRef<
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>
-        </a>
+        </Link>
       </NavigationMenuLink>
     </li>
   )
