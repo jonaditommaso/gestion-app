@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from '@hono/zod-validator';
 import { ID, Query } from "node-appwrite";
 import { getNextService } from "@/ai";
-import { ChatMessage } from "@/ai/types";
+import type { AIService, ChatMessage } from "@/ai/types";
 import { chatWithTools } from "@/ai/function-calling";
 import { PLUS_TOOLS } from "@/ai/tools/index";
 import { executeAction } from "@/ai/handlers";
@@ -13,6 +13,69 @@ import { createConversationSchema, sendChatMessageSchema } from "../schemas";
 import { getActiveContext } from "@/features/team/server/utils";
 import { DEFAULT_ROLE_PERMISSIONS } from "@/features/roles/constants";
 import type { MembershipRole } from "@/features/team/types";
+
+const MAX_CONVERSATION_TITLE_LENGTH = 100;
+const TITLE_AI_INPUT_MAX_LENGTH = 2200;
+const FALLBACK_CONVERSATION_TITLE = 'New conversation';
+
+function sanitizeConversationTitle(title: string): string {
+    return title
+        .replace(/[\r\n]+/g, ' ')
+        .replace(/^\s*(?:title|título)\s*[:\-]\s*/i, '')
+        .replace(/^["'`]+|["'`]+$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, MAX_CONVERSATION_TITLE_LENGTH);
+}
+
+function buildFallbackConversationTitle(messages: ChatMessage[]): string {
+    const firstUserMessage = messages.find((message) => message.role === 'user');
+    const fallbackFromMessage = sanitizeConversationTitle(firstUserMessage?.content ?? '');
+    return fallbackFromMessage || FALLBACK_CONVERSATION_TITLE;
+}
+
+async function generateConversationTitle(service: AIService, messages: ChatMessage[]): Promise<string> {
+    const fallbackTitle = buildFallbackConversationTitle(messages);
+    const userContext = messages
+        .filter((message) => message.role === 'user')
+        .map((message, index) => `Mensaje ${index + 1}: ${message.content.trim()}`)
+        .join('\n')
+        .slice(0, TITLE_AI_INPUT_MAX_LENGTH);
+
+    if (!userContext) {
+        return fallbackTitle;
+    }
+
+    try {
+        const titlePrompt: ChatMessage[] = [
+            {
+                role: 'system',
+                content: 'Genera un titulo breve y claro para esta conversacion. Debe reflejar el tema principal, mantener el idioma de la conversacion y tener entre 3 y 7 palabras. Responde unicamente con el titulo, sin comillas ni explicaciones.'
+            },
+            {
+                role: 'user',
+                content: `Mensajes:\n${userContext}`
+            }
+        ];
+
+        const stream = await service.chat(titlePrompt);
+        let rawTitle = '';
+
+        for await (const chunk of stream) {
+            if (!chunk) continue;
+            rawTitle += chunk;
+            if (rawTitle.length >= MAX_CONVERSATION_TITLE_LENGTH + 40) break;
+        }
+
+        const sanitized = sanitizeConversationTitle(rawTitle);
+        return sanitized || fallbackTitle;
+    } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+            console.error('[CHAT] Failed to generate AI title, using fallback:', error);
+        }
+        return fallbackTitle;
+    }
+}
 
 const app = new Hono()
     // Obtener todas las conversaciones del usuario
@@ -209,13 +272,13 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
             const { messages, conversationId: existingConversationId } = ctx.req.valid('json');
+            const service = getNextService();
 
             let conversationId = existingConversationId;
 
             // Si no hay conversationId, crear una nueva conversación
             if (!conversationId) {
-                const firstUserMessage = messages.find(m => m.role === 'user');
-                const title = firstUserMessage?.content.substring(0, 100) || 'New conversation';
+                const title = await generateConversationTitle(service, messages);
 
                 const chatContext = await getActiveContext(user, ctx.get('activeOrgId'));
                 if (!chatContext) return ctx.json({ error: 'No active organization' }, 400);
@@ -248,8 +311,6 @@ const app = new Hono()
                 );
             }
 
-            // Obtener el servicio de IA
-            const service = getNextService();
             const aiMessages: ChatMessage[] = messages.map(m => ({
                 role: m.role,
                 content: m.content
