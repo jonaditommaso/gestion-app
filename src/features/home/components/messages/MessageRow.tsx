@@ -2,7 +2,7 @@
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { Loader2, MailOpen, Reply, Star, Trash2 } from 'lucide-react'
+import { Archive, Loader2, MailOpen, Reply, Star, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Message } from './types'
 import '@github/relative-time-element'
@@ -17,10 +17,13 @@ interface MessageRowProps {
     onOpen: (message: Message) => void
     onReply: (message: Message) => void
     onFeature: (id: string, featured: boolean) => void
+    onArchive: (id: string) => void
     onDelete: (id: string) => void
     locale: string
     unknownLabel: string
     isDeleting: boolean
+    isArchiving: boolean
+    showArchiveAction: boolean
     featuredValue: boolean
     isRead: boolean
     isMarkingRead: boolean
@@ -36,10 +39,13 @@ const MessageRow = ({
     onOpen,
     onReply,
     onFeature,
+    onArchive,
     onDelete,
     locale,
     unknownLabel,
     isDeleting,
+    isArchiving,
+    showArchiveAction,
     featuredValue,
     isRead,
     isMarkingRead,
@@ -134,6 +140,22 @@ const MessageRow = ({
                     ? <Loader2 size={14} className="animate-spin" />
                     : <MailOpen size={14} />}
             </Button>
+
+            {showArchiveAction && (
+                <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    disabled={isArchiving}
+                    className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground h-7 w-7 disabled:opacity-60"
+                    onClick={e => { e.stopPropagation(); onArchive(message.$id) }}
+                    aria-label={t('archive')}
+                >
+                    {isArchiving
+                        ? <Loader2 size={14} className="animate-spin" />
+                        : <Archive size={14} />}
+                </Button>
+            )}
 
             <Button
                 type="button"

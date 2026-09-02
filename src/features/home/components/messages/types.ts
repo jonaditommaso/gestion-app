@@ -10,6 +10,8 @@ export type Message = {
     forwardedFromMessageId?: string;
     read: boolean;
     featured?: boolean;
+    archivedByRecipient?: boolean;
+    archivedBySender?: boolean;
     deletedByRecipient?: boolean;
     deletedBySender?: boolean;
     $createdAt: string;

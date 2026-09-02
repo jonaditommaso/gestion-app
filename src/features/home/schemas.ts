@@ -56,6 +56,8 @@ export const unreadMessagesSchema = zod.object({
 export const updateMessageSchema = zod.object({
     read: zod.boolean().optional(),
     featured: zod.boolean().optional(),
+    archivedByRecipient: zod.boolean().optional(),
+    archivedBySender: zod.boolean().optional(),
     deletedByRecipient: zod.boolean().optional(),
     deletedBySender: zod.boolean().optional(),
 });

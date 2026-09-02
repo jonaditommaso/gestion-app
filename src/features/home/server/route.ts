@@ -24,6 +24,8 @@ type MessageDocument = Models.Document & {
     forwardedFromMessageId?: string;
     read: boolean;
     featured?: boolean;
+    archivedByRecipient?: boolean;
+    archivedBySender?: boolean;
     deletedByRecipient?: boolean;
     deletedBySender?: boolean;
 };
@@ -503,6 +505,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
             const { teams } = await createAdminClient();
+            const archivedOnly = ctx.req.query('archived') === 'true';
 
             // Obtener el membership ID del usuario actual
             const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
@@ -519,15 +522,23 @@ const app = new Hono()
                 MESSAGES_ID,
                 [
                     Query.equal('toTeamMemberId', currentMembership.$id),
+                    ...(archivedOnly ? [Query.equal('archivedByRecipient', true)] : []),
                     Query.orderDesc('$createdAt'),
                 ],
             );
 
-            if (messages.total === 0) {
+            const visibleMessages = (messages.documents as MessageDocument[]).filter(message => {
+                if (message.deletedByRecipient) return false;
+
+                const isArchived = message.archivedByRecipient ?? false;
+                return archivedOnly ? isArchived : !isArchived;
+            });
+
+            if (visibleMessages.length === 0) {
                 return ctx.json({ data: { documents: [], total: 0 } })
             }
 
-            return ctx.json({ data: messages })
+            return ctx.json({ data: { documents: visibleMessages, total: visibleMessages.length } })
         }
     )
 
@@ -570,6 +581,7 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
             const { teams } = await createAdminClient();
+            const archivedOnly = ctx.req.query('archived') === 'true';
 
             const msgContext = await getActiveContext(user, ctx.get('activeOrgId'));
             if (!msgContext) return ctx.json({ data: { documents: [], total: 0 } });
@@ -583,11 +595,19 @@ const app = new Hono()
                 MESSAGES_ID,
                 [
                     Query.equal('fromTeamMemberId', currentMembership.$id),
+                    ...(archivedOnly ? [Query.equal('archivedBySender', true)] : []),
                     Query.orderDesc('$createdAt'),
                 ]
             );
 
-            return ctx.json({ data: messages });
+            const visibleMessages = (messages.documents as MessageDocument[]).filter(message => {
+                if (message.deletedBySender) return false;
+
+                const isArchived = message.archivedBySender ?? false;
+                return archivedOnly ? isArchived : !isArchived;
+            });
+
+            return ctx.json({ data: { documents: visibleMessages, total: visibleMessages.length } });
         }
     )
 
@@ -694,7 +714,14 @@ const app = new Hono()
             const databases = ctx.get('databases');
             const user = ctx.get('user');
             const { messageId } = ctx.req.param();
-            const updates = ctx.req.valid('json');
+            const updates = ctx.req.valid('json') as {
+                read?: boolean;
+                featured?: boolean;
+                archivedByRecipient?: boolean;
+                archivedBySender?: boolean;
+                deletedByRecipient?: boolean;
+                deletedBySender?: boolean;
+            };
 
             const message = await databases.getDocument(DATABASE_ID, MESSAGES_ID, messageId);
 
@@ -712,17 +739,23 @@ const app = new Hono()
             if (!isRecipient && !isSender) return ctx.json({ error: 'Forbidden' }, 403);
 
             const updateData: Record<string, boolean> = {};
-            if (updates.read !== undefined && isRecipient) updateData.read = updates.read;
-            if (updates.featured !== undefined) updateData.featured = updates.featured;
-            if (updates.deletedByRecipient !== undefined && isRecipient) updateData.deletedByRecipient = updates.deletedByRecipient;
-            if (updates.deletedBySender !== undefined && isSender) updateData.deletedBySender = updates.deletedBySender;
+            if (typeof updates.read === 'boolean' && isRecipient) updateData.read = updates.read;
+            if (typeof updates.featured === 'boolean') updateData.featured = updates.featured;
+            if (typeof updates.archivedByRecipient === 'boolean' && isRecipient) updateData.archivedByRecipient = updates.archivedByRecipient;
+            if (typeof updates.archivedBySender === 'boolean' && isSender) updateData.archivedBySender = updates.archivedBySender;
+            if (typeof updates.deletedByRecipient === 'boolean' && isRecipient) updateData.deletedByRecipient = updates.deletedByRecipient;
+            if (typeof updates.deletedBySender === 'boolean' && isSender) updateData.deletedBySender = updates.deletedBySender;
 
             if (Object.keys(updateData).length === 0) return ctx.json({ error: 'No valid fields to update' }, 400);
 
             const updated = await databases.updateDocument(DATABASE_ID, MESSAGES_ID, messageId, updateData);
 
-            const finalDeletedByRecipient = updates.deletedByRecipient ?? (message.deletedByRecipient as boolean | undefined) ?? false;
-            const finalDeletedBySender = updates.deletedBySender ?? (message.deletedBySender as boolean | undefined) ?? false;
+            const finalDeletedByRecipient = typeof updates.deletedByRecipient === 'boolean'
+                ? updates.deletedByRecipient
+                : (message.deletedByRecipient as boolean | undefined) ?? false;
+            const finalDeletedBySender = typeof updates.deletedBySender === 'boolean'
+                ? updates.deletedBySender
+                : (message.deletedBySender as boolean | undefined) ?? false;
 
             if (finalDeletedByRecipient && finalDeletedBySender) {
                 await databases.deleteDocument(DATABASE_ID, MESSAGES_ID, messageId);
