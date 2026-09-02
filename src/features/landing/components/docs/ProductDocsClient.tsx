@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, Settings, CreditCard, Users, TrendingUp, Bot, Shield, LayoutDashboard } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight, Settings, CreditCard, Users, TrendingUp, Bot, Shield, LayoutDashboard } from 'lucide-react';
 import WorkspacesDocumentation from '@/features/landing/components/docs/WorkspacesDocumentation';
 import SellsDocumentation from '@/features/landing/components/docs/SellsDocumentation';
 import AIAssistantDocumentation from '@/features/landing/components/docs/AIAssistantDocumentation';
@@ -10,6 +10,18 @@ import TeamDocumentation from '@/features/landing/components/docs/TeamDocumentat
 import RolesDocumentation from '@/features/landing/components/docs/RolesDocumentation';
 import HomeDocumentation from '@/features/landing/components/docs/HomeDocumentation';
 import { useTranslations } from 'next-intl';
+
+type DocumentationSubsection = {
+    id: string;
+    title: string;
+};
+
+type DocumentationSection = {
+    id: string;
+    title: string;
+    icon: ReactNode;
+    subsections: DocumentationSubsection[];
+};
 
 export default function ProductDocsClient() {
     const t = useTranslations('landing.docs');
@@ -31,7 +43,7 @@ export default function ProductDocsClient() {
         }));
     };
 
-    const navigation = [
+    const navigation: DocumentationSection[] = [
         {
             id: "workspaces",
             title: "Workspaces",
@@ -146,6 +158,13 @@ export default function ProductDocsClient() {
         )
     }
 
+    const flatSubsections = navigation.flatMap((section) => section.subsections);
+    const currentSectionIndex = flatSubsections.findIndex((subsection) => subsection.id === activeSection);
+    const previousSection = currentSectionIndex > 0 ? flatSubsections[currentSectionIndex - 1] : null;
+    const nextSection = currentSectionIndex >= 0 && currentSectionIndex < flatSubsections.length - 1
+        ? flatSubsections[currentSectionIndex + 1]
+        : null;
+
     return (
         <div className="min-h-screen bg-gray-50 font-sans mt-12">
             {/* Spacer for fixed navbar */}
@@ -202,6 +221,40 @@ export default function ProductDocsClient() {
                 <div className="flex-1">
                     <div className="max-w-4xl mx-auto p-8">
                         {getContent()}
+
+                        <div className="mt-10 border-t border-gray-200 pt-6">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                                {previousSection ? (
+                                    <button
+                                        onClick={() => setActiveSection(previousSection.id)}
+                                        className="group w-full rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-blue-200 hover:bg-blue-50 sm:max-w-xs"
+                                    >
+                                        <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+                                            <ChevronLeft className="h-4 w-4" />
+                                            <span>{t('previous-topic')}</span>
+                                        </div>
+                                        <p className="font-semibold text-gray-900 group-hover:text-blue-700">{previousSection.title}</p>
+                                    </button>
+                                ) : (
+                                    <div className="hidden sm:block" />
+                                )}
+
+                                {nextSection ? (
+                                    <button
+                                        onClick={() => setActiveSection(nextSection.id)}
+                                        className="group w-full rounded-lg border border-gray-200 p-4 text-right transition-colors hover:border-blue-200 hover:bg-blue-50 sm:max-w-xs"
+                                    >
+                                        <div className="mb-1 flex items-center justify-end gap-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+                                            <span>{t('next-topic')}</span>
+                                            <ChevronRight className="h-4 w-4" />
+                                        </div>
+                                        <p className="font-semibold text-gray-900 group-hover:text-blue-700">{nextSection.title}</p>
+                                    </button>
+                                ) : (
+                                    <div className="hidden sm:block" />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

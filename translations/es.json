@@ -428,6 +428,8 @@
         "docs": {
             "title": "Documentación",
             "description": "Guías de los productos, y recursos para ayudarte a utilizar nuestra plataforma de manera efectiva.",
+            "previous-topic": "Tema anterior",
+            "next-topic": "Siguiente tema",
             "workspaces": {
                 "overview": {
                     "title": "Workspaces",

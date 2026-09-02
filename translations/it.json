@@ -426,6 +426,10 @@
             "stat-3-description": "Sempre qui per aiutare"
         },
         "docs": {
+            "title": "Documentazione",
+            "description": "Guide di prodotto e risorse per aiutarti a usare la piattaforma in modo efficace.",
+            "previous-topic": "Argomento precedente",
+            "next-topic": "Argomento successivo",
             "workspaces": {
                 "overview": {
                     "title": "Workspaces",
