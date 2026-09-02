@@ -78,7 +78,25 @@ export default function AIAssistantDocumentation() {
                     <p className="text-indigo-800">{t('capabilities.description-subtitle')}</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="border border-red-200 rounded-lg p-6 bg-red-50">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-red-200 rounded-lg">
+                                <AlertCircle className="h-5 w-5 text-red-700" />
+                            </div>
+                            <h4 className="font-semibold text-red-900">{t('capabilities.free-title')}</h4>
+                        </div>
+                        <p className="text-red-800 text-sm mb-4">{t('capabilities.free-description')}</p>
+                        <ul className="space-y-2">
+                            {(['free-item-1', 'free-item-2', 'free-item-3'] as const).map((key) => (
+                                <li key={key} className="flex items-start gap-2 text-sm text-red-800">
+                                    <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
+                                    {t(`capabilities.${key}`)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
                     <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="p-2 bg-blue-200 rounded-lg">
@@ -113,6 +131,26 @@ export default function AIAssistantDocumentation() {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                </div>
+
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-4 bg-gray-100 text-sm font-semibold text-gray-800">
+                        <div className="p-3">{t('capabilities.matrix-header-1')}</div>
+                        <div className="p-3">{t('capabilities.matrix-header-2')}</div>
+                        <div className="p-3">{t('capabilities.matrix-header-3')}</div>
+                        <div className="p-3">{t('capabilities.matrix-header-4')}</div>
+                    </div>
+
+                    <div className="divide-y divide-gray-200">
+                        {(['matrix-row-1', 'matrix-row-2', 'matrix-row-3', 'matrix-row-4'] as const).map((row) => (
+                            <div key={row} className="grid grid-cols-4 text-sm">
+                                <div className="p-3 text-gray-900">{t(`capabilities.${row}-name`)}</div>
+                                <div className="p-3 text-gray-600">{t(`capabilities.${row}-free`)}</div>
+                                <div className="p-3 text-blue-700">{t(`capabilities.${row}-plus`)}</div>
+                                <div className="p-3 text-purple-700">{t(`capabilities.${row}-pro`)}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

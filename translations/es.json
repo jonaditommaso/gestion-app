@@ -504,7 +504,37 @@
                     "state-4": "EN REVISIÓN",
                     "state-5": "COMPLETADO",
                     "drag-drop-title": "Funcionamiento del Drag & Drop",
-                    "drag-drop-description": "Cuando arrastras una tarea, el sistema calcula automáticamente las nuevas posiciones, actualiza el estado si cambias de columna, y sincroniza los cambios con el servidor mediante el hook useBulkUpdateTasks para mantener la consistencia en tiempo real."
+                    "drag-drop-description": "Cuando arrastras una tarea, el sistema calcula automáticamente las nuevas posiciones, actualiza el estado si cambias de columna, y sincroniza los cambios con el servidor mediante el hook useBulkUpdateTasks para mantener la consistencia en tiempo real.",
+                    "kanban-states-title": "Estados de Tareas Kanban"
+                },
+                "advanced": {
+                    "title": "Vista Avanzada de Tareas",
+                    "description-title": "Además de tabla, kanban y calendario, los workspaces incorporan una vista Gantt y filtros compuestos para operaciones complejas.",
+                    "subtitle": "Vistas y filtros de alto detalle",
+                    "description-subtitle": "Estas capacidades están pensadas para equipos que necesitan planificación temporal, trazabilidad y priorización más fina.",
+                    "section-1-title": "Vista Gantt por permisos",
+                    "section-1-description": "La vista Gantt se habilita según plan y permisos granulares, y permite visualizar dependencias y horizonte temporal del trabajo.",
+                    "section-2-title": "Filtros avanzados",
+                    "section-2-item-1": "Estado estándar y estado personalizado",
+                    "section-2-item-2": "Asignado, squad, prioridad y tipo de tarea",
+                    "section-2-item-3": "Labels con selección simple o múltiple",
+                    "section-2-item-4": "Rango de fechas, completadas y búsqueda local",
+                    "section-3-title": "Detalle de tarea contextual",
+                    "section-3-description": "Cada tarea abre un panel/modal con checklists, comentarios, metadatos y acciones de seguimiento para resolver trabajo sin salir del flujo."
+                },
+                "settings": {
+                    "title": "Configuración e Integraciones del Workspace",
+                    "description-title": "El workspace incluye un panel de configuración avanzado para workflow, permisos, notificaciones y automatización operativa.",
+                    "subtitle": "Control operativo centralizado",
+                    "description-subtitle": "Todo se administra desde el mismo workspace para mantener consistencia entre equipo, vistas y reglas.",
+                    "section-1-title": "Workflow y reglas de trabajo",
+                    "section-1-description": "Configura estados, validaciones y preferencias que impactan en cómo el equipo crea, actualiza y cierra tareas.",
+                    "section-2-title": "Permisos granulares por acción",
+                    "section-2-description": "Define qué usuarios pueden editar tareas, labels, configuraciones y operaciones críticas del workspace.",
+                    "section-3-title": "Integración con GitHub",
+                    "section-3-description": "El workspace puede conectarse con GitHub para relacionar trabajo técnico y seguimiento operativo desde un mismo lugar.",
+                    "section-4-title": "Sharing público o privado",
+                    "section-4-description": "Las tareas y vistas pueden compartirse según el contexto del equipo, con controles para exposición interna o externa."
                 }
             },
             "billing": {
@@ -575,6 +605,23 @@
                     "section-2-item-5": "Anual",
                     "section-2-title-2": "Análisis por Categorías",
                     "section-2-description-2": "Desglose detallado de gastos e ingresos por categorías con porcentajes y tendencias de crecimiento."
+                },
+                "workflow": {
+                    "title": "Workflow Operativo de Facturación",
+                    "description-title": "Billing incluye circuitos de trabajo para borradores, archivado y seguimiento, además de las vistas analíticas.",
+                    "subtitle": "De la carga inicial al control continuo",
+                    "description-subtitle": "La operación financiera se organiza como un flujo con estados, no solo como una lista de transacciones.",
+                    "section-1-title": "Drafts",
+                    "section-1-description": "Permite preparar operaciones incompletas y validarlas antes de impactar en reportes o métricas de cierre.",
+                    "section-2-title": "Archived",
+                    "section-2-description": "Separa operaciones cerradas o históricas para mantener la vista activa limpia sin perder trazabilidad.",
+                    "section-3-title": "Follow-up",
+                    "section-3-description": "Panel de seguimiento para vencimientos, alertas y acciones pendientes vinculadas al movimiento financiero.",
+                    "section-4-title": "Buenas prácticas operativas",
+                    "section-4-item-1": "Usar drafts para carga incremental",
+                    "section-4-item-2": "Archivar operaciones finalizadas por período",
+                    "section-4-item-3": "Revisar follow-up en rutinas semanales",
+                    "section-4-item-4": "Cruzar seguimiento con analytics para decidir prioridades"
                 }
             },
             "team": {
@@ -598,7 +645,7 @@
                     "role-2-title": "Manager",
                     "role-2-description": "Gestión de equipos y proyectos, asignación de tareas, visualización de reportes y supervisión general.",
                     "role-3-title": "Editor",
-                    "role-3-description": "Crear y editar contenido, gestionar records, participar en workspaces y colaborar activamente.",
+                    "role-3-description": "Crear y editar contenido, gestionar tareas, participar en workspaces y colaborar activamente.",
                     "role-4-title": "Viewer",
                     "role-4-description": "Solo lectura de información, visualización de dashboards y acceso limitado a funcionalidades básicas."
                 },
@@ -649,7 +696,26 @@
                     "best-practice-1": "Asigna el mínimo nivel de permisos necesario para cada rol",
                     "best-practice-2": "Revisa periódicamente los permisos de usuarios activos",
                     "best-practice-3": "Utiliza roles predefinidos antes de crear roles personalizados",
-                    "best-practice-4": "Mantén un registro de cambios de permisos importantes"
+                    "best-practice-4": "Mantén un registro de cambios de permisos importantes",
+                    "messages-title": "Mensajes",
+                    "messages-permission-1": "Ver conversaciones",
+                    "messages-permission-2": "Enviar mensajes",
+                    "messages-permission-3": "Responder y reenviar",
+                    "messages-permission-4": "Archivar y destacar"
+                },
+                "management": {
+                    "title": "Gestión Avanzada de Miembros",
+                    "description-title": "Además de invitar usuarios, el módulo de Team permite administrar altas, bajas y cambios de acceso con validaciones de seguridad.",
+                    "subtitle": "Ciclo completo de miembros",
+                    "description-subtitle": "La gestión se centraliza en modales y flujos guiados para reducir errores de operación.",
+                    "section-1-title": "Modos de invitación",
+                    "section-1-description": "Puedes invitar por URL/token o por usuario existente, según el contexto del equipo y el tipo de incorporación.",
+                    "section-2-title": "Invitaciones con enlace y token",
+                    "section-2-description": "Las invitaciones incluyen URL y token reutilizable para compartir por cualquier canal cuando el onboarding es distribuido.",
+                    "section-3-title": "Administración de miembros activos",
+                    "section-3-description": "Desde la gestión de miembros puedes filtrar, revisar perfiles y ajustar accesos operativos según rol y necesidad.",
+                    "section-4-title": "Remoción protegida",
+                    "section-4-description": "La baja de miembros requiere confirmación y flujo MFA para reducir acciones accidentales o no autorizadas."
                 }
             },
             "records": {
@@ -770,6 +836,22 @@
                     "section-3-description": "Comparación visual entre la meta monetaria definida y los ingresos reales generados en el período.",
                     "section-4-title": "Rendimiento del Equipo",
                     "section-4-description": "Tratos creados, cerrados y en progreso segmentados por vendedor para identificar a tus mejores performers."
+                },
+                "advanced": {
+                    "title": "Operación Comercial Avanzada",
+                    "description-title": "El módulo de ventas va más allá del pipeline visual e incorpora herramientas para operación diaria, coordinación y seguimiento profundo.",
+                    "subtitle": "Herramientas para equipos comerciales activos",
+                    "description-subtitle": "Estas funciones aceleran la ejecución en prospecting, reporting y colaboración entre vendedores.",
+                    "section-1-title": "Tab de Prospects",
+                    "section-1-description": "Trabaja el pipeline en formato tabular con filtros, ordenamiento, score de salud y acciones rápidas por trato.",
+                    "section-2-title": "Board settings y labels",
+                    "section-2-description": "Cada tablero puede configurar etiquetas, criterios y estructura para reflejar distintos procesos comerciales.",
+                    "section-3-title": "Metas e historial",
+                    "section-3-description": "Define objetivos por período y consulta histórico para evaluar tendencia, cumplimiento y ritmo comercial.",
+                    "section-4-title": "Sellers y squads",
+                    "section-4-description": "Gestiona vendedores y equipos de venta, con filtros por squad para analizar desempeño segmentado.",
+                    "section-5-title": "Comunicación desde el trato",
+                    "section-5-description": "Desde el detalle de cada oportunidad se pueden registrar interacciones y ejecutar acciones de contacto para mantener contexto."
                 }
             },
             "ai-assistant": {
@@ -804,7 +886,32 @@
                     "pro-item-1": "Todas las acciones del plan PLUS",
                     "pro-item-2": "Gestionar tratos y pipeline de ventas",
                     "pro-item-3": "Consultar y crear operaciones de facturación",
-                    "pro-item-4": "Gestionar categorías de facturación"
+                    "pro-item-4": "Gestionar categorías de facturación",
+                    "free-title": "Plan FREE",
+                    "free-description": "En FREE el agente no puede ejecutar acciones operativas dentro de la organización.",
+                    "free-item-1": "Sin function calling activo",
+                    "free-item-2": "Sin acceso a herramientas de módulos",
+                    "free-item-3": "Se requiere upgrade para habilitar acciones",
+                    "matrix-header-1": "Módulo",
+                    "matrix-header-2": "FREE",
+                    "matrix-header-3": "PLUS",
+                    "matrix-header-4": "PRO / ENTERPRISE",
+                    "matrix-row-1-name": "Home",
+                    "matrix-row-1-free": "Bloqueado",
+                    "matrix-row-1-plus": "Disponible",
+                    "matrix-row-1-pro": "Disponible",
+                    "matrix-row-2-name": "Tareas y Workspaces",
+                    "matrix-row-2-free": "Bloqueado",
+                    "matrix-row-2-plus": "Disponible",
+                    "matrix-row-2-pro": "Disponible",
+                    "matrix-row-3-name": "Billing",
+                    "matrix-row-3-free": "Bloqueado",
+                    "matrix-row-3-plus": "No incluido",
+                    "matrix-row-3-pro": "Disponible",
+                    "matrix-row-4-name": "Sells / Deals",
+                    "matrix-row-4-free": "Bloqueado",
+                    "matrix-row-4-plus": "No incluido",
+                    "matrix-row-4-pro": "Disponible"
                 },
                 "usage": {
                     "title": "Cómo Usarlo",
@@ -869,6 +976,22 @@
                     "best-practice-2": "Revisa periódicamente los permisos cuando los miembros del equipo cambien de función",
                     "best-practice-3": "Usa VIEWER para colaboradores externos o auditores",
                     "best-practice-4": "Documenta los cambios de permisos en las notas internas de tu equipo"
+                },
+                "plans": {
+                    "title": "Roles Según Plan",
+                    "description-title": "El comportamiento del módulo de roles cambia según plan para equilibrar simplicidad y control granular.",
+                    "subtitle": "Disponibilidad por nivel",
+                    "description-subtitle": "No todos los planes exponen la misma profundidad de administración de permisos.",
+                    "free-plus-title": "FREE y PLUS",
+                    "free-plus-item-1": "Vista centrada en usuarios",
+                    "free-plus-item-2": "Sin pestaña de roles granulares",
+                    "free-plus-item-3": "Uso de roles base para operación diaria",
+                    "pro-enterprise-title": "PRO y ENTERPRISE",
+                    "pro-enterprise-item-1": "Pestañas Users + Roles disponibles",
+                    "pro-enterprise-item-2": "Edición granular por módulo y acción",
+                    "pro-enterprise-item-3": "Mayor control para equipos grandes o distribuidos",
+                    "recommendation-title": "Recomendación",
+                    "recommendation-description": "Si tu equipo necesita excepciones frecuentes por usuario, PRO o ENTERPRISE ofrecen el nivel de control esperado."
                 }
             },
             "home": {
@@ -885,7 +1008,7 @@
                     "section-3-title": "Acciones Rápidas",
                     "section-3-description": "Crea tratos, tareas u operaciones de facturación directamente desde el home sin navegar a otra sección.",
                     "section-4-title": "Integraciones",
-                    "section-4-description": "Activa Spotify, YouTube y Google Drive desde el home para complementar tu flujo de trabajo.",
+                    "section-4-description": "Visualiza integraciones soportadas y su estado de disponibilidad desde el Home dashboard.",
                     "plan-note-title": "Limitaciones por Plan",
                     "plan-note-description": "Los usuarios del plan FREE tienen acceso a un conjunto limitado de widgets. PRO y ENTERPRISE desbloquean todos los widgets disponibles incluyendo pipeline, facturación y analytics del equipo."
                 },
@@ -931,6 +1054,177 @@
                     "widget-new-task-description": "Abre el diálogo de creación de tareas desde el home.",
                     "widget-new-billing-title": "Nueva Operación de Facturación",
                     "widget-new-billing-description": "Registra rápidamente un nuevo ingreso o gasto desde el home."
+                }
+            },
+            "messages": {
+                "overview": {
+                    "title": "Mensajes",
+                    "description-title": "El módulo de mensajes centraliza la comunicación interna con bandeja, conversación y acciones de productividad.",
+                    "subtitle": "Inbox colaborativo para equipos",
+                    "description-subtitle": "La mensajería está integrada con miembros del equipo y permite operar sin salir de la plataforma.",
+                    "main-features": "Características principales",
+                    "section-1-title": "Bandejas por contexto",
+                    "section-1-description": "Navega por All, Inbox, Sent, Featured y Archived para priorizar según tipo de trabajo.",
+                    "section-2-title": "Filtros operativos",
+                    "section-2-description": "Filtra por persona, estado de lectura, rango de fecha y búsqueda para encontrar conversaciones rápido.",
+                    "section-3-title": "Destacados",
+                    "section-3-description": "Marca mensajes importantes para recuperarlos luego sin perder foco entre múltiples hilos.",
+                    "section-4-title": "Archivado y limpieza",
+                    "section-4-description": "Archiva o elimina elementos de forma individual o masiva para mantener una inbox ordenada."
+                },
+                "inbox": {
+                    "title": "Inbox y Filtros",
+                    "description-title": "La vista de inbox está diseñada para revisión rápida y manejo de volumen con acciones por lote.",
+                    "subtitle": "Navegación por pestañas",
+                    "description-subtitle": "Cada pestaña agrupa un tipo de conversación para evitar ruido y reducir tiempo de respuesta.",
+                    "tabs-title": "Pestañas disponibles",
+                    "tab-1": "All",
+                    "tab-2": "Inbox",
+                    "tab-3": "Sent",
+                    "tab-4": "Featured",
+                    "tab-5": "Archived",
+                    "filters-title": "Filtros principales",
+                    "filter-1": "Persona asociada",
+                    "filter-2": "No leídos",
+                    "filter-3": "Rango de fechas",
+                    "filter-4": "Búsqueda por contenido",
+                    "bulk-actions-title": "Acciones masivas",
+                    "bulk-1": "Marcar como leído",
+                    "bulk-2": "Archivar selección",
+                    "bulk-3": "Eliminar selección",
+                    "bulk-4": "Seleccionar todo"
+                },
+                "compose": {
+                    "title": "Redacción y Respuestas",
+                    "description-title": "El composer soporta creación de nuevos mensajes y continuidad de conversaciones existentes.",
+                    "subtitle": "Flujo de comunicación",
+                    "description-subtitle": "Desde el detalle de un mensaje puedes responder o reenviar sin perder contexto.",
+                    "section-1-title": "Nuevo mensaje",
+                    "section-1-description": "Inicia conversaciones con miembros del equipo desde el botón Compose y gestiona destinatarios fácilmente.",
+                    "section-2-title": "Reply contextual",
+                    "section-2-description": "Responder mantiene el historial de la conversación para continuidad y trazabilidad.",
+                    "section-3-title": "Forward y seguimiento",
+                    "section-3-description": "Reenvía mensajes relevantes para escalar decisiones o coordinar acciones entre áreas."
+                }
+            },
+            "settings": {
+                "overview": {
+                    "title": "Settings de Cuenta",
+                    "description-title": "La sección Settings concentra configuración personal, seguridad, sesiones e identidad del usuario.",
+                    "subtitle": "Centro de configuración personal",
+                    "description-subtitle": "Estos ajustes impactan directamente en acceso, perfil y experiencia diaria dentro de la app.",
+                    "section-1-title": "Datos generales",
+                    "section-1-description": "Actualiza información básica de cuenta y preferencias personales desde una sola pantalla.",
+                    "section-2-title": "Seguridad",
+                    "section-2-description": "Administra políticas de acceso y medidas de protección de tu cuenta.",
+                    "section-3-title": "Idioma y localización",
+                    "section-3-description": "Selecciona el idioma de uso de la plataforma para adaptar la experiencia a tu equipo.",
+                    "section-4-title": "Tipo de cuenta",
+                    "section-4-description": "Consulta el tipo de cuenta vigente y cómo afecta el acceso a funciones avanzadas."
+                },
+                "security": {
+                    "title": "Seguridad y Sesiones",
+                    "description-title": "Controla sesiones activas y fortalece la seguridad de acceso con revisiones periódicas.",
+                    "subtitle": "Protección de acceso",
+                    "description-subtitle": "El módulo incluye herramientas para administrar credenciales y dispositivos conectados.",
+                    "section-1-title": "Configuración de seguridad",
+                    "section-1-description": "Ajusta parámetros críticos de autenticación y recuperación de cuenta.",
+                    "section-2-title": "Sesiones activas",
+                    "section-2-description": "Revisa dispositivos conectados y cierra sesiones cuando detectes actividad no esperada.",
+                    "section-3-title": "Higiene operativa",
+                    "section-3-description": "Mantener sesiones limpias y credenciales actualizadas reduce riesgo operativo en equipos distribuidos."
+                },
+                "sso": {
+                    "title": "SSO y Tipo de Cuenta",
+                    "description-title": "Single Sign-On está disponible según plan y rol, y permite centralizar autenticación organizacional.",
+                    "subtitle": "Acceso empresarial",
+                    "description-subtitle": "La configuración de SSO se limita a escenarios de gobierno avanzado para organizaciones grandes.",
+                    "availability-title": "Disponibilidad",
+                    "availability-1": "Requiere plan ENTERPRISE",
+                    "availability-2": "Visible para roles OWNER y ADMIN",
+                    "availability-3": "Configuración por organización activa",
+                    "flow-title": "Flujo de configuración",
+                    "flow-1": "Definir proveedor de identidad",
+                    "flow-2": "Validar parámetros y dominio",
+                    "flow-3": "Guardar configuración y probar login"
+                }
+            },
+            "organization": {
+                "overview": {
+                    "title": "Organización",
+                    "description-title": "La vista de organización concentra plan, método de pago y estado general de la cuenta empresarial.",
+                    "subtitle": "Gobierno del plan",
+                    "description-subtitle": "Es el punto de control para decidir upgrades, revisar cobertura y mantener continuidad operativa.",
+                    "section-1-title": "Plan actual",
+                    "section-1-description": "Visualiza el plan activo y su alcance para alinear capacidades con necesidades del equipo.",
+                    "section-2-title": "Cobertura de uso",
+                    "section-2-description": "Monitorea el uso agregado de recursos clave para prevenir límites inesperados.",
+                    "section-3-title": "Método de pago",
+                    "section-3-description": "Consulta el estado del método de pago vinculado y su relación con renovaciones."
+                },
+                "usage": {
+                    "title": "Uso y Límites",
+                    "description-title": "La sección Usage compara consumo actual contra límites del plan en recursos críticos.",
+                    "subtitle": "Capacidad operativa",
+                    "description-subtitle": "Permite anticipar escalamiento antes de que los topes afecten al equipo.",
+                    "section-1-title": "Métricas monitoreadas",
+                    "section-1-description": "Miembros, workspaces y pipelines son indicadores centrales para medir capacidad real.",
+                    "section-2-title": "Lectura por estado",
+                    "section-2-description": "Los valores resaltan cercanía al límite para priorizar decisiones de crecimiento.",
+                    "section-3-title": "Acciones recomendadas",
+                    "section-3-item-1": "Revisar uso semanalmente",
+                    "section-3-item-2": "Consolidar recursos infrautilizados",
+                    "section-3-item-3": "Planificar upgrade antes de saturación"
+                },
+                "billing": {
+                    "title": "Pagos e Incidentes",
+                    "description-title": "La organización incluye historial de pagos y zona crítica para acciones de alto impacto.",
+                    "subtitle": "Riesgo y continuidad",
+                    "description-subtitle": "Estos controles permiten mantener salud financiera y evitar interrupciones del servicio.",
+                    "section-1-title": "Historial de pagos",
+                    "section-1-description": "Consulta transacciones históricas para auditoría interna y control administrativo.",
+                    "section-2-title": "Danger zone",
+                    "section-2-description": "Acciones sensibles como cambios críticos o cierre deben validarse con política interna."
+                }
+            },
+            "integrations": {
+                "overview": {
+                    "title": "Integraciones",
+                    "description-title": "La plataforma combina integraciones plenamente operativas con otras en estado gradual de disponibilidad.",
+                    "subtitle": "Estado real por integración",
+                    "description-subtitle": "Documentar disponibilidad evita expectativas incorrectas durante onboarding y soporte.",
+                    "available-title": "Integraciones operativas",
+                    "available-1": "GitHub en configuración de Workspace",
+                    "available-2": "Google Calendar para creación de eventos",
+                    "available-3": "Google Drive para acceso a archivos",
+                    "limited-title": "Integraciones con disponibilidad parcial",
+                    "limited-1": "Spotify visible en Home con activación limitada",
+                    "limited-2": "YouTube visible en Home con activación limitada",
+                    "limited-3": "Algunas opciones aparecen como coming soon en UI"
+                },
+                "status": {
+                    "title": "Estado por Integración",
+                    "description-title": "Matriz resumida para diferenciar integraciones habilitadas de las que aún están en transición.",
+                    "subtitle": "Lectura rápida para equipos",
+                    "description-subtitle": "Usa esta referencia para definir qué flujos pueden incluirse en capacitación interna.",
+                    "header-1": "Integración",
+                    "header-2": "Estado",
+                    "header-3": "Notas",
+                    "row-1-name": "GitHub",
+                    "row-1-state": "Disponible",
+                    "row-1-notes": "Configurable desde Workspace settings",
+                    "row-2-name": "Google Calendar",
+                    "row-2-state": "Disponible",
+                    "row-2-notes": "Usado para crear eventos/reuniones",
+                    "row-3-name": "Google Drive",
+                    "row-3-state": "Disponible",
+                    "row-3-notes": "Endpoints activos para auth y archivos",
+                    "row-4-name": "Spotify",
+                    "row-4-state": "Parcial / Coming soon",
+                    "row-4-notes": "Visible en Home, activación limitada",
+                    "row-5-name": "YouTube",
+                    "row-5-state": "Parcial / Coming soon",
+                    "row-5-notes": "Visible en Home, activación limitada"
                 }
             }
         },
@@ -1398,7 +1692,7 @@
         "pricing-pro-benefit-9-title": "Exportaciones (CSV / Excel)",
         "pricing-pro-benefit-9-description": "Exporta todas tus facturas, tareas y tratos en formato CSV o Excel.",
         "pricing-pro-benefit-10-title": "Squads ilimitados",
-        "pricing-pro-benefit-10-description": "Cre\u00e1 todos los squads que necesit\u00e9s para organizar tu equipo.",
+        "pricing-pro-benefit-10-description": "Creá todos los squads que necesités para organizar tu equipo.",
         "pricing-enterprise-description": "Aprovecha el máximo potencial",
         "pricing-enterprise-button": "Contactar con Ventas",
         "pricing-enterprise-includes": "Todo lo de Pro, más:",
@@ -2605,7 +2899,7 @@
         "squad-step2-title": "Personalizar tu squad",
         "squad-add-members": "Miembros",
         "squad-you-are-leader": "Tú serás el líder del squad",
-        "squad-set-as-leader": "Asignar como l\u00edder",
+        "squad-set-as-leader": "Asignar como líder",
         "squad-continue": "Continuar",
         "squad-pick-color": "Color",
         "squad-pick-icon": "Ícono",
@@ -2841,7 +3135,7 @@
         "calendar-permission-description": "Para programar una reunión, debes otorgar acceso a Google Calendar y Google Meet.",
         "calendar-authorize-button": "Autorizar con Google",
         "calendar-permission-granted": "Acceso al calendario concedido",
-        "calendar-permission-granted-description": "\u00a1Todo listo! Completa los datos de abajo para programar tu reunión.",
+        "calendar-permission-granted-description": "¡Todo listo! Completa los datos de abajo para programar tu reunión.",
         "no-team-members": "No tienes miembros en tu equipo",
         "no-workspaces": "No tienes workspaces en esta organización",
         "no-boards": "No tienes pipelines en esta organización",

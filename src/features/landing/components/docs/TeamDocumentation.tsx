@@ -1,4 +1,4 @@
-import { Users, Shield, Mail, Activity, UserCheck, Settings } from "lucide-react"
+import { Users, Shield, Mail, Activity, UserCheck, Settings, Link2, UserMinus } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 export default function TeamDocumentation() {
@@ -218,12 +218,12 @@ export default function TeamDocumentation() {
                         </div>
 
                         <div className="border border-gray-200 rounded-lg p-6">
-                            <h4 className="text-xl font-semibold text-gray-900 mb-4">{t("permissions.records-title")}</h4>
+                            <h4 className="text-xl font-semibold text-gray-900 mb-4">{t("permissions.messages-title")}</h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm text-center">{t("permissions.records-permission-1")}</span>
-                                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm text-center">{t("permissions.records-permission-2")}</span>
-                                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm text-center">{t("permissions.records-permission-3")}</span>
-                                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm text-center">{t("permissions.records-permission-4")}</span>
+                                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm text-center">{t("permissions.messages-permission-1")}</span>
+                                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm text-center">{t("permissions.messages-permission-2")}</span>
+                                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm text-center">{t("permissions.messages-permission-3")}</span>
+                                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm text-center">{t("permissions.messages-permission-4")}</span>
                             </div>
                         </div>
 
@@ -269,6 +269,47 @@ export default function TeamDocumentation() {
                                 <span>{t("permissions.best-practice-4")}</span>
                             </li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+        ),
+        "team-management": (
+            <div className="space-y-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('management.title')}</h1>
+                    <p className="text-xl text-gray-600 mb-8">{t('management.description-title')}</p>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3">{t('management.subtitle')}</h3>
+                    <p className="text-slate-700">{t('management.description-subtitle')}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2">{t('management.section-1-title')}</h4>
+                        <p className="text-sm text-gray-600">{t('management.section-1-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Link2 className="h-4 w-4 text-blue-700" />
+                            {t('management.section-2-title')}
+                        </h4>
+                        <p className="text-sm text-gray-600">{t('management.section-2-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2">{t('management.section-3-title')}</h4>
+                        <p className="text-sm text-gray-600">{t('management.section-3-description')}</p>
+                    </div>
+
+                    <div className="border border-red-200 bg-red-50 rounded-lg p-6">
+                        <h4 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
+                            <UserMinus className="h-4 w-4 text-red-700" />
+                            {t('management.section-4-title')}
+                        </h4>
+                        <p className="text-sm text-red-800">{t('management.section-4-description')}</p>
                     </div>
                 </div>
             </div>

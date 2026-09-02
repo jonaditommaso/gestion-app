@@ -1,6 +1,6 @@
 'use client'
 
-import { TrendingUp, BarChart3, Target, Users, Kanban, Table2 } from "lucide-react"
+import { TrendingUp, BarChart3, Target, Users, Kanban, Table2, Mail, Tag } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 export default function SellsDocumentation() {
@@ -185,5 +185,58 @@ export default function SellsDocumentation() {
                 </div>
             </div>
         ),
+
+        "sells-advanced": (
+            <div className="space-y-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('advanced.title')}</h1>
+                    <p className="text-xl text-gray-600 mb-8">{t('advanced.description-title')}</p>
+                </div>
+
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-emerald-900 mb-3">{t('advanced.subtitle')}</h3>
+                    <p className="text-emerald-800">{t('advanced.description-subtitle')}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2">{t('advanced.section-1-title')}</h4>
+                        <p className="text-sm text-gray-600">{t('advanced.section-1-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Tag className="h-4 w-4 text-emerald-700" />
+                            {t('advanced.section-2-title')}
+                        </h4>
+                        <p className="text-sm text-gray-600">{t('advanced.section-2-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Target className="h-4 w-4 text-orange-700" />
+                            {t('advanced.section-3-title')}
+                        </h4>
+                        <p className="text-sm text-gray-600">{t('advanced.section-3-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Users className="h-4 w-4 text-blue-700" />
+                            {t('advanced.section-4-title')}
+                        </h4>
+                        <p className="text-sm text-gray-600">{t('advanced.section-4-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6 md:col-span-2">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-violet-700" />
+                            {t('advanced.section-5-title')}
+                        </h4>
+                        <p className="text-sm text-gray-600">{t('advanced.section-5-description')}</p>
+                    </div>
+                </div>
+            </div>
+        )
     };
 }
