@@ -1,9 +1,8 @@
 'use client'
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BillingTable } from "../details/BillingTable";
 import DetailsInfoCards from "../details/DetailsInfoCards";
 import AllCategoriesTable from "../categories/AllCategoriesTable";
-// import OperationStats from "../stats/OperationStats";
 import BillingCalendar from "../calendar/BillingCalendar";
 import { useTranslations } from "next-intl";
 import FollowUpPanel from "../followup/FollowUpPanel";
@@ -13,7 +12,7 @@ import ArchivedTable from "../archived/ArchivedTable";
 import { useGetOperations } from "../../api/use-get-operations";
 import dayjs from "dayjs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Archive, BellRing, CalendarDays, FileEdit, LayoutDashboard, Plus, Table2, Tags } from "lucide-react";
+import { Archive, BellRing, CalendarDays, FileEdit, LayoutDashboard, Plus, Table2, Tags, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddOperationModal from "../AddOperationModal";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
@@ -23,8 +22,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import BillingOverviewCharts from "./BillingOverviewCharts";
+import { useSearchParams } from "next/navigation";
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-// import BillingAnalyticsWorkspace from "./BillingAnalyticsWorkspace";
+import BillingAnalyticsWorkspace from "@/features/billing-management/components/dashboard/BillingAnalyticsWorkspace";
 
 const dashboardViews = [
     {
@@ -37,11 +37,11 @@ const dashboardViews = [
         icon: Table2,
         labelKey: 'operations',
     },
-    // {
-    //     id: 'analytics',
-    //     icon: BarChart3,
-    //     labelKey: 'analytics',
-    // },
+    {
+        id: 'analytics',
+        icon: BarChart3,
+        labelKey: 'analytics',
+    },
 ] as const;
 
 const operationTabs = [
@@ -76,8 +76,26 @@ interface DashboardOperation {
 }
 
 const BillingDashboard = () => {
-    const [currentView, setCurrentView] = useState<DashboardView>('dashboard');
-    const [currentOperationsTab, setCurrentOperationsTab] = useState<OperationsTab>('table');
+    const searchParams = useSearchParams();
+
+    const getSafeDashboardView = (value: string | null): DashboardView => {
+        if (value === 'dashboard' || value === 'operations' || value === 'analytics') {
+            return value;
+        }
+
+        return 'dashboard';
+    };
+
+    const getSafeOperationTab = (value: string | null): OperationsTab => {
+        if (value === 'table' || value === 'calendar' || value === 'drafts' || value === 'archived') {
+            return value;
+        }
+
+        return 'table';
+    };
+
+    const [currentView, setCurrentView] = useState<DashboardView>(() => getSafeDashboardView(searchParams.get('view')));
+    const [currentOperationsTab, setCurrentOperationsTab] = useState<OperationsTab>(() => getSafeOperationTab(searchParams.get('tab')));
     const [isAddOperationOpen, setIsAddOperationOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const { hasPermission } = useCurrentUserPermissions();
@@ -99,6 +117,14 @@ const BillingDashboard = () => {
                 && (dueDate.isBefore(dueSoonEnd) || dueDate.isSame(dueSoonEnd, 'day'));
         }).length;
     }, [operations]);
+
+    useEffect(() => {
+        const viewFromParams = getSafeDashboardView(searchParams.get('view'));
+        const tabFromParams = getSafeOperationTab(searchParams.get('tab'));
+
+        setCurrentView(viewFromParams);
+        setCurrentOperationsTab(tabFromParams);
+    }, [searchParams]);
 
     return (
         <div className="w-full px-4 pb-6 md:px-6">
@@ -154,9 +180,9 @@ const BillingDashboard = () => {
                     )}
                 </div>
 
-                <Separator className="mb-3" />
+                {/* <Separator className="mb-3" /> */}
 
-                <div className="space-y-4">
+                <div className="space-y-4 mt-3">
                     {currentView === 'dashboard' && (
                         <div className="mx-auto w-full space-y-4">
                             <DetailsInfoCards />
@@ -222,13 +248,11 @@ const BillingDashboard = () => {
                         </div>
                     )}
 
-                    {/* {currentView === 'analytics' && (
+                    {currentView === 'analytics' && (
                         <div className="mx-auto w-full space-y-4">
                             <BillingAnalyticsWorkspace />
-                            <OperationStats type="incomes" />
-                            <OperationStats type="expenses" />
                         </div>
-                    )} */}
+                    )}
                 </div>
 
 

@@ -7,7 +7,7 @@ import { CHECKLIST_ITEM_ASSIGNEES_ID, CHECKLIST_ITEMS_ID, DATABASE_ID, IMAGES_BU
 import { ID, Query } from "node-appwrite";
 import { Task, TaskShare, TaskShareType, TaskStatus, TaskSquad, TaskSquadAssignee, WorkspaceMember } from "../types";
 import { z as zod } from 'zod';
-import { getImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
+import { getAllTaskImageIds, parseTaskMetadata } from "../utils/metadata-helpers";
 import { Databases, Models } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
 import { createActivityLog } from "../utils/create-activity-log";
@@ -752,7 +752,7 @@ const app = new Hono()
             }
 
             // Eliminar todas las imágenes asociadas usando metadata
-            const imageIds = getImageIds(task);
+            const imageIds = getAllTaskImageIds(task);
             if (imageIds.length > 0) {
                 for (const imageId of imageIds) {
                     try {
@@ -878,9 +878,8 @@ const app = new Hono()
 
             // Si se está actualizando metadata, eliminar imágenes que ya no están presentes
             if (updates.metadata !== undefined) {
-                const oldImageIds = getImageIds(existingTask);
-                const newMetadata = parseTaskMetadata(updates.metadata);
-                const newImageIds = newMetadata.imageIds || [];
+                const oldImageIds = getAllTaskImageIds(existingTask);
+                const newImageIds = getAllTaskImageIds({ metadata: updates.metadata });
 
                 // Encontrar imágenes que fueron eliminadas
                 const deletedImageIds = oldImageIds.filter(id => !newImageIds.includes(id));

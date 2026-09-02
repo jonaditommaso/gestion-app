@@ -145,5 +145,47 @@ export default function RolesDocumentation() {
                 </div>
             </div>
         ),
+
+        "roles-plans": (
+            <div className="space-y-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('plans.title')}</h1>
+                    <p className="text-xl text-gray-600 mb-8">{t('plans.description-title')}</p>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3">{t('plans.subtitle')}</h3>
+                    <p className="text-slate-700">{t('plans.description-subtitle')}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-3">{t('plans.free-plus-title')}</h4>
+                        <ul className="space-y-2 text-sm text-gray-700">
+                            <li>• {t('plans.free-plus-item-1')}</li>
+                            <li>• {t('plans.free-plus-item-2')}</li>
+                            <li>• {t('plans.free-plus-item-3')}</li>
+                        </ul>
+                    </div>
+
+                    <div className="border border-indigo-200 bg-indigo-50 rounded-lg p-6">
+                        <h4 className="font-semibold text-indigo-900 mb-3">{t('plans.pro-enterprise-title')}</h4>
+                        <ul className="space-y-2 text-sm text-indigo-800">
+                            <li>• {t('plans.pro-enterprise-item-1')}</li>
+                            <li>• {t('plans.pro-enterprise-item-2')}</li>
+                            <li>• {t('plans.pro-enterprise-item-3')}</li>
+                        </ul>
+                    </div>
+
+                    <div className="border border-amber-200 bg-amber-50 rounded-lg p-6">
+                        <h4 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4" />
+                            {t('plans.recommendation-title')}
+                        </h4>
+                        <p className="text-sm text-amber-800">{t('plans.recommendation-description')}</p>
+                    </div>
+                </div>
+            </div>
+        ),
     };
 }

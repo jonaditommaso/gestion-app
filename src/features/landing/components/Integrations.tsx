@@ -114,7 +114,7 @@ const Integrations = () => {
                 transition={{ delay: 0.4, duration: 0.3, ease: "easeOut" }}
                 className="mt-4 text-center"
             >
-                <Link href="/products#integrations" className="inline-block px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
+                <Link href="/products#integrations" scroll={false} className="inline-block px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
                     <p className="text-sm text-slate-200">
                         {t('featured-integrations')} •
                         <span className="font-medium text-cyan-400 ml-1">{t('many-more-integrations')}</span>

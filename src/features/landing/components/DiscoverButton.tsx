@@ -92,7 +92,7 @@ const DiscoverButton = () => {
                 transition={{ delay: 1.3, duration: 0.4, ease: "easeOut" }}
             >
                 <Button className="rounded-lg w-fit group text-slate-100 text-base hover:shadow-lg hover:scale-105 transition-all duration-200 underline" variant='ghost'>
-                    <Link href="/products#integrations " className="flex items-center">
+                    <Link href="/products#integrations" scroll={false} className="flex items-center">
                         {t('explore-integrations')}
                         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>

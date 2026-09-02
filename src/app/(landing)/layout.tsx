@@ -1,5 +1,3 @@
-//import { LandingNavbar } from "@/features/landing/components/LandingNavbar";
-
 interface LandingLayoutProps {
     children: React.ReactNode
 }

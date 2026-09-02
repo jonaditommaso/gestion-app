@@ -22,10 +22,10 @@ const LandingFooter = () => {
                 <div className="w-full flex justify-center gap-24 text-white">
                     <div className="flex flex-col gap-2">
                         <p className="font-semibold text-xl">{t('footer-solutions')}</p>
-                        <Link href='/products#workspaces' className="hover:underline">{t('footer-workspace')}</Link>
-                        <Link href='/products#billing' className="hover:underline">{t('footer-billing')}</Link>
-                        <Link href='/products#sells' className="hover:underline">{t('footer-sells')}</Link>
-                        <Link href='/products#chatbot' className="hover:underline">{t('footer-ai-chat')}</Link>
+                        <Link href='/products#workspaces' scroll={false} className="hover:underline">{t('footer-workspace')}</Link>
+                        <Link href='/products#billing' scroll={false} className="hover:underline">{t('footer-billing')}</Link>
+                        <Link href='/products#sells' scroll={false} className="hover:underline">{t('footer-sells')}</Link>
+                        <Link href='/products#chatbot' scroll={false} className="hover:underline">{t('footer-ai-chat')}</Link>
                     </div>
                     <div className="flex flex-col gap-2">
                         <p className="font-semibold text-xl">{t('footer-resources')}</p>
@@ -37,6 +37,7 @@ const LandingFooter = () => {
                         <p className="font-semibold text-xl">{t('footer-company')}</p>
                         <Link href='/about' className="hover:underline">{t('footer-about-us')}</Link>
                         <Link href='/contact' className="hover:underline">{t('footer-contact-us')}</Link>
+                        <Link href='/blog' className="hover:underline">{t('footer-blog')}</Link>
                         <Link href='/terms' className="hover:underline">{t('footer-terms')}</Link>
                         <Link href='/privacy' className="hover:underline">{t('footer-privacy')}</Link>
                     </div>

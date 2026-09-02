@@ -14,6 +14,7 @@ import { AppProvider } from "@/context/AppContext";
 import { DemoDataProvider } from "@/context/DemoDataContext";
 import { getCurrent } from "@/features/auth/queries";
 import { cookies } from "next/headers";
+import LandingRouteTransition from "@/features/landing/components/LandingRouteTransition";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -45,7 +46,7 @@ export default async function RootLayout({
       <AppStructure />
       <Toaster />
       <ChatBot />
-      {children}
+      <LandingRouteTransition>{children}</LandingRouteTransition>
     </ChatBotProvider>
   );
 

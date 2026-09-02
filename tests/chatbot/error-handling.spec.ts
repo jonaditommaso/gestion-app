@@ -53,7 +53,6 @@ async function mockChatErrorResponse(
             });
             return;
         }
-        const encoder = new TextEncoder();
         await route.fulfill({
             status: 200,
             headers: {
@@ -61,7 +60,7 @@ async function mockChatErrorResponse(
                 'X-Conversation-Id': 'conv-error-001',
                 'X-Model-Name': 'Groq · GPT-OSS 120B',
             },
-            body: encoder.encode(errorMessage),
+            body: errorMessage,
         });
     });
 }
@@ -178,7 +177,6 @@ test.describe('Manejo de errores - Respuestas vacías o edge cases', () => {
                 await route.continue();
                 return;
             }
-            const encoder = new TextEncoder();
             await route.fulfill({
                 status: 200,
                 headers: {
@@ -186,7 +184,7 @@ test.describe('Manejo de errores - Respuestas vacías o edge cases', () => {
                     'X-Conversation-Id': 'conv-empty-001',
                     'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
-                body: encoder.encode(''),
+                body: '',
             });
         });
 
@@ -228,7 +226,6 @@ test.describe('Manejo de errores - Respuestas vacías o edge cases', () => {
                 await route.continue();
                 return;
             }
-            const encoder = new TextEncoder();
             // Solo enviamos la primera parte de la respuesta
             await route.fulfill({
                 status: 200,
@@ -237,7 +234,7 @@ test.describe('Manejo de errores - Respuestas vacías o edge cases', () => {
                     'X-Conversation-Id': 'conv-partial-001',
                     'X-Model-Name': 'Groq · GPT-OSS 120B',
                 },
-                body: encoder.encode('Esta es una respuesta parcial que se cortó'),
+                body: 'Esta es una respuesta parcial que se cortó',
             });
         });
 

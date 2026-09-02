@@ -1,4 +1,4 @@
-import { Table, Kanban, Calendar, Users, GripVertical } from "lucide-react"
+import { Table, Kanban, Calendar, Users, GripVertical, Filter, Settings, Share2, GitBranch } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 export default function WorkspacesDocumentation() {
@@ -261,6 +261,90 @@ export default function WorkspacesDocumentation() {
                         <p className="text-sm text-yellow-800">
                             {t('views.drag-drop-description')}
                         </p>
+                    </div>
+                </div>
+            </div>
+        ),
+
+        "workspace-advanced": (
+            <div className="space-y-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('advanced.title')}</h1>
+                    <p className="text-xl text-gray-600 mb-8">{t('advanced.description-title')}</p>
+                </div>
+
+                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-indigo-900 mb-3">{t('advanced.subtitle')}</h3>
+                    <p className="text-indigo-800">{t('advanced.description-subtitle')}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="border border-indigo-200 bg-indigo-50 rounded-lg p-6">
+                        <h4 className="font-semibold text-indigo-900 mb-2">{t('advanced.section-1-title')}</h4>
+                        <p className="text-sm text-indigo-800">{t('advanced.section-1-description')}</p>
+                    </div>
+
+                    <div className="border border-blue-200 bg-blue-50 rounded-lg p-6">
+                        <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                            <Filter className="h-4 w-4" />
+                            {t('advanced.section-2-title')}
+                        </h4>
+                        <ul className="space-y-1 text-sm text-blue-800">
+                            <li>• {t('advanced.section-2-item-1')}</li>
+                            <li>• {t('advanced.section-2-item-2')}</li>
+                            <li>• {t('advanced.section-2-item-3')}</li>
+                            <li>• {t('advanced.section-2-item-4')}</li>
+                        </ul>
+                    </div>
+
+                    <div className="border border-purple-200 bg-purple-50 rounded-lg p-6">
+                        <h4 className="font-semibold text-purple-900 mb-2">{t('advanced.section-3-title')}</h4>
+                        <p className="text-sm text-purple-800">{t('advanced.section-3-description')}</p>
+                    </div>
+                </div>
+            </div>
+        ),
+
+        "workspace-settings": (
+            <div className="space-y-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('settings.title')}</h1>
+                    <p className="text-xl text-gray-600 mb-8">{t('settings.description-title')}</p>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3">{t('settings.subtitle')}</h3>
+                    <p className="text-slate-700">{t('settings.description-subtitle')}</p>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Settings className="h-4 w-4 text-slate-600" />
+                            {t('settings.section-1-title')}
+                        </h4>
+                        <p className="text-gray-600 text-sm">{t('settings.section-1-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2">{t('settings.section-2-title')}</h4>
+                        <p className="text-gray-600 text-sm">{t('settings.section-2-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <GitBranch className="h-4 w-4 text-slate-700" />
+                            {t('settings.section-3-title')}
+                        </h4>
+                        <p className="text-gray-600 text-sm">{t('settings.section-3-description')}</p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <Share2 className="h-4 w-4 text-blue-700" />
+                            {t('settings.section-4-title')}
+                        </h4>
+                        <p className="text-gray-600 text-sm">{t('settings.section-4-description')}</p>
                     </div>
                 </div>
             </div>

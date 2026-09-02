@@ -12,7 +12,7 @@
  *   5. Crear tarea con asignado, prioridad, fecha
  *   6. La tarea recién creada refleja todos sus datos
  *   7. Drag & drop (verificar que columna Kanban acepta drop)
- *   8. Cambio de vista Kanban ↔ Lista ↔ Calendario
+ *   8. Cambio de vista Kanban ↔ Lista ↔ Calendario ↔ Gantt
  *   9. Formulario de creación: validaciones
  *  10. Crear subtarea (epic child)
  */
@@ -170,17 +170,17 @@ test.describe('Tasks — Carga de página', () => {
     await expect(page.locator('text=/500|Internal Server Error/i')).toHaveCount(0);
   });
 
-  test('el switcher de vistas (Kanban/List/Calendar) es visible', async ({ page }) => {
+  test('el switcher de vistas (Kanban/List/Calendar/Gantt) es visible', async ({ page }) => {
     await navigateToApp(page, TASKS_ROUTE);
     await page.waitForTimeout(2000);
 
     // Buscar el TaskSwitcher
     const switcher = page.locator(
-      '[data-testid="task-switcher"], button:has-text("kanban"), button:has-text("list"), button:has-text("calendar"), [aria-label*="view"]'
+      '[data-testid="task-switcher"], button:has-text("kanban"), button:has-text("list"), button:has-text("calendar"), button:has-text("gantt"), [aria-label*="view"]'
     );
     // BUG CHECK: El switcher de vistas debe ser visible
     if ((await switcher.count()) === 0) {
-      console.warn('[BUG CHECK] No se encontró el switcher de vistas (Kanban/Lista/Calendario) en la sección de tareas');
+      console.warn('[BUG CHECK] No se encontró el switcher de vistas (Kanban/Lista/Calendario/Gantt) en la sección de tareas');
     }
   });
 });

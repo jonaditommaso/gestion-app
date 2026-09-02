@@ -1,5 +1,4 @@
 'use client'
-import { DialogContainer } from "@/components/DialogContainer"
 import {  Check, MessageSquareText } from "lucide-react" // BellRing,
 
 import { cn } from "@/lib/utils"
@@ -17,12 +16,17 @@ import { useGetMembers } from "@/features/team/api/use-get-members"
 import '@github/relative-time-element';
 import { useLocale, useTranslations } from "next-intl"
 import { useBulkReadMessages } from "../../api/use-bulk-read-messages"
+import { useUpdateMessage } from "../../api/use-update-message"
+import { useReplyMessage } from "../../api/use-reply-message"
+import { useGetMessageConversation } from "../../api/use-get-message-conversation"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Message } from './types';
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation"
 import { useAppContext } from "@/context/AppContext"
 import { useProfilePicture } from "@/hooks/useProfilePicture"
+import MessageDetailSheet from "./MessageDetailSheet"
+import CreateMessageModal from "./CreateMessageModal";
 
 type CardProps = React.ComponentProps<typeof Card>
 
@@ -58,11 +62,23 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const { data: messages, isPending } = useGetMessages();
   const { data: teamData } = useGetMembers();
   const { mutate: markAsRead, isPending: markingReadMessages } = useBulkReadMessages();
+  const { mutate: updateMessage } = useUpdateMessage();
+  const { mutateAsync: replyMessage, isPending: isReplying } = useReplyMessage();
   const locale = useLocale();
   const t = useTranslations('home');
   const router = useRouter();
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [forwardMessage, setForwardMessage] = useState<Message | null>(null);
+  const [forwardModalOpen, setForwardModalOpen] = useState(false);
+  const [focusComposerKey] = useState(0);
+  const [featuredOverrides, setFeaturedOverrides] = useState<Map<string, boolean>>(new Map());
   const { isDemo } = useAppContext();
+
+  useEffect(() => {
+    if (!forwardModalOpen) {
+      setForwardMessage(null);
+    }
+  }, [forwardModalOpen]);
 
   const senderByMembershipId = useMemo(() => {
     const map = new Map<string, MessageSenderInfo>();
@@ -87,6 +103,76 @@ export function MessagesContainer({ className, ...props }: CardProps) {
   const unreadMessages: Message[] = ((messages?.documents ?? []) as unknown as Message[])
   .filter((m): m is Message => 'content' in m && 'toTeamMemberId' in m && 'read' in m && !m.read);
 
+  const senderMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const [id, sender] of senderByMembershipId.entries()) {
+      map.set(id, sender.name);
+    }
+    return map;
+  }, [senderByMembershipId]);
+
+  const { data: openConversation, isPending: isConversationPending } = useGetMessageConversation({
+    messageId: selectedMessage?.$id ?? null,
+    enabled: Boolean(selectedMessage?.conversationId),
+  });
+
+  const drawerConversationMessages = useMemo(() => {
+    if (!selectedMessage) return [];
+    if (!selectedMessage.conversationId) {
+      return [selectedMessage];
+    }
+
+    if (openConversation?.messages && openConversation.messages.length > 0) {
+      return openConversation.messages;
+    }
+
+    return [];
+  }, [openConversation, selectedMessage]);
+
+  const isConversationLoading = Boolean(selectedMessage?.conversationId) && isConversationPending && !openConversation;
+
+  const getFeaturedValue = (message: Message) => {
+    return featuredOverrides.has(message.$id)
+      ? featuredOverrides.get(message.$id)!
+      : (message.featured ?? false);
+  };
+
+  const handleFeature = (id: string, featured: boolean) => {
+    setFeaturedOverrides(prev => new Map(prev).set(id, featured));
+    updateMessage(
+      { param: { messageId: id }, json: { featured } },
+      {
+        onError: () => {
+          setFeaturedOverrides(prev => {
+            const next = new Map(prev);
+            next.delete(id);
+            return next;
+          });
+        },
+      }
+    );
+  };
+
+  const handleSendReply = async (targetMessageId: string, content: string): Promise<boolean> => {
+    if (!targetMessageId) return false;
+
+    try {
+      const response = await replyMessage({
+        param: { messageId: targetMessageId },
+        json: { content: content.trim() },
+      });
+
+      const conversationId = response.data?.conversationId;
+      if (conversationId) {
+        setSelectedMessage(prev => prev ? { ...prev, conversationId } : prev);
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleMarkAsRead = () => {
     if(unreadMessages?.length) {
       markAsRead({
@@ -94,6 +180,21 @@ export function MessagesContainer({ className, ...props }: CardProps) {
       })
     }
   }
+
+  const handleOpenMessage = (message: Message) => {
+    setSelectedMessage(message);
+    if (!message.read) {
+      updateMessage({
+        param: { messageId: message.$id },
+        json: { read: true },
+      });
+    }
+  };
+
+  const handleForwardMessage = (message: Message) => {
+    setForwardMessage(message);
+    setForwardModalOpen(true);
+  };
 
   return (
     <Card className={cn("col-span-1 h-fit", className)} {...props}>
@@ -133,7 +234,7 @@ export function MessagesContainer({ className, ...props }: CardProps) {
                 <button
                   key={index}
                   type="button"
-                  onClick={() => setSelectedMessage(message)}
+                  onClick={() => handleOpenMessage(message)}
                   className="relative mb-4 w-full text-left pb-2 pt-2 px-1 rounded-md bg-sidebar hover:bg-sidebar-accent/80 transition-colors border flex items-start gap-2"
                 >
                   {!message.read ? <span className="absolute right-2 top-2 flex h-2.5 w-2.5 rounded-full bg-blue-600" /> : null}
@@ -160,21 +261,36 @@ export function MessagesContainer({ className, ...props }: CardProps) {
         </CardContent>
       </div>
 
-      <DialogContainer
-        title={selectedMessage?.subject?.trim() || t('no-subject')}
-        description={selectedMessage ? `${t('from')}: ${senderByMembershipId.get(selectedMessage.fromTeamMemberId)?.name || t('unknown-sender')}` : ''}
-        isOpen={Boolean(selectedMessage)}
-        setIsOpen={(open: boolean) => {
+      <MessageDetailSheet
+        open={Boolean(selectedMessage)}
+        onOpenChange={(open: boolean) => {
           if (!open) setSelectedMessage(null);
         }}
-      >
-        {selectedMessage && (
-          <div className="space-y-3">
-            <p className="text-sm whitespace-pre-wrap">{selectedMessage.content}</p>
-            <relative-time lang={locale} datetime={selectedMessage.$createdAt} className="text-muted-foreground text-xs block" />
-          </div>
-        )}
-      </DialogContainer>
+        message={selectedMessage}
+        title={selectedMessage?.subject?.trim() || t('no-subject')}
+        description={selectedMessage ? `${t('from')}: ${senderByMembershipId.get(selectedMessage.fromTeamMemberId)?.name || t('unknown-sender')}` : ''}
+        locale={locale}
+        conversationMessages={drawerConversationMessages}
+        selectedMessageId={selectedMessage?.$id}
+        senderMap={senderMap}
+        showReplyComposer
+        onSendReply={handleSendReply}
+        onForward={handleForwardMessage}
+        onToggleFeatured={handleFeature}
+        getFeaturedValue={getFeaturedValue}
+        isSendingReply={isReplying}
+        focusComposerKey={focusComposerKey}
+        isConversationLoading={isConversationLoading}
+      />
+
+      {forwardModalOpen && (
+        <CreateMessageModal
+          isOpen={forwardModalOpen}
+          setIsOpen={setForwardModalOpen}
+          forwardMessage={forwardMessage}
+          forwardSenderName={forwardMessage ? senderMap.get(forwardMessage.fromTeamMemberId) || t('unknown-sender') : undefined}
+        />
+      )}
     </Card>
   )
 }

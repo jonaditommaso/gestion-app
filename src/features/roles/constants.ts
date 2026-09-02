@@ -207,6 +207,7 @@ export const PERMISSION_CATALOG: Array<{ moduleKey: string; permissions: string[
             "view_kanban_workspaces",
             "view_table_workspaces",
             "view_calendar_workspaces",
+            "view_gantt_workspaces",
             "create_task",
             "edit_task",
             "delete_task",

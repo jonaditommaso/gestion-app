@@ -74,7 +74,7 @@ const AppNavbar = () => {
   );
 
   return (
-    <nav className={cn('border-b shadow-md fixed top-0 z-40 grid grid-cols-3 items-center w-full bg-sidebar', isDemo && 'grid-cols-4')}>
+    <nav className={cn('border-b shadow-md fixed top-0 z-50 grid grid-cols-3 items-center w-full bg-sidebar', isDemo && 'grid-cols-4')}>
       <div className={cn("flex items-center gap-2 pl-2", isDemo && "col-span-2")}>
         <div className="max-w-44 flex items-center p-2">
           {isDemo

@@ -10,11 +10,6 @@ import type { Message } from "@/features/home/components/messages/types";
 type ResponseType = InferResponseType<typeof client.api.messages[':messageId']['$patch'], 200>
 type RequestType = InferRequestType<typeof client.api.messages[':messageId']['$patch']>
 
-type MessagesQueryData = {
-    documents: Message[];
-    total: number;
-};
-
 export const useUpdateMessage = () => {
     const queryClient = useQueryClient();
     const t = useTranslations('home');
@@ -33,24 +28,6 @@ export const useUpdateMessage = () => {
                     updateDemoMessage(param.messageId, patch);
                 }
 
-                const updateCache = (previous?: MessagesQueryData) => {
-                    const documents = (previous?.documents ?? []) as Message[];
-
-                    if (isDeleting) {
-                        const nextDocuments = documents.filter(message => message.$id !== param.messageId);
-                        return { documents: nextDocuments, total: nextDocuments.length } satisfies MessagesQueryData;
-                    }
-
-                    const nextDocuments = documents.map(message =>
-                        message.$id === param.messageId ? { ...message, ...patch } : message
-                    );
-
-                    return { documents: nextDocuments, total: nextDocuments.length } satisfies MessagesQueryData;
-                };
-
-                queryClient.setQueryData<MessagesQueryData>(['messages', true], updateCache);
-                queryClient.setQueryData<MessagesQueryData>(['messages', 'sent', true], updateCache);
-
                 return { success: true } as unknown as ResponseType;
             }
 
@@ -63,9 +40,7 @@ export const useUpdateMessage = () => {
             return await response.json();
         },
         onSuccess: () => {
-            if (!isDemo) {
-                queryClient.invalidateQueries({ queryKey: ['messages'] });
-            }
+            queryClient.invalidateQueries({ queryKey: ['messages'] });
         },
         onError: () => {
             toast.error(t('failed-update-messages'));

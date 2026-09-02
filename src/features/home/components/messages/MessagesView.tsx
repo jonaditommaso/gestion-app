@@ -8,6 +8,7 @@ import {
     Send,
     Star,
     Search,
+    Archive,
     Trash2,
     MailOpen,
     X,
@@ -31,30 +32,37 @@ import {
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { DialogContainer } from '@/components/DialogContainer'
 import { cn } from '@/lib/utils'
 import FadeLoader from 'react-spinners/FadeLoader'
+import MessageDetailSheet from './MessageDetailSheet'
 import { useGetMessages } from '../../api/use-get-messages'
 import { useGetSentMessages } from '../../api/use-get-sent-messages'
 import { useGetMembers } from '@/features/team/api/use-get-members'
 import { useUpdateMessage } from '../../api/use-update-message'
+import { useReplyMessage } from '../../api/use-reply-message'
+import { useGetMessageConversation } from '../../api/use-get-message-conversation'
 import { Message } from './types'
 import MessageRow from './MessageRow'
 import CreateMessageModal from './CreateMessageModal'
 import '@github/relative-time-element'
 
-type Tab = 'all' | 'inbox' | 'sent' | 'featured'
+type Tab = 'all' | 'inbox' | 'sent' | 'featured' | 'archived'
 
 const MessagesView = () => {
     const t = useTranslations('messages-view')
     const locale = useLocale()
 
-    const { data: receivedData, isPending: loadingReceived } = useGetMessages()
-    const { data: sentData, isPending: loadingSent } = useGetSentMessages()
+    const [activeTab, setActiveTab] = useState<Tab>('inbox')
+    const isArchivedTab = activeTab === 'archived'
+
+    const { data: receivedData, isPending: loadingReceived } = useGetMessages({ enabled: !isArchivedTab })
+    const { data: sentData, isPending: loadingSent } = useGetSentMessages({ enabled: !isArchivedTab })
+    const { data: archivedReceivedData, isPending: loadingArchivedReceived } = useGetMessages({ enabled: isArchivedTab, archived: true })
+    const { data: archivedSentData, isPending: loadingArchivedSent } = useGetSentMessages({ enabled: isArchivedTab, archived: true })
     const { data: teamData } = useGetMembers()
     const { mutate: updateMessage } = useUpdateMessage()
+    const { mutateAsync: replyMessage, isPending: isReplying } = useReplyMessage()
 
-    const [activeTab, setActiveTab] = useState<Tab>('inbox')
     const [search, setSearch] = useState('')
     const [filterUnread, setFilterUnread] = useState(false)
     const [filterPerson, setFilterPerson] = useState('all')
@@ -63,15 +71,23 @@ const MessagesView = () => {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
     const [openMessage, setOpenMessage] = useState<Message | null>(null)
     const [composeOpen, setComposeOpen] = useState(false)
+    const [forwardMessage, setForwardMessage] = useState<Message | null>(null)
+    const [focusComposerKey, setFocusComposerKey] = useState(0)
     const [featuredOverrides, setFeaturedOverrides] = useState<Map<string, boolean>>(new Map())
     const [readOverrides, setReadOverrides] = useState<Map<string, boolean>>(new Map())
     const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set())
+    const [archivingIds, setArchivingIds] = useState<Set<string>>(new Set())
     const [markingReadIds, setMarkingReadIds] = useState<Set<string>>(new Set())
 
     const [DeleteDialog, confirmDelete] = useConfirm(
         t('delete-title'),
         t('delete-message'),
         'destructive'
+    )
+
+    const [ArchiveDialog, confirmArchive] = useConfirm(
+        t('archive-title'),
+        t('archive-message')
     )
 
     const senderMap = useMemo(() => {
@@ -94,11 +110,21 @@ const MessagesView = () => {
         [sentData?.documents]
     )
 
+    const allArchivedReceived: Message[] = useMemo(
+        () => (archivedReceivedData?.documents ?? []) as Message[],
+        [archivedReceivedData?.documents]
+    )
+
+    const allArchivedSent: Message[] = useMemo(
+        () => (archivedSentData?.documents ?? []) as Message[],
+        [archivedSentData?.documents]
+    )
+
     useEffect(() => {
         setFeaturedOverrides(prev => {
             if (prev.size === 0) return prev
             const next = new Map(prev)
-            const byId = new Map<string, Message>([...allReceived, ...allSent].map(message => [message.$id, message]))
+            const byId = new Map<string, Message>([...allReceived, ...allSent, ...allArchivedReceived, ...allArchivedSent].map(message => [message.$id, message]))
 
             for (const [id, override] of prev.entries()) {
                 const message = byId.get(id)
@@ -109,13 +135,13 @@ const MessagesView = () => {
 
             return next
         })
-    }, [allReceived, allSent])
+    }, [allReceived, allSent, allArchivedReceived, allArchivedSent])
 
     useEffect(() => {
         setReadOverrides(prev => {
             if (prev.size === 0) return prev
             const next = new Map(prev)
-            const byId = new Map<string, Message>([...allReceived, ...allSent].map(message => [message.$id, message]))
+            const byId = new Map<string, Message>([...allReceived, ...allSent, ...allArchivedReceived, ...allArchivedSent].map(message => [message.$id, message]))
 
             for (const [id, override] of prev.entries()) {
                 const message = byId.get(id)
@@ -126,12 +152,28 @@ const MessagesView = () => {
 
             return next
         })
-    }, [allReceived, allSent])
+    }, [allReceived, allSent, allArchivedReceived, allArchivedSent])
+
+    useEffect(() => {
+        if (!composeOpen) {
+            setForwardMessage(null)
+        }
+    }, [composeOpen])
 
     const sentIds = useMemo(
-        () => new Set(allSent.map(m => m.$id)),
-        [allSent]
+        () => new Set([...allSent, ...allArchivedSent].map(m => m.$id)),
+        [allSent, allArchivedSent]
     )
+
+    const receivedIds = useMemo(
+        () => new Set([...allReceived, ...allArchivedReceived].map(m => m.$id)),
+        [allReceived, allArchivedReceived]
+    )
+
+    const { data: openConversation, isPending: isConversationPending } = useGetMessageConversation({
+        messageId: openMessage?.$id ?? null,
+        enabled: Boolean(openMessage?.conversationId),
+    })
 
     const messages = useMemo(() => {
         let list: Message[] = []
@@ -140,6 +182,25 @@ const MessagesView = () => {
             list = allReceived.filter(m => !m.deletedByRecipient)
         } else if (activeTab === 'sent') {
             list = allSent.filter(m => !m.deletedBySender)
+        } else if (activeTab === 'archived') {
+            const seenIds = new Set<string>()
+            const combined: Message[] = []
+
+            for (const m of allArchivedReceived) {
+                if (!m.deletedByRecipient) {
+                    seenIds.add(m.$id)
+                    combined.push(m)
+                }
+            }
+
+            for (const m of allArchivedSent) {
+                if (!seenIds.has(m.$id) && !m.deletedBySender) {
+                    combined.push(m)
+                }
+            }
+
+            combined.sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime())
+            list = combined
         } else if (activeTab === 'featured') {
             const receivedFeatured = allReceived.filter(m => m.featured && !m.deletedByRecipient)
             const sentFeatured = allSent.filter(m => m.featured && !m.deletedBySender)
@@ -161,6 +222,8 @@ const MessagesView = () => {
 
         if (filterUnread && activeTab !== 'sent') {
             list = list.filter(m => {
+                if (!receivedIds.has(m.$id)) return false
+
                 const readValue = readOverrides.has(m.$id)
                     ? readOverrides.get(m.$id)!
                     : m.read
@@ -174,6 +237,13 @@ const MessagesView = () => {
                 list = list.filter(m => m.fromTeamMemberId === filterPerson)
             } else if (activeTab === 'sent') {
                 list = list.filter(m => m.toTeamMemberId === filterPerson)
+            } else {
+                list = list.filter(m => {
+                    const isSentOnly = sentIds.has(m.$id) && !receivedIds.has(m.$id)
+                    return isSentOnly
+                        ? m.toTeamMemberId === filterPerson
+                        : m.fromTeamMemberId === filterPerson
+                })
             }
         }
 
@@ -198,14 +268,16 @@ const MessagesView = () => {
         }
 
         return list
-    }, [activeTab, allReceived, allSent, filterUnread, filterPerson, dateFrom, dateTo, search, readOverrides])
+    }, [activeTab, allReceived, allSent, allArchivedReceived, allArchivedSent, filterUnread, filterPerson, dateFrom, dateTo, search, readOverrides, sentIds, receivedIds])
 
     const unreadCount = useMemo(
         () => allReceived.filter(m => !m.read && !m.deletedByRecipient).length,
         [allReceived]
     )
 
-    const isLoading = loadingReceived || loadingSent
+    const isLoading = isArchivedTab
+        ? loadingArchivedReceived || loadingArchivedSent
+        : loadingReceived || loadingSent
 
     const allSelected = messages.length > 0 && selectedIds.size === messages.length
     const someSelected = selectedIds.size > 0
@@ -265,7 +337,7 @@ const MessagesView = () => {
         if (!ok) return
 
         setDeletingIds(prev => new Set(prev).add(id))
-        const isSentOnly = sentIds.has(id) && !allReceived.some(m => m.$id === id)
+        const isSentOnly = sentIds.has(id) && !receivedIds.has(id)
         updateMessage(
             { param: { messageId: id }, json: isSentOnly ? { deletedBySender: true } : { deletedByRecipient: true } },
             {
@@ -288,7 +360,7 @@ const MessagesView = () => {
         setSelectedIds(new Set())
         ids.forEach(id => {
             setDeletingIds(prev => new Set(prev).add(id))
-            const isSentOnly = sentIds.has(id) && !allReceived.some(m => m.$id === id)
+            const isSentOnly = sentIds.has(id) && !receivedIds.has(id)
             updateMessage(
                 { param: { messageId: id }, json: isSentOnly ? { deletedBySender: true } : { deletedByRecipient: true } },
                 {
@@ -303,18 +375,68 @@ const MessagesView = () => {
         })
     }
 
+    const handleArchive = async (id: string) => {
+        const ok = await confirmArchive()
+        if (!ok) return
+
+        setArchivingIds(prev => new Set(prev).add(id))
+        const isSentOnly = sentIds.has(id) && !receivedIds.has(id)
+
+        updateMessage(
+            { param: { messageId: id }, json: isSentOnly ? { archivedBySender: true } : { archivedByRecipient: true } },
+            {
+                onSuccess: () => {
+                    setArchivingIds(prev => { const next = new Set(prev); next.delete(id); return next })
+                    setSelectedIds(prev => { const next = new Set(prev); next.delete(id); return next })
+                },
+                onError: () => {
+                    setArchivingIds(prev => { const next = new Set(prev); next.delete(id); return next })
+                }
+            }
+        )
+    }
+
+    const handleBulkArchive = async () => {
+        const ok = await confirmArchive()
+        if (!ok) return
+
+        const ids = Array.from(selectedIds)
+        setSelectedIds(new Set())
+
+        ids.forEach(id => {
+            setArchivingIds(prev => new Set(prev).add(id))
+            const isSentOnly = sentIds.has(id) && !receivedIds.has(id)
+
+            updateMessage(
+                { param: { messageId: id }, json: isSentOnly ? { archivedBySender: true } : { archivedByRecipient: true } },
+                {
+                    onSuccess: () => {
+                        setArchivingIds(prev => { const next = new Set(prev); next.delete(id); return next })
+                    },
+                    onError: () => {
+                        setArchivingIds(prev => { const next = new Set(prev); next.delete(id); return next })
+                    }
+                }
+            )
+        })
+    }
+
     const handleBulkMarkRead = () => {
         Array.from(selectedIds).forEach(id => {
-            if (!sentIds.has(id) || allReceived.some(m => m.$id === id)) {
+            if (receivedIds.has(id)) {
                 handleMarkRead(id)
             }
         })
         setSelectedIds(new Set())
     }
 
-    const handleOpenMessage = (message: Message) => {
+    const handleOpenMessage = (message: Message, options?: { focusReplyComposer?: boolean }) => {
         setOpenMessage(message)
-        const isReceivedMsg = allReceived.some(m => m.$id === message.$id)
+        if (options?.focusReplyComposer) {
+            setFocusComposerKey(prev => prev + 1)
+        }
+
+        const isReceivedMsg = receivedIds.has(message.$id)
         const readValue = readOverrides.has(message.$id)
             ? readOverrides.get(message.$id)!
             : message.read
@@ -324,16 +446,48 @@ const MessagesView = () => {
         }
     }
 
+    const handleSendReply = async (targetMessageId: string, content: string): Promise<boolean> => {
+        if (!targetMessageId) return false
+
+        try {
+            const response = await replyMessage({
+                param: { messageId: targetMessageId },
+                json: { content: content.trim() },
+            })
+
+            const conversationId = response.data?.conversationId
+            if (conversationId) {
+                setOpenMessage(prev => prev ? { ...prev, conversationId } : prev)
+            }
+
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    const handleOpenCompose = () => {
+        setForwardMessage(null)
+        setComposeOpen(true)
+    }
+
+    const handleForwardMessage = (message: Message) => {
+        setForwardMessage(message)
+        setComposeOpen(true)
+    }
+
     const peopleOptions = useMemo(() => {
         const ids = new Set<string>()
-        if (activeTab === 'inbox' || activeTab === 'all') {
-            allReceived.filter(m => !m.deletedByRecipient).forEach(m => ids.add(m.fromTeamMemberId))
+        if (activeTab === 'inbox' || activeTab === 'all' || activeTab === 'archived') {
+            const source = activeTab === 'archived' ? allArchivedReceived : allReceived
+            source.filter(m => !m.deletedByRecipient).forEach(m => ids.add(m.fromTeamMemberId))
         }
-        if (activeTab === 'sent' || activeTab === 'all') {
-            allSent.filter(m => !m.deletedBySender).forEach(m => ids.add(m.toTeamMemberId))
+        if (activeTab === 'sent' || activeTab === 'all' || activeTab === 'archived') {
+            const source = activeTab === 'archived' ? allArchivedSent : allSent
+            source.filter(m => !m.deletedBySender).forEach(m => ids.add(m.toTeamMemberId))
         }
         return Array.from(ids).map(id => ({ id, name: senderMap.get(id) || t('unknown') }))
-    }, [activeTab, allReceived, allSent, senderMap, t])
+    }, [activeTab, allReceived, allSent, allArchivedReceived, allArchivedSent, senderMap, t])
 
     const hasDateFilter = dateFrom !== undefined || dateTo !== undefined
 
@@ -352,18 +506,40 @@ const MessagesView = () => {
     }
 
     const openMessageIsSent = openMessage
-        ? sentIds.has(openMessage.$id) && !allReceived.some(m => m.$id === openMessage.$id)
+        ? sentIds.has(openMessage.$id) && !receivedIds.has(openMessage.$id)
         : false
     const openMessagePersonId = openMessage
         ? (openMessageIsSent ? openMessage.toTeamMemberId : openMessage.fromTeamMemberId)
         : ''
     const openMessagePersonName = senderMap.get(openMessagePersonId) || t('unknown')
 
+    const drawerConversationMessages = useMemo(() => {
+        if (!openMessage) return []
+        if (!openMessage.conversationId) {
+            return [openMessage]
+        }
+
+        if (openConversation?.messages && openConversation.messages.length > 0) {
+            return openConversation.messages
+        }
+
+        return []
+    }, [openConversation, openMessage])
+
+    const isConversationLoading = Boolean(openMessage?.conversationId) && isConversationPending && !openConversation
+
+    const getFeaturedValue = (message: Message) => {
+        return featuredOverrides.has(message.$id)
+            ? featuredOverrides.get(message.$id)!
+            : (message.featured ?? false)
+    }
+
     const tabs = [
         { tab: 'all' as Tab, icon: Mails, label: t('all'), count: undefined as number | undefined },
         { tab: 'inbox' as Tab, icon: Inbox, label: t('inbox'), count: unreadCount || undefined },
         { tab: 'sent' as Tab, icon: Send, label: t('sent'), count: undefined as number | undefined },
         { tab: 'featured' as Tab, icon: Star, label: t('featured'), count: undefined as number | undefined },
+        { tab: 'archived' as Tab, icon: Archive, label: t('archived'), count: undefined as number | undefined },
     ]
 
     return (
@@ -375,7 +551,7 @@ const MessagesView = () => {
                         variant="default"
                         size="sm"
                         className="mb-1 gap-1.5"
-                        onClick={() => setComposeOpen(true)}
+                        onClick={handleOpenCompose}
                     >
                         <Pencil size={14} />
                         {t('compose')}
@@ -431,6 +607,12 @@ const MessagesView = () => {
                             <Button size="sm" variant="ghost" onClick={handleBulkMarkRead} className="h-7">
                                 <MailOpen size={13} className="mr-1" />
                                 {t('mark-read')}
+                            </Button>
+                        )}
+                        {activeTab !== 'archived' && (
+                            <Button size="sm" variant="ghost" onClick={handleBulkArchive} className="h-7">
+                                <Archive size={13} className="mr-1" />
+                                {t('archive')}
                             </Button>
                         )}
                         <Button
@@ -555,11 +737,9 @@ const MessagesView = () => {
                                 activeTab === 'sent' ||
                                 (activeTab !== 'inbox' &&
                                     sentIds.has(message.$id) &&
-                                    !allReceived.some(m => m.$id === message.$id))
+                                    !receivedIds.has(message.$id))
 
-                            const featuredValue = featuredOverrides.has(message.$id)
-                                ? featuredOverrides.get(message.$id)!
-                                : (message.featured ?? false)
+                            const featuredValue = getFeaturedValue(message)
 
                             const readValue = readOverrides.has(message.$id)
                                 ? readOverrides.get(message.$id)!
@@ -574,11 +754,15 @@ const MessagesView = () => {
                                     selected={selectedIds.has(message.$id)}
                                     onSelect={toggleSelect}
                                     onOpen={handleOpenMessage}
+                                    onReply={msg => handleOpenMessage(msg, { focusReplyComposer: true })}
                                     onFeature={handleFeature}
+                                    onArchive={handleArchive}
                                     onDelete={handleDelete}
                                     locale={locale}
                                     unknownLabel={t('unknown')}
                                     isDeleting={deletingIds.has(message.$id)}
+                                    isArchiving={archivingIds.has(message.$id)}
+                                    showArchiveAction={activeTab !== 'archived'}
                                     featuredValue={featuredValue}
                                     isRead={readValue}
                                     isMarkingRead={markingReadIds.has(message.$id)}
@@ -590,30 +774,37 @@ const MessagesView = () => {
                 )}
             </div>
 
-            {/* Message detail dialog */}
-            <DialogContainer
+            <MessageDetailSheet
+                open={Boolean(openMessage)}
+                onOpenChange={(open: boolean) => {
+                    if (!open) setOpenMessage(null)
+                }}
+                message={openMessage}
                 title={openMessage?.subject?.trim() || t('no-subject')}
-                description={
-                    openMessage
-                        ? `${openMessageIsSent ? t('to') : t('from')}: ${openMessagePersonName}`
-                        : ''
-                }
-                isOpen={Boolean(openMessage)}
-                setIsOpen={(open: boolean) => { if (!open) setOpenMessage(null) }}
-            >
-                {openMessage && (
-                    <div className="space-y-3">
-                        <p className="text-sm whitespace-pre-wrap">{openMessage.content}</p>
-                        <relative-time
-                            lang={locale}
-                            datetime={openMessage.$createdAt}
-                            className="text-muted-foreground text-xs block"
-                        />
-                    </div>
-                )}
-            </DialogContainer>
+                description={openMessage ? `${openMessageIsSent ? t('to') : t('from')}: ${openMessagePersonName}` : ''}
+                locale={locale}
+                conversationMessages={drawerConversationMessages}
+                selectedMessageId={openMessage?.$id}
+                senderMap={senderMap}
+                showReplyComposer
+                onSendReply={handleSendReply}
+                onForward={handleForwardMessage}
+                onToggleFeatured={handleFeature}
+                getFeaturedValue={getFeaturedValue}
+                isSendingReply={isReplying}
+                focusComposerKey={focusComposerKey}
+                isConversationLoading={isConversationLoading}
+            />
 
-            <CreateMessageModal isOpen={composeOpen} setIsOpen={setComposeOpen} />
+            {composeOpen && (
+                <CreateMessageModal
+                    isOpen={composeOpen}
+                    setIsOpen={setComposeOpen}
+                    forwardMessage={forwardMessage}
+                    forwardSenderName={forwardMessage ? senderMap.get(forwardMessage.fromTeamMemberId) || t('unknown') : undefined}
+                />
+            )}
+            <ArchiveDialog />
             <DeleteDialog />
         </div>
     )

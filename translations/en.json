@@ -426,6 +426,10 @@
             "stat-3-description": "Always here to help"
         },
         "docs": {
+            "title": "Documentation",
+            "description": "Product guides and resources to help you use our platform effectively.",
+            "previous-topic": "Previous topic",
+            "next-topic": "Next topic",
             "workspaces": {
                 "overview": {
                     "title": "Workspaces",
@@ -500,7 +504,37 @@
                     "state-4": "IN REVIEW",
                     "state-5": "COMPLETED",
                     "drag-drop-title": "Drag & Drop Operation",
-                    "drag-drop-description": "When you drag a task, the system automatically calculates new positions, updates the state if you change columns, and synchronizes changes with the server through the useBulkUpdateTasks hook to maintain real-time consistency."
+                    "drag-drop-description": "When you drag a task, the system automatically calculates new positions, updates the state if you change columns, and synchronizes changes with the server through the useBulkUpdateTasks hook to maintain real-time consistency.",
+                    "kanban-states-title": "Kanban Task States"
+                },
+                "advanced": {
+                    "title": "Advanced Task Views",
+                    "description-title": "Beyond table, kanban and calendar, workspaces include a Gantt view and compound filters for complex operations.",
+                    "subtitle": "High-detail views and filters",
+                    "description-subtitle": "These capabilities are designed for teams that need time planning, traceability and finer prioritization.",
+                    "section-1-title": "Permission-based Gantt view",
+                    "section-1-description": "Gantt is enabled by plan and granular permissions, and helps visualize dependencies and timeline horizons.",
+                    "section-2-title": "Advanced filters",
+                    "section-2-item-1": "Standard and custom status",
+                    "section-2-item-2": "Assignee, squad, priority and task type",
+                    "section-2-item-3": "Single-select or multi-select labels",
+                    "section-2-item-4": "Date ranges, completed tasks and local search",
+                    "section-3-title": "Contextual task details",
+                    "section-3-description": "Each task opens a detail panel/modal with checklists, comments, metadata and follow-up actions to resolve work in flow."
+                },
+                "settings": {
+                    "title": "Workspace Settings and Integrations",
+                    "description-title": "Workspace includes an advanced settings panel for workflow, permissions, notifications and operational automation.",
+                    "subtitle": "Centralized operational control",
+                    "description-subtitle": "Everything is managed from the same workspace to keep consistency across team, views and rules.",
+                    "section-1-title": "Workflow and work rules",
+                    "section-1-description": "Configure statuses, validations and preferences that affect how teams create, update and close tasks.",
+                    "section-2-title": "Granular action permissions",
+                    "section-2-description": "Define who can edit tasks, labels, settings and critical workspace actions.",
+                    "section-3-title": "GitHub integration",
+                    "section-3-description": "Workspace can connect to GitHub to relate technical work and operational tracking in one place.",
+                    "section-4-title": "Public or private sharing",
+                    "section-4-description": "Tasks and views can be shared based on team context, with controls for internal or external exposure."
                 }
             },
             "billing": {
@@ -571,6 +605,23 @@
                     "section-2-item-5": "Annual",
                     "section-2-title-2": "Category Analysis",
                     "section-2-description-2": "Detailed breakdown of expenses and income by categories with percentages and growth trends."
+                },
+                "workflow": {
+                    "title": "Operational Billing Workflow",
+                    "description-title": "Billing includes work circuits for drafts, archiving and follow-up in addition to analytics views.",
+                    "subtitle": "From initial input to continuous control",
+                    "description-subtitle": "Financial operations are organized as a workflow with states, not only as a transaction list.",
+                    "section-1-title": "Drafts",
+                    "section-1-description": "Prepare incomplete operations and validate them before impacting reports or closing metrics.",
+                    "section-2-title": "Archived",
+                    "section-2-description": "Separate closed or historical operations to keep active view clean without losing traceability.",
+                    "section-3-title": "Follow-up",
+                    "section-3-description": "Tracking panel for due dates, alerts and pending actions linked to financial movement.",
+                    "section-4-title": "Operational best practices",
+                    "section-4-item-1": "Use drafts for incremental input",
+                    "section-4-item-2": "Archive completed operations by period",
+                    "section-4-item-3": "Review follow-up in weekly routines",
+                    "section-4-item-4": "Cross-check follow-up with analytics to prioritize decisions"
                 }
             },
             "team": {
@@ -594,7 +645,7 @@
                     "role-2-title": "Manager",
                     "role-2-description": "Team and project management, task assignment, report viewing and general supervision.",
                     "role-3-title": "Editor",
-                    "role-3-description": "Create and edit content, manage records, participate in workspaces and collaborate actively.",
+                    "role-3-description": "Create and edit content, manage tasks, participate in workspaces and collaborate actively.",
                     "role-4-title": "Viewer",
                     "role-4-description": "Read-only access to information, dashboard viewing and limited access to basic functionalities."
                 },
@@ -645,7 +696,26 @@
                     "best-practice-1": "Assign the minimum level of permissions needed for each role",
                     "best-practice-2": "Periodically review permissions of active users",
                     "best-practice-3": "Use predefined roles before creating custom roles",
-                    "best-practice-4": "Keep a record of important permission changes"
+                    "best-practice-4": "Keep a record of important permission changes",
+                    "messages-title": "Messages",
+                    "messages-permission-1": "View conversations",
+                    "messages-permission-2": "Send messages",
+                    "messages-permission-3": "Reply and forward",
+                    "messages-permission-4": "Archive and feature"
+                },
+                "management": {
+                    "title": "Advanced Member Management",
+                    "description-title": "Beyond invitations, Team allows managing onboarding, removals and access changes with security validations.",
+                    "subtitle": "Full member lifecycle",
+                    "description-subtitle": "Management is centralized in guided flows and modals to reduce operational mistakes.",
+                    "section-1-title": "Invitation modes",
+                    "section-1-description": "Invite by URL/token or existing user depending on team context and onboarding style.",
+                    "section-2-title": "Link and token invitations",
+                    "section-2-description": "Invitations include URL and reusable token to share over any channel when onboarding is distributed.",
+                    "section-3-title": "Active member administration",
+                    "section-3-description": "From member management you can filter, inspect profiles and adjust operational access by role and need.",
+                    "section-4-title": "Protected removal",
+                    "section-4-description": "Member removal requires confirmation and MFA flow to reduce accidental or unauthorized actions."
                 }
             },
             "records": {
@@ -766,6 +836,22 @@
                     "section-3-description": "Visual comparison between the defined monetary goal and actual revenue generated in the period.",
                     "section-4-title": "Team Performance",
                     "section-4-description": "Deals created, closed and in progress segmented by seller to identify your best performers."
+                },
+                "advanced": {
+                    "title": "Advanced Sales Operations",
+                    "description-title": "The sales module goes beyond visual pipeline and includes daily operations, coordination and deep tracking tools.",
+                    "subtitle": "Tools for active sales teams",
+                    "description-subtitle": "These functions accelerate prospecting, reporting and collaboration across sellers.",
+                    "section-1-title": "Prospects tab",
+                    "section-1-description": "Operate pipeline in table format with filters, sorting, health score and quick per-deal actions.",
+                    "section-2-title": "Board settings and labels",
+                    "section-2-description": "Each board can configure labels, criteria and structure to match different sales processes.",
+                    "section-3-title": "Goals and history",
+                    "section-3-description": "Define period goals and review history to evaluate trend, achievement and sales velocity.",
+                    "section-4-title": "Sellers and squads",
+                    "section-4-description": "Manage sellers and sales squads, with squad filters for segmented performance analysis.",
+                    "section-5-title": "Communication from deal context",
+                    "section-5-description": "From each opportunity detail, teams can log interactions and trigger contact actions while keeping context."
                 }
             },
             "ai-assistant": {
@@ -800,7 +886,32 @@
                     "pro-item-1": "All PLUS actions",
                     "pro-item-2": "Manage deals and sales pipeline",
                     "pro-item-3": "Query and create billing operations",
-                    "pro-item-4": "Manage billing categories"
+                    "pro-item-4": "Manage billing categories",
+                    "free-title": "FREE plan",
+                    "free-description": "In FREE plan, the agent cannot execute operational actions within the organization.",
+                    "free-item-1": "No active function calling",
+                    "free-item-2": "No module tool access",
+                    "free-item-3": "Upgrade required to enable actions",
+                    "matrix-header-1": "Module",
+                    "matrix-header-2": "FREE",
+                    "matrix-header-3": "PLUS",
+                    "matrix-header-4": "PRO / ENTERPRISE",
+                    "matrix-row-1-name": "Home",
+                    "matrix-row-1-free": "Blocked",
+                    "matrix-row-1-plus": "Available",
+                    "matrix-row-1-pro": "Available",
+                    "matrix-row-2-name": "Tasks and Workspaces",
+                    "matrix-row-2-free": "Blocked",
+                    "matrix-row-2-plus": "Available",
+                    "matrix-row-2-pro": "Available",
+                    "matrix-row-3-name": "Billing",
+                    "matrix-row-3-free": "Blocked",
+                    "matrix-row-3-plus": "Not included",
+                    "matrix-row-3-pro": "Available",
+                    "matrix-row-4-name": "Sells / Deals",
+                    "matrix-row-4-free": "Blocked",
+                    "matrix-row-4-plus": "Not included",
+                    "matrix-row-4-pro": "Available"
                 },
                 "usage": {
                     "title": "How to Use",
@@ -865,6 +976,22 @@
                     "best-practice-2": "Periodically review permissions when team members change roles",
                     "best-practice-3": "Use VIEWER for external collaborators or auditors",
                     "best-practice-4": "Document permission changes in your team's internal notes"
+                },
+                "plans": {
+                    "title": "Roles by Plan",
+                    "description-title": "Roles module behavior changes by plan to balance simplicity and granular control.",
+                    "subtitle": "Availability by tier",
+                    "description-subtitle": "Not all plans expose the same permission management depth.",
+                    "free-plus-title": "FREE and PLUS",
+                    "free-plus-item-1": "User-focused view",
+                    "free-plus-item-2": "No granular roles tab",
+                    "free-plus-item-3": "Base roles for daily operation",
+                    "pro-enterprise-title": "PRO and ENTERPRISE",
+                    "pro-enterprise-item-1": "Users + Roles tabs available",
+                    "pro-enterprise-item-2": "Granular editing by module and action",
+                    "pro-enterprise-item-3": "More control for large or distributed teams",
+                    "recommendation-title": "Recommendation",
+                    "recommendation-description": "If your team needs frequent per-user exceptions, PRO or ENTERPRISE provide the expected control level."
                 }
             },
             "home": {
@@ -881,7 +1008,7 @@
                     "section-3-title": "Quick Actions",
                     "section-3-description": "Create deals, tasks or billing operations directly from the home without navigating to another section.",
                     "section-4-title": "Integrations",
-                    "section-4-description": "Toggle Spotify, YouTube and Google Drive from the home to complement your workflow.",
+                    "section-4-description": "View supported integrations and their availability status from the Home dashboard.",
                     "plan-note-title": "Plan Limitations",
                     "plan-note-description": "FREE plan users have access to a limited set of widgets. PRO and ENTERPRISE unlock all available widgets including pipeline, billing and team analytics."
                 },
@@ -927,6 +1054,177 @@
                     "widget-new-task-description": "Opens the task creation dialog from the home.",
                     "widget-new-billing-title": "New Billing Operation",
                     "widget-new-billing-description": "Quickly records a new income or expense from the home."
+                }
+            },
+            "messages": {
+                "overview": {
+                    "title": "Messages",
+                    "description-title": "The messages module centralizes internal communication with inbox, conversation view and productivity actions.",
+                    "subtitle": "Collaborative team inbox",
+                    "description-subtitle": "Messaging is integrated with team members so you can operate without leaving the platform.",
+                    "main-features": "Main features",
+                    "section-1-title": "Context-based inboxes",
+                    "section-1-description": "Navigate All, Inbox, Sent, Featured and Archived to prioritize by work type.",
+                    "section-2-title": "Operational filters",
+                    "section-2-description": "Filter by person, read state, date range and search to quickly find conversations.",
+                    "section-3-title": "Featured messages",
+                    "section-3-description": "Mark important messages to retrieve them later without losing focus across many threads.",
+                    "section-4-title": "Archive and cleanup",
+                    "section-4-description": "Archive or delete items individually or in bulk to keep inbox organized."
+                },
+                "inbox": {
+                    "title": "Inbox and Filters",
+                    "description-title": "Inbox view is designed for fast review and volume handling with bulk actions.",
+                    "subtitle": "Tab navigation",
+                    "description-subtitle": "Each tab groups one conversation type to reduce noise and response time.",
+                    "tabs-title": "Available tabs",
+                    "tab-1": "All",
+                    "tab-2": "Inbox",
+                    "tab-3": "Sent",
+                    "tab-4": "Featured",
+                    "tab-5": "Archived",
+                    "filters-title": "Main filters",
+                    "filter-1": "Related person",
+                    "filter-2": "Unread",
+                    "filter-3": "Date range",
+                    "filter-4": "Content search",
+                    "bulk-actions-title": "Bulk actions",
+                    "bulk-1": "Mark as read",
+                    "bulk-2": "Archive selection",
+                    "bulk-3": "Delete selection",
+                    "bulk-4": "Select all"
+                },
+                "compose": {
+                    "title": "Compose and Replies",
+                    "description-title": "Composer supports new messages and continuity for existing conversations.",
+                    "subtitle": "Communication flow",
+                    "description-subtitle": "From message detail you can reply or forward while preserving context.",
+                    "section-1-title": "New message",
+                    "section-1-description": "Start conversations with team members from Compose and manage recipients quickly.",
+                    "section-2-title": "Contextual reply",
+                    "section-2-description": "Reply keeps conversation history for continuity and traceability.",
+                    "section-3-title": "Forward and follow-up",
+                    "section-3-description": "Forward relevant messages to escalate decisions or coordinate cross-team actions."
+                }
+            },
+            "settings": {
+                "overview": {
+                    "title": "Account Settings",
+                    "description-title": "Settings centralizes personal configuration, security, sessions and user identity.",
+                    "subtitle": "Personal configuration center",
+                    "description-subtitle": "These settings directly affect account access, profile and daily product experience.",
+                    "section-1-title": "General data",
+                    "section-1-description": "Update core account information and personal preferences from one place.",
+                    "section-2-title": "Security",
+                    "section-2-description": "Manage access policies and account protection measures.",
+                    "section-3-title": "Language and localization",
+                    "section-3-description": "Select platform language to adapt the experience to your team.",
+                    "section-4-title": "Account type",
+                    "section-4-description": "Check current account type and how it affects advanced feature access."
+                },
+                "security": {
+                    "title": "Security and Sessions",
+                    "description-title": "Control active sessions and strengthen access security with periodic reviews.",
+                    "subtitle": "Access protection",
+                    "description-subtitle": "This module includes tools to manage credentials and connected devices.",
+                    "section-1-title": "Security configuration",
+                    "section-1-description": "Adjust critical authentication and account recovery parameters.",
+                    "section-2-title": "Active sessions",
+                    "section-2-description": "Review connected devices and close sessions when activity looks unexpected.",
+                    "section-3-title": "Operational hygiene",
+                    "section-3-description": "Keeping sessions clean and credentials updated reduces operational risk in distributed teams."
+                },
+                "sso": {
+                    "title": "SSO and Account Type",
+                    "description-title": "Single Sign-On availability depends on plan and role, and centralizes organizational authentication.",
+                    "subtitle": "Enterprise access",
+                    "description-subtitle": "SSO configuration is limited to advanced governance scenarios for larger organizations.",
+                    "availability-title": "Availability",
+                    "availability-1": "Requires ENTERPRISE plan",
+                    "availability-2": "Visible to OWNER and ADMIN roles",
+                    "availability-3": "Configured per active organization",
+                    "flow-title": "Configuration flow",
+                    "flow-1": "Define identity provider",
+                    "flow-2": "Validate parameters and domain",
+                    "flow-3": "Save configuration and test login"
+                }
+            },
+            "organization": {
+                "overview": {
+                    "title": "Organization",
+                    "description-title": "Organization view centralizes plan, payment method and overall company account state.",
+                    "subtitle": "Plan governance",
+                    "description-subtitle": "It is the control point for upgrades, coverage checks and operational continuity.",
+                    "section-1-title": "Current plan",
+                    "section-1-description": "See active plan and scope to align capabilities with team needs.",
+                    "section-2-title": "Usage coverage",
+                    "section-2-description": "Monitor aggregated usage on key resources to prevent unexpected limits.",
+                    "section-3-title": "Payment method",
+                    "section-3-description": "Check linked payment method status and its impact on renewals."
+                },
+                "usage": {
+                    "title": "Usage and Limits",
+                    "description-title": "Usage compares current consumption against plan limits on critical resources.",
+                    "subtitle": "Operational capacity",
+                    "description-subtitle": "This helps anticipate scaling before limits impact the team.",
+                    "section-1-title": "Tracked metrics",
+                    "section-1-description": "Members, workspaces and pipelines are key indicators of real capacity.",
+                    "section-2-title": "State-based reading",
+                    "section-2-description": "Values highlight proximity to limits to prioritize growth decisions.",
+                    "section-3-title": "Recommended actions",
+                    "section-3-item-1": "Review usage weekly",
+                    "section-3-item-2": "Consolidate underused resources",
+                    "section-3-item-3": "Plan upgrade before saturation"
+                },
+                "billing": {
+                    "title": "Payments and Incidents",
+                    "description-title": "Organization includes payment history and a critical zone for high-impact actions.",
+                    "subtitle": "Risk and continuity",
+                    "description-subtitle": "These controls help keep financial health and avoid service disruption.",
+                    "section-1-title": "Payment history",
+                    "section-1-description": "Review historical transactions for internal audit and administrative control.",
+                    "section-2-title": "Danger zone",
+                    "section-2-description": "Sensitive actions such as critical changes or closure should follow internal policy."
+                }
+            },
+            "integrations": {
+                "overview": {
+                    "title": "Integrations",
+                    "description-title": "The platform combines fully operational integrations with others in gradual availability.",
+                    "subtitle": "Real status by integration",
+                    "description-subtitle": "Documenting availability avoids wrong expectations during onboarding and support.",
+                    "available-title": "Operational integrations",
+                    "available-1": "GitHub in Workspace settings",
+                    "available-2": "Google Calendar for event creation",
+                    "available-3": "Google Drive for file access",
+                    "limited-title": "Partially available integrations",
+                    "limited-1": "Spotify visible on Home with limited activation",
+                    "limited-2": "YouTube visible on Home with limited activation",
+                    "limited-3": "Some options appear as coming soon in the UI"
+                },
+                "status": {
+                    "title": "Integration Status",
+                    "description-title": "Quick matrix to separate enabled integrations from those still in transition.",
+                    "subtitle": "Fast team reference",
+                    "description-subtitle": "Use this reference to decide which flows can be included in internal training.",
+                    "header-1": "Integration",
+                    "header-2": "Status",
+                    "header-3": "Notes",
+                    "row-1-name": "GitHub",
+                    "row-1-state": "Available",
+                    "row-1-notes": "Configurable from Workspace settings",
+                    "row-2-name": "Google Calendar",
+                    "row-2-state": "Available",
+                    "row-2-notes": "Used to create events/meetings",
+                    "row-3-name": "Google Drive",
+                    "row-3-state": "Available",
+                    "row-3-notes": "Active endpoints for auth and files",
+                    "row-4-name": "Spotify",
+                    "row-4-state": "Partial / Coming soon",
+                    "row-4-notes": "Visible in Home, limited activation",
+                    "row-5-name": "YouTube",
+                    "row-5-state": "Partial / Coming soon",
+                    "row-5-notes": "Visible in Home, limited activation"
                 }
             }
         },
@@ -989,6 +1287,243 @@
         "navbar-products-chatbot-title": "AI Agent",
         "navbar-products-chatbot-description": "Create tasks, query your pipeline and manage your org from a single chat",
         "navbar-pricing": "Prices",
+        "blog": {
+            "badge": "Blog",
+            "title": "Practical guides for clearer operations",
+            "description": "A small editorial collection built around real Gestionate workflows: workspaces, AI, billing, sales and permissions.",
+            "author": "Gestionate Team",
+            "search-placeholder": "Search by topic, workflow or feature",
+            "featured-title": "Featured article",
+            "featured-label": "Recommended reading",
+            "all": "All topics",
+            "more-articles": "More to read",
+            "results-count": "{count, plural, one {# article} other {# articles}}",
+            "read-article": "Read article",
+            "open-docs": "Open documentation",
+            "open-products": "Explore products",
+            "empty-title": "No articles matched this search",
+            "empty-description": "Try another keyword or clear the active filter to see the full collection again.",
+            "clear-filters": "Clear filters",
+            "back-to-blog": "Back to blog",
+            "overview-title": "At a glance",
+            "docs-cta-title": "Need the step-by-step version?",
+            "docs-cta-description": "This blog explains the why behind the workflows. The documentation covers the operational detail.",
+            "related-feature": "Related feature",
+            "categories": {
+                "operations": "Operations",
+                "automation": "AI & Automation",
+                "finance": "Billing",
+                "sales": "Sales",
+                "team": "Team & Permissions"
+            },
+            "posts": {
+                "one-place-for-operations": {
+                    "title": "One place for operations: what changes when tasks, records and planning stop living apart",
+                    "excerpt": "Gestionate becomes more valuable when execution, documentation and follow-up share the same context instead of being split across separate tools.",
+                    "publishedAt": "August 21, 2026",
+                    "readTime": "6 min read",
+                    "coverAlt": "Gestionate workspace overview",
+                    "intro": "Many teams do not struggle because they lack software. They struggle because every process begins by reconstructing context: the task lives in one tool, the file in another and the deadline somewhere else. Gestionate approaches the problem differently by keeping workspaces, records and operational follow-up close enough that the team can move forward without translating work from one system to another.",
+                    "relatedLabel": "Explore Workspaces",
+                    "highlightsTitle": "What changes in practice",
+                    "highlights": [
+                        "The same task can be reviewed in table, Kanban or calendar view without being duplicated.",
+                        "Records, notes and supporting information stay close to the work that depends on them.",
+                        "Sales, billing and execution can read from the same organizational context."
+                    ],
+                    "sections": [
+                        {
+                            "title": "A workspace that does not restart every morning",
+                            "paragraphs": [
+                                "Gestionate's workspace model keeps execution simple: tasks have status, due dates, priority and assignees, while the team switches between table, Kanban and calendar according to the review they need. The task does not change when the view changes, which means follow-up is lighter and the workspace itself becomes the place where work is reviewed."
+                            ]
+                        },
+                        {
+                            "title": "Records and supporting information stay close to the work",
+                            "paragraphs": [
+                                "Operations rarely slow down because nobody knows the task name; they slow down because files, notes and structured information are scattered. Keeping records and supporting context accessible inside the same environment shortens handoffs, reduces repeated questions and makes onboarding easier for anyone joining the process."
+                            ]
+                        },
+                        {
+                            "title": "Shared context helps other areas move faster too",
+                            "paragraphs": [
+                                "When workspaces, records, billing and sales sit on the same organizational layer, each area can understand what the others are doing without rebuilding the story from scratch. That is the practical value of an all-in-one platform: not everything in one screen, but one coherent operating context."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "Key ideas to keep",
+                    "takeaways": [
+                        "Changing views is useful only when the underlying task data stays consistent.",
+                        "Documentation supports execution best when it stays close to the team that uses it.",
+                        "Operational clarity comes from shared context, not from adding more reporting layers."
+                    ]
+                },
+                "ai-agent-with-context": {
+                    "title": "Why a contextual AI agent is more useful than a separate chat window",
+                    "excerpt": "The advantage is not novelty. It is being able to create, update and query work across modules without leaving the conversation.",
+                    "publishedAt": "August 18, 2026",
+                    "readTime": "5 min read",
+                    "coverAlt": "Gestionate AI assistant view",
+                    "intro": "Most assistants become another tab that summarizes information but cannot move work forward. Gestionate's AI becomes useful because it is connected to the workspace itself: it can help create tasks, query the pipeline, update information and keep conversation history inside the same organizational context.",
+                    "relatedLabel": "Explore AI Agent",
+                    "highlightsTitle": "Where the difference appears",
+                    "highlights": [
+                        "The assistant can trigger actions instead of only producing text.",
+                        "Questions can span tasks, deals, notes and other live workspace data.",
+                        "Permissions and team boundaries still matter when the AI responds."
+                    ],
+                    "sections": [
+                        {
+                            "title": "From answers to actions",
+                            "paragraphs": [
+                                "Creating a task from a prompt or updating a deal stage may sound small, but it changes how quickly a team can capture work. The assistant stops being a search layer and becomes an execution layer, which is what makes natural language genuinely practical inside day-to-day operations."
+                            ]
+                        },
+                        {
+                            "title": "Context across modules",
+                            "paragraphs": [
+                                "The value grows when the conversation is not limited to a single feature. If the assistant can understand tasks, pipeline status and related operational information in one thread, the team spends less time jumping between views just to assemble the current picture."
+                            ]
+                        },
+                        {
+                            "title": "Useful AI also respects boundaries",
+                            "paragraphs": [
+                                "A contextual assistant only works in a business environment if it respects permissions, roles and team scope. Gestionate's approach matters because it keeps the assistant tied to the same organizational rules as the rest of the platform, so convenience does not come at the cost of control."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What is worth remembering",
+                    "takeaways": [
+                        "AI is more valuable when it can act, not only answer.",
+                        "Cross-module context matters more than clever phrasing.",
+                        "Permission-aware automation is what makes the feature trustworthy."
+                    ]
+                },
+                "billing-operational-visibility": {
+                    "title": "Billing beyond spreadsheets: turning income and expenses into operational visibility",
+                    "excerpt": "A finance area becomes easier to run when movements, categories, calendars and reports are part of the same operating system.",
+                    "publishedAt": "August 12, 2026",
+                    "readTime": "6 min read",
+                    "coverAlt": "Gestionate billing dashboard",
+                    "intro": "Finance work gets messy when each question requires exporting data, updating a spreadsheet and then explaining the result somewhere else. Gestionate's billing area is more useful when it is treated as an operational surface: movements, calendars, categories and dashboards all help the team read the same reality with less manual reconciliation.",
+                    "relatedLabel": "Explore Billing",
+                    "highlightsTitle": "What a better billing flow looks like",
+                    "highlights": [
+                        "Income and expenses can be reviewed through operational views instead of isolated rows.",
+                        "Categories, accounts and payroll-related data support cleaner financial structure.",
+                        "Reports and dashboards are easier to use when they start from live data."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Operations first, bookkeeping second",
+                            "paragraphs": [
+                                "The value of the billing area is not limited to storing movements. Detail views, calendar views and configurable dashboards make it easier to follow what happened, when it happened and how it changes over time, which helps teams read operations instead of merely logging transactions."
+                            ]
+                        },
+                        {
+                            "title": "Structure matters more than volume",
+                            "paragraphs": [
+                                "Independent accounts, currencies, categories and payroll-related data such as worked hours, deductions and benefits give the finance layer the structure it needs. A cleaner model reduces noise, makes follow-up more reliable and helps the organization grow without turning every monthly close into manual cleanup."
+                            ]
+                        },
+                        {
+                            "title": "Reporting becomes part of decision-making",
+                            "paragraphs": [
+                                "When charts, trends and automated reports start from current data, reporting stops being a separate ritual. Teams can review income and expense behavior, detect pressure points and use suggestions or action plans as part of normal operational planning, not only at the end of the month."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What to keep in mind",
+                    "takeaways": [
+                        "A finance view is stronger when it explains operations, not just movements.",
+                        "Good categories and account structure save more time than last-minute cleanup.",
+                        "Reporting is most useful when it stays connected to live working data."
+                    ]
+                },
+                "sales-pipeline-that-keeps-moving": {
+                    "title": "A sales pipeline your team can actually maintain",
+                    "excerpt": "Good sales follow-up depends less on flashy dashboards and more on clear stages, shared deal context and clean handoffs.",
+                    "publishedAt": "August 7, 2026",
+                    "readTime": "5 min read",
+                    "coverAlt": "Gestionate sales pipeline board",
+                    "intro": "A pipeline is only useful if the team keeps it alive. Gestionate's sales area works because it combines a customizable board, deal context, health indicators and reporting in a way that helps commercial work stay current instead of becoming a presentation updated once a week.",
+                    "relatedLabel": "Explore Sales Pipeline",
+                    "highlightsTitle": "What keeps the pipeline usable",
+                    "highlights": [
+                        "Stages can be adapted to the real sales process instead of forcing a generic funnel.",
+                        "Each deal keeps comments, activity and prioritization context close at hand.",
+                        "Closing a deal can connect cleanly with billing and reporting workflows."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Stages that match how you actually sell",
+                            "paragraphs": [
+                                "A visual board is only helpful if the stages reflect reality. Gestionate's pipeline can be adjusted to the sales process itself, while drag-and-drop movement, close dates and deal amounts keep the team focused on the next step instead of fighting a template that does not fit how the organization works."
+                            ]
+                        },
+                        {
+                            "title": "A board is not enough without deal context",
+                            "paragraphs": [
+                                "A healthy pipeline needs more than columns. Comments, activity history, assignment and deal health indicators add the operational context that makes prioritization possible. That context is what prevents the board from becoming a pretty screen with very little decision support behind it."
+                            ]
+                        },
+                        {
+                            "title": "Revenue visibility needs handoffs, not just charts",
+                            "paragraphs": [
+                                "Goals, exports and revenue metrics matter, but the workflow becomes more practical when closed deals can continue into billing processes without manual re-entry. Clean handoffs reduce friction between commercial and administrative teams and make the pipeline useful beyond forecasting."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What sales teams should keep",
+                    "takeaways": [
+                        "A pipeline works better when its stages reflect the real process.",
+                        "Deal context is what turns movement into prioritization.",
+                        "The commercial workflow gains value when it hands off cleanly to billing and reporting."
+                    ]
+                },
+                "permissions-that-scale": {
+                    "title": "Roles, invitations and protected areas: how to grow without losing control",
+                    "excerpt": "Scaling a team is easier when access is deliberate, auditable and adapted to each area instead of being all or nothing.",
+                    "publishedAt": "August 1, 2026",
+                    "readTime": "5 min read",
+                    "coverAlt": "Gestionate team and permissions view",
+                    "intro": "Collaboration gets harder as soon as more people enter the system. The challenge is not only inviting the right members; it is making sure each person sees what they need, can act where they should and leaves a trace where traceability matters. Gestionate treats team growth as an access design problem, not just a contacts list.",
+                    "relatedLabel": "Open team documentation",
+                    "highlightsTitle": "What good permission design changes",
+                    "highlights": [
+                        "Invitations, role updates and access revocation are part of the same workflow.",
+                        "Permissions can be shaped by area instead of opening the whole platform to everyone.",
+                        "Activity history and personal spaces reduce ambiguity without blocking collaboration."
+                    ],
+                    "sections": [
+                        {
+                            "title": "Inviting people is the easy part",
+                            "paragraphs": [
+                                "Membership workflows matter after the invite is sent. Being able to add members, adjust their role later and revoke access when needed keeps the team structure aligned with reality instead of leaving old permissions scattered across the organization."
+                            ]
+                        },
+                        {
+                            "title": "Granular permissions keep teams practical",
+                            "paragraphs": [
+                                "Not every person should have the same visibility over workspaces, records, billing, sales or administrative settings. Granular permissions and read-only options help teams collaborate without turning every area into an open surface, which is especially important as the organization becomes more complex."
+                            ]
+                        },
+                        {
+                            "title": "Control works better with traceability",
+                            "paragraphs": [
+                                "Permission design becomes stronger when it is paired with activity history. Personal areas can stay private, collaborative spaces can expose real-time activity and the organization gains a clearer trail of what changed, who changed it and where follow-up should happen."
+                            ]
+                        }
+                    ],
+                    "takeawaysTitle": "What to preserve as you grow",
+                    "takeaways": [
+                        "Access design should evolve with the team, not stay frozen after onboarding.",
+                        "Granular permissions improve collaboration because they reduce noise and risk at the same time.",
+                        "Traceability turns control into something operational instead of merely restrictive."
+                    ]
+                }
+            }
+        },
         "footer-cta-title": "Start working comfortably and productively",
         "footer-cta-description": "Discover how far you can go. Whether you're scaling your own project or want to increase your company's productivity and forget about multiple work-syncing platforms, we have the ideal solution for you.",
         "footer-who-we-are": "Who we are",
@@ -996,6 +1531,7 @@
         "footer-terms": "Terms",
         "footer-privacy": "Privacy",
         "footer-contact-us": "Contact us",
+        "footer-blog": "Blog",
         "footer-solutions": "Solutions",
         "footer-resources": "Resources",
         "footer-company": "Company",
@@ -1441,6 +1977,134 @@
         "avg-ticket": "Average ticket",
         "overdue-rate": "Overdue rate",
         "pending-amount": "Pending amount",
+        "period": "Period",
+        "period-last-6-months": "Last 6 months",
+        "period-last-12-months": "Last 12 months",
+        "period-ytd": "YTD",
+        "period-custom": "Custom",
+        "from-date": "From",
+        "to-date": "To",
+        "type-filter": "Type",
+        "both": "Both",
+        "comparison": "Comparison",
+        "comparison-previous-period": "Previous period",
+        "comparison-same-period-last-year": "Same period last year",
+        "comparison-budget": "Budget",
+        "budget-fallback-note": "Budget comparison is not configured yet. Showing previous period as reference.",
+        "balance": "Balance",
+        "share-report": "Share report",
+        "copy-summary": "Copy summary",
+        "copy-report-link": "Copy report link",
+        "export-pdf": "Export PDF",
+        "share-native": "Share",
+        "report-copied": "Report summary copied",
+        "report-link-copied": "Report link copied",
+        "report-copy-failed": "Could not copy the report",
+        "share-not-supported": "Sharing is not available on this browser",
+        "insights-title": "Insights",
+        "insights-description": "Automatic signals detected from your current data and filters.",
+        "no-insights-available": "No relevant insights were detected for the selected filters.",
+        "insight-income-up": "Incomes increased {value}% vs {comparison}.",
+        "insight-income-down": "Incomes decreased {value}% vs {comparison}.",
+        "insight-expense-up": "Expenses increased {value}% vs {comparison}, mainly driven by {categories}.",
+        "insight-expense-down": "Expenses decreased {value}% vs {comparison}.",
+        "insight-pending-amount": "You have {value} pending to collect.",
+        "insight-category-streak": "{category} has grown for {count} consecutive months.",
+        "insight-ticket-up": "Average ticket increased {value}%.",
+        "insight-ticket-down": "Average ticket decreased {value}%.",
+        "insight-detail-title": "Insight detail",
+        "insight-detail-description": "Review the metric context and open the related operations to investigate further.",
+        "view-operations": "View operations",
+        "view-invoices": "View invoices",
+        "analyze-category": "Analyze category",
+        "financial-evolution-title": "Financial evolution",
+        "financial-evolution-description": "Track incomes, expenses and balance over time with monthly drill-down.",
+        "month-breakdown": "Month breakdown",
+        "expense-drivers": "Main expense drivers",
+        "no-expense-drivers": "No expense drivers detected for this month.",
+        "financial-structure-title": "Financial structure",
+        "financial-structure-description": "Category breakdown with amount, share and variation against comparison.",
+        "incomes-by-category": "Incomes by category",
+        "expenses-by-category": "Expenses by category",
+        "no-category-data": "No category data for current filters.",
+        "share-of-total": "of total",
+        "category-detail-title": "Category detail",
+        "no-category-selected": "Select a category to inspect details.",
+        "monthly-evolution": "Monthly evolution",
+        "view-related-operations": "View related operations",
+        "variation-vs-comparison": "Variation vs comparison",
+        "trends-title": "Trends",
+        "trends-description": "Categories growing, decreasing or stable in the selected period.",
+        "no-trends-data": "No trend data for selected filters.",
+        "trend-growing": "Growing",
+        "trend-decreasing": "Decreasing",
+        "trend-stable": "Stable",
+        "trend-context-streak": "{category} has increased for {count} consecutive months.",
+        "trend-context-variation": "{category} changed {value} vs comparison.",
+        "receivables-title": "Accounts receivable",
+        "receivables-description": "Outstanding collection status and debt-aging buckets.",
+        "total-overdue": "Overdue total",
+        "total-due-soon": "Due soon total",
+        "aging-buckets": "Debt aging breakdown",
+        "aging-0-30": "0-30 days",
+        "aging-31-60": "31-60 days",
+        "aging-61-90": "61-90 days",
+        "aging-90-plus": "90+ days",
+        "aging-90-warning": "{value} are over 90 days overdue.",
+        "view-overdue-invoices": "View overdue invoices",
+        "filter-related-operations": "Filter related operations",
+        "projection-title": "Financial projection",
+        "projection-description": "Historical behavior and expected projection for upcoming months.",
+        "historical-balance": "Historical balance",
+        "projected-balance": "Projected balance",
+        "historical-incomes": "Historical incomes",
+        "projected-incomes": "Projected incomes",
+        "historical-expenses": "Historical expenses",
+        "projected-expenses": "Projected expenses",
+        "projection-risk-alert": "If expenses keep this trend, projected balance for {month} could drop {value}%.",
+        "goals-planning-title": "Goals and planning",
+        "goals-planning-description": "Turn insights into measurable goals and follow-up actions.",
+        "goal-reduce-expenses": "Reduce top expense category",
+        "goal-increase-incomes": "Increase recurring income",
+        "current-value": "Current",
+        "target-value": "Target",
+        "target-date": "Target date",
+        "goal-target-date-expenses": "October 2026",
+        "goal-target-date-incomes": "December 2026",
+        "progress": "Progress",
+        "next-actions": "Next actions",
+        "next-actions-description": "Open a focused plan for each recommendation before jumping into operations.",
+        "action-review-subscriptions": "Review subscriptions",
+        "action-review-subscriptions-description": "Locate recurring software costs and decide renewals.",
+        "action-contact-overdue": "Contact overdue invoices",
+        "action-contact-overdue-description": "Prioritize collections with the highest delay risk.",
+        "action-review-marketing": "Review marketing expenses",
+        "action-review-marketing-description": "Validate ROI before expanding campaign spend.",
+        "action-analyze-other": "Analyze \"Other\" category",
+        "action-analyze-other-description": "Break down unclassified movements and assign categories.",
+        "action-plan-description": "Recommended sequence based on your current analytics context.",
+        "action-plan-why-title": "Why this action",
+        "action-plan-highlights-title": "Current signals",
+        "action-plan-steps-title": "Suggested steps",
+        "action-plan-reason-subscriptions": "Your expense profile suggests reviewing recurring contracts to protect margin.",
+        "action-plan-reason-subscriptions-category": "{category} is showing recurring expense pressure and should be reviewed first.",
+        "action-plan-step-subscriptions-1": "Identify contracts that renew in the next 45 days and estimate annual impact.",
+        "action-plan-step-subscriptions-2": "Consolidate overlapping tools and define a target savings amount.",
+        "action-plan-reason-overdue": "Overdue receivables are affecting expected cash inflow for this period.",
+        "action-plan-step-overdue-1": "Rank overdue invoices by amount and days overdue.",
+        "action-plan-step-overdue-2": "Assign follow-up owners and define commitment dates with customers.",
+        "action-plan-reason-marketing": "Marketing spend should be validated against short-term conversion results.",
+        "action-plan-reason-marketing-category": "{category} requires a performance check before increasing spend.",
+        "action-plan-step-marketing-1": "Compare campaign spend against attributed revenue in the same period.",
+        "action-plan-step-marketing-2": "Pause low-performing channels and reallocate budget to validated campaigns.",
+        "action-plan-reason-other": "Unclassified movements reduce visibility and can hide recurring leakage.",
+        "action-plan-reason-other-category": "{category} needs detailed categorization to improve forecast quality.",
+        "action-plan-step-other-1": "Review the top operations in this bucket and tag each one with a definitive category.",
+        "action-plan-step-other-2": "Create a monthly control to keep the unclassified share below target.",
+        "share-report-description": "Share or export this analysis once your period and comparison filters are final.",
+        "analytics-report-title": "Billing analytics report",
+        "top-income-category": "Top income category",
+        "top-expense-category": "Top expense category",
         "analytics-roadmap-title": "Analytics roadmap",
         "analytics-roadmap-description": "This section focuses on advanced analysis, not just basic charting.",
         "reports-builder": "Custom reports builder",
@@ -1550,6 +2214,7 @@
         "field-required": "Field required",
         "table": "Table",
         "calendar": "Calendar",
+        "gantt": "Gantt",
         "new": "New",
         "task-name": "Task name",
         "enter-task-name": "Enter the name...",
@@ -1712,6 +2377,8 @@
         "search-by-name": "Search by name...",
         "clear-filters": "Clear filters",
         "no-labels-available": "No labels available",
+        "gantt-empty": "There are no tasks with due dates to display in Gantt",
+        "gantt-empty-description": "Set a due date on your tasks and they will appear here as timeline bars.",
         "multi-select-labels": "Multi-select labels",
         "multi-select-labels-description": "Allow selecting multiple labels to filter tasks",
         "hide-epic-progress-bar": "Hide epic progress bar",
@@ -1794,6 +2461,7 @@
         "compact-cards-description": "Hide issue type, due date, and assigned members on Kanban board cards",
         "calendar-view-month": "Month",
         "calendar-view-week": "Week",
+        "calendar-view-year": "Year",
         "calendar-date-created": "Created",
         "calendar-date-due": "Due date",
         "auto-assign-on-create": "Auto-assign on create",
@@ -1942,7 +2610,17 @@
         "search": "Search",
         "activity-tab": "Activity",
         "comments": "Comments",
+        "multimedia": "Multimedia",
         "history": "History",
+        "multimedia-view-all": "View all",
+        "multimedia-add": "Add photo",
+        "multimedia-uploading": "Uploading...",
+        "multimedia-open": "Open",
+        "multimedia-empty-owner": "No media yet. Add the first photo.",
+        "multimedia-empty": "No media available",
+        "multimedia-viewer-title": "Task media viewer",
+        "multimedia-image-counter": "{current} / {total}",
+        "task-multimedia-alt": "Task media {index}",
         "write-comment": "Write a comment...",
         "save": "Save",
         "click-add-description": "Click to add a description...",
@@ -2330,15 +3008,23 @@
     "home": {
         "quick-actions": "Quick actions",
         "send-a-message": "Send a message",
+        "forward-message-title": "Forward message",
+        "forward-message-description": "Choose recipients for this forwarded message",
         "send-message": "Send message",
         "subject-placeholder": "Subject...",
+        "subject-label": "Subject",
         "message": "Message...",
         "messages": "Messages",
         "from": "From",
         "unknown-sender": "Unknown sender",
         "no-subject": "No subject",
         "choise-addressee": "Choose recipients",
+        "recipient-to": "To",
+        "recipient-cc": "CC",
+        "recipient-bcc": "BCC",
         "send-to-all-team": "Send to all team",
+        "forward-prefix": "Fwd",
+        "forwarded-message-label": "Forwarded message",
         "messages-created": "Messages sent successfully",
         "cancel": "Cancel",
         "add": "Add",
@@ -3233,6 +3919,7 @@
         "perm-view-kanban-workspaces": "View Kanban",
         "perm-view-table-workspaces": "View Table",
         "perm-view-calendar-workspaces": "View Calendar",
+        "perm-view-gantt-workspaces": "View Gantt",
         "perm-create-task": "Create Task",
         "perm-edit-task": "Edit Task",
         "perm-delete-task": "Delete Task",
@@ -3279,6 +3966,7 @@
         "perm-desc-view-kanban-workspaces": "View the kanban board layout of a workspace",
         "perm-desc-view-table-workspaces": "View the table layout of a workspace",
         "perm-desc-view-calendar-workspaces": "View the calendar layout of a workspace",
+        "perm-desc-view-gantt-workspaces": "View the Gantt layout of a workspace",
         "perm-desc-create-task": "Create new tasks in a workspace",
         "perm-desc-edit-task": "Edit task title, dates and properties",
         "perm-desc-delete-task": "Delete tasks permanently",
@@ -3343,6 +4031,7 @@
         "inbox": "Inbox",
         "sent": "Sent",
         "featured": "Starred",
+        "archived": "Archived",
         "search": "Search messages...",
         "unread": "Unread",
         "filter-from": "Filter by person",
@@ -3351,7 +4040,10 @@
         "select-all": "Select all",
         "selected": "selected",
         "mark-read": "Mark as read",
+        "archive": "Archive",
         "delete": "Delete",
+        "archive-title": "Archive message?",
+        "archive-message": "The message will be moved to Archived and will no longer appear in main views.",
         "delete-title": "Delete message?",
         "delete-message": "This action is permanent, there is no trash.",
         "page": "Page",
@@ -3363,10 +4055,16 @@
         "empty-inbox": "Your inbox is empty",
         "empty-sent": "No sent messages",
         "empty-featured": "No starred messages",
+        "empty-archived": "No archived messages",
         "no-subject": "No subject",
         "unknown": "Unknown",
         "from": "From",
-        "to": "To"
+        "to": "To",
+        "reply": "Reply",
+        "forward": "Forward",
+        "reply-placeholder": "Write your reply...",
+        "send-reply": "Send reply",
+        "reply-latest": "Reply to latest"
     },
     "common": {
         "cancel": "Cancel",

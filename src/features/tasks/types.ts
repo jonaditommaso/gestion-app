@@ -37,6 +37,7 @@ export type TestScenario = {
 
 export type TaskMetadata = {
     imageIds?: string[];
+    mediaImageIds?: string[];
     spikeFindings?: SpikeFinding[]; // timeline of findings from spike investigation
     spikeConclusion?: string; // HTML rich text - conclusion from spike investigation
     spikeConclusionType?: 'adopt' | 'reject' | 'investigate'; // outcome type of the spike

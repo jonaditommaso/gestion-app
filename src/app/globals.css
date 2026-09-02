@@ -10,6 +10,11 @@ body {
   font-family: var(--font-montserrat), 'Segoe UI', sans-serif;
 }
 
+html body[data-scroll-locked] {
+    overflow: visible !important;
+    margin-right: 0 !important;
+}
+
 [id] {
   scroll-margin-top: 100px;
 }

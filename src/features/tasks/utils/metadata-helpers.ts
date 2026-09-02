@@ -30,6 +30,22 @@ export const getImageIds = (task: { metadata?: string }): string[] => {
 };
 
 /**
+ * Obtiene los imageIds de la galería multimedia en la metadata
+ */
+export const getMultimediaImageIds = (task: { metadata?: string }): string[] => {
+    const metadata = parseTaskMetadata(task.metadata);
+    return metadata.mediaImageIds || [];
+};
+
+/**
+ * Obtiene todos los imageIds (descripción + multimedia) sin duplicados
+ */
+export const getAllTaskImageIds = (task: { metadata?: string }): string[] => {
+    const metadata = parseTaskMetadata(task.metadata);
+    return Array.from(new Set([...(metadata.imageIds || []), ...(metadata.mediaImageIds || [])]));
+};
+
+/**
  * Actualiza los imageIds en la metadata
  */
 export const updateImageIds = (currentMetadata: string | undefined, imageIds: string[]): string => {

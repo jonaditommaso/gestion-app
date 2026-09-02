@@ -1,4 +1,5 @@
-import { Github, User, Play, CreditCard, Building, Rocket, UserPlus, Settings, Users, FolderPlus, BarChart3, FileText } from "lucide-react";
+import { User, Play, CreditCard, Building, Rocket, UserPlus, Settings, Users, FolderPlus, BarChart3, FileText } from "lucide-react";
+import { FiGithub } from "react-icons/fi";
 
 export const steps = [
     {
@@ -37,7 +38,7 @@ export const steps = [
         items: [
             {
                 id: 'github',
-                icon: <Github className="h-4 w-4 text-gray-600" />,
+                icon: <FiGithub className="h-4 w-4 text-gray-600" />,
                 iconColor: 'bg-gray-100',
                 text: 'step-2-item-1',
             },
