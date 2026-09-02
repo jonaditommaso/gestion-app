@@ -1,7 +1,9 @@
 'use client'
 
-import { AlertCircle, CalendarCheck2, CheckCircle2, Clock3, Github, HardDrive, Music2, Youtube } from "lucide-react"
+import { AlertCircle, CalendarCheck2, CheckCircle2, Clock3, HardDrive, Music2 } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { FiGithub } from "react-icons/fi";
+import { FaYoutube } from "react-icons/fa";
 
 export default function IntegrationsDocumentation() {
     const t = useTranslations('landing.docs.integrations');
@@ -24,7 +26,7 @@ export default function IntegrationsDocumentation() {
                         <h4 className="font-semibold text-gray-900 mb-3">{t('overview.available-title')}</h4>
                         <ul className="space-y-2 text-sm text-gray-700">
                             <li className="flex items-start gap-2">
-                                <Github className="h-4 w-4 text-gray-700 mt-0.5 shrink-0" />
+                                <FiGithub className="h-4 w-4 text-gray-700 mt-0.5 shrink-0" />
                                 {t('overview.available-1')}
                             </li>
                             <li className="flex items-start gap-2">
@@ -46,7 +48,7 @@ export default function IntegrationsDocumentation() {
                                 {t('overview.limited-1')}
                             </li>
                             <li className="flex items-start gap-2">
-                                <Youtube className="h-4 w-4 text-red-700 mt-0.5 shrink-0" />
+                                <FaYoutube className="h-4 w-4 text-red-700 mt-0.5 shrink-0" />
                                 {t('overview.limited-2')}
                             </li>
                             <li className="flex items-start gap-2">
