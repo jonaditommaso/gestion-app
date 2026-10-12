@@ -1,7 +1,23 @@
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, NEXT_PUBLIC_APP_URL } from "@/config";
 import { createAdminClient } from "@/lib/appwrite";
+import { verifySignedOAuthState } from "@/lib/oauth-state";
 import { Hono } from "hono";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+
+type GoogleOAuthState = {
+  provider: 'google';
+  userId: string;
+  invited?: string;
+  dateStart?: string;
+  title?: string;
+  duration?: string;
+  auth_only?: boolean;
+  drive_auth_only?: boolean;
+  gmail_auth_only?: boolean;
+};
+
+const GOOGLE_OAUTH_STATE_NONCE_COOKIE = 'google_oauth_state_nonce';
+const isSecure = process.env.NODE_ENV === 'production';
 
 const app = new Hono()
 
@@ -14,47 +30,34 @@ const app = new Hono()
       const useRefresh = url.searchParams.get('use-refresh');
       const useAccessToken = url.searchParams.get('use-access-token')
 
-      let invited;
-      let dateStart;
-      let title;
-      let duration;
-      let userId;
-      let authOnly = false;
-      let driveAuthOnly = false;
-      let gmailAuthOnly = false;
-
-      if (state) {
-        try {
-          const parsed = JSON.parse(state);
-          title = parsed.title;
-          dateStart = parsed.dateStart;
-          invited = parsed.invited;
-          duration = parsed.duration;
-          userId = parsed.userId;
-          authOnly = parsed.auth_only === true;
-          driveAuthOnly = parsed.drive_auth_only === true;
-          gmailAuthOnly = parsed.gmail_auth_only === true;
-
-        } catch (err) {
-          console.error('Error parsing state', err);
-        }
-      } else {
-        invited = url.searchParams.get('invited');
-        dateStart = url.searchParams.get('dateStart');
-        title = url.searchParams.get('title');
-        duration = url.searchParams.get('duration');
-        userId = url.searchParams.get('userId');
+      if (!state) {
+        return c.redirect(`${NEXT_PUBLIC_APP_URL}?error=invalid_state`);
       }
 
-      const queryParams = new URLSearchParams();
-      queryParams.set("invited", invited);
-      queryParams.set("dateStart", dateStart);
-      queryParams.set("title", title);
-      queryParams.set("duration", duration);
-      queryParams.set("userId", userId);
+      const expectedNonce = getCookie(c, GOOGLE_OAUTH_STATE_NONCE_COOKIE);
+      if (!expectedNonce) {
+        return c.redirect(`${NEXT_PUBLIC_APP_URL}?error=invalid_state`);
+      }
 
-      if (useAccessToken) {
-        return c.redirect(`${NEXT_PUBLIC_APP_URL}/api/meet?${queryParams.toString()}`);
+      const parsedState = verifySignedOAuthState<GoogleOAuthState>(state, expectedNonce);
+      deleteCookie(c, GOOGLE_OAUTH_STATE_NONCE_COOKIE);
+
+      if (!parsedState || parsedState.provider !== 'google' || typeof parsedState.userId !== 'string' || parsedState.userId.trim().length === 0) {
+        return c.redirect(`${NEXT_PUBLIC_APP_URL}?error=invalid_state`);
+      }
+
+      const invited = typeof parsedState.invited === 'string' ? parsedState.invited : '';
+      const dateStart = typeof parsedState.dateStart === 'string' ? parsedState.dateStart : '';
+      const title = typeof parsedState.title === 'string' ? parsedState.title : '';
+      const duration = typeof parsedState.duration === 'string' ? parsedState.duration : '';
+      const userId = parsedState.userId;
+      const authOnly = parsedState.auth_only === true;
+      const driveAuthOnly = parsedState.drive_auth_only === true;
+      const gmailAuthOnly = parsedState.gmail_auth_only === true;
+      const shouldCreateMeet = !authOnly && !driveAuthOnly && !gmailAuthOnly;
+
+      if (shouldCreateMeet && (!invited || !dateStart || !title || !duration)) {
+        return c.redirect(`${NEXT_PUBLIC_APP_URL}?error=invalid_state`);
       }
 
       const params: Record<string, string> = {
@@ -94,7 +97,15 @@ const app = new Hono()
           body: new URLSearchParams(params),
         });
 
-        const tokenData = await tokenRes.json();
+        const tokenData = await tokenRes.json() as {
+          access_token?: string;
+          refresh_token?: string;
+          expires_in?: number;
+        };
+
+        if (!tokenRes.ok || !tokenData.access_token || typeof tokenData.expires_in !== 'number') {
+          return c.redirect('/?error=token_failed');
+        }
 
         if (driveAuthOnly) {
           await users.updatePrefs(userId, {
@@ -119,14 +130,16 @@ const app = new Hono()
         setCookie(c, 'google_access_token', tokenData.access_token, {
           path: '/',
           httpOnly: true,
-          secure: true,
+          secure: isSecure,
+          sameSite: 'lax',
           maxAge: 60 * 60 // 1 hora (== tokenData.expires_in)
         });
 
         setCookie(c, 'google_access_token_exp', String(Date.now() + tokenData.expires_in * 1000), {
           path: '/',
           httpOnly: true,
-          secure: true,
+          secure: isSecure,
+          sameSite: 'lax',
           maxAge: tokenData.expires_in
         });
 
@@ -134,7 +147,11 @@ const app = new Hono()
           return c.redirect(`${NEXT_PUBLIC_APP_URL}/oauth/close`);
         }
 
-        return c.redirect(`${NEXT_PUBLIC_APP_URL}/api/meet?${queryParams.toString()}`);
+        if (shouldCreateMeet || useAccessToken) {
+          return c.redirect(`${NEXT_PUBLIC_APP_URL}/api/meet?state=${encodeURIComponent(state)}`);
+        }
+
+        return c.redirect(`${NEXT_PUBLIC_APP_URL}/oauth/close`);
       } catch (err) {
         console.error('❌ Error getting access token:', err);
         return c.redirect('/?error=token_failed');

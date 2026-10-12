@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
+import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { sessionMiddleware } from '@/lib/session-middleware';
+import { createSignedOAuthState, verifySignedOAuthState } from '@/lib/oauth-state';
 import { DATABASE_ID, WORKSPACES_ID, MEMBERS_ID, NEXT_PUBLIC_APP_URL, GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET, GITHUB_APP_REDIRECT_URI } from '@/config';
 import { Query } from 'node-appwrite';
 import { getMember } from '@/features/workspaces/members/utils';
@@ -16,6 +18,15 @@ type WorkspaceMetadata = Record<string, unknown> & {
     githubConnection?: GitHubConnection;
     githubRepos?: GitHubRepo[];
 };
+
+type GitHubOAuthState = {
+    provider: 'github';
+    workspaceId: string;
+    userId: string;
+};
+
+const GITHUB_OAUTH_STATE_NONCE_COOKIE = 'github_oauth_state_nonce';
+const isSecure = process.env.NODE_ENV === 'production';
 
 const app = new Hono()
 
@@ -37,7 +48,20 @@ const app = new Hono()
                 return ctx.json({ error: 'GitHub integration not configured' }, 500);
             }
 
-            const state = JSON.stringify({ workspaceId, userId: user.$id });
+            const { state, nonce } = createSignedOAuthState<GitHubOAuthState>({
+                provider: 'github',
+                workspaceId,
+                userId: user.$id,
+            });
+
+            setCookie(ctx, GITHUB_OAUTH_STATE_NONCE_COOKIE, nonce, {
+                path: '/',
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'lax',
+                maxAge: 60 * 10,
+            });
+
             const params = new URLSearchParams({
                 client_id: GITHUB_APP_CLIENT_ID,
                 redirect_uri: GITHUB_APP_REDIRECT_URI,
@@ -62,13 +86,27 @@ const app = new Hono()
                 return ctx.redirect(`${NEXT_PUBLIC_APP_URL}?github_error=missing_params`);
             }
 
-            let workspaceId: string;
-            try {
-                const parsed = JSON.parse(state) as { workspaceId: string; userId: string };
-                workspaceId = parsed.workspaceId;
-            } catch {
+            const expectedNonce = getCookie(ctx, GITHUB_OAUTH_STATE_NONCE_COOKIE);
+            if (!expectedNonce) {
                 return ctx.redirect(`${NEXT_PUBLIC_APP_URL}?github_error=invalid_state`);
             }
+
+            const parsedState = verifySignedOAuthState<GitHubOAuthState>(state, expectedNonce);
+            deleteCookie(ctx, GITHUB_OAUTH_STATE_NONCE_COOKIE);
+
+            if (
+                !parsedState ||
+                parsedState.provider !== 'github' ||
+                typeof parsedState.workspaceId !== 'string' ||
+                typeof parsedState.userId !== 'string' ||
+                parsedState.workspaceId.trim().length === 0 ||
+                parsedState.userId.trim().length === 0
+            ) {
+                return ctx.redirect(`${NEXT_PUBLIC_APP_URL}?github_error=invalid_state`);
+            }
+
+            const workspaceId = parsedState.workspaceId;
+            const callbackUserId = parsedState.userId;
 
             if (!GITHUB_APP_CLIENT_ID || !GITHUB_APP_CLIENT_SECRET || !GITHUB_APP_REDIRECT_URI) {
                 return ctx.redirect(`${NEXT_PUBLIC_APP_URL}?github_error=not_configured`);
@@ -103,6 +141,11 @@ const app = new Hono()
             const { createAdminClient } = await import('@/lib/appwrite');
             const { databases } = await createAdminClient();
 
+            const callbackMember = await getMember({ databases, workspaceId, userId: callbackUserId });
+            if (!callbackMember || callbackMember.role !== MemberRole.ADMIN) {
+                return ctx.redirect(`${NEXT_PUBLIC_APP_URL}?github_error=invalid_state`);
+            }
+
             const workspace = await databases.getDocument<WorkspaceType>(DATABASE_ID, WORKSPACES_ID, workspaceId);
 
             let currentMeta: WorkspaceMetadata = {};
@@ -117,7 +160,7 @@ const app = new Hono()
                 type: githubUser.type,
                 avatarUrl: githubUser.avatar_url,
                 connectedAt: new Date().toISOString(),
-                connectedBy: '',
+                connectedBy: callbackUserId,
             };
 
             const updatedMeta: WorkspaceMetadata = {

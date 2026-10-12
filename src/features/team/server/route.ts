@@ -44,6 +44,24 @@ const app = new Hono()
                     expand: ['customer', 'subscription'],
                 });
 
+                const requestedBilling = billingCycle === 'YEARLY' ? 'annual' : 'monthly';
+                const sessionPlan = checkoutSession.metadata?.plan;
+                const sessionBilling = checkoutSession.metadata?.billing;
+                const sessionUserId = checkoutSession.metadata?.userId;
+
+                if (checkoutSession.mode !== 'subscription' || checkoutSession.status !== 'complete') {
+                    return ctx.json({ error: 'Invalid Stripe session mode' }, 400);
+                }
+
+                if (
+                    checkoutSession.client_reference_id !== user.$id ||
+                    sessionUserId !== user.$id ||
+                    sessionPlan !== plan ||
+                    sessionBilling !== requestedBilling
+                ) {
+                    return ctx.json({ error: 'Invalid Stripe session context' }, 400);
+                }
+
                 if (checkoutSession.payment_status !== 'paid') {
                     return ctx.json({ error: 'Payment not confirmed' }, 400);
                 }
@@ -55,6 +73,19 @@ const app = new Hono()
                     return ctx.json({ error: 'Invalid Stripe session data' }, 400);
                 }
                 stripeSubscriptionId = typeof subscription === 'string' ? subscription : subscription.id;
+
+                const existingSubscription = await adminDatabases.listDocuments<Organization>(
+                    DATABASE_ID,
+                    ORGANIZATIONS_ID,
+                    [
+                        Query.equal('stripeSubscriptionId', stripeSubscriptionId),
+                        Query.limit(1),
+                    ]
+                );
+
+                if (existingSubscription.total > 0) {
+                    return ctx.json({ error: 'Stripe session already consumed' }, 409);
+                }
 
                 const fullSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId) as unknown as Stripe.Subscription & { current_period_end: number };
 
@@ -1000,7 +1031,23 @@ const app = new Hono()
                 mode: 'subscription',
                 payment_method_types: ['card'],
                 line_items: [{ price: newPriceId, quantity: 1 }],
-                metadata: { plan, billing },
+                client_reference_id: user.$id,
+                metadata: {
+                    flow: 'upgrade',
+                    orgId: org.$id,
+                    userId: user.$id,
+                    plan,
+                    billing,
+                },
+                subscription_data: {
+                    metadata: {
+                        flow: 'upgrade',
+                        orgId: org.$id,
+                        userId: user.$id,
+                        plan,
+                        billing,
+                    },
+                },
                 success_url: `${NEXT_PUBLIC_APP_URL}/organization?upgraded=true&session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${NEXT_PUBLIC_APP_URL}/organization`,
             };
@@ -1032,6 +1079,31 @@ const app = new Hono()
                 expand: ['customer', 'subscription'],
             });
 
+            const sessionPlan = checkoutSession.metadata?.plan;
+            const sessionBilling = checkoutSession.metadata?.billing;
+            const sessionUserId = checkoutSession.metadata?.userId;
+            const sessionOrgId = checkoutSession.metadata?.orgId;
+
+            if (checkoutSession.mode !== 'subscription' || checkoutSession.status !== 'complete') {
+                return ctx.json({ error: 'Invalid Stripe session mode' }, 400);
+            }
+
+            if (
+                checkoutSession.client_reference_id !== user.$id ||
+                sessionUserId !== user.$id ||
+                sessionOrgId !== context.org.$id
+            ) {
+                return ctx.json({ error: 'Invalid Stripe session context' }, 400);
+            }
+
+            if (sessionPlan !== 'plus' && sessionPlan !== 'pro') {
+                return ctx.json({ error: 'Invalid Stripe plan metadata' }, 400);
+            }
+
+            if (sessionBilling !== 'monthly' && sessionBilling !== 'annual') {
+                return ctx.json({ error: 'Invalid Stripe billing metadata' }, 400);
+            }
+
             if (checkoutSession.payment_status !== 'paid') {
                 return ctx.json({ error: 'Payment not confirmed' }, 400);
             }
@@ -1047,12 +1119,31 @@ const app = new Hono()
 
             if (!stripeSubscriptionId) return ctx.json({ error: 'No subscription found in session' }, 400);
 
+            if (
+                context.org.stripeSubscriptionId &&
+                context.org.stripeSubscriptionId !== stripeSubscriptionId
+            ) {
+                return ctx.json({ error: 'Organization already has a different subscription' }, 409);
+            }
+
+            const existingSubscription = await databases.listDocuments<Organization>(
+                DATABASE_ID,
+                ORGANIZATIONS_ID,
+                [
+                    Query.equal('stripeSubscriptionId', stripeSubscriptionId),
+                    Query.limit(5),
+                ]
+            );
+
+            const linkedToDifferentOrg = existingSubscription.documents.some((organization) => organization.$id !== context.org.$id);
+            if (linkedToDifferentOrg) {
+                return ctx.json({ error: 'Subscription already linked to another organization' }, 409);
+            }
+
             const fullSub = await stripe.subscriptions.retrieve(stripeSubscriptionId) as unknown as Stripe.Subscription & { current_period_end: number };
 
-            const planMeta = checkoutSession.metadata?.plan ?? 'plus';
-            const billingMeta = checkoutSession.metadata?.billing ?? 'monthly';
-            const planUppercase: OrganizationPlan = planMeta === 'pro' ? 'PRO' : 'PLUS';
-            const billingCycle: BillingCycle = billingMeta === 'annual' ? 'YEARLY' : 'MONTHLY';
+            const planUppercase: OrganizationPlan = sessionPlan === 'pro' ? 'PRO' : 'PLUS';
+            const billingCycle: BillingCycle = sessionBilling === 'annual' ? 'YEARLY' : 'MONTHLY';
 
             let paymentMethodLast4: string | undefined;
             const effectiveCustomerId = stripeCustomerId ?? context.org.stripeCustomerId;
