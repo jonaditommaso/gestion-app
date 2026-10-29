@@ -1,7 +1,6 @@
 'use client'
 import { DialogContainer } from "@/components/DialogContainer";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader, PlusIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -86,7 +85,7 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
     }, [bulkUpdate, isDemo])
 
     return (
-       <div className="mt-2">
+       <div className="mt-0">
             <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
                 <CreateTaskFormWrapper
                     onCancel={() => setModalOpen(false)}
@@ -95,24 +94,24 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                 />
             </DialogContainer>
             <Tabs
-                className="flex-1 w-full border rounded-lg "
+                className="flex-1 w-full"
                 value={currentTab}
                 onValueChange={setCurrentTab}
             >
-                <div className={`flex flex-col p-4 ${currentTab === 'kanban' ? 'h-[calc(100vh-12rem)]' : 'h-full'} min-h-0`}>
-                    <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
-                        <TabsList className="w-full lg:w-auto">
-                            <TabsTrigger value="kanban" className="h-8 w-full lg:w-auto bg-background">
+                <div className={`flex flex-col pt-2 ${currentTab === 'kanban' ? 'h-[calc(100vh-10rem)]' : 'h-full'} min-h-0`}>
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <TabsList className="h-10 w-full justify-start gap-1 border border-white/50 bg-background/70 p-1 shadow-sm backdrop-blur-md dark:border-white/10 lg:w-auto">
+                            <TabsTrigger value="kanban" className="h-8 flex-1 bg-transparent px-3 text-foreground data-[state=active]:border data-[state=active]:border-slate-300 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-950 data-[state=active]:shadow-sm dark:data-[state=active]:border-slate-600 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white lg:flex-none">
                                 Kanban
                             </TabsTrigger>
-                            <TabsTrigger value="table" className="h-8 w-full lg:w-auto bg-background">
+                            <TabsTrigger value="table" className="h-8 flex-1 bg-transparent px-3 text-foreground data-[state=active]:border data-[state=active]:border-slate-300 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-950 data-[state=active]:shadow-sm dark:data-[state=active]:border-slate-600 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white lg:flex-none">
                                 {t('table')}
                             </TabsTrigger>
-                            <TabsTrigger value="calendar" className="h-8 w-full lg:w-auto bg-background">
+                            <TabsTrigger value="calendar" className="h-8 flex-1 bg-transparent px-3 text-foreground data-[state=active]:border data-[state=active]:border-slate-300 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-950 data-[state=active]:shadow-sm dark:data-[state=active]:border-slate-600 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white lg:flex-none">
                                 {t('calendar')}
                             </TabsTrigger>
                             {canViewGantt && (
-                                <TabsTrigger value="gantt" className="h-8 w-full lg:w-auto bg-background">
+                                <TabsTrigger value="gantt" className="h-8 flex-1 bg-transparent px-3 text-foreground data-[state=active]:border data-[state=active]:border-slate-300 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-950 data-[state=active]:shadow-sm dark:data-[state=active]:border-slate-600 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white lg:flex-none">
                                     {t('gantt')}
                                 </TabsTrigger>
                             )}
@@ -120,8 +119,8 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                         {canWrite && canCreateTask && (
                             <Button
                                 size='sm'
-                                className="w-full lg:w-auto"
-                                variant='secondary'
+                                className="h-10 w-full border border-white/50 bg-background/75 shadow-sm backdrop-blur-md hover:bg-background/90 lg:w-auto"
+                                variant='outline'
                                 onClick={() => handleNewTask()}
                             >
                                 <PlusIcon className="size-4 mr-2" />
@@ -130,13 +129,12 @@ const TaskSwitcher = ({ openSettings }: TaskSwitcherProps) => {
                         )}
                     </div>
 
-                    <Separator className="my-4" />
-                        {/* <DataFilters hideStatusFilter={currentTab === 'kanban'} /> */}
+                    <div className="my-3 rounded-xl border border-white/50 bg-background/55 p-2 shadow-sm backdrop-blur-md dark:border-white/10">
                         <DataFilters
                             localSearch={localSearch}
                             onLocalSearchChange={setLocalSearch}
                         />
-                    <Separator className="my-4" />
+                    </div>
 
                     <div className="flex-1 min-h-0">
                     {isLoadingTasks ? (

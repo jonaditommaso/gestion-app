@@ -813,7 +813,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
         }
     }, [onChangeTasks, config, t, tasks, openSettings, isAdmin, localColumnOrder, orderedStatuses, updateWorkspace, workspaceId, workspaces?.documents, isCustomStatus, archiveTaskIfNeeded, isDemo])
 
-    // Determinar si necesitamos scroll (más de 5 columnas)
+    // Keep a horizontal scroller only when there are more columns than fit the board.
     const needsScroll = orderedStatuses.length > 5;
 
     // Calculate task counts by status for passing to KanbanColumnHeader
@@ -831,7 +831,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                 <Droppable droppableId="columns" type="COLUMN" direction="horizontal">
                     {(columnsProvided) => (
                         <div
-                            className="flex p-[2px] px-4 overflow-x-auto h-full"
+                            className={cn("flex h-full p-[2px] px-1", needsScroll ? "overflow-x-auto" : "min-w-0 overflow-x-hidden")}
                             ref={columnsProvided.innerRef}
                             {...columnsProvided.droppableProps}
                         >
@@ -863,8 +863,8 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 className="flex"
                                                 style={{
                                                     ...columnProvided.draggableProps.style,
-                                                    flex: needsScroll ? '0 0 280px' : '1 1 auto',
-                                                    minWidth: needsScroll ? '280px' : '200px',
+                                                    flex: needsScroll ? '0 0 280px' : '1 1 0%',
+                                                    minWidth: needsScroll ? '280px' : 0,
                                                     maxWidth: needsScroll ? '280px' : undefined,
                                                 }}
                                             >
@@ -900,7 +900,7 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                 >
                                                     <div
                                                         className={cn(
-                                                            "bg-muted p-1.5 rounded-md flex flex-col h-full",
+                                                            "flex h-full flex-col rounded-xl border border-slate-300/80 bg-slate-100 p-1.5 shadow-sm dark:border-white/10 dark:bg-slate-900",
                                                             isFlexibleWarning && "ring-2 ring-red-500 bg-red-100/50 dark:bg-red-800/20",
                                                             columnSnapshot.isDragging && "ring-2 ring-primary shadow-lg"
                                                         )}
@@ -943,11 +943,15 @@ const DataKanban = ({ data, addTask, onChangeTasks, openSettings }: DataKanbanPr
                                                                 >
                                                                     {(tasks[board] || []).map((task, taskIndex) => (
                                                                         <Draggable key={task.$id} draggableId={task.$id} index={taskIndex}>
-                                                                            {provided => (
+                                                                            {(provided, snapshot) => (
                                                                                 <div
                                                                                     {...provided.draggableProps}
                                                                                     {...provided.dragHandleProps}
                                                                                     ref={provided.innerRef}
+                                                                                    style={{
+                                                                                        ...provided.draggableProps.style,
+                                                                                        ...(snapshot.isDragging && { zIndex: 1000 }),
+                                                                                    }}
                                                                                 >
                                                                                     <KanbanCard task={task} onOpenTask={setSelectedTaskId} />
                                                                                 </div>

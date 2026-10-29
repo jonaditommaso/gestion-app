@@ -145,8 +145,17 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
 
 
     return (
-        <div className="flex flex-wrap gap-2 items-start justify-between max-[928px]:justify-start">
-            <div className="flex flex-wrap gap-2 flex-1 min-w-0 max-[928px]:w-full">
+        <div className="flex flex-wrap items-start justify-between gap-2 max-[928px]:justify-start">
+            <div className="flex flex-wrap gap-2 flex-1 min-w-0 w-full">
+                <div className="relative w-full sm:w-[220px]">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                        placeholder={t('search-by-name')}
+                        value={localSearch}
+                        onChange={(e) => onLocalSearchChange?.(e.target.value)}
+                        className="h-8 pl-8 bg-background"
+                    />
+                </div>
             {!hideStatusFilter && (
                 <Select
                     value={status ?? 'all'}
@@ -458,15 +467,6 @@ const DataFilters = ({ hideStatusFilter = false, localSearch = '', onLocalSearch
                         {t('clear-filters')}
                     </Button>
                 )}
-                <div className="relative w-full sm:w-[250px]">
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-                    <Input
-                        placeholder={t('search-by-name')}
-                        value={localSearch}
-                        onChange={(e) => onLocalSearchChange?.(e.target.value)}
-                        className="h-8 pl-8 bg-background"
-                    />
-                </div>
             </div>
         </div>
     );

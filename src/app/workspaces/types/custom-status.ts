@@ -38,6 +38,9 @@ export type DefaultStatusOverride = {
  * Workspace metadata with custom statuses
  */
 export type WorkspaceMetadata = {
+    backgroundColor?: string;
+    workspaceIcon?: string;
+
     // Custom status columns
     customStatuses?: CustomStatus[];
 

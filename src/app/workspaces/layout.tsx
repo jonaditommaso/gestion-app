@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { COLOR_PRESETS } from "./constants/color-presets";
 import { MembersProvider } from "@/context/MembersContext";
+import { parseWorkspaceMetadata } from "./utils/workspace-metadata";
 
 interface WorkspacesLayoutProps {
     children: React.ReactNode
@@ -23,32 +24,25 @@ const WorkspacesLayout = ({ children }: WorkspacesLayoutProps) => {
         }
     }, [isLoading, workspaces, workspaceId, router]);
 
-    // Get background color from workspace metadata
-    const getBackgroundClass = () => {
-        if (!workspaces || !workspaceId) return 'bg-background';
-
-        const workspace = workspaces.documents.find(ws => ws.$id === workspaceId);
-        if (!workspace) return 'bg-background';
-
-        try {
-            if (workspace.metadata) {
-                const metadata = typeof workspace.metadata === 'string'
-                    ? JSON.parse(workspace.metadata)
-                    : workspace.metadata;
-                const color = metadata.backgroundColor;
-
-                const preset = COLOR_PRESETS.find(p => p.value === color);
-                return preset?.gradient || 'bg-background';
-            }
-        } catch (error) {
-            console.error('Error parsing workspace metadata:', error);
-        }
-        return 'bg-background';
-    };
+    const workspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+    const metadata = parseWorkspaceMetadata(workspace?.metadata);
+    const theme = COLOR_PRESETS.find(preset => preset.value === metadata.backgroundColor);
 
     const content = (
-        <div className={`ml-[0px] flex justify-center pt-[70px] gap-10 min-h-screen transition-colors ${getBackgroundClass()}`}>
-            {children}
+        <div className="relative isolate ml-[0px] flex min-h-screen justify-center gap-10 overflow-hidden bg-background pt-[70px]">
+            {theme && workspaceId !== 'create' && (
+                <div
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute inset-x-0 top-0 h-[360px] ${theme.gradient}`}
+                    style={{
+                        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+                        maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+                    }}
+                />
+            )}
+            <div className="relative z-10 flex min-h-[calc(100vh-70px)] w-full justify-center">
+                {children}
+            </div>
         </div>
     );
 
