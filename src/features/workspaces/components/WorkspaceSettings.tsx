@@ -1122,6 +1122,22 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5 flex-1">
+                            <Label>{t('set-start-date-on-create')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('set-start-date-on-create-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={displayConfig[WorkspaceConfigKey.SET_START_DATE_ON_CREATE] as boolean}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.SET_START_DATE_ON_CREATE, checked)}
+                            disabled={isConfigPending(WorkspaceConfigKey.SET_START_DATE_ON_CREATE) || !canWrite}
+                        />
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
                             <Label>{t('date-format')}</Label>
                             <p className="text-sm text-muted-foreground">
                                 {t('date-format-description')}

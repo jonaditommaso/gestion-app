@@ -12,6 +12,7 @@ export const createTaskSchema = zod.object({
     status: statusSchema,
     statusCustomId: zod.string().optional().nullable(), // ID del custom status cuando status === 'CUSTOM'
     workspaceId: zod.string().trim().min(1, 'Required'),
+    startDate: zod.coerce.date().optional().nullable(),
     dueDate: zod.coerce.date().optional().nullable(),
     assigneesIds: zod.array(zod.string().trim().min(1, 'Required')).optional().default([]),
     priority: zod.number().int().min(1).max(5),

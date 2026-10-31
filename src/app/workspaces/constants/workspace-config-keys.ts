@@ -48,6 +48,7 @@ export enum WorkspaceConfigKey {
     COMPACT_CARDS = 'compactCards',
     AUTO_ASSIGN_ON_CREATE = 'autoAssignOnCreate',
     GENERATE_TASK_CODE = 'generateTaskCode',
+    SET_START_DATE_ON_CREATE = 'setStartDateOnCreate',
     DATE_FORMAT = 'dateFormat',
     PUBLIC_LINK_EXPIRATION_DAYS = 'publicLinkExpirationDays',
     MULTI_SELECT_LABELS = 'multiSelectLabels',
@@ -165,6 +166,7 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.COMPACT_CARDS]: false,
     [WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE]: false,
     [WorkspaceConfigKey.GENERATE_TASK_CODE]: true, // enabled by default
+    [WorkspaceConfigKey.SET_START_DATE_ON_CREATE]: false,
     [WorkspaceConfigKey.DATE_FORMAT]: DateFormatType.LONG,
     [WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS]: 5, // 5 days by default
     [WorkspaceConfigKey.MULTI_SELECT_LABELS]: false, // single select by default

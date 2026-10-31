@@ -23,6 +23,16 @@ interface TaskAssignee extends Models.Document {
     workspaceMemberId: string;
 }
 
+const hasInvalidTaskSchedule = (
+    startDate: Date | string | null | undefined,
+    dueDate: Date | string | null | undefined
+): boolean => {
+    if (!startDate || !dueDate) return false;
+    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    const due = dueDate instanceof Date ? dueDate : new Date(dueDate);
+    return start.getTime() > due.getTime();
+};
+
 // Helper function to get label name from workspace metadata
 const getLabelName = async (databases: Databases, workspaceId: string, labelId: string | null | undefined): Promise<string | null> => {
     if (!labelId) return null;
@@ -567,7 +577,11 @@ const app = new Hono()
             const user = ctx.get('user');
             const databases = ctx.get('databases');
 
-            const { name, status, statusCustomId, workspaceId, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId, duplicatedFromId, linkedTaskId } = ctx.req.valid('json');
+            const { name, status, statusCustomId, workspaceId, startDate, dueDate, assigneesIds, priority, description, label, type, featured, metadata, parentId, duplicatedFromId, linkedTaskId } = ctx.req.valid('json');
+
+            if (hasInvalidTaskSchedule(startDate, dueDate)) {
+                return ctx.json({ error: 'invalid_task_schedule' }, 400);
+            }
 
             const member = await getMember({
                 databases,
@@ -618,6 +632,7 @@ const app = new Hono()
                     status,
                     statusCustomId: status === TaskStatus.CUSTOM ? statusCustomId : null,
                     workspaceId,
+                    startDate: startDate ?? null,
                     dueDate,
                     priority,
                     description,
@@ -862,6 +877,12 @@ const app = new Hono()
 
             if (!member) {
                 return ctx.json({ error: 'Unauthorized' }, 401)
+            }
+
+            const resultingStartDate = updates.startDate !== undefined ? updates.startDate : existingTask.startDate;
+            const resultingDueDate = updates.dueDate !== undefined ? updates.dueDate : existingTask.dueDate;
+            if (hasInvalidTaskSchedule(resultingStartDate, resultingDueDate)) {
+                return ctx.json({ error: 'invalid_task_schedule' }, 400);
             }
 
             // Check plan limits when changing to a restricted type

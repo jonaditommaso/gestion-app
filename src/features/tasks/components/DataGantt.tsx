@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { Task, TaskStatus } from "../types";
 import { Button } from "@/components/ui/button";
+import { parseTaskMetadata } from "../utils/metadata-helpers";
 
 interface DataGanttProps {
     data: Task[];
@@ -69,10 +70,10 @@ const DataGantt = ({ data }: DataGanttProps) => {
 
     const items = useMemo<GanttItem[]>(() => {
         const withRange = data.reduce<GanttItem[]>((acc, task) => {
-            if (task.archived || !task.dueDate) return acc;
+            if (task.archived || (!task.startDate && !task.dueDate)) return acc;
 
-            const start = new Date(task.$createdAt);
-            const due = new Date(task.dueDate);
+            const start = new Date(task.startDate || task.dueDate);
+            const due = task.dueDate ? new Date(task.dueDate) : start;
 
             if (!isValid(start) || !isValid(due)) return acc;
 
@@ -165,14 +166,20 @@ const DataGantt = ({ data }: DataGanttProps) => {
         const durationDays = Math.max(1, differenceInCalendarDays(end, start) + 1);
         return (durationDays / timeline.totalDays) * 100;
     };
+    const itemIndexByTaskId = new Map(items.map((item, index) => [item.task.$id, index]));
 
     return (
         <>
             <div className="h-full rounded-lg border bg-background p-4">
                 <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
-                    <p className="text-xs text-muted-foreground">
-                        {format(timeline.axisStart, 'PPP', { locale: dateLocale })} - {format(timeline.axisEnd, 'PPP', { locale: dateLocale })}
-                    </p>
+                    <div className="space-y-0.5">
+                        <p className="text-xs text-muted-foreground">
+                            {format(timeline.axisStart, 'PPP', { locale: dateLocale })} - {format(timeline.axisEnd, 'PPP', { locale: dateLocale })}
+                        </p>
+                        <p className="max-w-2xl text-[11px] text-muted-foreground">
+                            {t('gantt-date-hint')}
+                        </p>
+                    </div>
                     <div className="inline-flex rounded-md border p-0.5 bg-muted/40">
                         <Button
                             type="button"
@@ -225,7 +232,52 @@ const DataGantt = ({ data }: DataGanttProps) => {
                             </div>
                         </div>
 
-                        <div className="space-y-2 pb-1">
+                        <div className="relative space-y-2 overflow-visible pb-1">
+                            <svg
+                                aria-hidden="true"
+                                className="pointer-events-none absolute left-[292px] top-0 z-10 h-full w-[calc(100%-292px)] overflow-visible"
+                                viewBox={`0 0 1000 ${items.length * 44}`}
+                                preserveAspectRatio="none"
+                            >
+                                <defs>
+                                    <marker
+                                        id="gantt-dependency-arrow"
+                                        markerWidth="7"
+                                        markerHeight="7"
+                                        refX="6"
+                                        refY="3.5"
+                                        orient="auto"
+                                    >
+                                        <path d="M0,0 L7,3.5 L0,7 Z" className="fill-muted-foreground" />
+                                    </marker>
+                                </defs>
+                                {items.flatMap((item, rowIndex) => {
+                                    const dependencies = parseTaskMetadata(item.task.metadata).dependsOnTaskIds ?? [];
+                                    return dependencies.flatMap(dependencyId => {
+                                        const dependencyIndex = itemIndexByTaskId.get(dependencyId);
+                                        const dependency = items[dependencyIndex ?? -1];
+                                        if (!dependency || dependencyIndex === undefined) return [];
+
+                                        const x1 = Math.min(getLeftPercent(dependency.end) + 0.6, 100) * 10;
+                                        const x2 = getLeftPercent(item.start) * 10;
+                                        const y1 = dependencyIndex * 44 + 18;
+                                        const y2 = rowIndex * 44 + 18;
+                                        const elbowX = Math.max(x1 + 1.5, (x1 + x2) / 2);
+
+                                        return (
+                                            <path
+                                                key={`${dependencyId}-${item.task.$id}`}
+                                                d={`M ${x1} ${y1} H ${elbowX} V ${y2} H ${x2}`}
+                                                fill="none"
+                                                className="stroke-muted-foreground"
+                                                strokeWidth="1.5"
+                                                strokeDasharray="4 3"
+                                                markerEnd="url(#gantt-dependency-arrow)"
+                                            />
+                                        );
+                                    });
+                                })}
+                            </svg>
                             {items.map((item) => {
                                 const left = getLeftPercent(item.start);
                                 const rawWidth = getWidthPercent(item.start, item.end);
@@ -260,7 +312,7 @@ const DataGantt = ({ data }: DataGanttProps) => {
                                                 type="button"
                                                 onClick={() => setSelectedTaskId(item.task.$id)}
                                                 className={cn(
-                                                    "absolute top-1/2 -translate-y-1/2 h-5 rounded-md px-2 text-[11px] font-medium text-white truncate",
+                                                        "absolute top-1/2 z-20 -translate-y-1/2 h-5 rounded-md px-2 text-[11px] font-medium text-white truncate",
                                                     STATUS_BAR_CLASS[item.task.status]
                                                 )}
                                                 style={{
