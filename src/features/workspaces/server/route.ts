@@ -147,7 +147,18 @@ const app = new Hono()
                 if ('customStatuses' in parsedMeta) {
                     const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
                     if (orgContext?.org?.plan === 'FREE') {
-                        return ctx.json({ error: 'Plan limit reached' }, 403);
+                        const existingWorkspace = await databases.getDocument<WorkspaceType>(
+                            DATABASE_ID,
+                            WORKSPACES_ID,
+                            workspaceId
+                        );
+                        const existingMeta = existingWorkspace.metadata
+                            ? JSON.parse(existingWorkspace.metadata) as Record<string, unknown>
+                            : {};
+
+                        if (JSON.stringify(parsedMeta.customStatuses) !== JSON.stringify(existingMeta.customStatuses)) {
+                            return ctx.json({ error: 'Plan limit reached' }, 403);
+                        }
                     }
                 }
                 updateData.metadata = metadata;

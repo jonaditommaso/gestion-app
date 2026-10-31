@@ -34,6 +34,26 @@ export type DefaultStatusOverride = {
     color?: string;
 };
 
+export type SavedTaskFilter = {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+    filters: {
+        status: string | null;
+        assigneeId: string | null;
+        squadId: string | null;
+        dueDate: string | null;
+        priority: number | null;
+        label: string[] | null;
+        type: string | null;
+        completed: string | null;
+    };
+    unassignedOnly: boolean;
+    dueThisWeekOnly: boolean;
+    hidden?: boolean;
+};
+
 /**
  * Workspace metadata with custom statuses
  */
@@ -55,6 +75,11 @@ export type WorkspaceMetadata = {
 
     // Custom labels/tags for tasks
     customLabels?: CustomLabel[];
+
+    // Shared saved task filters
+    savedTaskFilters?: SavedTaskFilter[];
+
+    hiddenQuickFilters?: ('unassigned' | 'dueThisWeek')[];
 
     // Other metadata fields
     [key: string]: unknown;

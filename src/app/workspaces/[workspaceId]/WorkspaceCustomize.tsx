@@ -355,7 +355,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
                                         {selectedColor === preset.value && (
                                             <Check className="absolute right-2 top-2 size-4 rounded-full bg-background p-0.5 text-primary shadow-sm" />
                                         )}
-                                        <span className="absolute inset-x-1 bottom-1 truncate rounded bg-background/80 px-1 py-0.5 text-center text-[11px] font-medium text-foreground">
+                                        <span className="absolute inset-x-1 bottom-1 truncate px-1 py-0.5 text-center text-[11px] font-medium text-foreground">
                                             {t(preset.name)}
                                         </span>
                                     </button>
