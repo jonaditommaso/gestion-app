@@ -48,6 +48,7 @@ export type TaskMetadata = {
     bugRootCause?: string; // plain text - root cause explanation after resolution
     githubBranch?: string; // linked GitHub branch name
     githubRepo?: string; // linked GitHub repo fullName (owner/repo)
+    customTaskFieldValues?: Record<string, string | number>;
 }
 
 export type WorkspaceMember = Models.Document & {

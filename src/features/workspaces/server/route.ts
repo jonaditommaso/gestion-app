@@ -144,21 +144,21 @@ const app = new Hono()
                 try {
                     parsedMeta = typeof metadata === 'string' ? JSON.parse(metadata) : {};
                 } catch { /* invalid JSON — skip check */ }
-                if ('customStatuses' in parsedMeta) {
-                    const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
-                    if (orgContext?.org?.plan === 'FREE') {
-                        const existingWorkspace = await databases.getDocument<WorkspaceType>(
-                            DATABASE_ID,
-                            WORKSPACES_ID,
-                            workspaceId
-                        );
-                        const existingMeta = existingWorkspace.metadata
-                            ? JSON.parse(existingWorkspace.metadata) as Record<string, unknown>
-                            : {};
+                const orgContext = await getActiveContext(user, ctx.get('activeOrgId'));
+                if (orgContext?.org?.plan === 'FREE') {
+                    const existingWorkspace = await databases.getDocument<WorkspaceType>(
+                        DATABASE_ID,
+                        WORKSPACES_ID,
+                        workspaceId
+                    );
+                    const existingMeta = existingWorkspace.metadata
+                        ? JSON.parse(existingWorkspace.metadata) as Record<string, unknown>
+                        : {};
 
-                        if (JSON.stringify(parsedMeta.customStatuses) !== JSON.stringify(existingMeta.customStatuses)) {
-                            return ctx.json({ error: 'Plan limit reached' }, 403);
-                        }
+                    const customStatusesChanged = JSON.stringify(parsedMeta.customStatuses) !== JSON.stringify(existingMeta.customStatuses);
+                    const customTaskFieldsChanged = JSON.stringify(parsedMeta.customTaskFields) !== JSON.stringify(existingMeta.customTaskFields);
+                    if (customStatusesChanged || customTaskFieldsChanged) {
+                        return ctx.json({ error: 'Plan limit reached' }, 403);
                     }
                 }
                 updateData.metadata = metadata;

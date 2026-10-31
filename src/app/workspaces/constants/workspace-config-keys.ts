@@ -41,6 +41,7 @@ export enum WorkspaceConfigKey {
     URGENT_WARNING_2_DAYS = 'urgentWarning2Days',
 
     // Task Preferences
+    CUSTOM_TASK_FIELDS = 'customTaskFields',
     REQUIRED_ASSIGNEE = 'requiredAssignee',
     REQUIRED_DUE_DATE = 'requiredDueDate',
     REQUIRED_DESCRIPTION = 'requiredDescription',
@@ -157,6 +158,7 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.URGENT_WARNING_2_DAYS]: 2,
 
     // Task preferences
+    [WorkspaceConfigKey.CUSTOM_TASK_FIELDS]: [],
     [WorkspaceConfigKey.REQUIRED_ASSIGNEE]: false,
     [WorkspaceConfigKey.REQUIRED_DUE_DATE]: false,
     [WorkspaceConfigKey.REQUIRED_DESCRIPTION]: false,

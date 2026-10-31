@@ -28,11 +28,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
 import { TaskAssigneesManager } from "./TaskAssigneesManager";
 import { TaskSquadsManager } from "./TaskSquadsManager";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetSquads } from "../api/squads";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { CustomTaskField } from "@/app/workspaces/types/custom-status";
 import { LabelSelector } from "./LabelSelector";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
@@ -45,7 +49,7 @@ import { TestPanel } from "./TestPanel";
 import { BugPanel } from "./BugPanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
-import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers, Images, ImagePlus, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Check, Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers, Images, ImagePlus, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
@@ -212,6 +216,7 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(displayTask.description || '');
     const [activeTab, setActiveTab] = useState<'comments' | 'multimedia' | 'history'>('comments');
+    const [openCustomFieldId, setOpenCustomFieldId] = useState<string | null>(null);
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -235,7 +240,29 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     };
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const config = useWorkspaceConfig();
+    const customTaskFields = (config[WorkspaceConfigKey.CUSTOM_TASK_FIELDS] as CustomTaskField[] | undefined) ?? [];
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
+    const updateCustomTaskField = (field: CustomTaskField, value: string | number | undefined) => {
+        if (typeof value === 'number' && (
+            (field.min != null && value < field.min)
+            || (field.max != null && value > field.max)
+        )) return;
+        const values = { ...(taskMetadata.customTaskFieldValues ?? {}) };
+        if (value === undefined || value === '') {
+            delete values[field.id];
+        } else {
+            values[field.id] = value;
+        }
+        updateTask({
+            json: {
+                metadata: stringifyTaskMetadata({
+                    ...taskMetadata,
+                    customTaskFieldValues: Object.keys(values).length > 0 ? values : undefined,
+                }),
+            },
+            param: { taskId: displayTask.$id },
+        });
+    };
     const { data: tasksData } = useGetTasks({ workspaceId });
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
     const prevCompletedAt = useRef(displayTask.completedAt);
@@ -1312,6 +1339,103 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                             readOnly={readOnly}
                         />
                     </div>
+
+                    {customTaskFields.map(field => {
+                        const value = taskMetadata.customTaskFieldValues?.[field.id];
+                        return (
+                            <div key={field.id} className="flex items-center py-1">
+                                <span className="w-24 shrink-0 text-xs font-medium text-muted-foreground">
+                                    {field.name}
+                                </span>
+                                <div className="ml-1 min-w-0 flex-1">
+                                    {field.type === 'select' ? (
+                                        readOnly ? (
+                                            <span className="px-2 text-sm">{value ?? '—'}</span>
+                                        ) : (
+                                            <Popover
+                                                open={openCustomFieldId === field.id}
+                                                onOpenChange={open => setOpenCustomFieldId(open ? field.id : null)}
+                                            >
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className={cn(
+                                                            "h-auto max-w-full justify-start px-2 py-1 text-sm font-normal hover:bg-muted",
+                                                            value === undefined ? "text-muted-foreground" : "text-foreground"
+                                                        )}
+                                                        disabled={isPending}
+                                                    >
+                                                        <span className="truncate">{value ?? t('select-custom-field-value')}</span>
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[220px] p-0" align="start">
+                                                    <Command>
+                                                        <CommandInput placeholder={t('search')} />
+                                                        <CommandList>
+                                                            <CommandEmpty>{t('no-results-found')}</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {value !== undefined && (
+                                                                    <CommandItem
+                                                                        value={t('clear-custom-field-value')}
+                                                                        onSelect={() => {
+                                                                            updateCustomTaskField(field, undefined);
+                                                                            setOpenCustomFieldId(null);
+                                                                        }}
+                                                                        className="cursor-pointer text-muted-foreground"
+                                                                    >
+                                                                        {t('clear-custom-field-value')}
+                                                                    </CommandItem>
+                                                                )}
+                                                                {field.options?.map(option => (
+                                                                    <CommandItem
+                                                                        key={`${field.id}-${option}`}
+                                                                        value={option}
+                                                                        onSelect={() => {
+                                                                            updateCustomTaskField(field, option);
+                                                                            setOpenCustomFieldId(null);
+                                                                        }}
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        <span className="flex-1 truncate">{option}</span>
+                                                                        {value === option && <Check className="size-4 text-primary" />}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        )
+                                    ) : readOnly ? (
+                                        <span className="px-2 text-sm">{value ?? '—'}</span>
+                                    ) : (
+                                        <Input
+                                            className="h-8"
+                                            type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
+                                            defaultValue={value === undefined ? '' : String(value)}
+                                            min={field.type === 'number' ? field.min ?? undefined : undefined}
+                                            max={field.type === 'number' ? field.max ?? undefined : undefined}
+                                            onBlur={event => {
+                                                const rawValue = event.currentTarget.value;
+                                                if (field.type === 'number') {
+                                                    if (!event.currentTarget.checkValidity()) {
+                                                        event.currentTarget.reportValidity();
+                                                        return;
+                                                    }
+                                                    updateCustomTaskField(field, rawValue === '' ? undefined : Number(rawValue));
+                                                } else {
+                                                    updateCustomTaskField(field, rawValue || undefined);
+                                                }
+                                            }}
+                                            disabled={isPending}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
 
                     {/* Completed At */}
                     <div className="flex items-center py-1">

@@ -54,6 +54,15 @@ export type SavedTaskFilter = {
     hidden?: boolean;
 };
 
+export type CustomTaskField = {
+    id: string;
+    name: string;
+    type: 'text' | 'number' | 'date' | 'select';
+    min?: number | null;
+    max?: number | null;
+    options?: string[];
+};
+
 /**
  * Workspace metadata with custom statuses
  */
@@ -80,6 +89,8 @@ export type WorkspaceMetadata = {
     savedTaskFilters?: SavedTaskFilter[];
 
     hiddenQuickFilters?: ('unassigned' | 'dueThisWeek')[];
+
+    customTaskFields?: CustomTaskField[];
 
     // Other metadata fields
     [key: string]: unknown;
