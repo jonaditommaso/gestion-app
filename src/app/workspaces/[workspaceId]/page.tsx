@@ -201,7 +201,6 @@ const WorkspaceView = () => {
                 {optionsView ? (
                     <div className="relative z-10 mb-1 flex min-h-11 flex-wrap items-center gap-2">
                         {workspaceHeaderControls}
-                        <CreateNewTaskButton handleNewTask={handleNewTask} />
                     </div>
                 ) : null}
 
