@@ -41,12 +41,14 @@ export enum WorkspaceConfigKey {
     URGENT_WARNING_2_DAYS = 'urgentWarning2Days',
 
     // Task Preferences
+    CUSTOM_TASK_FIELDS = 'customTaskFields',
     REQUIRED_ASSIGNEE = 'requiredAssignee',
     REQUIRED_DUE_DATE = 'requiredDueDate',
     REQUIRED_DESCRIPTION = 'requiredDescription',
     COMPACT_CARDS = 'compactCards',
     AUTO_ASSIGN_ON_CREATE = 'autoAssignOnCreate',
     GENERATE_TASK_CODE = 'generateTaskCode',
+    SET_START_DATE_ON_CREATE = 'setStartDateOnCreate',
     DATE_FORMAT = 'dateFormat',
     PUBLIC_LINK_EXPIRATION_DAYS = 'publicLinkExpirationDays',
     MULTI_SELECT_LABELS = 'multiSelectLabels',
@@ -157,12 +159,14 @@ export const DEFAULT_WORKSPACE_CONFIG = {
     [WorkspaceConfigKey.URGENT_WARNING_2_DAYS]: 2,
 
     // Task preferences
+    [WorkspaceConfigKey.CUSTOM_TASK_FIELDS]: [],
     [WorkspaceConfigKey.REQUIRED_ASSIGNEE]: false,
     [WorkspaceConfigKey.REQUIRED_DUE_DATE]: false,
     [WorkspaceConfigKey.REQUIRED_DESCRIPTION]: false,
     [WorkspaceConfigKey.COMPACT_CARDS]: false,
     [WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE]: false,
     [WorkspaceConfigKey.GENERATE_TASK_CODE]: true, // enabled by default
+    [WorkspaceConfigKey.SET_START_DATE_ON_CREATE]: false,
     [WorkspaceConfigKey.DATE_FORMAT]: DateFormatType.LONG,
     [WorkspaceConfigKey.PUBLIC_LINK_EXPIRATION_DAYS]: 5, // 5 days by default
     [WorkspaceConfigKey.MULTI_SELECT_LABELS]: false, // single select by default

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import '@github/relative-time-element';
-import { Ban, Info } from "lucide-react";
+import { Ban, Info, Pencil, Plus, Trash2, X } from "lucide-react";
 import { WorkspaceType } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
 import { useDeleteWorkspace } from "../api/use-delete-workspace";
@@ -28,6 +28,7 @@ import { PERMISSIONS } from "@/features/roles/constants";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { GitHubIntegrationSection } from "@/features/github/components/GitHubIntegrationSection";
 import { useAppContext } from "@/context/AppContext";
+import type { CustomTaskField } from "@/app/workspaces/types/custom-status";
 
 interface WorkspaceSettingsProps {
     workspace: WorkspaceType;
@@ -46,6 +47,14 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
     const [hasUnsavedLimits, setHasUnsavedLimits] = useState(false); // Track if column limits have unsaved changes
     const [pendingConfigKey, setPendingConfigKey] = useState<WorkspaceConfigKey | 'adminMode' | 'columnLimits' | 'archive' | 'urgentWarnings' | null>(null); // Track which config key is currently being updated
     const [isArchivedTasksModalOpen, setIsArchivedTasksModalOpen] = useState(false);
+    const [isAddingCustomField, setIsAddingCustomField] = useState(false);
+    const [editingCustomFieldId, setEditingCustomFieldId] = useState<string | null>(null);
+    const [customFieldName, setCustomFieldName] = useState('');
+    const [customFieldType, setCustomFieldType] = useState<CustomTaskField['type']>('text');
+    const [customFieldMin, setCustomFieldMin] = useState('');
+    const [customFieldMax, setCustomFieldMax] = useState('');
+    const [customFieldOptions, setCustomFieldOptions] = useState<string[]>([]);
+    const [customFieldOptionInput, setCustomFieldOptionInput] = useState('');
 
     const { hasPermission } = useCurrentUserPermissions();
     const canWrite = hasPermission(PERMISSIONS.WRITE) && !isDemo;
@@ -78,6 +87,7 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
 
     const autoArchiveOnStatusId = displayConfig[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
     const defaultTaskStatusId = displayConfig[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as string;
+    const customTaskFields = (displayConfig[WorkspaceConfigKey.CUSTOM_TASK_FIELDS] as CustomTaskField[] | undefined) ?? [];
 
     const AUTO_ARCHIVE_DISABLED_VALUE = '__DISABLED__';
 
@@ -281,6 +291,83 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                 }
             }
         );
+    };
+
+    const saveCustomTaskFields = (fields: CustomTaskField[], onSuccess?: () => void) => {
+        const customConfig = getCustomConfig();
+        if (fields.length > 0) {
+            customConfig[WorkspaceConfigKey.CUSTOM_TASK_FIELDS] = fields;
+        } else {
+            delete customConfig[WorkspaceConfigKey.CUSTOM_TASK_FIELDS];
+        }
+
+        setPendingConfigKey(WorkspaceConfigKey.CUSTOM_TASK_FIELDS);
+        updateWorkspace(
+            {
+                json: { metadata: JSON.stringify(customConfig) },
+                param: { workspaceId: workspace.$id },
+            },
+            {
+                onSuccess,
+                onSettled: () => setPendingConfigKey(null),
+            }
+        );
+    };
+
+    const startEditingCustomTaskField = (field: CustomTaskField) => {
+        setEditingCustomFieldId(field.id);
+        setCustomFieldName(field.name);
+        setCustomFieldType(field.type);
+        setCustomFieldMin(field.min?.toString() ?? '');
+        setCustomFieldMax(field.max?.toString() ?? '');
+        setCustomFieldOptions(field.options ?? []);
+        setCustomFieldOptionInput('');
+        setIsAddingCustomField(true);
+    };
+
+    const saveCustomTaskField = () => {
+        const name = customFieldName.trim();
+        const options = customFieldOptions;
+        const min = customFieldMin.trim() ? Number(customFieldMin) : undefined;
+        const max = customFieldMax.trim() ? Number(customFieldMax) : undefined;
+        if (!name || customTaskFields.some(field =>
+            field.id !== editingCustomFieldId && field.name.toLowerCase() === name.toLowerCase()
+        )) return;
+        if (customFieldType === 'select' && options.length < 1) return;
+        if ((min !== undefined && !Number.isFinite(min)) || (max !== undefined && !Number.isFinite(max))) return;
+        if (customFieldType === 'number' && min !== undefined && max !== undefined && min > max) return;
+
+        const field: CustomTaskField = {
+            id: editingCustomFieldId ?? `FIELD_${crypto.randomUUID()}`,
+            name,
+            type: customFieldType,
+            ...(customFieldType === 'number' ? { min, max } : {}),
+            ...(customFieldType === 'select' ? { options } : {}),
+        };
+        const fields = editingCustomFieldId
+            ? customTaskFields.map(existing => existing.id === editingCustomFieldId ? field : existing)
+            : [...customTaskFields, field];
+        saveCustomTaskFields(fields, () => {
+            setCustomFieldName('');
+            setCustomFieldType('text');
+            setCustomFieldMin('');
+            setCustomFieldMax('');
+            setCustomFieldOptions([]);
+            setCustomFieldOptionInput('');
+            setEditingCustomFieldId(null);
+            setIsAddingCustomField(false);
+        });
+    };
+
+    const cancelCustomTaskFieldEdit = () => {
+        setCustomFieldName('');
+        setCustomFieldType('text');
+        setCustomFieldMin('');
+        setCustomFieldMax('');
+        setCustomFieldOptions([]);
+        setCustomFieldOptionInput('');
+        setEditingCustomFieldId(null);
+        setIsAddingCustomField(false);
     };
 
     // Toggle admin mode - sets all permissions at once
@@ -671,6 +758,211 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                 </CardHeader>
                 <Separator />
                 <CardContent className="space-y-6 pt-6">
+                    {!isFree && (
+                        <>
+                            <div className="space-y-4">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="space-y-0.5">
+                                        <Label>{t('custom-task-fields')}</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                            {t('custom-task-fields-description')}
+                                        </p>
+                                    </div>
+                                    {!isAddingCustomField && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => setIsAddingCustomField(true)}
+                                            disabled={!canWrite || isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                        >
+                                            <Plus className="mr-1 size-4" />
+                                            {t(editingCustomFieldId ? 'save-custom-field' : 'add-custom-field')}
+                                        </Button>
+                                    )}
+                                </div>
+                                {customTaskFields.map(field => (
+                                    <div key={field.id} className="flex items-center gap-3 rounded-md border px-3 py-2">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-medium">{field.name}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {t(`custom-field-type-${field.type}`)}
+                                                {field.type === 'number' && (field.min !== undefined || field.max !== undefined)
+                                                    ? ` · ${field.min ?? '−∞'} – ${field.max ?? '∞'}`
+                                                    : ''}
+                                                {field.type === 'select' && field.options?.length
+                                                    ? ` · ${field.options.join(', ')}`
+                                                    : ''}
+                                            </p>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label={t('edit-custom-field', { name: field.name })}
+                                            onClick={() => startEditingCustomTaskField(field)}
+                                            disabled={!canWrite || isAddingCustomField || isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                        >
+                                            <Pencil className="size-4" />
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label={t('remove-custom-field', { name: field.name })}
+                                            onClick={() => saveCustomTaskFields(customTaskFields.filter(item => item.id !== field.id))}
+                                            disabled={!canWrite || isAddingCustomField || isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                        >
+                                            <Trash2 className="size-4 text-destructive" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                {isAddingCustomField && (
+                                    <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="space-y-1.5">
+                                                <Label htmlFor="custom-task-field-name">{t('custom-field-name')}</Label>
+                                                <Input
+                                                    id="custom-task-field-name"
+                                                    value={customFieldName}
+                                                    onChange={event => setCustomFieldName(event.target.value)}
+                                                    maxLength={40}
+                                                    disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <Label>{t('custom-field-type')}</Label>
+                                                <Select
+                                                    value={customFieldType}
+                                                    onValueChange={(value: CustomTaskField['type']) => setCustomFieldType(value)}
+                                                    disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                                >
+                                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        {(['text', 'number', 'date', 'select'] as const).map(fieldType => (
+                                                            <SelectItem key={fieldType} value={fieldType}>
+                                                                {t(`custom-field-type-${fieldType}`)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        {customFieldType === 'number' && (
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="custom-task-field-min">{t('custom-field-min')}</Label>
+                                                    <Input
+                                                        id="custom-task-field-min"
+                                                        type="number"
+                                                        value={customFieldMin}
+                                                        onChange={event => setCustomFieldMin(event.target.value)}
+                                                        disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="custom-task-field-max">{t('custom-field-max')}</Label>
+                                                    <Input
+                                                        id="custom-task-field-max"
+                                                        type="number"
+                                                        value={customFieldMax}
+                                                        onChange={event => setCustomFieldMax(event.target.value)}
+                                                        disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                        {customFieldType === 'select' && (
+                                            <div className="space-y-1.5">
+                                                <Label htmlFor="custom-task-field-options">{t('custom-field-options')}</Label>
+                                                <div
+                                                    className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 shadow-sm focus-within:ring-1 focus-within:ring-ring"
+                                                    onClick={() => document.getElementById('custom-task-field-options')?.focus()}
+                                                >
+                                                    {customFieldOptions.map(option => (
+                                                        <span
+                                                            key={option}
+                                                            className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
+                                                        >
+                                                            {option}
+                                                            <button
+                                                                type="button"
+                                                                className="rounded-full outline-none transition-colors hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring"
+                                                                aria-label={t('remove-custom-field-option', { option })}
+                                                                onClick={event => {
+                                                                    event.stopPropagation();
+                                                                    setCustomFieldOptions(current => current.filter(item => item !== option));
+                                                                }}
+                                                                disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                                            >
+                                                                <X className="size-3" />
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                    <Input
+                                                        id="custom-task-field-options"
+                                                        value={customFieldOptionInput}
+                                                        onChange={event => setCustomFieldOptionInput(event.target.value)}
+                                                        onKeyDown={event => {
+                                                            if (event.key !== 'Enter') return;
+                                                            event.preventDefault();
+                                                            const option = customFieldOptionInput.trim();
+                                                            if (
+                                                                option
+                                                                && !customFieldOptions.some(item => item.toLowerCase() === option.toLowerCase())
+                                                            ) {
+                                                                setCustomFieldOptions(current => [...current, option]);
+                                                            }
+                                                            setCustomFieldOptionInput('');
+                                                        }}
+                                                        className="h-7 min-w-32 flex-1 border-0 px-0 shadow-none focus-visible:ring-0"
+                                                    placeholder={t('custom-field-options-placeholder')}
+                                                    disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                                    />
+                                                </div>
+                                                <p className="text-sm text-muted-foreground">{t('custom-field-options-help')}</p>
+                                            </div>
+                                        )}
+                                        {customTaskFields.some(field =>
+                                            field.id !== editingCustomFieldId && field.name.toLowerCase() === customFieldName.trim().toLowerCase()
+                                        ) && (
+                                            <p className="text-sm text-destructive">{t('custom-field-name-duplicate')}</p>
+                                        )}
+                                        {customFieldType === 'number' && customFieldMin !== '' && customFieldMax !== '' && Number(customFieldMin) > Number(customFieldMax) && (
+                                            <p className="text-sm text-destructive">{t('custom-field-invalid-range')}</p>
+                                        )}
+                                        <div className="flex justify-end gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                onClick={cancelCustomTaskFieldEdit}
+                                                disabled={isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)}
+                                            >
+                                                {t('cancel')}
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                onClick={saveCustomTaskField}
+                                                disabled={
+                                                    !canWrite
+                                                    || !customFieldName.trim()
+                                                    || customTaskFields.some(field =>
+                                                        field.id !== editingCustomFieldId && field.name.toLowerCase() === customFieldName.trim().toLowerCase()
+                                                    )
+                                                    || (customFieldType === 'select' && customFieldOptions.length < 1)
+                                                    || (customFieldType === 'number' && customFieldMin !== '' && customFieldMax !== '' && Number(customFieldMin) > Number(customFieldMax))
+                                                    || isConfigPending(WorkspaceConfigKey.CUSTOM_TASK_FIELDS)
+                                                }
+                                            >
+                                                {t('add-custom-field')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <Separator />
+                        </>
+                    )}
                     <div className="space-y-4">
                         <div className="flex items-start justify-between">
                             <div className="space-y-0.5 flex-1">
@@ -824,6 +1116,22 @@ const WorkspaceSettings = ({ workspace }: WorkspaceSettingsProps) => {
                                 </Button>
                             </div>
                         )}
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex-1">
+                            <Label>{t('set-start-date-on-create')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('set-start-date-on-create-description')}
+                            </p>
+                        </div>
+                        <Switch
+                            checked={displayConfig[WorkspaceConfigKey.SET_START_DATE_ON_CREATE] as boolean}
+                            onCheckedChange={(checked) => updateConfig(WorkspaceConfigKey.SET_START_DATE_ON_CREATE, checked)}
+                            disabled={isConfigPending(WorkspaceConfigKey.SET_START_DATE_ON_CREATE) || !canWrite}
+                        />
                     </div>
 
                     <Separator />

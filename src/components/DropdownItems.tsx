@@ -2,7 +2,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
@@ -10,10 +9,13 @@ import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { useState } from "react";
 import UpgradeDialog from "@/components/UpgradeDialog";
 import { useAppContext } from "@/context/AppContext";
+import { COLOR_PRESETS } from "@/app/workspaces/constants/color-presets";
+import { parseWorkspaceMetadata } from "@/app/workspaces/utils/workspace-metadata";
 
 interface DropdownWorkspaceItem {
     $id: string;
     name?: string;
+    metadata?: string | null;
 }
 
 interface WorkspaceListData {
@@ -27,11 +29,12 @@ interface DropdownItemsProps {
     itemType: string,
     currentWorkspaceId?: string,
     workspacesCount: { count: number },
-    workspaces?: WorkspaceListData | null
+    workspaces?: WorkspaceListData | null,
+    itemBackgroundColor?: string,
+    showItemName?: boolean
 }
 
-const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, workspacesCount, workspaces }: DropdownItemsProps) => {
-    const { theme } = useTheme();
+const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, workspacesCount, workspaces, itemBackgroundColor, showItemName = true }: DropdownItemsProps) => {
     const t = useTranslations('general');
     const router = useRouter();
     const { hasPermission } = useCurrentUserPermissions();
@@ -61,27 +64,43 @@ const DropdownItems = ({ itemLogo, itemName, itemType, currentWorkspaceId, works
     return (
         <>
             <DropdownMenu>
-            <DropdownMenuTrigger className="max-w-80 flex items-center gap-2 p-2 border rounded-sm focus:outline-none h-9 bg-background">
-                <div className="border border-zinc-300 w-8 h-7 rounded-md bg-zinc-200 text-white text-xl">{itemLogo}</div>
-                <p className={theme === 'dark' ? 'text-white' : 'text-zinc-700'}>{itemName}</p>
+            <DropdownMenuTrigger
+                aria-label={showItemName ? itemName : t('switch-workspace')}
+                className="flex h-9 items-center gap-2 rounded-md border bg-background/80 p-1.5 shadow-sm backdrop-blur-md focus:outline-none"
+            >
+                <div
+                    className="flex size-7 items-center justify-center rounded-md border border-black/5 text-base text-slate-800"
+                    style={{ backgroundColor: itemBackgroundColor ?? '#e2e8f0' }}
+                >
+                    {itemLogo}
+                </div>
+                {showItemName && <p className="max-w-52 truncate text-sm font-medium">{itemName}</p>}
                 {!noOptions && <ChevronsUpDown size={14} />}
             </DropdownMenuTrigger>
             {noOptions
                 ? null
                 : (
                 <DropdownMenuContent align="start" className="min-w-60">
-                    {otherWorkspaces?.map((workspace) => (
-                        <DropdownMenuItem
-                            key={workspace.$id}
-                            className="flex items-center gap-2 p-2 cursor-pointer"
-                            onClick={() => handleSelectWorkspace(workspace.$id)}
-                        >
-                            <div className="border border-zinc-300 w-7 h-7 rounded-md bg-zinc-200 text-white flex items-center justify-center">
-                                {workspace.name?.[0]?.toUpperCase() ?? "?"}
-                            </div>
-                            <span className="flex-1">{workspace.name ?? "Workspace"}</span>
-                        </DropdownMenuItem>
-                    ))}
+                    {otherWorkspaces?.map((workspace) => {
+                        const metadata = parseWorkspaceMetadata(workspace.metadata);
+                        const preset = COLOR_PRESETS.find(item => item.value === metadata.backgroundColor);
+
+                        return (
+                            <DropdownMenuItem
+                                key={workspace.$id}
+                                className="flex items-center gap-2 p-2 cursor-pointer"
+                                onClick={() => handleSelectWorkspace(workspace.$id)}
+                            >
+                                <div
+                                    className="flex size-7 items-center justify-center rounded-md border border-black/5 text-base text-slate-800"
+                                    style={{ backgroundColor: preset?.iconBackground ?? '#e2e8f0' }}
+                                >
+                                    {metadata.workspaceIcon ?? workspace.name?.[0]?.toUpperCase() ?? "?"}
+                                </div>
+                                <span className="flex-1">{workspace.name ?? "Workspace"}</span>
+                            </DropdownMenuItem>
+                        );
+                    })}
                     {otherWorkspaces && otherWorkspaces.length > 0 && <DropdownMenuSeparator />}
                     {canWrite && (
                         <DropdownMenuItem

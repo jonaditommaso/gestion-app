@@ -1,6 +1,8 @@
 import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
+import { createSignedOAuthState } from "@/lib/oauth-state";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { setCookie } from "hono/cookie";
 import { ID, Models, Query } from "node-appwrite";
 import {
     DATABASE_ID,
@@ -81,6 +83,9 @@ interface SalesGoalDocument extends Models.Document {
     targetAmount: number;
     targetReached: number;
 }
+
+const GOOGLE_OAUTH_STATE_NONCE_COOKIE = 'google_oauth_state_nonce';
+const isSecure = process.env.NODE_ENV === 'production';
 
 const app = new Hono()
 
@@ -841,12 +846,26 @@ const app = new Hono()
                 GOOGLE_REDIRECT_URI,
             );
 
+            const { state, nonce } = createSignedOAuthState({
+                provider: 'google',
+                gmail_auth_only: true,
+                userId: user.$id,
+            });
+
+            setCookie(ctx, GOOGLE_OAUTH_STATE_NONCE_COOKIE, nonce, {
+                path: '/',
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'lax',
+                maxAge: 60 * 10,
+            });
+
             const url = oauth2Client.generateAuthUrl({
                 access_type: 'offline',
                 prompt: 'consent',
                 scope: ['https://www.googleapis.com/auth/gmail.send'],
                 include_granted_scopes: true,
-                state: JSON.stringify({ gmail_auth_only: true, userId: user.$id }),
+                state,
             });
 
             return ctx.json({ data: url });

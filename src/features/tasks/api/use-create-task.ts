@@ -31,6 +31,7 @@ export const useCreateTask = () => {
                     status: (json.status as TaskStatus) ?? TaskStatus.TODO,
                     workspaceId: json.workspaceId,
                     position: Date.now(),
+                    startDate: json.startDate ? new Date(json.startDate as unknown as string).toISOString() : null,
                     dueDate: json.dueDate ? new Date(json.dueDate as unknown as string).toISOString() : '',
                     assignees: [],
                     priority: json.priority ?? 2,
@@ -44,6 +45,10 @@ export const useCreateTask = () => {
             const response = await client.api.tasks['$post']({ json });
 
             if(!response.ok) {
+                const errorData = await response.json() as { error?: string };
+                if (errorData.error === 'invalid_task_schedule') {
+                    throw new Error('invalid_task_schedule');
+                }
                 throw new Error('Failed to create task')
             }
 
@@ -53,8 +58,10 @@ export const useCreateTask = () => {
             toast.success(t('task-created'))
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
         },
-        onError: () => {
-            toast.error(t('failed-create-task'))
+        onError: (error) => {
+            toast.error(error.message === 'invalid_task_schedule'
+                ? t('start-date-after-due-date')
+                : t('failed-create-task'))
         }
     })
     return mutation

@@ -9,6 +9,24 @@ import SelectPricingButton from "./SelectPricingButton";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
+const GlowFrame = ({ active, variant = 'rainbow', className, children }: {
+    active: boolean; variant?: 'rainbow' | 'gold'; className?: string; children: React.ReactNode;
+}) => {
+    if (!active) return <div className={cn('relative z-10', className)}>{children}</div>;
+    return (
+        <div className={cn('relative isolate', className)}>
+            <div
+                aria-hidden
+                className={cn(
+                    'pointer-events-none absolute -inset-0.5 -z-10 rounded-2xl opacity-60 blur-md',
+                    variant === 'gold' ? 'featured-glow-gold opacity-80' : 'featured-glow opacity-60'
+                )}
+            />
+            {children}
+        </div>
+    );
+};
+
 interface PricingCardProps {
     type: 'free' | 'plus' | 'pro' | 'enterprise',
     description: string,
@@ -40,14 +58,19 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
     const t = useTranslations('pricing');
 
     const isFeatured = type === 'pro' || type === 'enterprise';
-    const borderColor = type === 'pro' ? 'border-blue-500' : 'border-yellow-400';
+    // const borderColor = type === 'pro' ? 'border-blue-500' : 'border-yellow-400';
     const bgColor = type === 'pro'
-        ? 'bg-gradient-to-br from-blue-100 via-white to-indigo-50/60'
-        : 'bg-gradient-to-br from-yellow-100 via-white to-amber-50/60';
-    const featuredShadow = type === 'pro'
-        ? 'shadow-xl shadow-blue-200/60'
-        : 'shadow-xl shadow-yellow-200/60';
-    const badgeBg = type === 'pro' ? 'bg-blue-600' : 'bg-yellow-400';
+    ? 'bg-gradient-to-br from-slate-100 via-white to-slate-50/60'
+    : 'bg-gradient-to-br from-amber-50 via-white to-stone-50/60';
+
+    const hasGlow = isFeatured;
+    const featuredBorder = type === 'pro' ? 'border border-white/70' : 'border border-amber-300/60';
+    const featuredShadow = 'shadow-lg shadow-black/5';
+
+
+    const badgeBg = type === 'pro'
+    ? 'bg-gradient-to-r from-blue-500 via-violet-500 to-fuchsia-500 text-white font-semibold'
+    : 'bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-amber-950 font-semibold';
     const badgeLabel = type === 'pro'
         ? t('pricing-most-popular')
         : <span className="flex items-center gap-2">{t('pricing-no-limits')} <Rocket className="size-4" /></span>;
@@ -85,11 +108,12 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
 
     if (compact) {
         return (
+            <GlowFrame active={hasGlow} variant={type === 'pro' ? 'rainbow' : 'gold'} className="w-full">
             <Card className={cn(
                 'w-full',
                 isFeatured
-                    ? `border-4 box-border ${borderColor} ${bgColor} ${featuredShadow}`
-                    : 'border shadow-md bg-gradient-to-br from-zinc-100 via-white to-slate-50/80'
+? `${featuredBorder} ${bgColor} ${featuredShadow}`
+                : 'border shadow-md bg-gradient-to-br from-zinc-100 via-white to-slate-50/80'
             )}>
                 <CardHeader className={`relative flex items-center justify-center text-center px-5 pt-5 pb-3 ${isFeatured ? 'mt-[-8px]' : ''}`}>
                     {isFeatured && (
@@ -123,51 +147,57 @@ const PricingCard = ({ type, description, textButton, price, onSelect, compact =
                     </ul>
                 </CardContent>
             </Card>
+            </GlowFrame>
         );
     }
 
     return (
-        <Card className={cn('w-full md:w-[360px] flex flex-col', isFeatured ? `border-4 box-border ${borderColor} ${bgColor} ${featuredShadow}` : 'shadow-md border bg-gradient-to-br from-zinc-100 via-white to-slate-50/80')}>
-            <CardHeader className={`relative flex flex-col items-center text-center p-7 ${isFeatured ? 'mt-[-8px]' : ''}`}>
-                {isFeatured && (
-                    <p className={`absolute m-0 mt-[8px] top-0 ${badgeBg} text-white px-4 p-0 rounded-b-lg`}>
-                        {badgeLabel}
-                    </p>
-                )}
-                <CardTitle className="text-2xl">
-                    {planes_t[type]}
-                </CardTitle>
-                <p className="text-zinc-500 h-14">{t(description)}</p>
-                <div className="w-full h-[148px] flex flex-col justify-center items-center">
-                    {priceBlock()}
-                </div>
-                {isCurrentPlan
-                    ? <div className="w-full py-2 text-center text-sm font-semibold text-muted-foreground border rounded-md bg-muted/50">{t('pricing-current-plan')}</div>
-                    : onSelect
-                        ? <Button className="w-full" onClick={onSelect}>{t(textButton)}</Button>
-                        : <SelectPricingButton textButton={t(textButton)} type={type} billing={billing} />
-                }
-            </CardHeader>
-            <Separator />
-            <CardContent className="p-7">
-                {includes && (
-                    <p className="text-sm text-muted-foreground font-medium mb-3">{t(includes)}</p>
-                )}
-                <ul>
-                    {benefits[type].map((benefit, index) => (
-                        <Collapsible className='m-4 group/collapsible' key={index}>
-                            <CollapsibleTrigger className="flex items-end gap-1.5 font-semibold text-zinc-500 text-left w-full">
-                                <ChevronRight className="shrink-0 mt-0.5 transition-transform group-data-[state=open]/collapsible:rotate-90 stroke-1"/>
-                                <span>{t(benefit.triggerText)}</span>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent className="pl-6 text-zinc-500 text-sm">
-                                {t(benefit.contentText)}
-                            </CollapsibleContent>
-                        </Collapsible>
-                    ))}
-                </ul>
-            </CardContent>
-        </Card>
+        <GlowFrame active={hasGlow} variant={type === 'pro' ? 'rainbow' : 'gold'} className="w-full md:w-[360px] flex flex-col">
+            <Card className={cn('w-full h-full flex flex-col',
+                isFeatured
+                    ? `${featuredBorder} ${bgColor} ${featuredShadow}`
+                    : 'shadow-md border bg-gradient-to-br from-zinc-100 via-white to-slate-50/80')}>
+                <CardHeader className={`relative flex flex-col items-center text-center p-7 ${isFeatured ? 'mt-[-8px]' : ''}`}>
+                    {isFeatured && (
+                        <p className={`absolute m-0 mt-[8px] top-0 ${badgeBg} text-white px-4 p-0 rounded-b-lg`}>
+                            {badgeLabel}
+                        </p>
+                    )}
+                    <CardTitle className="text-2xl">
+                        {planes_t[type]}
+                    </CardTitle>
+                    <p className="text-zinc-500 h-14">{t(description)}</p>
+                    <div className="w-full h-[148px] flex flex-col justify-center items-center">
+                        {priceBlock()}
+                    </div>
+                    {isCurrentPlan
+                        ? <div className="w-full py-2 text-center text-sm font-semibold text-muted-foreground border rounded-md bg-muted/50">{t('pricing-current-plan')}</div>
+                        : onSelect
+                            ? <Button className="w-full" onClick={onSelect}>{t(textButton)}</Button>
+                            : <SelectPricingButton textButton={t(textButton)} type={type} billing={billing} />
+                    }
+                </CardHeader>
+                <Separator />
+                <CardContent className="p-7">
+                    {includes && (
+                        <p className="text-sm text-muted-foreground font-medium mb-3">{t(includes)}</p>
+                    )}
+                    <ul>
+                        {benefits[type].map((benefit, index) => (
+                            <Collapsible className='m-4 group/collapsible' key={index}>
+                                <CollapsibleTrigger className="flex items-end gap-1.5 font-semibold text-zinc-500 text-left w-full">
+                                    <ChevronRight className="shrink-0 mt-0.5 transition-transform group-data-[state=open]/collapsible:rotate-90 stroke-1"/>
+                                    <span>{t(benefit.triggerText)}</span>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="pl-6 text-zinc-500 text-sm">
+                                    {t(benefit.contentText)}
+                                </CollapsibleContent>
+                            </Collapsible>
+                        ))}
+                    </ul>
+                </CardContent>
+            </Card>
+        </GlowFrame>
     );
 }
 

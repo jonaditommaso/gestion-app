@@ -22,7 +22,8 @@ const app = new Hono()
         sessionMiddleware,
         zValidator('json', priceSchema),
         async ctx => {
-            const { plan, billing, company } = await ctx.req.json();
+            const user = ctx.get('user');
+            const { plan, billing, company } = ctx.req.valid('json');
 
             const stripe = new Stripe(STRIPE_SECRET_KEY);
 
@@ -37,6 +38,22 @@ const app = new Hono()
             const session = await stripe.checkout.sessions.create({
                 mode: 'subscription',
                 payment_method_types: ['card'],
+                client_reference_id: user.$id,
+                metadata: {
+                    flow: 'onboarding',
+                    plan,
+                    billing,
+                    userId: user.$id,
+                    company,
+                },
+                subscription_data: {
+                    metadata: {
+                        flow: 'onboarding',
+                        plan,
+                        billing,
+                        userId: user.$id,
+                    },
+                },
                 line_items: [{
                     price: product?.default_price.toString(),
                     quantity: 1

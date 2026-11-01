@@ -34,10 +34,42 @@ export type DefaultStatusOverride = {
     color?: string;
 };
 
+export type SavedTaskFilter = {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+    filters: {
+        status: string | null;
+        assigneeId: string | null;
+        squadId: string | null;
+        dueDate: string | null;
+        priority: number | null;
+        label: string[] | null;
+        type: string | null;
+        completed: string | null;
+    };
+    unassignedOnly: boolean;
+    dueThisWeekOnly: boolean;
+    hidden?: boolean;
+};
+
+export type CustomTaskField = {
+    id: string;
+    name: string;
+    type: 'text' | 'number' | 'date' | 'select';
+    min?: number | null;
+    max?: number | null;
+    options?: string[];
+};
+
 /**
  * Workspace metadata with custom statuses
  */
 export type WorkspaceMetadata = {
+    backgroundColor?: string;
+    workspaceIcon?: string;
+
     // Custom status columns
     customStatuses?: CustomStatus[];
 
@@ -52,6 +84,13 @@ export type WorkspaceMetadata = {
 
     // Custom labels/tags for tasks
     customLabels?: CustomLabel[];
+
+    // Shared saved task filters
+    savedTaskFilters?: SavedTaskFilter[];
+
+    hiddenQuickFilters?: ('unassigned' | 'dueThisWeek')[];
+
+    customTaskFields?: CustomTaskField[];
 
     // Other metadata fields
     [key: string]: unknown;

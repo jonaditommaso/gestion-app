@@ -9,7 +9,7 @@ import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspa
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WorkspaceType } from "@/features/workspaces/types";
-import { COLOR_PRESETS } from "../constants/color-presets";
+import { COLOR_PRESETS, WORKSPACE_ICON_PRESETS } from "../constants/color-presets";
 import { CustomLabel, WorkspaceMetadata } from "../types/custom-status";
 import { LABEL_COLORS, MAX_LABEL_NAME_LENGTH } from "../constants/label-colors";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -18,6 +18,7 @@ import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
 import { useCurrentUserPermissions } from "@/features/roles/hooks/useCurrentUserPermissions";
 import { PERMISSIONS } from "@/features/roles/constants";
 import { useAppContext } from "@/context/AppContext";
+import { parseWorkspaceMetadata } from "../utils/workspace-metadata";
 
 interface WorkspaceCustomizeProps {
     workspace: WorkspaceType;
@@ -41,16 +42,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
 
     // Parse metadata from workspace
     const getMetadataFromWorkspace = (): WorkspaceMetadata => {
-        try {
-            if (workspace.metadata) {
-                return typeof workspace.metadata === 'string'
-                    ? JSON.parse(workspace.metadata)
-                    : workspace.metadata;
-            }
-        } catch (error) {
-            console.error('Error parsing metadata:', error);
-        }
-        return {};
+        return parseWorkspaceMetadata(workspace.metadata);
     };
 
     // Optimistic local state for labels
@@ -77,6 +69,7 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
 
     const metadata = getMetadataFromWorkspace();
     const selectedColor = metadata.backgroundColor || 'transparent';
+    const selectedIcon = metadata.workspaceIcon || '';
 
     // Get label by color from optimistic state
     const getLabelByColor = (color: string) => {
@@ -104,6 +97,20 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
             ...metadata,
             backgroundColor: color
         };
+
+        updateWorkspace({
+            json: { metadata: JSON.stringify(newMetadata) },
+            param: { workspaceId: workspace.$id }
+        });
+    };
+
+    const handleIconSelect = (icon: string) => {
+        const newMetadata: WorkspaceMetadata = { ...metadata };
+        if (icon) {
+            newMetadata.workspaceIcon = icon;
+        } else {
+            delete newMetadata.workspaceIcon;
+        }
 
         updateWorkspace({
             json: { metadata: JSON.stringify(newMetadata) },
@@ -248,58 +255,108 @@ const WorkspaceCustomize = ({ workspace }: WorkspaceCustomizeProps) => {
             {/* Grid layout: 3 columns for left side, 1 for labels (if has permission) */}
             <div className={cn("grid grid-cols-1 gap-6", canEditLabel ? "lg:grid-cols-6" : "lg:grid-cols-1 max-w-4xl")}>
                 {/* Left Column - Name + Background Colors */}
-                <div className={cn("space-y-6", canEditLabel && "lg:col-span-4")}>
+                <div className={cn("space-y-4", canEditLabel && "lg:col-span-4")}>
                     {/* Workspace Name */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">
-                            {t('workspace-name')}
-                        </label>
-                        <EditableText
-                            value={workspace.name}
-                            onSave={handleNameSave}
-                            disabled={isPending || !canWrite}
-                            size="lg"
-                            maxLength={50}
-                            className="text-2xl font-bold"
-                        />
-                    </div>
+                    <div className="gap-2 items-center grid grid-cols-2">
 
-                    {/* Background Color */}
+                    <Card>
+                            {/* <label className="text-sm font-medium text-muted-foreground">
+                                {t('workspace-name')}
+                            </label> */}
+                            <CardHeader>
+                                <CardTitle className="text-lg">{t('workspace-name')}</CardTitle>
+                            </CardHeader>
+                        <Separator />
+                        <CardContent className="space-y-2 p-4">
+
+                            <EditableText
+                                value={workspace.name}
+                                onSave={handleNameSave}
+                                disabled={isPending || !canWrite}
+                                size="lg"
+                                maxLength={50}
+                                className="text-2xl font-bold"
+                            />
+                        </CardContent>
+                    </Card>
+
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-lg">{t('background-color')}</CardTitle>
+                            <CardTitle className="text-lg">{t('workspace-icon')}</CardTitle>
                         </CardHeader>
                         <Separator />
                         <CardContent className="pt-6 space-y-4">
-                            <p className="text-sm text-muted-foreground">
-                                {t('background-color-description')}
-                            </p>
+                            {/* <p className="text-sm text-muted-foreground">
+                                {t('workspace-icon-description')}
+                            </p> */}
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    aria-label={t('workspace-icon-default')}
+                                    aria-pressed={!selectedIcon}
+                                    onClick={() => handleIconSelect('')}
+                                    disabled={isPending || !canWrite}
+                                    className={cn(
+                                        "size-10 rounded-lg border bg-background text-sm font-semibold transition-colors hover:bg-muted",
+                                        !selectedIcon ? "border-primary ring-2 ring-primary/20" : "border-border",
+                                        (isPending || !canWrite) && "cursor-not-allowed opacity-50"
+                                    )}
+                                >
+                                    {workspace.name[0]?.toUpperCase() ?? 'W'}
+                                </button>
+                                {WORKSPACE_ICON_PRESETS.map((icon) => (
+                                    <button
+                                        key={icon}
+                                        type="button"
+                                        aria-label={`${t('workspace-icon')} ${icon}`}
+                                        aria-pressed={selectedIcon === icon}
+                                        onClick={() => handleIconSelect(icon)}
+                                        disabled={isPending || !canWrite}
+                                        className={cn(
+                                            "size-10 rounded-lg border bg-background text-xl transition-colors hover:bg-muted",
+                                            selectedIcon === icon ? "border-primary ring-2 ring-primary/20" : "border-border",
+                                            (isPending || !canWrite) && "cursor-not-allowed opacity-50"
+                                        )}
+                                    >
+                                        {icon}
+                                    </button>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                    </div>
 
-                            <div className="grid grid-cols-4 gap-3">
+
+                    {/* Workspace theme */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">{t('workspace-theme')}</CardTitle>
+                        </CardHeader>
+                        <Separator />
+                        <CardContent className="pt-6">
+                            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                                 {COLOR_PRESETS.map((preset) => (
                                     <button
                                         key={preset.value}
+                                        type="button"
+                                        aria-label={t(preset.name)}
+                                        aria-pressed={selectedColor === preset.value}
                                         onClick={() => handleColorSelect(preset.value)}
                                         disabled={isPending || !canWrite}
                                         className={cn(
-                                            "relative h-24 rounded-lg transition-all hover:scale-105 border-2 overflow-hidden",
+                                            "relative h-16 rounded-lg transition-all hover:-translate-y-0.5 border-2 overflow-hidden",
                                             selectedColor === preset.value
                                                 ? "border-primary ring-2 ring-primary/20"
-                                                : "border-transparent hover:border-primary/30",
-                                            isPending && "opacity-50 cursor-not-allowed",
+                                                : "border-border/70 hover:border-primary/40",
+                                            (isPending || !canWrite) && "opacity-50 cursor-not-allowed",
                                             preset.gradient,
-                                            !canWrite && "opacity-50 cursor-not-allowed hover:scale-100"
                                         )}
                                     >
                                         {selectedColor === preset.value && (
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="bg-primary rounded-full p-1">
-                                                    <Check className="size-4 text-primary-foreground" />
-                                                </div>
-                                            </div>
+                                            <Check className="absolute right-2 top-2 size-4 rounded-full bg-background p-0.5 text-primary shadow-sm" />
                                         )}
-                                        <span className="absolute bottom-1.5 left-0 right-0 text-center text-xs font-medium text-foreground/80">
-                                            {preset.name}
+                                        <span className="absolute inset-x-1 bottom-1 truncate px-1 py-0.5 text-center text-[11px] font-medium text-foreground">
+                                            {t(preset.name)}
                                         </span>
                                     </button>
                                 ))}

@@ -37,6 +37,9 @@ export const useUpdateTask = () => {
                 if (errorData.error === 'content_too_long') {
                     throw new Error('content_too_long');
                 }
+                if (errorData.error === 'invalid_task_schedule') {
+                    throw new Error('invalid_task_schedule');
+                }
                 throw new Error('Failed to update task')
             }
 
@@ -154,6 +157,8 @@ export const useUpdateTask = () => {
 
             if (error.message === 'content_too_long') {
                 toast.error(t('content-too-long'));
+            } else if (error.message === 'invalid_task_schedule') {
+                toast.error(t('start-date-after-due-date'));
             } else {
                 toast.error(t('failed-update-task'));
             }

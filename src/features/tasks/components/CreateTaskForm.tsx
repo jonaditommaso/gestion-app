@@ -62,6 +62,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
     const taskTypeOptions = isFree ? TASK_TYPE_OPTIONS.filter((type) => type.value !== 'epic' && type.value !== 'spike' && type.value !== 'test') : TASK_TYPE_OPTIONS;
     const defaultTaskStatus = config[WorkspaceConfigKey.DEFAULT_TASK_STATUS] as TaskStatus;
     const autoAssignOnCreate = config[WorkspaceConfigKey.AUTO_ASSIGN_ON_CREATE] as boolean;
+    const setStartDateOnCreate = config[WorkspaceConfigKey.SET_START_DATE_ON_CREATE] as boolean;
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
     const { getStatusDisplayName } = useStatusDisplayName();
     const { allStatuses, getIconComponent } = useCustomStatuses();
@@ -187,6 +188,7 @@ const CreateTaskForm = ({ onCancel, memberOptions, initialStatus, initialStatusC
 
         const payload = {
             ...rest,
+            startDate: setStartDateOnCreate ? new Date() : null,
             status: finalStatus,
             workspaceId,
             // Incluir statusCustomId si es un custom status

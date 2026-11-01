@@ -22,6 +22,13 @@ import SquadsModal from "./SquadsModal";
 import { WorkspaceType } from "@/features/workspaces/types";
 import WorkspaceCustomize from "./WorkspaceCustomize";
 import { useWorkspacePermissions } from "../hooks/use-workspace-permissions";
+import { COLOR_PRESETS } from "../constants/color-presets";
+import { parseWorkspaceMetadata } from "../utils/workspace-metadata";
+import { DialogContainer } from "@/components/DialogContainer";
+import CreateTaskFormWrapper from "@/features/tasks/components/CreateTaskFormWrapper";
+import { TaskStatus } from "@/features/tasks/types";
+import CreateNewTaskButton from "@/features/tasks/components/CreateNewTaskButton";
+import { Separator } from "@/components/ui/separator";
 
 const WorkspaceView = () => {
     const workspaceId = useWorkspaceId();
@@ -41,6 +48,10 @@ const WorkspaceView = () => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [showSquadsModal, setShowSquadsModal] = useState(false);
     const githubScrollPendingRef = useRef(false);
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const [initialStatus, setInitialStatus] = useState<TaskStatus | undefined>(undefined);
+    const [initialStatusCustomId, setInitialStatusCustomId] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (workspaceId === 'create' && !canWrite) {
@@ -94,6 +105,10 @@ const WorkspaceView = () => {
     }
 
     const currentWorkspace = workspaces?.documents.find(ws => ws.$id === workspaceId);
+    const workspace = currentWorkspace as WorkspaceType | undefined;
+    const workspaceMetadata = parseWorkspaceMetadata(workspace?.metadata);
+    const workspaceTheme = COLOR_PRESETS.find(preset => preset.value === workspaceMetadata.backgroundColor) ?? COLOR_PRESETS[0];
+    const workspaceIcon = workspaceMetadata.workspaceIcon || workspace?.name?.[0]?.toUpperCase() || 'W';
 
     const handleOptionClick = (key: string) => {
         if (key === 'general') {
@@ -111,71 +126,104 @@ const WorkspaceView = () => {
         }
     };
 
-    // usar DropdownMenuRadioGroup para cambiar de workspace
-    return (
-        <div className="w-[90%] ml-5">
-            <div className={isCreatingWorkspace ? "pointer-events-none select-none blur-sm" : undefined}>
-            <div className="flex items-center gap-2">
-                {isLoading || !currentWorkspace
-                ? <Skeleton className="w-60 h-10" />
+    const handleNewTask = (status?: TaskStatus, statusCustomId?: string) => {
+        setInitialStatus(status);
+        setInitialStatusCustomId(statusCustomId);
+        setModalOpen(true);
+    }
+
+    const workspaceHeaderControls = (
+        <div className="flex flex-wrap items-center gap-2">
+            {isLoading || !currentWorkspace
+                ? <Skeleton className="size-10" />
                 : <DropdownItems
-                    itemLogo={(currentWorkspace as WorkspaceType).name[0].toUpperCase()}
-                    itemName={(currentWorkspace as WorkspaceType).name}
+                    itemLogo={workspaceIcon}
+                    itemName={workspace?.name ?? ''}
                     itemType="workspace"
                     currentWorkspaceId={workspaceId}
                     workspacesCount={{ count: workspaces?.total ?? 0 }}
                     workspaces={workspaces}
-                  />}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant='outline'
-                            className="rounded-md size-9"
-                            disabled={!!optionsView}
+                    itemBackgroundColor={workspaceTheme.iconBackground}
+                  />
+            }
+
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant='outline'
+                        className="size-9 rounded-md bg-background/80 shadow-sm backdrop-blur-md"
+                        disabled={!!optionsView}
+                        aria-label={t('workspace-settings')}
+                    >
+                        <Settings2 />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="min-w-48">
+                    {workspaceOptions
+                        .filter(option => {
+                            if (option.key === 'add-member' && !canManageUsers) return false
+                            if(!canInviteMembers) {
+                                return false;
+                            }
+                            return true;
+                        })
+                        .map((option) => (
+                        <DropdownMenuItem
+                            key={option.key}
+                            className="flex items-center gap-2 p-2 cursor-pointer"
+                            onClick={() => handleOptionClick(option.key)}
                         >
-                            <Settings2 />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="min-w-48">
-                        {workspaceOptions
-                            .filter(option => {
-                                // ? Resolver prioridad para estos casos. El admin, incluso sin manage_users permission puede agregar miembros?
-                                // if (option.key === 'add-member' && !canInviteMembers || isAdminMode)) {
-                                if (option.key === 'add-member' && !canManageUsers) return false
-                                if(!canInviteMembers) {
-                                    return false;
-                                }
-                                return true;
-                            })
-                            .map((option) => (
-                            <DropdownMenuItem
-                                key={option.key}
-                                className="flex items-center gap-2 p-2 cursor-pointer"
-                                onClick={() => handleOptionClick(option.key)}
-                            >
-                                <option.icon size={18} />
-                                <span>{t(option.key)}</span>
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            <option.icon size={18} />
+                            <span>{t(option.key)}</span>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            {optionsView && (
                 <Button
                     variant='default'
-                    className='rounded-md size-9 w-24'
-                    style={{ display: !optionsView ? 'none' : '' }}
+                    className='h-9 w-24 shadow-sm'
                     onClick={() => setOptionsView(null)}
                 >
                     {t('back')}
                 </Button>
-            </div>
+            )}
 
-            {optionsView === 'general' && currentWorkspace && (
-                <WorkspaceSettings workspace={currentWorkspace as WorkspaceType} />
-            )}
-            {optionsView === 'customize' && currentWorkspace && (
-                <WorkspaceCustomize workspace={currentWorkspace as WorkspaceType} />
-            )}
-            {!optionsView && workspaceId && <TaskSwitcher openSettings={openSettings} />}
+            <Separator orientation="vertical" className="mx-2 h-6" />
+        </div>
+    );
+
+    // usar DropdownMenuRadioGroup para cambiar de workspace
+    return (
+        <div className="w-[90%] ml-5">
+            <div className={isCreatingWorkspace ? "pointer-events-none select-none blur-sm" : undefined}>
+                {optionsView ? (
+                    <div className="relative z-10 mb-1 flex min-h-11 flex-wrap items-center gap-2">
+                        {workspaceHeaderControls}
+                    </div>
+                ) : null}
+
+                {optionsView === 'general' && currentWorkspace && (
+                    <WorkspaceSettings workspace={currentWorkspace as WorkspaceType} />
+                )}
+
+                {optionsView === 'customize' && currentWorkspace && (
+                    <WorkspaceCustomize workspace={currentWorkspace as WorkspaceType} />
+                )}
+
+                {!optionsView && workspaceId && (
+                    <TaskSwitcher
+                        openSettings={openSettings}
+                        handleNewTask={handleNewTask}
+                        headerStart={(
+                            <div className="relative z-10 flex min-w-0 flex-wrap items-center gap-2">
+                                {workspaceHeaderControls}
+                            </div>
+                        )}
+                        headerEnd={<CreateNewTaskButton handleNewTask={handleNewTask} />}
+                    />
+                )}
             </div>
 
             {isCreatingWorkspace && (
@@ -185,6 +233,14 @@ const WorkspaceView = () => {
                     </div>
                 </div>
             )}
+
+            <DialogContainer title={t('create-task')} isOpen={modalOpen} setIsOpen={setModalOpen}>
+                <CreateTaskFormWrapper
+                    onCancel={() => setModalOpen(false)}
+                    initialStatus={initialStatus}
+                    initialStatusCustomId={initialStatusCustomId}
+                />
+            </DialogContainer>
 
             <AddWorkspaceMembersModal
                 open={showAddMembersModal}

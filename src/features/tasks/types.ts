@@ -48,6 +48,8 @@ export type TaskMetadata = {
     bugRootCause?: string; // plain text - root cause explanation after resolution
     githubBranch?: string; // linked GitHub branch name
     githubRepo?: string; // linked GitHub repo fullName (owner/repo)
+    customTaskFieldValues?: Record<string, string | number>;
+    dependsOnTaskIds?: string[];
 }
 
 export type WorkspaceMember = Models.Document & {
@@ -65,6 +67,7 @@ export type Task = Models.Document & {
     statusCustomId?: string, // ID del custom status cuando status === 'CUSTOM'
     assignees?: WorkspaceMember[],
     position: number,
+    startDate?: string | null,
     dueDate: string,
     workspaceId: string,
     description?: string,

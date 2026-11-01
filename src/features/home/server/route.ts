@@ -1,16 +1,20 @@
 import { Hono } from "hono";
 import { sessionMiddleware, demoGuard } from "@/lib/session-middleware";
 import { zValidator } from '@hono/zod-validator';
-import { Client, Databases, ID, Models, Query } from "node-appwrite";
+import { ID, Models, Query } from "node-appwrite";
 import { CONVERSATIONS_ID, DATABASE_ID, DEAL_COMMENTS_ID, DEAL_SELLERS_ID, DEALS_ID, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, MEETS_ID, MEMBERS_ID, MESSAGES_ID, NOTES_ID, TASK_ACTIVITY_LOGS_ID, TASKS_ID, USER_HOME_CONFIG_ID, WORKSPACES_ID } from "@/config";
 import { meetSchema, messagesSchema, notesSchema, replyMessageSchema, shortcutSchema, unreadMessagesSchema, updateMessageSchema } from "../schemas";
 import { homeConfigSchema } from "../components/customization/schema";
 import { createAdminClient } from "@/lib/appwrite";
+import { createSignedOAuthState, verifySignedOAuthState } from "@/lib/oauth-state";
 import { getActiveContext } from "@/features/team/server/utils";
 import { google } from 'googleapis';
 import { cookies } from "next/headers";
 import { setCookie } from "hono/cookie";
 import dayjs from "dayjs";
+
+const GOOGLE_OAUTH_STATE_NONCE_COOKIE = 'google_oauth_state_nonce';
+const isSecure = process.env.NODE_ENV === 'production';
 
 type MessageDocument = Models.Document & {
     subject?: string;
@@ -832,12 +836,26 @@ const app = new Hono()
                 'https://www.googleapis.com/auth/calendar.events'
             ];
 
+            const { state, nonce } = createSignedOAuthState({
+                provider: 'google',
+                auth_only: true,
+                userId: user.$id,
+            });
+
+            setCookie(ctx, GOOGLE_OAUTH_STATE_NONCE_COOKIE, nonce, {
+                path: '/',
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'lax',
+                maxAge: 60 * 10,
+            });
+
             const url = oauth2Client.generateAuthUrl({
                 access_type: 'offline',
                 prompt: 'consent',
                 client_id: GOOGLE_CLIENT_ID,
                 scope: scopes,
-                state: JSON.stringify({ auth_only: true, userId: user.$id })
+                state,
             });
 
             return ctx.json({ data: url });
@@ -850,7 +868,7 @@ const app = new Hono()
         sessionMiddleware,
         async ctx => {
 
-            const { dateStart, invited, title, duration, userId } = ctx.req.valid('json');
+            const { dateStart, invited, title, duration } = ctx.req.valid('json');
             const user = ctx.get('user');
 
             const cookieStore = await cookies();
@@ -872,12 +890,29 @@ const app = new Hono()
                     'https://www.googleapis.com/auth/calendar.events'
                 ];
 
+                const { state, nonce } = createSignedOAuthState({
+                    provider: 'google',
+                    invited,
+                    dateStart: dateStart.toISOString(),
+                    title,
+                    duration,
+                    userId: user.$id,
+                });
+
+                setCookie(ctx, GOOGLE_OAUTH_STATE_NONCE_COOKIE, nonce, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: isSecure,
+                    sameSite: 'lax',
+                    maxAge: 60 * 10,
+                });
+
                 const url = oauth2Client.generateAuthUrl({
                     access_type: 'offline',
                     prompt: 'consent',
                     client_id: GOOGLE_CLIENT_ID,
                     scope: scopes,
-                    state: JSON.stringify({ dateStart, invited, title, duration, userId })
+                    state,
                 });
 
                 return ctx.json({ data: url });
@@ -903,13 +938,15 @@ const app = new Hono()
                 setCookie(ctx, 'google_access_token', tokenData.access_token, {
                     path: '/',
                     httpOnly: true,
-                    secure: true,
+                    secure: isSecure,
+                    sameSite: 'lax',
                     maxAge: 60 * 60,
                 });
                 setCookie(ctx, 'google_access_token_exp', String(Date.now() + tokenData.expires_in * 1000), {
                     path: '/',
                     httpOnly: true,
-                    secure: true,
+                    secure: isSecure,
+                    sameSite: 'lax',
                     maxAge: tokenData.expires_in,
                 });
             }
@@ -953,7 +990,7 @@ const app = new Hono()
                 MEETS_ID,
                 ID.unique(),
                 {
-                    userId,
+                    userId: user.$id,
                     title,
                     with: invited,
                     url: response.data?.hangoutLink ?? '',
@@ -967,17 +1004,44 @@ const app = new Hono()
 
     .get(
         '/meet',
+        sessionMiddleware,
         async ctx => {
+            const user = ctx.get('user');
+            const databases = ctx.get('databases');
 
             const cookieStore = await cookies();
             const token = cookieStore.get('google_access_token')?.value;
+            const state = ctx.req.query('state');
 
-            const url = new URL(ctx.req.url);
-            const invited = url.searchParams.get('invited');
-            const dateStart = url.searchParams.get('dateStart');
-            const title = url.searchParams.get('title');
-            const duration = url.searchParams.get('duration') || '';
-            const userId = url.searchParams.get('userId');
+            if (!token || !state) {
+                return ctx.redirect('/?error=invalid_state');
+            }
+
+            const parsedState = verifySignedOAuthState<{
+                provider: 'google';
+                invited: string;
+                dateStart: string;
+                title: string;
+                duration: string;
+                userId: string;
+            }>(state);
+
+            if (
+                !parsedState ||
+                parsedState.provider !== 'google' ||
+                parsedState.userId !== user.$id ||
+                typeof parsedState.invited !== 'string' ||
+                typeof parsedState.dateStart !== 'string' ||
+                typeof parsedState.title !== 'string' ||
+                typeof parsedState.duration !== 'string'
+            ) {
+                return ctx.redirect('/?error=invalid_state');
+            }
+
+            const invited = parsedState.invited;
+            const dateStart = parsedState.dateStart;
+            const title = parsedState.title;
+            const duration = parsedState.duration;
 
             const date = dayjs(dateStart)
 
@@ -1020,18 +1084,12 @@ const app = new Hono()
                 conferenceDataVersion: 1,
             });
 
-            const client = new Client()
-                .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-                .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
-
-            const databases = new Databases(client);
-
             await databases.createDocument(
                 DATABASE_ID,
                 MEETS_ID,
                 ID.unique(),
                 {
-                    userId,
+                    userId: user.$id,
                     title,
                     with: invited,
                     url: response.data?.hangoutLink ?? '',
@@ -1247,13 +1305,27 @@ const app = new Hono()
                 GOOGLE_REDIRECT_URI,
             );
 
+            const { state, nonce } = createSignedOAuthState({
+                provider: 'google',
+                drive_auth_only: true,
+                userId: user.$id,
+            });
+
+            setCookie(ctx, GOOGLE_OAUTH_STATE_NONCE_COOKIE, nonce, {
+                path: '/',
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'lax',
+                maxAge: 60 * 10,
+            });
+
             const url = oauth2Client.generateAuthUrl({
                 access_type: 'offline',
                 prompt: 'consent',
                 client_id: GOOGLE_CLIENT_ID,
                 scope: ['https://www.googleapis.com/auth/drive.readonly'],
                 include_granted_scopes: true,
-                state: JSON.stringify({ drive_auth_only: true, userId: user.$id })
+                state,
             });
 
             return ctx.json({ data: url });
@@ -1298,13 +1370,15 @@ const app = new Hono()
                 setCookie(ctx, 'google_access_token', tokenData.access_token, {
                     path: '/',
                     httpOnly: true,
-                    secure: true,
+                    secure: isSecure,
+                    sameSite: 'lax',
                     maxAge: 60 * 60,
                 });
                 setCookie(ctx, 'google_access_token_exp', String(Date.now() + tokenData.expires_in * 1000), {
                     path: '/',
                     httpOnly: true,
-                    secure: true,
+                    secure: isSecure,
+                    sameSite: 'lax',
                     maxAge: tokenData.expires_in,
                 });
             }

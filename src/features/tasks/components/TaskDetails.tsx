@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TASK_PRIORITY_OPTIONS } from "../constants/priority";
 import { TASK_TYPE_OPTIONS } from "../constants/type";
 import MemberAvatar from "@/features/members/components/MemberAvatar";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, startOfDay } from "date-fns";
 import { es, enUS, it } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppContext } from "@/context/AppContext";
@@ -28,11 +28,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDescriptionLoading } from "../hooks/useImageDescriptionLoading";
 import { TaskAssigneesManager } from "./TaskAssigneesManager";
 import { TaskSquadsManager } from "./TaskSquadsManager";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetSquads } from "../api/squads";
 import { useWorkspaceId } from "@/app/workspaces/hooks/use-workspace-id";
 import { useCustomStatuses } from "@/app/workspaces/hooks/use-custom-statuses";
 import { useWorkspacePermissions } from "@/app/workspaces/hooks/use-workspace-permissions";
+import { CustomTaskField } from "@/app/workspaces/types/custom-status";
+import { toast } from "sonner";
 import { LabelSelector } from "./LabelSelector";
 import { useGetTasks } from "../api/use-get-tasks";
 import { useWorkspaceConfig } from "@/app/workspaces/hooks/use-workspace-config";
@@ -45,7 +50,7 @@ import { TestPanel } from "./TestPanel";
 import { BugPanel } from "./BugPanel";
 import { useGetTaskComments, useCreateTaskComment, useUpdateTaskComment, useDeleteTaskComment } from "../api/comments";
 import { useGetTask } from "../api/use-get-task";
-import { Pencil, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers, Images, ImagePlus, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Check, GitBranch, Pencil, Plus, Trash2, MessageSquare, History, MoreHorizontal, X, CircleCheckBig, Layers, Images, ImagePlus, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TaskActivityHistory } from "./TaskActivityHistory";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
@@ -212,6 +217,8 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(displayTask.description || '');
     const [activeTab, setActiveTab] = useState<'comments' | 'multimedia' | 'history'>('comments');
+    const [openCustomFieldId, setOpenCustomFieldId] = useState<string | null>(null);
+    const [isDependencyPopoverOpen, setIsDependencyPopoverOpen] = useState(false);
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [comment, setComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -235,8 +242,30 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
     };
     const { allStatuses, getIconComponent } = useCustomStatuses();
     const config = useWorkspaceConfig();
+    const customTaskFields = (config[WorkspaceConfigKey.CUSTOM_TASK_FIELDS] as CustomTaskField[] | undefined) ?? [];
     const autoArchiveOnStatusId = config[WorkspaceConfigKey.AUTO_ARCHIVE_ON_STATUS_ID] as string | null;
-    const { data: tasksData } = useGetTasks({ workspaceId });
+    const updateCustomTaskField = (field: CustomTaskField, value: string | number | undefined) => {
+        if (typeof value === 'number' && (
+            (field.min != null && value < field.min)
+            || (field.max != null && value > field.max)
+        )) return;
+        const values = { ...(taskMetadata.customTaskFieldValues ?? {}) };
+        if (value === undefined || value === '') {
+            delete values[field.id];
+        } else {
+            values[field.id] = value;
+        }
+        updateTask({
+            json: {
+                metadata: stringifyTaskMetadata({
+                    ...taskMetadata,
+                    customTaskFieldValues: Object.keys(values).length > 0 ? values : undefined,
+                }),
+            },
+            param: { taskId: displayTask.$id },
+        });
+    };
+    const { data: tasksData } = useGetTasks({ workspaceId, limit: 5000 });
     const [optimisticCompleted, setOptimisticCompleted] = useState<boolean | null>(null);
     const prevCompletedAt = useRef(displayTask.completedAt);
 
@@ -427,10 +456,59 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
 
     const handleDueDateChange = (date: Date | undefined) => {
         if (readOnly) return;
+        if (date && displayTask.startDate && startOfDay(date) < startOfDay(new Date(displayTask.startDate))) {
+            toast.error(t('start-date-after-due-date'));
+            return;
+        }
         updateTask({
             json: { dueDate: date ?? null },
             param: { taskId: displayTask.$id }
         });
+    };
+
+    const handleStartDateChange = (date: Date | undefined) => {
+        if (readOnly) return;
+        if (date && displayTask.dueDate && startOfDay(date) > startOfDay(new Date(displayTask.dueDate))) {
+            toast.error(t('start-date-after-due-date'));
+            return;
+        }
+        updateTask({
+            json: { startDate: date ?? null },
+            param: { taskId: displayTask.$id }
+        });
+    };
+
+    const updateTaskDependencies = (dependsOnTaskIds: string[]) => {
+        updateTask({
+            json: {
+                metadata: stringifyTaskMetadata({
+                    ...taskMetadata,
+                    dependsOnTaskIds: dependsOnTaskIds.length > 0 ? dependsOnTaskIds : undefined,
+                }),
+            },
+            param: { taskId: displayTask.$id },
+        });
+    };
+
+    const workspaceTasks = tasksData?.documents ?? [];
+    const workspaceTasksById = new Map(workspaceTasks.map(workspaceTask => [workspaceTask.$id, workspaceTask]));
+    const dependsOnTaskIds = (taskMetadata.dependsOnTaskIds ?? [])
+        .filter(taskId => taskId !== displayTask.$id && workspaceTasksById.has(taskId));
+    const wouldCreateDependencyCycle = (candidateId: string): boolean => {
+        const visited = new Set<string>();
+        const pending = [candidateId];
+        while (pending.length > 0) {
+            const currentId = pending.pop();
+            if (!currentId) continue;
+            if (currentId === displayTask.$id) return true;
+            if (visited.has(currentId)) continue;
+            visited.add(currentId);
+            const currentTask = workspaceTasksById.get(currentId);
+            if (currentTask) {
+                pending.push(...(parseTaskMetadata(currentTask.metadata).dependsOnTaskIds ?? []));
+            }
+        }
+        return false;
     };
 
     const handleLabelChange = (labelId: string | undefined) => {
@@ -1251,6 +1329,42 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                         )}
                     </div>
 
+                    {/* Planned Start Date */}
+                    <div className="flex items-center py-1">
+                        <span className="text-xs font-medium text-muted-foreground w-24">
+                            {t('start-date')}
+                        </span>
+                        <div className="flex items-center gap-1">
+                            {readOnly ? (
+                                <span className="text-sm px-1.5 py-1">
+                                    {displayTask.startDate ? format(new Date(displayTask.startDate), 'MMM d, yyyy') : t('not-defined')}
+                                </span>
+                            ) : (
+                                <>
+                                    <CustomDatePicker
+                                        value={displayTask.startDate ? new Date(displayTask.startDate) : undefined}
+                                        onChange={handleStartDateChange}
+                                        placeholder='not-defined'
+                                        className="w-fit border-0 h-auto shadow-none bg-transparent hover:bg-muted rounded-sm px-1.5 py-1"
+                                        hideIcon
+                                    />
+                                    {displayTask.startDate && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8"
+                                            onClick={() => handleStartDateChange(undefined)}
+                                            disabled={isPending}
+                                        >
+                                            <X className="size-4" />
+                                        </Button>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Due Date */}
                     <div className="flex items-center py-1">
                         <span className="text-xs font-medium text-muted-foreground w-24">
@@ -1312,6 +1426,188 @@ const TaskDetails = ({ task, readOnly = false, variant = 'page', onClose }: Task
                             readOnly={readOnly}
                         />
                     </div>
+
+                    <div className="flex items-start py-1">
+                        <span className="w-24 shrink-0 pt-1 text-xs font-medium text-muted-foreground">
+                            {t('dependencies')}
+                        </span>
+                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+                            {dependsOnTaskIds.map(dependencyId => {
+                                const dependencyTask = workspaceTasksById.get(dependencyId);
+                                if (!dependencyTask) return null;
+                                return (
+                                    <span
+                                        key={dependencyId}
+                                        className="inline-flex max-w-full items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs"
+                                    >
+                                        <GitBranch className="size-3 shrink-0 text-muted-foreground" />
+                                        <span className="max-w-40 truncate">{dependencyTask.name}</span>
+                                        {!readOnly && (
+                                            <button
+                                                type="button"
+                                                className="rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
+                                                aria-label={t('remove-dependency', { name: dependencyTask.name })}
+                                                onClick={() => updateTaskDependencies(dependsOnTaskIds.filter(id => id !== dependencyId))}
+                                                disabled={isPending}
+                                            >
+                                                <X className="size-3" />
+                                            </button>
+                                        )}
+                                    </span>
+                                );
+                            })}
+                            {!readOnly && (
+                                <Popover open={isDependencyPopoverOpen} onOpenChange={setIsDependencyPopoverOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-auto px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                                            disabled={isPending}
+                                        >
+                                            <Plus className="mr-1 size-3.5" />
+                                            {t('add-dependency')}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[260px] p-0" align="start">
+                                        <Command>
+                                            <CommandInput placeholder={t('search')} />
+                                            <CommandList>
+                                                <CommandEmpty>{t('no-results-found')}</CommandEmpty>
+                                                <CommandGroup heading={t('dependencies')}>
+                                                    {workspaceTasks
+                                                        .filter(candidate => candidate.$id !== displayTask.$id && !candidate.archived)
+                                                        .map(candidate => {
+                                                            const isSelected = dependsOnTaskIds.includes(candidate.$id);
+                                                            const createsCycle = !isSelected && wouldCreateDependencyCycle(candidate.$id);
+                                                            return (
+                                                                <CommandItem
+                                                                    key={candidate.$id}
+                                                                    value={candidate.name}
+                                                                    disabled={isPending || createsCycle}
+                                                                    onSelect={() => {
+                                                                        const nextDependencies = isSelected
+                                                                            ? dependsOnTaskIds.filter(id => id !== candidate.$id)
+                                                                            : [...dependsOnTaskIds, candidate.$id];
+                                                                        updateTaskDependencies(nextDependencies);
+                                                                        if (!isSelected) setIsDependencyPopoverOpen(false);
+                                                                    }}
+                                                                    className="cursor-pointer"
+                                                                >
+                                                                    <span className="flex-1 truncate">{candidate.name}</span>
+                                                                    {isSelected && <Check className="size-4 text-primary" />}
+                                                                </CommandItem>
+                                                            );
+                                                        })}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            )}
+                            {dependsOnTaskIds.length === 0 && readOnly && (
+                                <span className="px-2 py-1 text-sm text-muted-foreground">{t('no-dependencies')}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    {customTaskFields.map(field => {
+                        const value = taskMetadata.customTaskFieldValues?.[field.id];
+                        return (
+                            <div key={field.id} className="flex items-center py-1">
+                                <span className="w-24 shrink-0 text-xs font-medium text-muted-foreground">
+                                    {field.name}
+                                </span>
+                                <div className="ml-1 min-w-0 flex-1">
+                                    {field.type === 'select' ? (
+                                        readOnly ? (
+                                            <span className="px-2 text-sm">{value ?? '—'}</span>
+                                        ) : (
+                                            <Popover
+                                                open={openCustomFieldId === field.id}
+                                                onOpenChange={open => setOpenCustomFieldId(open ? field.id : null)}
+                                            >
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className={cn(
+                                                            "h-auto max-w-full justify-start px-2 py-1 text-sm font-normal hover:bg-muted",
+                                                            value === undefined ? "text-muted-foreground" : "text-foreground"
+                                                        )}
+                                                        disabled={isPending}
+                                                    >
+                                                        <span className="truncate">{value ?? t('select-custom-field-value')}</span>
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[220px] p-0" align="start">
+                                                    <Command>
+                                                        <CommandInput placeholder={t('search')} />
+                                                        <CommandList>
+                                                            <CommandEmpty>{t('no-results-found')}</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {value !== undefined && (
+                                                                    <CommandItem
+                                                                        value={t('clear-custom-field-value')}
+                                                                        onSelect={() => {
+                                                                            updateCustomTaskField(field, undefined);
+                                                                            setOpenCustomFieldId(null);
+                                                                        }}
+                                                                        className="cursor-pointer text-muted-foreground"
+                                                                    >
+                                                                        {t('clear-custom-field-value')}
+                                                                    </CommandItem>
+                                                                )}
+                                                                {field.options?.map(option => (
+                                                                    <CommandItem
+                                                                        key={`${field.id}-${option}`}
+                                                                        value={option}
+                                                                        onSelect={() => {
+                                                                            updateCustomTaskField(field, option);
+                                                                            setOpenCustomFieldId(null);
+                                                                        }}
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        <span className="flex-1 truncate">{option}</span>
+                                                                        {value === option && <Check className="size-4 text-primary" />}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        )
+                                    ) : readOnly ? (
+                                        <span className="px-2 text-sm">{value ?? '—'}</span>
+                                    ) : (
+                                        <Input
+                                            className="h-8"
+                                            type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
+                                            defaultValue={value === undefined ? '' : String(value)}
+                                            min={field.type === 'number' ? field.min ?? undefined : undefined}
+                                            max={field.type === 'number' ? field.max ?? undefined : undefined}
+                                            onBlur={event => {
+                                                const rawValue = event.currentTarget.value;
+                                                if (field.type === 'number') {
+                                                    if (!event.currentTarget.checkValidity()) {
+                                                        event.currentTarget.reportValidity();
+                                                        return;
+                                                    }
+                                                    updateCustomTaskField(field, rawValue === '' ? undefined : Number(rawValue));
+                                                } else {
+                                                    updateCustomTaskField(field, rawValue || undefined);
+                                                }
+                                            }}
+                                            disabled={isPending}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
 
                     {/* Completed At */}
                     <div className="flex items-center py-1">

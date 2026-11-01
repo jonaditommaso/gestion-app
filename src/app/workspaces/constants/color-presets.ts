@@ -2,67 +2,95 @@ export interface ColorPreset {
     name: string;
     value: string;
     gradient: string;
+    iconBackground: string;
 }
 
 export const COLOR_PRESETS: ColorPreset[] = [
     {
-        name: 'Default',
+        name: 'theme-default',
         value: 'transparent',
-        gradient: 'bg-background'
+        gradient: 'bg-gradient-to-r from-slate-100 via-stone-100 to-slate-200 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-800',
+        iconBackground: '#e2e8f0',
     },
     {
-        name: 'Ocean',
+        name: 'theme-ocean',
         value: '#0ea5e9',
-        gradient: 'bg-gradient-to-br from-sky-300/60 via-blue-400/50 to-slate-800/30 dark:from-sky-400/50 dark:via-blue-500/40 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-slate-100 via-sky-100 to-blue-200 dark:from-slate-900 dark:via-sky-950/70 dark:to-blue-950',
+        iconBackground: '#dbeafe',
     },
     {
-        name: 'Forest',
+        name: 'theme-forest',
         value: '#10b981',
-        gradient: 'bg-gradient-to-br from-emerald-300/60 via-green-400/50 to-slate-800/30 dark:from-emerald-400/50 dark:via-green-500/40 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-stone-100 via-emerald-100 to-teal-200 dark:from-slate-900 dark:via-emerald-950/70 dark:to-teal-950',
+        iconBackground: '#d1fae5',
     },
     {
-        name: 'Sunset',
+        name: 'theme-sunset',
         value: '#f97316',
-        gradient: 'bg-gradient-to-br from-orange-300/70 via-orange-500/60 to-slate-800/30 dark:from-orange-400/60 dark:via-orange-600/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-stone-100 via-orange-100 to-amber-200 dark:from-slate-900 dark:via-orange-950/70 dark:to-amber-950',
+        iconBackground: '#ffedd5',
     },
     {
-        name: 'Lavender',
+        name: 'theme-lavender',
         value: '#a855f7',
-        gradient: 'bg-gradient-to-br from-purple-300/60 via-purple-400/50 to-slate-800/30 dark:from-purple-400/50 dark:via-purple-500/40 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-slate-100 via-violet-100 to-indigo-200 dark:from-slate-900 dark:via-violet-950/70 dark:to-indigo-950',
+        iconBackground: '#ede9fe',
     },
     {
-        name: 'Rose',
+        name: 'theme-rose',
         value: '#e11d48',
-        gradient: 'bg-gradient-to-br from-pink-300/70 via-pink-500/60 to-slate-800/30 dark:from-pink-400/60 dark:via-pink-600/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-stone-100 via-rose-100 to-pink-200 dark:from-slate-900 dark:via-rose-950/70 dark:to-pink-950',
+        iconBackground: '#ffe4e6',
     },
     {
-        name: 'Amber',
+        name: 'theme-amber',
         value: '#f59e0b',
-        gradient: 'bg-gradient-to-br from-amber-300/70 via-yellow-400/60 to-slate-800/30 dark:from-amber-400/60 dark:via-yellow-500/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-stone-100 via-amber-100 to-yellow-200 dark:from-slate-900 dark:via-amber-950/70 dark:to-yellow-950',
+        iconBackground: '#fef3c7',
     },
     {
-        name: 'Slate',
+        name: 'theme-slate',
         value: '#64748b',
-        gradient: 'bg-gradient-to-br from-slate-300/60 via-gray-400/50 to-slate-800/30 dark:from-slate-400/50 dark:via-gray-500/40 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-slate-100 via-slate-200 to-zinc-300 dark:from-slate-900 dark:via-slate-800 dark:to-zinc-800',
+        iconBackground: '#e2e8f0',
     },
     {
-        name: 'Red',
+        name: 'theme-red',
         value: '#dc2626',
-        gradient: 'bg-gradient-to-br from-red-400/70 via-red-600/60 to-slate-800/30 dark:from-red-500/60 dark:via-red-700/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-stone-100 via-red-100 to-orange-200 dark:from-slate-900 dark:via-red-950/70 dark:to-orange-950',
+        iconBackground: '#fee2e2',
     },
     {
-        name: 'Blue',
+        name: 'theme-blue',
         value: '#2563eb',
-        gradient: 'bg-gradient-to-br from-blue-300/70 via-blue-600/60 to-slate-800/30 dark:from-blue-400/60 dark:via-blue-700/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-slate-100 via-blue-100 to-indigo-200 dark:from-slate-900 dark:via-blue-950/70 dark:to-indigo-950',
+        iconBackground: '#dbeafe',
     },
     {
-        name: 'Teal',
+        name: 'theme-teal',
         value: '#14b8a6',
-        gradient: 'bg-gradient-to-br from-teal-300/70 via-teal-500/60 to-slate-800/30 dark:from-teal-400/60 dark:via-teal-600/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-stone-100 via-teal-100 to-cyan-200 dark:from-slate-900 dark:via-teal-950/70 dark:to-cyan-950',
+        iconBackground: '#ccfbf1',
     },
     {
-        name: 'Indigo',
+        name: 'theme-indigo',
         value: '#6366f1',
-        gradient: 'bg-gradient-to-br from-indigo-300/70 via-indigo-500/60 to-slate-800/30 dark:from-indigo-400/60 dark:via-indigo-600/50 dark:to-slate-950/50'
+        gradient: 'bg-gradient-to-r from-slate-100 via-indigo-100 to-blue-200 dark:from-slate-900 dark:via-indigo-950/70 dark:to-blue-950',
+        iconBackground: '#e0e7ff',
     },
+];
+
+export const WORKSPACE_ICON_PRESETS = [
+    // '📁',
+    // '🚀',
+    '🎯',
+    '💡',
+    '🧩',
+    '🛠️',
+    // '📣',
+    '📊',
+    // '✨',
+    '🌱',
+    // '💼',
+    // '🎬',
 ];

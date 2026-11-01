@@ -1,5 +1,7 @@
 import { MoreHorizontalIcon, TextIcon, Clock, ListChecks, CircleCheckBig, Layers } from "lucide-react";
 import { Task } from "../types";
+import { parseTaskMetadata } from "../utils/metadata-helpers";
+import { CustomTaskField } from "@/app/workspaces/types/custom-status";
 import TaskActions from "./TaskActions";
 import { SQUAD_ICONS } from "./squads/CreateSquadFlow";
 import { Separator } from "@/components/ui/separator";
@@ -43,6 +45,8 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
     const dateFormat = config[WorkspaceConfigKey.DATE_FORMAT];
     const urgentVisualAlerts = config[WorkspaceConfigKey.URGENT_VISUAL_ALERTS] as boolean;
     const urgentWarning1Days = (config[WorkspaceConfigKey.URGENT_WARNING_1_DAYS] as number) ?? 1;
+    const customTaskFields = (config[WorkspaceConfigKey.CUSTOM_TASK_FIELDS] as CustomTaskField[] | undefined) ?? [];
+    const customTaskFieldValues = parseTaskMetadata(task.metadata).customTaskFieldValues ?? {};
     const urgentWarning2Days = (config[WorkspaceConfigKey.URGENT_WARNING_2_DAYS] as number) ?? 2;
     const priorityOption = TASK_PRIORITY_OPTIONS.find(p => p.value === (task.priority || 3))!
     const PriorityIcon = priorityOption.icon
@@ -235,6 +239,24 @@ const KanbanCard = ({ task, onOpenTask }: KanbanCardProps) => {
                                 >
                                     {IconComp && <IconComp className="size-3 shrink-0" />}
                                     {squad.name}
+                                </span>
+                            );
+                        })}
+                    </div>
+                )}
+                {customTaskFields.some(field => customTaskFieldValues[field.id] !== undefined && customTaskFieldValues[field.id] !== '') && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                        {customTaskFields.map(field => {
+                            const value = customTaskFieldValues[field.id];
+                            if (value === undefined || value === '') return null;
+                            return (
+                                <span
+                                    key={field.id}
+                                    className="inline-flex max-w-full items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
+                                    title={`${field.name}: ${value}`}
+                                >
+                                    <span className="shrink-0 font-medium">{field.name}:</span>
+                                    <span className="truncate">{value}</span>
                                 </span>
                             );
                         })}
