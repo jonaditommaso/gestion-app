@@ -138,6 +138,21 @@ html body[data-scroll-locked] {
   to { --glow-angle: 360deg; }
 }
 
+@keyframes feature-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.feature-progress {
+  animation: feature-progress 6s linear forwards;
+  transform-origin: left;
+}
+
+.feature-item:hover .feature-progress,
+.feature-showcase[data-progress-paused='true'] .feature-progress {
+  animation-play-state: paused;
+}
+
 .featured-glow {
   /* 7 colores + el primero repetido al final para que el giro no tenga corte */
   background: conic-gradient(
@@ -157,7 +172,8 @@ html body[data-scroll-locked] {
 
 @media (prefers-reduced-motion: reduce) {
   .featured-glow,
-  .featured-glow-gold { animation: none; }
+  .featured-glow-gold,
+  .feature-progress { animation: none; }
 }
 
 .btn-glow-ring,
