@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useRequestEnterprisePlan } from "../api/use-request-enterprise-plan";
+import { cn } from "@/lib/utils";
 
 interface SelectPricingButtonProps {
     textButton: string,
@@ -72,7 +73,23 @@ const SelectPricingButton = ({ textButton, type, billing }: SelectPricingButtonP
                     </div>
                 </form>
             </DialogContainer>
-            <Button variant='outline' className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" onClick={handleClick}>{textButton}</Button>
+            <div className="group/btn relative isolate w-full">
+                <div
+                    aria-hidden
+                    className={cn(
+                        'pointer-events-none absolute -inset-0.5 -z-10 rounded-lg opacity-0 transition-opacity duration-300',
+                        'group-hover/btn:opacity-100 group-focus-within/btn:opacity-100',
+                        type === 'enterprise' ? 'btn-glow-ring-gold' : 'btn-glow-ring'
+                    )}
+                />
+                <Button
+                    variant='outline'
+                    className="p-2 w-full bg-zinc-900 hover:bg-zinc-800 hover:text-white text-white font-semibold"
+                    onClick={handleClick}
+                >
+                    {textButton}
+                </Button>
+            </div>
         </>
     );
 }

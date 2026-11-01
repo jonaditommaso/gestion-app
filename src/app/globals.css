@@ -127,3 +127,71 @@ html body[data-scroll-locked] {
     @apply bg-background text-foreground;
   }
 }
+
+@property --glow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes glow-spin {
+  to { --glow-angle: 360deg; }
+}
+
+.featured-glow {
+  /* 7 colores + el primero repetido al final para que el giro no tenga corte */
+  background: conic-gradient(
+    from var(--glow-angle),
+    #ff5f6d, #ffc371, #facc15, #4ade80, #22d3ee, #3b82f6, #a855f7, #ff5f6d
+  );
+  animation: glow-spin 6s linear infinite;
+}
+
+.featured-glow-gold {
+  background: conic-gradient(
+    from var(--glow-angle),
+    #fff7d6, #fde68a, #f5b301, #d97706, #b45309, #d97706, #f5b301, #fde68a, #fff7d6
+  );
+  animation: glow-spin 8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-glow,
+  .featured-glow-gold { animation: none; }
+}
+
+.btn-glow-ring,
+.btn-glow-ring::after {
+  background: conic-gradient(
+    from var(--glow-angle),
+    #ff5f6d, #ffc371, #facc15, #4ade80, #22d3ee, #3b82f6, #a855f7, #ff5f6d
+  );
+  animation: glow-spin 3s linear infinite;
+}
+
+.btn-glow-ring-gold,
+.btn-glow-ring-gold::after {
+  background: conic-gradient(
+    from var(--glow-angle),
+    #fff7d6, #fde68a, #f5b301, #d97706, #b45309, #d97706, #f5b301, #fde68a, #fff7d6
+  );
+  animation: glow-spin 4s linear infinite;
+}
+
+/* resplandor suave detrás del anillo */
+.btn-glow-ring::after,
+.btn-glow-ring-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  filter: blur(10px);
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-glow-ring,
+  .btn-glow-ring::after,
+  .btn-glow-ring-gold,
+  .btn-glow-ring-gold::after { animation: none; }
+}
